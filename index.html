@@ -6,19 +6,27 @@
   <title>Thrift Scout AI</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; color: #fff; margin: 0; padding: 16px; padding-bottom: 50px; }
-    h1 { font-size: 1.4rem; text-align: center; margin-bottom: 16px; color: #4ade80; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; color: #fff; margin: 0; padding: 16px; padding-bottom: 60px; }
+    h1 { font-size: 1.4rem; text-align: center; margin-bottom: 12px; color: #4ade80; }
     .box { background: #1e1e1e; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
     label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 6px; }
     input[type="password"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: #fff; font-size: 0.9rem; }
+    
+    /* Mode Toggle */
+    .mode-container { display: flex; gap: 8px; margin-bottom: 14px; }
+    .mode-btn { flex: 1; padding: 10px; background: #2a2a2a; color: #aaa; border: 1px solid #444; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; text-align: center; }
+    .mode-btn.active { background: #10b981; color: #000; border-color: #10b981; }
+
     .btn { display: block; width: 100%; padding: 14px; background: #10b981; color: #000; font-weight: bold; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; text-align: center; }
     .btn-back { display: block; width: 100%; padding: 12px; background: #334155; color: #fff; font-weight: bold; border: none; border-radius: 8px; font-size: 0.95rem; cursor: pointer; text-align: center; margin-bottom: 16px; }
+    .btn-action { display: block; width: 100%; padding: 10px; background: #0284c7; color: #fff; font-weight: bold; border: none; border-radius: 8px; font-size: 0.9rem; cursor: pointer; text-align: center; margin-top: 10px; }
     .btn-retry { display: block; width: 100%; padding: 12px; background: #f59e0b; color: #000; font-weight: bold; border: none; border-radius: 8px; font-size: 0.95rem; cursor: pointer; text-align: center; margin-top: 10px; }
+    
     input[type="file"] { display: none; }
     #preview { width: 100%; max-height: 250px; object-fit: contain; background: #000; border-radius: 8px; margin-top: 12px; display: none; }
     .loading { text-align: center; color: #fbbf24; font-weight: bold; display: none; margin-top: 12px; }
     
-    /* Structured Analysis Card */
+    /* Analysis Cards */
     .analysis-card { background: #242424; border-radius: 8px; padding: 14px; margin-top: 8px; border-left: 4px solid #10b981; }
     .analysis-field { margin-bottom: 10px; }
     .analysis-field:last-child { margin-bottom: 0; }
@@ -28,7 +36,11 @@
     .field-val.val { font-weight: 700; color: #facc15; }
     .field-val.verdict { font-weight: 700; color: #4ade80; }
 
-    /* History Gallery */
+    /* Inventory Header & Banner */
+    .inventory-banner { background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .inv-total { font-size: 1.1rem; font-weight: bold; color: #38bdf8; }
+    
+    /* Lists & Gallery */
     .gallery-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .clear-btn { background: #ef4444; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
     .history-card { background: #252525; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; gap: 12px; cursor: pointer; border: 1px solid transparent; }
@@ -39,7 +51,6 @@
     .history-value { color: #facc15; font-size: 0.8rem; font-weight: bold; margin-top: 2px; }
     .history-date { font-size: 0.7rem; color: #888; margin-top: 2px; }
 
-    /* Detail / Expanded View */
     #detailView { display: none; }
     #mainView { display: block; }
     #detailImg { width: 100%; max-height: 350px; object-fit: contain; background: #000; border-radius: 8px; margin-bottom: 12px; }
@@ -49,15 +60,21 @@
 
   <!-- MAIN SCANNER VIEW -->
   <div id="mainView">
-    <h1>Thrift Scout AI</h1>
+    <h1>Thrift Scout & Inventory AI</h1>
 
     <div class="box">
       <label for="apiKey">Gemini API Key</label>
       <input type="password" id="apiKey" placeholder="Paste your API key here (auto-saved)">
     </div>
 
+    <!-- Mode Selector -->
+    <div class="mode-container">
+      <button class="mode-btn active" id="modeScout" onclick="setMode('scout')">Thrift Scout (Flip Mode)</button>
+      <button class="mode-btn" id="modeOwned" onclick="setMode('owned')">Inventory (Owned Value)</button>
+    </div>
+
     <div class="box">
-      <label class="btn" for="cameraInput">Take Photo or Upload</label>
+      <label class="btn" for="cameraInput" id="scanBtnLabel">Scan Item to Evaluate</label>
       <input type="file" id="cameraInput" accept="image/*" capture="environment">
       <img id="preview" alt="Current scan">
       <div id="loading" class="loading">Compressing & analyzing comps...</div>
@@ -66,28 +83,52 @@
     <div id="resultsBox" class="box" style="display:none;">
       <label style="font-size:0.95rem; color:#fff; font-weight:bold;">Current Scan Analysis</label>
       <div id="resultsCard" class="analysis-card"></div>
+      <button id="addOwnedBtn" class="btn-action" style="display:none;">+ Save to Owned Inventory</button>
       <button id="retryBtn" class="btn-retry" style="display:none;">Retry Scan Analysis</button>
     </div>
 
+    <!-- Inventory Valuation Section -->
+    <div class="box">
+      <div class="inventory-banner">
+        <div>
+          <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase;">Owned Portfolio Total</div>
+          <div class="inv-total" id="portfolioTotal">$0.00</div>
+        </div>
+        <div style="font-size:0.8rem; color:#aaa;" id="invCount">0 Items</div>
+      </div>
+      <div class="gallery-header">
+        <label style="margin:0; font-size:1rem; color:#fff;">My Owned Inventory</label>
+        <button class="clear-btn" onclick="clearOwned()">Clear Inventory</button>
+      </div>
+      <div id="ownedList"></div>
+    </div>
+
+    <!-- Scan History Section -->
     <div class="box">
       <div class="gallery-header">
         <label style="margin:0; font-size:1rem; color:#fff;">Previously Scanned Items</label>
-        <button class="clear-btn" id="clearBtn">Clear All</button>
+        <button class="clear-btn" id="clearBtn">Clear Scans</button>
       </div>
       <div id="historyList"></div>
     </div>
   </div>
 
-  <!-- DETAIL / EXPANDED HISTORY VIEW -->
+  <!-- DETAIL / EXPANDED VIEW -->
   <div id="detailView">
     <button class="btn-back" id="backBtn">&larr; Back to Scanner</button>
     <div class="box">
       <img id="detailImg" alt="Detail preview">
       <div id="detailCard" class="analysis-card"></div>
+      <button id="detailAddOwnedBtn" class="btn-action" style="margin-top:12px;">+ Add to Owned Inventory</button>
     </div>
   </div>
 
   <script>
+    let currentMode = 'scout'; // 'scout' or 'owned'
+    let lastScanData = null;
+    let currentParsedResult = null;
+    let currentThumbnail = null;
+
     const apiKeyInput = document.getElementById('apiKey');
     const cameraInput = document.getElementById('cameraInput');
     const preview = document.getElementById('preview');
@@ -95,16 +136,19 @@
     const resultsCard = document.getElementById('resultsCard');
     const loadingDiv = document.getElementById('loading');
     const historyList = document.getElementById('historyList');
+    const ownedList = document.getElementById('ownedList');
     const clearBtn = document.getElementById('clearBtn');
     const retryBtn = document.getElementById('retryBtn');
+    const addOwnedBtn = document.getElementById('addOwnedBtn');
+    const portfolioTotal = document.getElementById('portfolioTotal');
+    const invCount = document.getElementById('invCount');
 
     const mainView = document.getElementById('mainView');
     const detailView = document.getElementById('detailView');
     const backBtn = document.getElementById('backBtn');
     const detailImg = document.getElementById('detailImg');
     const detailCard = document.getElementById('detailCard');
-
-    let lastScanData = null;
+    const detailAddOwnedBtn = document.getElementById('detailAddOwnedBtn');
 
     apiKeyInput.value = localStorage.getItem('thrift_gemini_key') || '';
     apiKeyInput.addEventListener('input', () => {
@@ -112,6 +156,14 @@
     });
 
     renderHistory();
+    renderOwned();
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('modeScout').classList.toggle('active', mode === 'scout');
+      document.getElementById('modeOwned').classList.toggle('active', mode === 'owned');
+      document.getElementById('scanBtnLabel').textContent = mode === 'scout' ? 'Scan Item to Evaluate (Flip)' : 'Scan Item for Owned Inventory';
+    }
 
     backBtn.addEventListener('click', () => {
       detailView.style.display = 'none';
@@ -123,6 +175,20 @@
       if (confirm('Clear scan history?')) {
         localStorage.removeItem('thrift_scout_history');
         renderHistory();
+      }
+    });
+
+    function clearOwned() {
+      if (confirm('Clear all items from Owned Inventory?')) {
+        localStorage.removeItem('thrift_owned_inventory');
+        renderOwned();
+      }
+    }
+
+    addOwnedBtn.addEventListener('click', () => {
+      if (currentParsedResult && currentThumbnail) {
+        saveToOwned(currentThumbnail, currentParsedResult);
+        addOwnedBtn.textContent = '✓ Added to Inventory';
       }
     });
 
@@ -147,6 +213,7 @@
       loadingDiv.style.display = 'block';
       resultsBox.style.display = 'none';
       retryBtn.style.display = 'none';
+      addOwnedBtn.style.display = 'none';
 
       const compressedDataUrl = await resizeImage(file, 1000);
       preview.src = compressedDataUrl;
@@ -191,14 +258,16 @@
     }
 
     async function executeApiCall(key, base64Data, mimeType) {
-      const prompt = `You are a professional secondary market appraisal assistant.
-Identify the item, manufacturer tag, or physical markings. Strictly state "UNKNOWN" if details are illegible.
+      const prompt = `You are a real-world product appraiser and inventory valuation specialist.
+Carefully examine the photo (read labels, brand badges, capacities, model names, and visible text). 
 
-Format your output strictly using these 4 lines:
-TITLE: [Brand, Model/Era, Primary Material]
-VALUATION: [Realistic Sold Comp Range: e.g. $15 - $25 Avg]
-INTEL: [Key identifier tags, stitch style, hallmarks, collector interest, or reasons to avoid]
-VERDICT: [BUY TO FLIP / PASS / PERSONAL KEEP] - [1-sentence reason]`;
+Mode selected: ${currentMode === 'scout' ? 'THRIFT SCOUT RESALE FLIP' : 'OWNED ASSET / INVENTORY VALUATION'}
+
+Provide your response in strictly these 4 labeled lines:
+TITLE: [Brand, Model Name, Specific Storage/Size/Era if visible on item]
+VALUATION: [Estimated secondary market fair value, e.g. $45 - $60 Avg]
+INTEL: [Key technical specs, condition indicators, interface ports, or collector desirability]
+VERDICT: [${currentMode === 'scout' ? 'BUY TO FLIP / PASS / PERSONAL KEEP' : 'CURRENT ASSET VALUE'}] - [1-sentence appraisal reason]`;
 
       return fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`, {
         method: 'POST',
@@ -211,7 +280,7 @@ VERDICT: [BUY TO FLIP / PASS / PERSONAL KEEP] - [1-sentence reason]`;
             ]
           }],
           generationConfig: {
-            maxOutputTokens: 350,
+            maxOutputTokens: 400,
             temperature: 0.2
           }
         })
@@ -222,10 +291,9 @@ VERDICT: [BUY TO FLIP / PASS / PERSONAL KEEP] - [1-sentence reason]`;
       try {
         let response = await executeApiCall(key, base64Data, mimeType);
 
-        // Auto-retry once after 1.5 seconds if server returns a 503 capacity limit
         if (response.status === 503) {
           loadingDiv.textContent = 'Server busy. Auto-retrying comp analysis...';
-          await new Promise(r => setTimeout(r, 1500));
+          await new Promise(r => setTimeout(r, 2000));
           response = await executeApiCall(key, base64Data, mimeType);
         }
 
@@ -236,11 +304,20 @@ VERDICT: [BUY TO FLIP / PASS / PERSONAL KEEP] - [1-sentence reason]`;
         if (data.candidates && data.candidates[0].content.parts[0].text) {
           const rawText = data.candidates[0].content.parts[0].text;
           const parsed = parseFields(rawText);
+          currentParsedResult = parsed;
+          currentThumbnail = thumbnailSrc;
+
           resultsCard.innerHTML = renderCardHTML(parsed);
           resultsBox.style.display = 'block';
           retryBtn.style.display = 'none';
+          
+          addOwnedBtn.style.display = 'block';
+          addOwnedBtn.textContent = '+ Save to Owned Inventory';
 
           saveToHistory(thumbnailSrc, parsed);
+          if (currentMode === 'owned') {
+            saveToOwned(thumbnailSrc, parsed);
+          }
         } else {
           const errorMsg = data.error ? data.error.message : 'Unknown response from server.';
           resultsCard.innerHTML = `<div style="color:#ef4444; font-weight:bold;">Analysis paused: ${errorMsg}</div>`;
@@ -250,24 +327,26 @@ VERDICT: [BUY TO FLIP / PASS / PERSONAL KEEP] - [1-sentence reason]`;
       } catch (err) {
         loadingDiv.textContent = 'Compressing & analyzing comps...';
         loadingDiv.style.display = 'none';
-        resultsCard.innerHTML = `<div style="color:#ef4444; font-weight:bold;">Connection interrupted: ${err.message}</div>`;
+        resultsCard.innerHTML = `<div style="color:#ef4444; font-weight:bold;">Connection error: ${err.message}</div>`;
         resultsBox.style.display = 'block';
         retryBtn.style.display = 'block';
       }
     }
 
+    // ROBUST PARSER - Strips markdown bolding and catches variations
     function parseFields(text) {
-      const getLine = (tag) => {
-        const match = text.match(new RegExp(`${tag}:?\\s*(.*)`, 'i'));
-        return match ? match[1].trim() : 'N/A';
+      const extract = (pattern) => {
+        const regex = new RegExp(`(?:\\*\\*|\\*|-|#)*\\s*${pattern}\\s*(?:\\*\\*|\\*|:|-)*\\s*(.*)`, 'i');
+        const match = text.match(regex);
+        return match && match[1] ? match[1].replace(/[\*\#]/g, '').trim() : null;
       };
-      return {
-        title: getLine('TITLE'),
-        valuation: getLine('VALUATION'),
-        intel: getLine('INTEL'),
-        verdict: getLine('VERDICT'),
-        raw: text
-      };
+
+      const title = extract('TITLE') || extract('ITEM') || extract('IDENTIFICATION') || 'Identified Item';
+      const valuation = extract('VALUATION') || extract('PRICE') || extract('VALUE') || extract('COMPS') || 'Comps Pending';
+      const intel = extract('INTEL') || extract('DETAILS') || extract('NOTES') || text;
+      const verdict = extract('VERDICT') || extract('RECOMMENDATION') || 'Appraised';
+
+      return { title, valuation, intel, verdict, raw: text };
     }
 
     function renderCardHTML(p) {
@@ -277,18 +356,67 @@ VERDICT: [BUY TO FLIP / PASS / PERSONAL KEEP] - [1-sentence reason]`;
           <div class="field-val title">${p.title}</div>
         </div>
         <div class="analysis-field">
-          <div class="field-tag">Realistic Sold Comps</div>
+          <div class="field-tag">Estimated Comp Value</div>
           <div class="field-val val">${p.valuation}</div>
         </div>
         <div class="analysis-field">
-          <div class="field-tag">Identifier & Intel</div>
+          <div class="field-tag">Technical Intel / Specs</div>
           <div class="field-val">${p.intel}</div>
         </div>
         <div class="analysis-field">
-          <div class="field-tag">Action Verdict</div>
+          <div class="field-tag">Appraisal Verdict</div>
           <div class="field-val verdict">${p.verdict}</div>
         </div>
       `;
+    }
+
+    // Numeric dollar extractor for running total calculation
+    function parseDollarAmount(valString) {
+      if (!valString) return 0;
+      const matches = valString.match(/\$\s*(\d+(?:\.\d+)?)/g);
+      if (!matches) return 0;
+      const nums = matches.map(m => parseFloat(m.replace(/[^0-9.]/g, '')));
+      // Take average if range, else single number
+      const sum = nums.reduce((a, b) => a + b, 0);
+      return sum / nums.length;
+    }
+
+    function saveToOwned(imageSrc, parsed) {
+      const owned = JSON.parse(localStorage.getItem('thrift_owned_inventory') || '[]');
+      const numericVal = parseDollarAmount(parsed.valuation);
+      owned.unshift({
+        id: Date.now(),
+        date: new Date().toLocaleDateString([], { month: 'short', day: 'numeric' }),
+        image: imageSrc,
+        parsed: parsed,
+        numVal: numericVal
+      });
+      localStorage.setItem('thrift_owned_inventory', JSON.stringify(owned));
+      renderOwned();
+    }
+
+    function renderOwned() {
+      const owned = JSON.parse(localStorage.getItem('thrift_owned_inventory') || '[]');
+      invCount.textContent = `${owned.length} Items`;
+      
+      const total = owned.reduce((acc, cur) => acc + (cur.numVal || 0), 0);
+      portfolioTotal.textContent = '$' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      if (owned.length === 0) {
+        ownedList.innerHTML = '<div style="color:#666; font-size:0.85rem;">No inventory added yet.</div>';
+        return;
+      }
+
+      ownedList.innerHTML = owned.map((item, index) => `
+        <div class="history-card" onclick="openOwnedDetail(${index})">
+          <img src="${item.image}" alt="Inventory">
+          <div class="history-info">
+            <div class="history-title">${item.parsed.title}</div>
+            <div class="history-value">${item.parsed.valuation}</div>
+            <div class="history-date">Owned &bull; Saved ${item.date}</div>
+          </div>
+        </div>
+      `).join('');
     }
 
     function saveToHistory(imageSrc, parsed) {
@@ -299,7 +427,7 @@ VERDICT: [BUY TO FLIP / PASS / PERSONAL KEEP] - [1-sentence reason]`;
         image: imageSrc,
         parsed: parsed
       });
-      if (history.length > 25) history.pop();
+      if (history.length > 30) history.pop();
       localStorage.setItem('thrift_scout_history', JSON.stringify(history));
       renderHistory();
     }
@@ -312,24 +440,42 @@ VERDICT: [BUY TO FLIP / PASS / PERSONAL KEEP] - [1-sentence reason]`;
       }
 
       historyList.innerHTML = history.map((item, index) => `
-        <div class="history-card" onclick="openDetail(${index})">
+        <div class="history-card" onclick="openScanDetail(${index})">
           <img src="${item.image}" alt="Scan">
           <div class="history-info">
-            <div class="history-title">${item.parsed.title || 'Scanned Item'}</div>
-            <div class="history-value">${item.parsed.valuation || ''}</div>
-            <div class="history-date">${item.date} &bull; Tap to view details</div>
+            <div class="history-title">${item.parsed.title}</div>
+            <div class="history-value">${item.parsed.valuation}</div>
+            <div class="history-date">${item.date} &bull; Tap to review</div>
           </div>
         </div>
       `).join('');
     }
 
-    window.openDetail = function(index) {
+    window.openScanDetail = function(index) {
       const history = JSON.parse(localStorage.getItem('thrift_scout_history') || '[]');
       const item = history[index];
       if (!item) return;
 
       detailImg.src = item.image;
       detailCard.innerHTML = renderCardHTML(item.parsed);
+      detailAddOwnedBtn.style.display = 'block';
+      detailAddOwnedBtn.onclick = () => {
+        saveToOwned(item.image, item.parsed);
+        detailAddOwnedBtn.textContent = '✓ Saved to Inventory';
+      };
+      mainView.style.display = 'none';
+      detailView.style.display = 'block';
+      window.scrollTo(0, 0);
+    };
+
+    window.openOwnedDetail = function(index) {
+      const owned = JSON.parse(localStorage.getItem('thrift_owned_inventory') || '[]');
+      const item = owned[index];
+      if (!item) return;
+
+      detailImg.src = item.image;
+      detailCard.innerHTML = renderCardHTML(item.parsed);
+      detailAddOwnedBtn.style.display = 'none';
       mainView.style.display = 'none';
       detailView.style.display = 'block';
       window.scrollTo(0, 0);
