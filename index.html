@@ -16,7 +16,7 @@
     #results { display: none; line-height: 1.5; font-size: 0.95rem; white-space: pre-wrap; }
     .loading { text-align: center; color: #fbbf24; font-weight: bold; display: none; }
     
-    /* Gallery */
+    /* History Gallery */
     .gallery-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .clear-btn { background: #ef4444; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
     .history-card { background: #252525; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; gap: 12px; }
@@ -63,10 +63,10 @@
     const historyList = document.getElementById('historyList');
     const clearBtn = document.getElementById('clearBtn');
 
-    // Automatically load key from browser memory
+    // Auto-load saved key from browser storage
     apiKeyInput.value = localStorage.getItem('thrift_gemini_key') || '';
 
-    // Save key immediately as you type or paste
+    // Immediately save key on input or paste
     apiKeyInput.addEventListener('input', () => {
       localStorage.setItem('thrift_gemini_key', apiKeyInput.value.trim());
     });
@@ -93,7 +93,7 @@
       loadingDiv.style.display = 'block';
       resultsBox.style.display = 'none';
 
-      // Fast in-browser compression to under 1000px
+      // Downscale photo client-side to max 1000px for instant upload speed
       const compressedDataUrl = await resizeImage(file, 1000);
       preview.src = compressedDataUrl;
       preview.style.display = 'block';
@@ -147,7 +147,7 @@ INTEL: [Single stitch, RN number, tag indicators, or why this item is desirable/
 VERDICT: [BUY TO FLIP / PASS / PERSONAL KEEP] - [1-sentence reason]`;
 
       try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
