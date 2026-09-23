@@ -346,7 +346,7 @@
 
     const SYSTEM_PROMPT = `
 You are Thrift-Vault AI, an expert secondary-market appraiser.
-Analyze the provided image(s) and output strictly in the following 8-section labeled format. Do not use markdown tables or unstructured bullet points outside these labels.
+Analyze the provided image and output strictly in the following 8-section labeled format. Keep descriptions concise.
 
 [ITEM_IDENTIFICATION]
 Brand: <Brand>
@@ -423,10 +423,10 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         return;
       }
 
-      triggerAlert('Compressing image to 1000px...');
-      const base64Data = await resizeCanvas(file, 1000, 1000);
+      triggerAlert('Optimizing image for fast upload...');
+      const base64Data = await resizeCanvas(file, 720, 720);
 
-      triggerAlert('Consulting Gemini 3.6-flash valuation engine...');
+      triggerAlert('Analyzing item...');
       runAppraisal(base64Data, key);
       input.value = '';
     };
@@ -454,7 +454,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
             canvas.width = w;
             canvas.height = h;
             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', 0.70));
+            resolve(canvas.toDataURL('image/jpeg', 0.65));
           };
           img.src = e.target.result;
         };
@@ -462,10 +462,10 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       });
     }
 
-    async function runAppraisal(fullBase64, key, retries = 3, waitSeconds = 12) {
+    async function runAppraisal(fullBase64, key, retries = 2) {
       const rawPayload = fullBase64.split(',')[1];
       const cleanKey = key.trim();
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${encodeURIComponent(cleanKey)}`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${encodeURIComponent(cleanKey)}`;
 
       const body = {
         contents: [{
@@ -473,31 +473,28 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
             { text: SYSTEM_PROMPT },
             { inline_data: { mime_type: 'image/jpeg', data: rawPayload } }
           ]
-        }]
+        }],
+        generationConfig: {
+          thinkingConfig: { thinkingBudget: 0 }
+        }
       };
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
 
       try {
         const response = await fetch(endpoint, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(body)
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: controller.signal
         });
-
-        if (response.status === 503 && retries > 0) {
-          triggerAlert('Capacity limit (503). Retrying in 2 seconds...');
-          await new Promise(r => setTimeout(r, 2000));
-          return runAppraisal(fullBase64, cleanKey, retries - 1, waitSeconds);
-        }
+        clearTimeout(timeoutId);
 
         if (response.status === 429 && retries > 0) {
-          for (let c = waitSeconds; c > 0; c--) {
-            triggerAlert(`Rate limit active (429). Auto-resuming scan in ${c}s...`);
-            await new Promise(r => setTimeout(r, 1000));
-          }
-          triggerAlert('Retrying appraisal now...');
-          return runAppraisal(fullBase64, cleanKey, retries - 1, Math.round(waitSeconds * 1.5));
+          triggerAlert('Rate limit hit. Retrying in 4 seconds...');
+          await new Promise(r => setTimeout(r, 4000));
+          return runAppraisal(fullBase64, cleanKey, retries - 1);
         }
 
         if (!response.ok) {
@@ -508,14 +505,20 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 
         const resData = await response.json();
         const text = resData.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) throw new Error('Model produced no response.');
+        if (!text) throw new Error('Model produced an empty response.');
 
         dismissAlert();
         const appraisal = parseResponseData(text, fullBase64);
         await saveToCloud(appraisal);
 
       } catch (err) {
-        triggerAlert(err.message, true);
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+          triggerAlert('Request timed out on slow connection. Retrying...', true);
+          if (retries > 0) return runAppraisal(fullBase64, cleanKey, retries - 1);
+        } else {
+          triggerAlert(err.message, true);
+        }
       }
     }
 
