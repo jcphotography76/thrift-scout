@@ -423,10 +423,10 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         return;
       }
 
-      triggerAlert('Optimizing image for fast upload...');
-      const base64Data = await resizeCanvas(file, 720, 720);
+      triggerAlert('Compressing image for fast cellular transfer...');
+      const base64Data = await resizeCanvas(file, 700, 700);
 
-      triggerAlert('Analyzing item...');
+      triggerAlert('Consulting Gemini 3.6-flash valuation engine...');
       runAppraisal(base64Data, key);
       input.value = '';
     };
@@ -465,7 +465,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
     async function runAppraisal(fullBase64, key, retries = 2) {
       const rawPayload = fullBase64.split(',')[1];
       const cleanKey = key.trim();
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${encodeURIComponent(cleanKey)}`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${encodeURIComponent(cleanKey)}`;
 
       const body = {
         contents: [{
@@ -475,12 +475,12 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
           ]
         }],
         generationConfig: {
-          thinkingConfig: { thinkingBudget: 0 }
+          thinkingConfig: { thinkingLevel: "LOW" }
         }
       };
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      const timeoutId = setTimeout(() => controller.abort(), 18000);
 
       try {
         const response = await fetch(endpoint, {
@@ -514,7 +514,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       } catch (err) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
-          triggerAlert('Request timed out on slow connection. Retrying...', true);
+          triggerAlert('Network timed out on slow mobile connection. Retrying...', true);
           if (retries > 0) return runAppraisal(fullBase64, cleanKey, retries - 1);
         } else {
           triggerAlert(err.message, true);
