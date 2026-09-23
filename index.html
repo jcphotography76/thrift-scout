@@ -131,9 +131,13 @@
       align-items: center;
       gap: 8px;
       width: 100%;
+      user-select: none;
     }
-    .btn-action:active {
-      background: var(--accent-hover);
+    .btn-action.disabled {
+      background: var(--surface);
+      color: var(--text-muted);
+      pointer-events: none;
+      cursor: not-allowed;
     }
     input[type="file"] {
       display: none;
@@ -309,7 +313,7 @@
   </div>
 
   <div class="action-panel">
-    <label class="btn-action" for="cameraInput">
+    <label class="btn-action" id="scanBtnLabel" for="cameraInput">
       📷 Scan Item Appraisal
     </label>
     <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="processCapture(this)">
@@ -383,6 +387,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 
     let currentAppMode = 'scout';
     let currentItems = [];
+    let isProcessing = false;
 
     window.promptApiKey = function() {
       const stored = localStorage.getItem('thrift_gemini_key') || '';
@@ -412,7 +417,38 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       document.getElementById('statusAlert').style.display = 'none';
     }
 
+    function setScanButtonState(enabled, text = '📷 Scan Item Appraisal') {
+      const label = document.getElementById('scanBtnLabel');
+      const input = document.getElementById('cameraInput');
+      if (enabled) {
+        label.classList.remove('disabled');
+        label.textContent = text;
+        input.disabled = false;
+        isProcessing = false;
+      } else {
+        label.classList.add('disabled');
+        label.textContent = text;
+        input.disabled = true;
+        isProcessing = true;
+      }
+    }
+
+    function startCooldown(seconds) {
+      let count = seconds;
+      setScanButtonState(false, `⏳ Wait ${count}s...`);
+      const timer = setInterval(() => {
+        count--;
+        if (count <= 0) {
+          clearInterval(timer);
+          setScanButtonState(true);
+        } else {
+          document.getElementById('scanBtnLabel').textContent = `⏳ Wait ${count}s...`;
+        }
+      }, 1000);
+    }
+
     window.processCapture = async function(input) {
+      if (isProcessing) return;
       const file = input.files[0];
       if (!file) return;
 
@@ -420,14 +456,16 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       if (!key) {
         alert('API Key missing. Please provide your Google AI Studio key.');
         window.promptApiKey();
+        input.value = '';
         return;
       }
 
-      triggerAlert('Compressing image for fast cellular transfer...');
+      setScanButtonState(false, '⚙️ Processing...');
+      triggerAlert('Optimizing image for fast transmission...');
       const base64Data = await resizeCanvas(file, 700, 700);
 
-      triggerAlert('Consulting Gemini 3.6-flash valuation engine...');
-      runAppraisal(base64Data, key);
+      triggerAlert('Consulting valuation engine (Lite)...');
+      await runAppraisal(base64Data, key);
       input.value = '';
     };
 
@@ -462,10 +500,10 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       });
     }
 
-    async function runAppraisal(fullBase64, key, retries = 2) {
+    async function runAppraisal(fullBase64, key) {
       const rawPayload = fullBase64.split(',')[1];
       const cleanKey = key.trim();
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${encodeURIComponent(cleanKey)}`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${encodeURIComponent(cleanKey)}`;
 
       const body = {
         contents: [{
@@ -473,14 +511,11 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
             { text: SYSTEM_PROMPT },
             { inline_data: { mime_type: 'image/jpeg', data: rawPayload } }
           ]
-        }],
-        generationConfig: {
-          thinkingConfig: { thinkingLevel: "LOW" }
-        }
+        }]
       };
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 18000);
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
 
       try {
         const response = await fetch(endpoint, {
@@ -491,10 +526,8 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         });
         clearTimeout(timeoutId);
 
-        if (response.status === 429 && retries > 0) {
-          triggerAlert('Rate limit hit. Retrying in 4 seconds...');
-          await new Promise(r => setTimeout(r, 4000));
-          return runAppraisal(fullBase64, cleanKey, retries - 1);
+        if (response.status === 429) {
+          throw new Error('Rate limit reached (429). Please wait 15 seconds before scanning again.');
         }
 
         if (!response.ok) {
@@ -505,20 +538,21 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 
         const resData = await response.json();
         const text = resData.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) throw new Error('Model produced an empty response.');
+        if (!text) throw new Error('Valuation engine returned an empty response.');
 
         dismissAlert();
         const appraisal = parseResponseData(text, fullBase64);
         await saveToCloud(appraisal);
+        startCooldown(5);
 
       } catch (err) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
-          triggerAlert('Network timed out on slow mobile connection. Retrying...', true);
-          if (retries > 0) return runAppraisal(fullBase64, cleanKey, retries - 1);
+          triggerAlert('Request timed out on cellular data. Try moving to better reception.', true);
         } else {
           triggerAlert(err.message, true);
         }
+        startCooldown(5);
       }
     }
 
