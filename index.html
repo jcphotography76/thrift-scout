@@ -464,7 +464,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 
     async function runAppraisal(fullBase64, key, retries = 3, waitSeconds = 12) {
       const rawPayload = fullBase64.split(',')[1];
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
 
       const body = {
         contents: [{
@@ -478,7 +478,10 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       try {
         const response = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': key.trim()
+          },
           body: JSON.stringify(body)
         });
 
@@ -498,7 +501,9 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         }
 
         if (!response.ok) {
-          throw new Error(`API error: ${response.status} ${response.statusText}`);
+          const errData = await response.json().catch(() => ({}));
+          const errMsg = errData.error?.message || response.statusText;
+          throw new Error(`API error ${response.status}: ${errMsg}`);
         }
 
         const resData = await response.json();
