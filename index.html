@@ -2,484 +2,633 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thrift Scout AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Thrift Scout / Thrift-Vault</title>
   <style>
-    * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; color: #fff; margin: 0; padding: 16px; padding-bottom: 60px; }
-    h1 { font-size: 1.4rem; text-align: center; margin-bottom: 12px; color: #4ade80; }
-    .box { background: #1e1e1e; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
-    label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 6px; }
-    input[type="password"] { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: #fff; font-size: 0.9rem; }
-    
-    /* Mode Toggle */
-    .mode-container { display: flex; gap: 8px; margin-bottom: 14px; }
-    .mode-btn { flex: 1; padding: 10px; background: #2a2a2a; color: #aaa; border: 1px solid #444; border-radius: 8px; font-weight: bold; font-size: 0.85rem; cursor: pointer; text-align: center; }
-    .mode-btn.active { background: #10b981; color: #000; border-color: #10b981; }
-
-    .btn { display: block; width: 100%; padding: 14px; background: #10b981; color: #000; font-weight: bold; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; text-align: center; }
-    .btn-back { display: block; width: 100%; padding: 12px; background: #334155; color: #fff; font-weight: bold; border: none; border-radius: 8px; font-size: 0.95rem; cursor: pointer; text-align: center; margin-bottom: 16px; }
-    .btn-action { display: block; width: 100%; padding: 10px; background: #0284c7; color: #fff; font-weight: bold; border: none; border-radius: 8px; font-size: 0.9rem; cursor: pointer; text-align: center; margin-top: 10px; }
-    .btn-retry { display: block; width: 100%; padding: 12px; background: #f59e0b; color: #000; font-weight: bold; border: none; border-radius: 8px; font-size: 0.95rem; cursor: pointer; text-align: center; margin-top: 10px; }
-    
-    input[type="file"] { display: none; }
-    #preview { width: 100%; max-height: 250px; object-fit: contain; background: #000; border-radius: 8px; margin-top: 12px; display: none; }
-    .loading { text-align: center; color: #fbbf24; font-weight: bold; display: none; margin-top: 12px; }
-    
-    /* Analysis Cards */
-    .analysis-card { background: #242424; border-radius: 8px; padding: 14px; margin-top: 8px; border-left: 4px solid #10b981; }
-    .analysis-field { margin-bottom: 10px; }
-    .analysis-field:last-child { margin-bottom: 0; }
-    .field-tag { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 2px; }
-    .field-val { font-size: 0.95rem; line-height: 1.4; color: #f1f5f9; }
-    .field-val.title { font-weight: 700; color: #38bdf8; }
-    .field-val.val { font-weight: 700; color: #facc15; }
-    .field-val.verdict { font-weight: 700; color: #4ade80; }
-
-    /* Inventory Header & Banner */
-    .inventory-banner { background: #1e293b; border: 1px solid #38bdf8; border-radius: 8px; padding: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-    .inv-total { font-size: 1.1rem; font-weight: bold; color: #38bdf8; }
-    
-    /* Lists & Gallery */
-    .gallery-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .clear-btn { background: #ef4444; color: #fff; border: none; padding: 6px 10px; border-radius: 4px; font-size: 0.75rem; cursor: pointer; }
-    .history-card { background: #252525; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; gap: 12px; cursor: pointer; border: 1px solid transparent; }
-    .history-card:active { border-color: #10b981; background: #2d2d2d; }
-    .history-card img { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; flex-shrink: 0; background: #000; }
-    .history-info { overflow: hidden; flex-grow: 1; }
-    .history-title { font-weight: bold; color: #38bdf8; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .history-value { color: #facc15; font-size: 0.8rem; font-weight: bold; margin-top: 2px; }
-    .history-date { font-size: 0.7rem; color: #888; margin-top: 2px; }
-
-    #detailView { display: none; }
-    #mainView { display: block; }
-    #detailImg { width: 100%; max-height: 350px; object-fit: contain; background: #000; border-radius: 8px; margin-bottom: 12px; }
+    :root {
+      --bg: #0f1115;
+      --panel: #181b21;
+      --surface: #222630;
+      --border: #2d3340;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --green: #10b981;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --ebay: #0064d2;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 16px;
+      padding-bottom: 60px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .brand-title span {
+      color: var(--green);
+    }
+    .btn-key {
+      background: var(--surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .mode-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: var(--panel);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .mode-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      padding: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+    }
+    .mode-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .portfolio-banner {
+      background: linear-gradient(135deg, #181b21 0%, #1f242d 100%);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .portfolio-metric {
+      display: flex;
+      flex-direction: column;
+    }
+    .portfolio-metric .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .portfolio-metric .val {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--green);
+    }
+    .action-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .btn-action {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+    .btn-action:active {
+      background: var(--accent-hover);
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .status-alert {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      border-left: 4px solid var(--accent);
+      background: var(--panel);
+    }
+    .feed-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .vault-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      position: relative;
+    }
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+    }
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .card-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .badge-signal {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 6px;
+      border-radius: 4px;
+      color: #000;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .card-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--green);
+      margin: 8px 0;
+    }
+    .card-val span {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+    .card-summary {
+      font-size: 0.8rem;
+      color: #d1d5db;
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+    .btn-comp {
+      display: inline-block;
+      background: var(--ebay);
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      width: fit-content;
+    }
+    #detailModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg);
+      z-index: 100;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    .modal-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .btn-back {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .modal-img {
+      width: 100%;
+      max-height: 340px;
+      object-fit: contain;
+      background: #000;
+      border-radius: 8px;
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+    }
+    .modal-section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+    .modal-section strong {
+      display: block;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
   </style>
 </head>
 <body>
 
-  <!-- MAIN SCANNER VIEW -->
-  <div id="mainView">
-    <h1>Thrift Scout & Inventory AI</h1>
+  <header>
+    <div class="brand-title">THRIFT-VAULT <span>• AI</span></div>
+    <button class="btn-key" onclick="promptApiKey()">API Key</button>
+  </header>
 
-    <div class="box">
-      <label for="apiKey">Gemini API Key</label>
-      <input type="password" id="apiKey" placeholder="Paste your API key here (auto-saved)">
+  <div class="mode-toggle">
+    <button id="modeScout" class="mode-btn active" onclick="switchMode('scout')">Thrift Scout Mode</button>
+    <button id="modeOwned" class="mode-btn" onclick="switchMode('owned')">Owned Inventory</button>
+  </div>
+
+  <div class="portfolio-banner">
+    <div class="portfolio-metric">
+      <span class="label">Owned Valuation</span>
+      <span class="val" id="portfolioTotal">$0.00</span>
     </div>
-
-    <!-- Mode Selector -->
-    <div class="mode-container">
-      <button class="mode-btn active" id="modeScout" onclick="setMode('scout')">Thrift Scout (Flip Mode)</button>
-      <button class="mode-btn" id="modeOwned" onclick="setMode('owned')">Inventory (Owned Value)</button>
-    </div>
-
-    <div class="box">
-      <label class="btn" for="cameraInput" id="scanBtnLabel">Scan Item to Evaluate</label>
-      <input type="file" id="cameraInput" accept="image/*" capture="environment">
-      <img id="preview" alt="Current scan">
-      <div id="loading" class="loading">Compressing & analyzing comps...</div>
-    </div>
-
-    <div id="resultsBox" class="box" style="display:none;">
-      <label style="font-size:0.95rem; color:#fff; font-weight:bold;">Current Scan Analysis</label>
-      <div id="resultsCard" class="analysis-card"></div>
-      <button id="addOwnedBtn" class="btn-action" style="display:none;">+ Save to Owned Inventory</button>
-      <button id="retryBtn" class="btn-retry" style="display:none;">Retry Scan Analysis</button>
-    </div>
-
-    <!-- Inventory Valuation Section -->
-    <div class="box">
-      <div class="inventory-banner">
-        <div>
-          <div style="font-size:0.75rem; color:#94a3b8; text-transform:uppercase;">Owned Portfolio Total</div>
-          <div class="inv-total" id="portfolioTotal">$0.00</div>
-        </div>
-        <div style="font-size:0.8rem; color:#aaa;" id="invCount">0 Items</div>
-      </div>
-      <div class="gallery-header">
-        <label style="margin:0; font-size:1rem; color:#fff;">My Owned Inventory</label>
-        <button class="clear-btn" onclick="clearOwned()">Clear Inventory</button>
-      </div>
-      <div id="ownedList"></div>
-    </div>
-
-    <!-- Scan History Section -->
-    <div class="box">
-      <div class="gallery-header">
-        <label style="margin:0; font-size:1rem; color:#fff;">Previously Scanned Items</label>
-        <button class="clear-btn" id="clearBtn">Clear Scans</button>
-      </div>
-      <div id="historyList"></div>
+    <div class="portfolio-metric" style="align-items: flex-end;">
+      <span class="label">Total Items</span>
+      <span class="val" id="portfolioCount" style="color: #fff;">0</span>
     </div>
   </div>
 
-  <!-- DETAIL / EXPANDED VIEW -->
-  <div id="detailView">
-    <button class="btn-back" id="backBtn">&larr; Back to Scanner</button>
-    <div class="box">
-      <img id="detailImg" alt="Detail preview">
-      <div id="detailCard" class="analysis-card"></div>
-      <button id="detailAddOwnedBtn" class="btn-action" style="margin-top:12px;">+ Add to Owned Inventory</button>
+  <div class="action-panel">
+    <label class="btn-action" for="cameraInput">
+      📷 Scan Item Appraisal
+    </label>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="processCapture(this)">
+  </div>
+
+  <div id="statusAlert" class="status-alert"></div>
+  <div id="cardsFeed" class="feed-container"></div>
+
+  <div id="detailModal">
+    <div class="modal-nav">
+      <button class="btn-back" onclick="closeDetail()">← Back to Scanner</button>
+      <span style="font-weight: 700; font-size: 0.9rem;">Appraisal Details</span>
     </div>
+    <img id="modalImage" class="modal-img" src="" alt="Captured Asset">
+    <div id="modalContent"></div>
   </div>
 
   <script>
-    let currentMode = 'scout'; // 'scout' or 'owned'
-    let lastScanData = null;
-    let currentParsedResult = null;
-    let currentThumbnail = null;
+    const SYSTEM_PROMPT = `
+You are Thrift-Vault AI, an expert secondary-market appraiser.
+Analyze the provided image(s) and output strictly in the following 8-section labeled format. Do not use markdown tables or unstructured bullet points outside these labels.
 
-    const apiKeyInput = document.getElementById('apiKey');
-    const cameraInput = document.getElementById('cameraInput');
-    const preview = document.getElementById('preview');
-    const resultsBox = document.getElementById('resultsBox');
-    const resultsCard = document.getElementById('resultsCard');
-    const loadingDiv = document.getElementById('loading');
-    const historyList = document.getElementById('historyList');
-    const ownedList = document.getElementById('ownedList');
-    const clearBtn = document.getElementById('clearBtn');
-    const retryBtn = document.getElementById('retryBtn');
-    const addOwnedBtn = document.getElementById('addOwnedBtn');
-    const portfolioTotal = document.getElementById('portfolioTotal');
-    const invCount = document.getElementById('invCount');
+[ITEM_IDENTIFICATION]
+Brand: <Brand>
+Model/Item: <Model or Name>
+Era/Size/Specs: <Era, Size, Capacity, or Variant>
 
-    const mainView = document.getElementById('mainView');
-    const detailView = document.getElementById('detailView');
-    const backBtn = document.getElementById('backBtn');
-    const detailImg = document.getElementById('detailImg');
-    const detailCard = document.getElementById('detailCard');
-    const detailAddOwnedBtn = document.getElementById('detailAddOwnedBtn');
+[VALUATION_COMPS]
+Sold Average: $<Fair Market Value in USD as a number>
+Price Range: $<Low> - $<High>
+Confidence: <High | Medium | Low>
 
-    apiKeyInput.value = localStorage.getItem('thrift_gemini_key') || '';
-    apiKeyInput.addEventListener('input', () => {
-      localStorage.setItem('thrift_gemini_key', apiKeyInput.value.trim());
+[DISPOSITION_SIGNAL]
+Signal: <GREEN | YELLOW | RED>
+Reason: <1 concise sentence justifying the signal based on sell-through velocity or depreciation>
+
+[MARKETPLACE_ROUTING]
+Primary Platform: <eBay | Mercari | Poshmark | Etsy | Local (OfferUp/FB Marketplace)>
+Listing Strategy: List at $<Optimal List Price>, floor at $<Minimum Acceptable Offer>
+
+[SHIPPING_PROTOCOL]
+Tier: <Under 16 oz | 1-5 lbs | 5+ lbs / Oversized>
+Packaging: <Poly Mailer | Padded Flat Rate | Boxed | Double-Box Fragile>
+Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
+
+[TECHNICAL_INTEL]
+<Key authentication markers, flaws to check, hardware specs, or tag details>
+
+[COMP_SEARCH_QUERY]
+<Optimized keyword string for eBay sold search, e.g., "WD Black 5TB P10 Game Drive">
+
+[APPRAISAL_VERDICT]
+<BUY TO FLIP | PASS | PERSONAL KEEP | CURRENT ASSET VALUE>
+`;
+
+    let currentAppMode = 'scout';
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updatePortfolioMetrics();
+      loadActiveFeed();
     });
 
-    renderHistory();
-    renderOwned();
+    function promptApiKey() {
+      const stored = localStorage.getItem('thrift_gemini_key') || '';
+      const input = prompt('Enter Google AI Studio API Key:', stored);
+      if (input !== null) {
+        localStorage.setItem('thrift_gemini_key', input.trim());
+        triggerAlert('API Key saved.');
+      }
+    }
 
-    function setMode(mode) {
-      currentMode = mode;
+    function switchMode(mode) {
+      currentAppMode = mode;
       document.getElementById('modeScout').classList.toggle('active', mode === 'scout');
       document.getElementById('modeOwned').classList.toggle('active', mode === 'owned');
-      document.getElementById('scanBtnLabel').textContent = mode === 'scout' ? 'Scan Item to Evaluate (Flip)' : 'Scan Item for Owned Inventory';
+      loadActiveFeed();
     }
 
-    backBtn.addEventListener('click', () => {
-      detailView.style.display = 'none';
-      mainView.style.display = 'block';
-      window.scrollTo(0, 0);
-    });
-
-    clearBtn.addEventListener('click', () => {
-      if (confirm('Clear scan history?')) {
-        localStorage.removeItem('thrift_scout_history');
-        renderHistory();
-      }
-    });
-
-    function clearOwned() {
-      if (confirm('Clear all items from Owned Inventory?')) {
-        localStorage.removeItem('thrift_owned_inventory');
-        renderOwned();
-      }
+    function triggerAlert(msg, isError = false) {
+      const box = document.getElementById('statusAlert');
+      box.style.display = 'block';
+      box.style.borderLeftColor = isError ? 'var(--red)' : 'var(--accent)';
+      box.textContent = msg;
     }
 
-    addOwnedBtn.addEventListener('click', () => {
-      if (currentParsedResult && currentThumbnail) {
-        saveToOwned(currentThumbnail, currentParsedResult);
-        addOwnedBtn.textContent = '✓ Added to Inventory';
-      }
-    });
+    function dismissAlert() {
+      document.getElementById('statusAlert').style.display = 'none';
+    }
 
-    retryBtn.addEventListener('click', async () => {
-      if (!lastScanData) return;
-      retryBtn.style.display = 'none';
-      loadingDiv.style.display = 'block';
-      resultsBox.style.display = 'none';
-      await analyzeItem(lastScanData.key, lastScanData.base64, 'image/jpeg', lastScanData.thumbnailSrc);
-    });
-
-    cameraInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
+    async function processCapture(input) {
+      const file = input.files[0];
       if (!file) return;
 
-      const key = apiKeyInput.value.trim() || localStorage.getItem('thrift_gemini_key');
+      const key = localStorage.getItem('thrift_gemini_key');
       if (!key) {
-        alert('Please paste your Gemini API key in the top box first.');
+        alert('API Key missing. Please provide your Google AI Studio key.');
+        promptApiKey();
         return;
       }
 
-      loadingDiv.style.display = 'block';
-      resultsBox.style.display = 'none';
-      retryBtn.style.display = 'none';
-      addOwnedBtn.style.display = 'none';
+      triggerAlert('Compressing image to 1000px...');
+      const base64Data = await resizeCanvas(file, 1000, 1000);
 
-      const compressedDataUrl = await resizeImage(file, 1000);
-      preview.src = compressedDataUrl;
-      preview.style.display = 'block';
+      triggerAlert('Consulting Gemini 3.6-flash valuation engine...');
+      runAppraisal(base64Data, key);
+      input.value = '';
+    }
 
-      const base64Data = compressedDataUrl.split(',')[1];
-      lastScanData = { key, base64: base64Data, thumbnailSrc: compressedDataUrl };
-
-      await analyzeItem(key, base64Data, 'image/jpeg', compressedDataUrl);
-    });
-
-    function resizeImage(file, maxDimension) {
+    function resizeCanvas(file, maxW, maxH) {
       return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onload = (e) => {
-          const image = new Image();
-          image.onload = () => {
-            let width = image.width;
-            let height = image.height;
-            if (width > height) {
-              if (width > maxDimension) {
-                height = Math.round((height * maxDimension) / width);
-                width = maxDimension;
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width;
+            let h = img.height;
+            if (w > h) {
+              if (w > maxW) {
+                h = Math.round((h * maxW) / w);
+                w = maxW;
               }
             } else {
-              if (height > maxDimension) {
-                width = Math.round((width * maxDimension) / height);
-                height = maxDimension;
+              if (h > maxH) {
+                w = Math.round((w * maxH) / h);
+                h = maxH;
               }
             }
-            const canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(image, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', 0.82));
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', 0.85));
           };
-          image.src = e.target.result;
+          img.src = e.target.result;
         };
         reader.readAsDataURL(file);
       });
     }
 
-    async function executeApiCall(key, base64Data, mimeType) {
-      const prompt = `You are a real-world product appraiser and inventory valuation specialist.
-Carefully examine the photo (read labels, brand badges, capacities, model names, and visible text). 
+    async function runAppraisal(fullBase64, key, retries = 1) {
+      const rawPayload = fullBase64.split(',')[1];
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`;
 
-Mode selected: ${currentMode === 'scout' ? 'THRIFT SCOUT RESALE FLIP' : 'OWNED ASSET / INVENTORY VALUATION'}
+      const body = {
+        contents: [{
+          parts: [
+            { text: SYSTEM_PROMPT },
+            { inline_data: { mime_type: 'image/jpeg', data: rawPayload } }
+          ]
+        }]
+      };
 
-Provide your response in strictly these 4 labeled lines:
-TITLE: [Brand, Model Name, Specific Storage/Size/Era if visible on item]
-VALUATION: [Estimated secondary market fair value, e.g. $45 - $60 Avg]
-INTEL: [Key technical specs, condition indicators, interface ports, or collector desirability]
-VERDICT: [${currentMode === 'scout' ? 'BUY TO FLIP / PASS / PERSONAL KEEP' : 'CURRENT ASSET VALUE'}] - [1-sentence appraisal reason]`;
-
-      return fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: prompt },
-              { inline_data: { mime_type: mimeType, data: base64Data } }
-            ]
-          }],
-          generationConfig: {
-            maxOutputTokens: 400,
-            temperature: 0.2
-          }
-        })
-      });
-    }
-
-    async function analyzeItem(key, base64Data, mimeType, thumbnailSrc) {
       try {
-        let response = await executeApiCall(key, base64Data, mimeType);
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
 
-        if (response.status === 503) {
-          loadingDiv.textContent = 'Server busy. Auto-retrying comp analysis...';
+        if (response.status === 503 && retries > 0) {
+          triggerAlert('API 503 capacity limit. Retrying in 2 seconds...');
           await new Promise(r => setTimeout(r, 2000));
-          response = await executeApiCall(key, base64Data, mimeType);
+          return runAppraisal(fullBase64, key, retries - 1);
         }
 
-        const data = await response.json();
-        loadingDiv.textContent = 'Compressing & analyzing comps...';
-        loadingDiv.style.display = 'none';
-
-        if (data.candidates && data.candidates[0].content.parts[0].text) {
-          const rawText = data.candidates[0].content.parts[0].text;
-          const parsed = parseFields(rawText);
-          currentParsedResult = parsed;
-          currentThumbnail = thumbnailSrc;
-
-          resultsCard.innerHTML = renderCardHTML(parsed);
-          resultsBox.style.display = 'block';
-          retryBtn.style.display = 'none';
-          
-          addOwnedBtn.style.display = 'block';
-          addOwnedBtn.textContent = '+ Save to Owned Inventory';
-
-          saveToHistory(thumbnailSrc, parsed);
-          if (currentMode === 'owned') {
-            saveToOwned(thumbnailSrc, parsed);
-          }
-        } else {
-          const errorMsg = data.error ? data.error.message : 'Unknown response from server.';
-          resultsCard.innerHTML = `<div style="color:#ef4444; font-weight:bold;">Analysis paused: ${errorMsg}</div>`;
-          resultsBox.style.display = 'block';
-          retryBtn.style.display = 'block';
+        if (response.status === 429) {
+          throw new Error('Quota exceeded (429). Please wait a moment before trying again.');
         }
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+
+        const resData = await response.json();
+        const text = resData.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error('Model produced no response.');
+
+        dismissAlert();
+        const appraisal = parseResponseData(text, fullBase64);
+        persistAppraisal(appraisal);
+        updatePortfolioMetrics();
+        loadActiveFeed();
+
       } catch (err) {
-        loadingDiv.textContent = 'Compressing & analyzing comps...';
-        loadingDiv.style.display = 'none';
-        resultsCard.innerHTML = `<div style="color:#ef4444; font-weight:bold;">Connection error: ${err.message}</div>`;
-        resultsBox.style.display = 'block';
-        retryBtn.style.display = 'block';
+        triggerAlert(err.message, true);
       }
     }
 
-    // ROBUST PARSER - Strips markdown bolding and catches variations
-    function parseFields(text) {
-      const extract = (pattern) => {
-        const regex = new RegExp(`(?:\\*\\*|\\*|-|#)*\\s*${pattern}\\s*(?:\\*\\*|\\*|:|-)*\\s*(.*)`, 'i');
-        const match = text.match(regex);
-        return match && match[1] ? match[1].replace(/[\*\#]/g, '').trim() : null;
+    function parseResponseData(rawText, imageUri) {
+      const clean = rawText.replace(/[*#]/g, '');
+
+      const extract = (sec) => {
+        const pattern = new RegExp(`\\[${sec}\\]([\\s\\S]*?)(?=\\[[A-Z_]+\\]|$)`, 'i');
+        const match = clean.match(pattern);
+        return match ? match[1].trim() : 'N/A';
       };
 
-      const title = extract('TITLE') || extract('ITEM') || extract('IDENTIFICATION') || 'Identified Item';
-      const valuation = extract('VALUATION') || extract('PRICE') || extract('VALUE') || extract('COMPS') || 'Comps Pending';
-      const intel = extract('INTEL') || extract('DETAILS') || extract('NOTES') || text;
-      const verdict = extract('VERDICT') || extract('RECOMMENDATION') || 'Appraised';
+      const idBlock = extract('ITEM_IDENTIFICATION');
+      const valBlock = extract('VALUATION_COMPS');
+      const dispBlock = extract('DISPOSITION_SIGNAL');
+      const routeBlock = extract('MARKETPLACE_ROUTING');
+      const shipBlock = extract('SHIPPING_PROTOCOL');
+      const intelBlock = extract('TECHNICAL_INTEL');
+      const queryBlock = extract('COMP_SEARCH_QUERY');
+      const verdictBlock = extract('APPRAISAL_VERDICT');
 
-      return { title, valuation, intel, verdict, raw: text };
+      const getVal = (block, key) => {
+        const match = block.match(new RegExp(`${key}:\\s*(.+)`, 'i'));
+        return match ? match[1].trim() : null;
+      };
+
+      const sigMatch = dispBlock.match(/Signal:\s*(GREEN|YELLOW|RED)/i);
+      const signal = sigMatch ? sigMatch[1].toUpperCase() : 'YELLOW';
+
+      const avgMatch = valBlock.match(/Sold Average:\s*\$?([\d,]+(\.\d{2})?)/i);
+      const estValue = avgMatch ? parseFloat(avgMatch[1].replace(/,/g, '')) : 0.00;
+
+      const brand = getVal(idBlock, 'Brand') || 'Unknown Brand';
+      const item = getVal(idBlock, 'Model/Item') || 'Item';
+
+      return {
+        id: Date.now(),
+        image: imageUri,
+        brand: brand,
+        item: item,
+        specs: getVal(idBlock, 'Era/Size/Specs') || 'N/A',
+        estimatedValue: estValue,
+        priceRange: getVal(valBlock, 'Price Range') || '$0 - $0',
+        disposition: {
+          signal: signal,
+          reason: getVal(dispBlock, 'Reason') || 'No rationale available.'
+        },
+        routing: {
+          platform: getVal(routeBlock, 'Primary Platform') || 'eBay',
+          strategy: getVal(routeBlock, 'Listing Strategy') || 'Standard fixed-price'
+        },
+        shipping: {
+          tier: getVal(shipBlock, 'Tier') || 'Standard Parcel',
+          packaging: getVal(shipBlock, 'Packaging') || 'Boxed',
+          service: getVal(shipBlock, 'Recommended Service') || 'USPS Ground Advantage'
+        },
+        intel: intelBlock,
+        searchQuery: queryBlock !== 'N/A' ? queryBlock : `${brand} ${item}`,
+        verdict: verdictBlock,
+        date: new Date().toLocaleDateString()
+      };
     }
 
-    function renderCardHTML(p) {
-      return `
-        <div class="analysis-field">
-          <div class="field-tag">Item Identification</div>
-          <div class="field-val title">${p.title}</div>
+    function persistAppraisal(item) {
+      const storageKey = currentAppMode === 'scout' ? 'thrift_scout_history' : 'thrift_owned_inventory';
+      const list = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      list.unshift(item);
+      localStorage.setItem(storageKey, JSON.stringify(list));
+    }
+
+    function updatePortfolioMetrics() {
+      const owned = JSON.parse(localStorage.getItem('thrift_owned_inventory') || '[]');
+      const total = owned.reduce((sum, item) => sum + (Number(item.estimatedValue) || 0), 0);
+      document.getElementById('portfolioTotal').textContent = `$${total.toFixed(2)}`;
+      document.getElementById('portfolioCount').textContent = owned.length;
+    }
+
+    function loadActiveFeed() {
+      const storageKey = currentAppMode === 'scout' ? 'thrift_scout_history' : 'thrift_owned_inventory';
+      const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const container = document.getElementById('cardsFeed');
+
+      if (items.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px;">No items logged in ${currentAppMode === 'scout' ? 'Scout' : 'Inventory'} mode.</div>`;
+        return;
+      }
+
+      container.innerHTML = items.map(item => {
+        const sigColors = { GREEN: 'var(--green)', YELLOW: 'var(--yellow)', RED: 'var(--red)' };
+        const sigLabels = { GREEN: 'SELL NOW', YELLOW: 'MONITOR', RED: 'KEEP' };
+        const activeColor = sigColors[item.disposition.signal] || '#6b7280';
+        const activeLabel = sigLabels[item.disposition.signal] || 'INFO';
+        const sanitized = encodeURIComponent(item.searchQuery.replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
+        const compUrl = `https://www.ebay.com/sch/i.html?_nkw=${sanitized}&LH_Complete=1&LH_Sold=1`;
+
+        return `
+          <div class="vault-card" style="border-left: 5px solid ${activeColor};" onclick="openDetail(${item.id})">
+            <div class="card-top">
+              <div>
+                <div class="card-title">${item.brand} - ${item.item}</div>
+                <div class="card-sub">${item.specs}</div>
+              </div>
+              <span class="badge-signal" style="background: ${activeColor};">${activeLabel}</span>
+            </div>
+            <div class="card-val">$${Number(item.estimatedValue).toFixed(2)} <span>(${item.priceRange})</span></div>
+            <div class="card-summary"><strong>Signal:</strong> ${item.disposition.reason}</div>
+            <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-comp" onclick="event.stopPropagation();">
+              Live eBay Sold Comps ↗
+            </a>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openDetail(id) {
+      const storageKey = currentAppMode === 'scout' ? 'thrift_scout_history' : 'thrift_owned_inventory';
+      const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const target = items.find(i => i.id === id);
+      if (!target) return;
+
+      document.getElementById('modalImage').src = target.image;
+      document.getElementById('modalContent').innerHTML = `
+        <div class="modal-section">
+          <strong>Identification</strong>
+          ${target.brand} - ${target.item} (${target.specs})
         </div>
-        <div class="analysis-field">
-          <div class="field-tag">Estimated Comp Value</div>
-          <div class="field-val val">${p.valuation}</div>
+        <div class="modal-section">
+          <strong>Valuation & Verdict</strong>
+          $${Number(target.estimatedValue).toFixed(2)} [${target.priceRange}]<br>
+          Verdict: ${target.verdict}
         </div>
-        <div class="analysis-field">
-          <div class="field-tag">Technical Intel / Specs</div>
-          <div class="field-val">${p.intel}</div>
+        <div class="modal-section">
+          <strong>Disposition Assessment</strong>
+          Signal: ${target.disposition.signal}<br>
+          Reason: ${target.disposition.reason}
         </div>
-        <div class="analysis-field">
-          <div class="field-tag">Appraisal Verdict</div>
-          <div class="field-val verdict">${p.verdict}</div>
+        <div class="modal-section">
+          <strong>Platform & Shipping Protocol</strong>
+          Target: ${target.routing.platform} (${target.routing.strategy})<br>
+          Shipping: ${target.shipping.tier} | ${target.shipping.packaging} | ${target.shipping.service}
+        </div>
+        <div class="modal-section">
+          <strong>Technical Intel & Authentication</strong>
+          ${target.intel}
         </div>
       `;
+      document.getElementById('detailModal').style.display = 'block';
     }
 
-    // Numeric dollar extractor for running total calculation
-    function parseDollarAmount(valString) {
-      if (!valString) return 0;
-      const matches = valString.match(/\$\s*(\d+(?:\.\d+)?)/g);
-      if (!matches) return 0;
-      const nums = matches.map(m => parseFloat(m.replace(/[^0-9.]/g, '')));
-      // Take average if range, else single number
-      const sum = nums.reduce((a, b) => a + b, 0);
-      return sum / nums.length;
+    function closeDetail() {
+      document.getElementById('detailModal').style.display = 'none';
     }
-
-    function saveToOwned(imageSrc, parsed) {
-      const owned = JSON.parse(localStorage.getItem('thrift_owned_inventory') || '[]');
-      const numericVal = parseDollarAmount(parsed.valuation);
-      owned.unshift({
-        id: Date.now(),
-        date: new Date().toLocaleDateString([], { month: 'short', day: 'numeric' }),
-        image: imageSrc,
-        parsed: parsed,
-        numVal: numericVal
-      });
-      localStorage.setItem('thrift_owned_inventory', JSON.stringify(owned));
-      renderOwned();
-    }
-
-    function renderOwned() {
-      const owned = JSON.parse(localStorage.getItem('thrift_owned_inventory') || '[]');
-      invCount.textContent = `${owned.length} Items`;
-      
-      const total = owned.reduce((acc, cur) => acc + (cur.numVal || 0), 0);
-      portfolioTotal.textContent = '$' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-      if (owned.length === 0) {
-        ownedList.innerHTML = '<div style="color:#666; font-size:0.85rem;">No inventory added yet.</div>';
-        return;
-      }
-
-      ownedList.innerHTML = owned.map((item, index) => `
-        <div class="history-card" onclick="openOwnedDetail(${index})">
-          <img src="${item.image}" alt="Inventory">
-          <div class="history-info">
-            <div class="history-title">${item.parsed.title}</div>
-            <div class="history-value">${item.parsed.valuation}</div>
-            <div class="history-date">Owned &bull; Saved ${item.date}</div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function saveToHistory(imageSrc, parsed) {
-      const history = JSON.parse(localStorage.getItem('thrift_scout_history') || '[]');
-      history.unshift({
-        id: Date.now(),
-        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        image: imageSrc,
-        parsed: parsed
-      });
-      if (history.length > 30) history.pop();
-      localStorage.setItem('thrift_scout_history', JSON.stringify(history));
-      renderHistory();
-    }
-
-    function renderHistory() {
-      const history = JSON.parse(localStorage.getItem('thrift_scout_history') || '[]');
-      if (history.length === 0) {
-        historyList.innerHTML = '<div style="color:#666; font-size:0.85rem;">No recent scans yet.</div>';
-        return;
-      }
-
-      historyList.innerHTML = history.map((item, index) => `
-        <div class="history-card" onclick="openScanDetail(${index})">
-          <img src="${item.image}" alt="Scan">
-          <div class="history-info">
-            <div class="history-title">${item.parsed.title}</div>
-            <div class="history-value">${item.parsed.valuation}</div>
-            <div class="history-date">${item.date} &bull; Tap to review</div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    window.openScanDetail = function(index) {
-      const history = JSON.parse(localStorage.getItem('thrift_scout_history') || '[]');
-      const item = history[index];
-      if (!item) return;
-
-      detailImg.src = item.image;
-      detailCard.innerHTML = renderCardHTML(item.parsed);
-      detailAddOwnedBtn.style.display = 'block';
-      detailAddOwnedBtn.onclick = () => {
-        saveToOwned(item.image, item.parsed);
-        detailAddOwnedBtn.textContent = '✓ Saved to Inventory';
-      };
-      mainView.style.display = 'none';
-      detailView.style.display = 'block';
-      window.scrollTo(0, 0);
-    };
-
-    window.openOwnedDetail = function(index) {
-      const owned = JSON.parse(localStorage.getItem('thrift_owned_inventory') || '[]');
-      const item = owned[index];
-      if (!item) return;
-
-      detailImg.src = item.image;
-      detailCard.innerHTML = renderCardHTML(item.parsed);
-      detailAddOwnedBtn.style.display = 'none';
-      mainView.style.display = 'none';
-      detailView.style.display = 'block';
-      window.scrollTo(0, 0);
-    };
   </script>
 </body>
 </html>
