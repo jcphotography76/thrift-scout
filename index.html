@@ -82,7 +82,7 @@
     }
     .mode-toggle {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
       gap: 4px;
       background: var(--panel);
       padding: 4px;
@@ -94,8 +94,8 @@
       background: transparent;
       color: var(--text-muted);
       border: none;
-      padding: 8px 4px;
-      font-size: 0.75rem;
+      padding: 8px 2px;
+      font-size: 0.72rem;
       font-weight: 700;
       border-radius: 6px;
       cursor: pointer;
@@ -197,6 +197,57 @@
       cursor: not-allowed;
     }
     input[type="file"] {
+      display: none;
+    }
+    .manual-panel {
+      display: none;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .manual-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: block;
+    }
+    .manual-input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.85rem;
+      color: #fff;
+      outline: none;
+    }
+    .manual-input:focus {
+      border-color: var(--accent);
+    }
+    textarea.manual-input {
+      resize: vertical;
+      min-height: 70px;
+      font-family: inherit;
+    }
+    .manual-photo-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .manual-preview {
+      width: 50px;
+      height: 50px;
+      border-radius: 6px;
+      background: #000;
+      border: 1px solid var(--border);
+      object-fit: cover;
       display: none;
     }
     .status-alert {
@@ -430,18 +481,20 @@
   </div>
 
   <div class="mode-toggle">
-    <button id="modeScout" class="mode-btn active" onclick="switchMode('scout')">1. Scout Mode</button>
-    <button id="modeOwned" class="mode-btn" onclick="switchMode('owned')">2. Inventory</button>
-    <button id="modeSold" class="mode-btn" onclick="switchMode('sold')">3. Sold Archive</button>
+    <button id="modeScout" class="mode-btn active" onclick="switchMode('scout')">1. Scout</button>
+    <button id="modeManual" class="mode-btn" onclick="switchMode('manual')">2. Manual</button>
+    <button id="modeOwned" class="mode-btn" onclick="switchMode('owned')">3. Inventory</button>
+    <button id="modeSold" class="mode-btn" onclick="switchMode('sold')">4. Sold</button>
   </div>
 
   <div class="portfolio-banner" id="bannerContainer"></div>
-  <div class="gesture-hint">⇄ Swipe Right to Advance • Swipe Left to Discard</div>
+  <div class="gesture-hint" id="gestureHint">⇄ Swipe Right to Advance • Swipe Left to Discard</div>
 
   <div class="search-wrapper" id="searchWrapper">
     <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search Inventory by brand, item, specs..." oninput="handleSearch()">
   </div>
 
+  <!-- Mode 1: Scout Camera / Multi -->
   <div class="action-panel" id="actionPanel">
     <label class="btn-action" id="camBtnLabel" for="cameraInput">
       📷 Live Camera
@@ -452,6 +505,32 @@
       🖼️ Upload / Multi
     </label>
     <input type="file" id="galleryInput" accept="image/*" multiple onchange="processCaptures(this)">
+  </div>
+
+  <!-- Mode 2: Dedicated Manual Research Console -->
+  <div class="manual-panel" id="manualPanel">
+    <div>
+      <label class="manual-label">Item Title / Model / Maker</label>
+      <input type="text" id="manualTitle" class="manual-input" placeholder="e.g. Late 1800s Meiji Japanese student writing desk">
+    </div>
+
+    <div>
+      <label class="manual-label">Known Specs, Provenance, or Serial Marks</label>
+      <textarea id="manualSpecs" class="manual-input" placeholder="e.g. Fuzukue portable floor desk, hand-cut joinery, iron hardware, acquired by missionary family"></textarea>
+    </div>
+
+    <div>
+      <label class="manual-label">Optional Photo (Snap or Attach)</label>
+      <div class="manual-photo-row">
+        <label class="btn-card" for="manualPhotoInput" style="cursor: pointer;">📷 Attach Snapshot</label>
+        <input type="file" id="manualPhotoInput" accept="image/*" onchange="previewManualPhoto(this)">
+        <img id="manualPhotoPreview" class="manual-preview" alt="Preview">
+      </div>
+    </div>
+
+    <button class="btn-action" id="manualSubmitBtn" onclick="submitManualAppraisal()" style="margin-top: 4px;">
+      🔍 Run Market Intelligence
+    </button>
   </div>
 
   <div id="statusAlert" class="status-alert"></div>
@@ -484,48 +563,50 @@
     const db = getFirestore(app);
 
     const SYSTEM_PROMPT = `
-You are Thrift-Vault AI secondary-market appraiser.
-Analyze the image(s) and output strictly in this format:
+You are Thrift-Vault AI, an expert secondary-market appraiser.
+Evaluate the item using any attached imagery, explicit query text, historical provenance, markings, and user specifications. 
+Base your evaluation on authentic secondary market historical comps (eBay Sold, Live Auctions, Collector Forums).
+Output strictly in this format:
 
 [ITEM_IDENTIFICATION]
-Brand: <Brand>
-Model/Item: <Model/Name>
-Era/Size/Specs: <Specs>
+Brand: <Brand, Maker, or Region of Origin>
+Model/Item: <Model, Traditional Name, or Object Type>
+Era/Size/Specs: <Accurate Era, Dimensions, Material, or Variant>
 
 [VALUATION_COMPS]
-Sold Average: $<Number in USD>
+Sold Average: $<Fair Market Value in USD as a number>
 Price Range: $<Low> - $<High>
 Confidence: <High|Medium|Low>
 
 [DISPOSITION_SIGNAL]
 Signal: <GREEN|YELLOW|RED>
-Reason: <1 short sentence>
+Reason: <1 short sentence justifying secondary market velocity or collectible liquidity>
 
 [MARKETPLACE_ROUTING]
-Primary Platform: <eBay|Mercari|Local>
-Listing Strategy: <Price strategy>
+Primary Platform: <eBay|Etsy|LiveAuctioneers|RubyLane|Local>
+Listing Strategy: <Listing and offer floor strategy>
 
 [SHIPPING_PROTOCOL]
 Tier: <Under 16 oz|1-5 lbs|5+ lbs / Oversized>
-Packaging: <Packaging>
-Recommended Service: <USPS Ground Advantage|UPS Ground>
+Packaging: <Poly Mailer|Padded Box|Double-Box Fragile|Freight/Local Only>
+Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
 
 [TECHNICAL_INTEL]
-<Key tags, authentication markers, flaws>
+<Key authentication markers, joinery/materials to verify, flaw watchouts, or historical context>
 
 [COMP_SEARCH_QUERY]
-<Concise eBay sold search keywords>
+<Concise keyword string optimized for eBay sold search>
 
 [APPRAISAL_VERDICT]
 <BUY TO FLIP|PASS|PERSONAL KEEP>
 `;
 
-    let currentAppMode = 'scout';
+    let currentAppMode = 'scout'; // 'scout' | 'manual' | 'owned' | 'sold'
     let currentItems = [];
     let filteredItems = [];
     let isProcessing = false;
+    let manualCapturedBase64 = null;
 
-    // Daily quota tracker
     function updateQuotaDisplay(tokensUsed = null) {
       const today = new Date().toDateString();
       const savedDate = localStorage.getItem('thrift_quota_date');
@@ -568,15 +649,20 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
     window.switchMode = function(mode) {
       currentAppMode = mode;
       document.getElementById('modeScout').classList.toggle('active', mode === 'scout');
+      document.getElementById('modeManual').classList.toggle('active', mode === 'manual');
       document.getElementById('modeOwned').classList.toggle('active', mode === 'owned');
       document.getElementById('modeSold').classList.toggle('active', mode === 'sold');
+
       document.getElementById('actionPanel').style.display = mode === 'scout' ? 'grid' : 'none';
-      
+      document.getElementById('manualPanel').style.display = mode === 'manual' ? 'flex' : 'none';
+      document.getElementById('gestureHint').style.display = mode === 'manual' ? 'none' : 'block';
+
       const searchWrapper = document.getElementById('searchWrapper');
       const searchInput = document.getElementById('searchInput');
-      searchWrapper.style.display = mode !== 'scout' ? 'block' : 'none';
+      searchWrapper.style.display = (mode === 'owned' || mode === 'sold') ? 'block' : 'none';
       searchInput.value = '';
-      searchInput.placeholder = mode === 'owned' ? '🔍 Search Inventory by brand, item, specs...' : '🔍 Search Sold Archive...';
+      if (mode === 'owned') searchInput.placeholder = '🔍 Search Inventory by brand, item, specs...';
+      if (mode === 'sold') searchInput.placeholder = '🔍 Search Sold Archive...';
 
       listenToCollection();
     };
@@ -597,6 +683,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       const upLabel = document.getElementById('uploadBtnLabel');
       const camIn = document.getElementById('cameraInput');
       const galIn = document.getElementById('galleryInput');
+      const manualBtn = document.getElementById('manualSubmitBtn');
 
       if (enabled) {
         camLabel.classList.remove('disabled');
@@ -605,6 +692,8 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
         upLabel.textContent = '🖼️ Upload / Multi';
         camIn.disabled = false;
         galIn.disabled = false;
+        manualBtn.disabled = false;
+        manualBtn.textContent = '🔍 Run Market Intelligence';
         isProcessing = false;
       } else {
         camLabel.classList.add('disabled');
@@ -613,6 +702,8 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
         upLabel.textContent = text || '⚙️ Processing...';
         camIn.disabled = true;
         galIn.disabled = true;
+        manualBtn.disabled = true;
+        manualBtn.textContent = text || '⚙️ Querying Database...';
         isProcessing = true;
       }
     }
@@ -628,6 +719,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
         } else {
           document.getElementById('camBtnLabel').textContent = `⏳ ${count}s...`;
           document.getElementById('uploadBtnLabel').textContent = `⏳ ${count}s...`;
+          document.getElementById('manualSubmitBtn').textContent = `⏳ Wait ${count}s...`;
         }
       }, 1000);
     }
@@ -656,6 +748,48 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       return Math.floor(diffMs / (1000 * 60 * 60 * 24));
     }
 
+    window.previewManualPhoto = async function(input) {
+      const file = input.files[0];
+      if (!file) return;
+      manualCapturedBase64 = await resizeCanvas(file, 600, 600);
+      const img = document.getElementById('manualPhotoPreview');
+      img.src = manualCapturedBase64;
+      img.style.display = 'block';
+    };
+
+    window.submitManualAppraisal = async function() {
+      if (isProcessing) return;
+      const title = document.getElementById('manualTitle').value.trim();
+      const specs = document.getElementById('manualSpecs').value.trim();
+
+      if (!title && !specs && !manualCapturedBase64) {
+        alert('Please provide an item description, marking/serial info, or attach a photo.');
+        return;
+      }
+
+      const key = localStorage.getItem('thrift_gemini_key');
+      if (!key) {
+        alert('API Key missing. Please provide your Google AI Studio key.');
+        window.promptApiKey();
+        return;
+      }
+
+      setScanButtonsState(false, 'Consulting Intel Engine...');
+      triggerAlert('Analyzing manual query and comps...');
+
+      const photos = manualCapturedBase64 ? [manualCapturedBase64] : [];
+      await runAppraisalCore(photos, `MANUAL QUERY:\nItem Name/Keywords: ${title}\nUser Notes/Serial/Marks/Specs: ${specs}`, key);
+
+      // Reset fields
+      document.getElementById('manualTitle').value = '';
+      document.getElementById('manualSpecs').value = '';
+      document.getElementById('manualPhotoPreview').style.display = 'none';
+      manualCapturedBase64 = null;
+
+      // Switch to Scout tab to see the freshly created card
+      switchMode('scout');
+    };
+
     window.processCaptures = async function(input) {
       if (isProcessing) return;
       const files = Array.from(input.files);
@@ -673,9 +807,9 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       triggerAlert(`Optimizing ${files.length} image(s)...`);
 
       const base64List = await Promise.all(files.map(file => resizeCanvas(file, 600, 600)));
-
       triggerAlert(`Consulting valuation engine (${files.length} angle${files.length > 1 ? 's' : ''})...`);
-      await runAppraisalMulti(base64List, key);
+
+      await runAppraisalCore(base64List, 'Evaluate the attached photograph(s) for secondary market appraisal.', key);
       input.value = '';
     };
 
@@ -710,11 +844,11 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       });
     }
 
-    async function runAppraisalMulti(base64Array, key) {
+    async function runAppraisalCore(base64Array, customUserPrompt, key) {
       const cleanKey = key.trim();
       const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${encodeURIComponent(cleanKey)}`;
 
-      const parts = [{ text: SYSTEM_PROMPT }];
+      const parts = [{ text: `${SYSTEM_PROMPT}\n\n${customUserPrompt}` }];
       base64Array.forEach(uri => {
         parts.push({
           inline_data: {
@@ -726,7 +860,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
 
       const body = { contents: [{ parts: parts }] };
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 20000);
+      const timeoutId = setTimeout(() => controller.abort(), 22000);
 
       try {
         const response = await fetch(endpoint, {
@@ -751,7 +885,6 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
         const text = resData.candidates?.[0]?.content?.parts?.[0]?.text;
         if (!text) throw new Error('Valuation engine returned an empty response.');
 
-        // Live token tracker extraction
         const tokensTotal = resData.usageMetadata?.totalTokenCount || 0;
         recordSuccessfulScan(tokensTotal);
 
@@ -800,16 +933,21 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       const avgMatch = valBlock.match(/Sold Average:\s*\$?([\d,]+(\.\d{2})?)/i);
       const estValue = avgMatch ? parseFloat(avgMatch[1].replace(/,/g, '')) : 0.00;
 
-      const brand = getVal(idBlock, 'Brand') || 'Unknown Brand';
+      const brand = getVal(idBlock, 'Brand') || 'Unknown Origin';
       const item = getVal(idBlock, 'Model/Item') || 'Item';
       const shipTier = getVal(shipBlock, 'Tier') || 'Standard Parcel';
 
       const estShip = getEstimatedShippingCost(shipTier, false);
       const initialNet = calculateNetProfit(estValue, 0, estShip);
 
+      // Default placeholder SVG if no photo was attached during manual research
+      const defaultImg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23222630%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%239ca3af%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2216%22%3EManual%20Research%20Asset%3C%2Ftext%3E%3C%2Fsvg%3E";
+
+      const photos = (base64Array && base64Array.length > 0) ? base64Array : [defaultImg];
+
       return {
-        image: base64Array[0],
-        gallery: base64Array,
+        image: photos[0],
+        gallery: photos,
         brand: brand,
         item: item,
         specs: getVal(idBlock, 'Era/Size/Specs') || 'N/A',
@@ -907,7 +1045,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       const confirmed = confirm(`Permanently discard "${name}"?`);
       if (!confirmed) return;
 
-      const collName = currentAppMode === 'scout' ? 'scout_prospects' : (currentAppMode === 'owned' ? 'vault_inventory' : 'vault_sold');
+      const collName = (currentAppMode === 'scout' || currentAppMode === 'manual') ? 'scout_prospects' : (currentAppMode === 'owned' ? 'vault_inventory' : 'vault_sold');
       await deleteDoc(doc(db, collName, id));
       window.closeDetail();
     };
@@ -993,7 +1131,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
           if (currentX > 75) {
             card.style.transform = 'translateX(100%)';
             setTimeout(() => {
-              if (currentAppMode === 'scout') {
+              if (currentAppMode === 'scout' || currentAppMode === 'manual') {
                 window.transferToInventory(id);
               } else if (currentAppMode === 'owned') {
                 window.markAsSold(id);
@@ -1019,7 +1157,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
     function listenToCollection() {
       if (unsubscribeSnapshot) unsubscribeSnapshot();
 
-      const collName = currentAppMode === 'scout' ? 'scout_prospects' : (currentAppMode === 'owned' ? 'vault_inventory' : 'vault_sold');
+      const collName = (currentAppMode === 'scout' || currentAppMode === 'manual') ? 'scout_prospects' : (currentAppMode === 'owned' ? 'vault_inventory' : 'vault_sold');
       const sortField = currentAppMode === 'sold' ? 'soldAt' : (currentAppMode === 'owned' ? 'purchasedAt' : 'createdAt');
       const q = query(collection(db, collName), orderBy(sortField, 'desc'));
 
@@ -1035,7 +1173,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
     function renderMetrics() {
       const container = document.getElementById('bannerContainer');
 
-      if (currentAppMode === 'scout') {
+      if (currentAppMode === 'scout' || currentAppMode === 'manual') {
         const potentialProfit = currentItems.reduce((acc, i) => acc + (Number(i.projectedProfit) || 0), 0);
         container.innerHTML = `
           <div class="portfolio-metric">
@@ -1101,6 +1239,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       if (filteredItems.length === 0) {
         const labels = {
           scout: 'No prospects scanned. Ready for field triage.',
+          manual: 'No manual prospects logged.',
           owned: 'No matching inventory found.',
           sold: 'No matching sold records.'
         };
@@ -1117,7 +1256,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
         const compUrl = `https://www.ebay.com/sch/i.html?_nkw=${sanitized}&LH_Complete=1&LH_Sold=1`;
         const thumbSrc = (item.gallery && item.gallery[0]) ? item.gallery[0] : (item.image || '');
 
-        if (currentAppMode === 'scout') {
+        if (currentAppMode === 'scout' || currentAppMode === 'manual') {
           return `
             <div class="vault-card-wrapper">
               <div class="vault-card" data-id="${item.id}" style="border-left: 5px solid ${activeColor};" onclick="openDetail('${item.id}')">
@@ -1299,7 +1438,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
     };
 
     async function seedInitialDatabaseIfEmpty() {
-      const seededFlag = localStorage.getItem('thrift_db_seeded_v5');
+      const seededFlag = localStorage.getItem('thrift_db_seeded_v6');
       if (seededFlag) return;
 
       try {
@@ -1380,7 +1519,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
             soldAt: Date.now() - 345600000
           });
 
-          localStorage.setItem('thrift_db_seeded_v5', 'true');
+          localStorage.setItem('thrift_db_seeded_v6', 'true');
         }
       } catch (err) {
         console.warn('Seeding skipped or initialized:', err);
