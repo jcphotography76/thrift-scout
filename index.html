@@ -146,6 +146,7 @@
       margin-bottom: 16px;
       border-left: 4px solid var(--accent);
       background: var(--panel);
+      line-height: 1.4;
     }
     .feed-container {
       display: flex;
@@ -431,7 +432,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       });
     }
 
-    async function runAppraisal(fullBase64, key, retries = 1) {
+    async function runAppraisal(fullBase64, key, retries = 3, waitSeconds = 12) {
       const rawPayload = fullBase64.split(',')[1];
       const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`;
 
@@ -451,14 +452,21 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
           body: JSON.stringify(body)
         });
 
+        // 503 Capacity Handler
         if (response.status === 503 && retries > 0) {
-          triggerAlert('API 503 capacity limit. Retrying in 2 seconds...');
+          triggerAlert('Capacity busy (503). Retrying in 2 seconds...');
           await new Promise(r => setTimeout(r, 2000));
-          return runAppraisal(fullBase64, key, retries - 1);
+          return runAppraisal(fullBase64, key, retries - 1, waitSeconds);
         }
 
-        if (response.status === 429) {
-          throw new Error('Quota exceeded (429). Please wait a moment before trying again.');
+        // 429 Quota Exceeded Handler with Live Countdown
+        if (response.status === 429 && retries > 0) {
+          for (let c = waitSeconds; c > 0; c--) {
+            triggerAlert(`Rate limit active (429). Auto-resuming scan in ${c}s...`);
+            await new Promise(r => setTimeout(r, 1000));
+          }
+          triggerAlert('Retrying appraisal now...');
+          return runAppraisal(fullBase64, key, retries - 1, Math.round(waitSeconds * 1.5));
         }
 
         if (!response.ok) {
