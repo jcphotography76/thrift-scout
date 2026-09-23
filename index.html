@@ -426,7 +426,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       triggerAlert('Compressing image to 1000px...');
       const base64Data = await resizeCanvas(file, 1000, 1000);
 
-      triggerAlert('Consulting Gemini valuation engine...');
+      triggerAlert('Consulting Gemini 3.6-flash valuation engine...');
       runAppraisal(base64Data, key);
       input.value = '';
     };
@@ -464,7 +464,8 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 
     async function runAppraisal(fullBase64, key, retries = 3, waitSeconds = 12) {
       const rawPayload = fullBase64.split(',')[1];
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`;
+      const cleanKey = key.trim();
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${encodeURIComponent(cleanKey)}`;
 
       const body = {
         contents: [{
@@ -480,7 +481,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'x-goog-api-key': key.trim()
+            'x-goog-api-key': cleanKey
           },
           body: JSON.stringify(body)
         });
@@ -488,7 +489,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         if (response.status === 503 && retries > 0) {
           triggerAlert('Capacity limit (503). Retrying in 2 seconds...');
           await new Promise(r => setTimeout(r, 2000));
-          return runAppraisal(fullBase64, key, retries - 1, waitSeconds);
+          return runAppraisal(fullBase64, cleanKey, retries - 1, waitSeconds);
         }
 
         if (response.status === 429 && retries > 0) {
@@ -497,7 +498,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
             await new Promise(r => setTimeout(r, 1000));
           }
           triggerAlert('Retrying appraisal now...');
-          return runAppraisal(fullBase64, key, retries - 1, Math.round(waitSeconds * 1.5));
+          return runAppraisal(fullBase64, cleanKey, retries - 1, Math.round(waitSeconds * 1.5));
         }
 
         if (!response.ok) {
