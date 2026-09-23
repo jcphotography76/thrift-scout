@@ -30,13 +30,13 @@
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       padding: 16px;
-      padding-bottom: 60px;
+      padding-bottom: 70px;
     }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .brand-title {
       font-size: 1.15rem;
@@ -61,20 +61,20 @@
     }
     .mode-toggle {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 4px;
       background: var(--panel);
       padding: 4px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .mode-btn {
       background: transparent;
       color: var(--text-muted);
       border: none;
-      padding: 8px;
-      font-size: 0.85rem;
+      padding: 8px 4px;
+      font-size: 0.75rem;
       font-weight: 700;
       border-radius: 6px;
       cursor: pointer;
@@ -89,33 +89,39 @@
       background: linear-gradient(135deg, #181b21 0%, #1f242d 100%);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 14px 16px;
-      margin-bottom: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 10px;
     }
     .portfolio-metric {
       display: flex;
       flex-direction: column;
     }
     .portfolio-metric .label {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-muted);
       margin-bottom: 2px;
     }
     .portfolio-metric .val {
-      font-size: 1.35rem;
+      font-size: 1.15rem;
       font-weight: 800;
       color: var(--green);
+    }
+    .portfolio-metric .val.neutral {
+      color: #fff;
+    }
+    .portfolio-metric .val.cost {
+      color: var(--yellow);
     }
     .action-panel {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
     .btn-action {
       background: var(--accent);
@@ -147,7 +153,7 @@
       padding: 12px 14px;
       border-radius: 6px;
       font-size: 0.85rem;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       border-left: 4px solid var(--accent);
       background: var(--panel);
       line-height: 1.4;
@@ -190,16 +196,28 @@
       text-transform: uppercase;
       white-space: nowrap;
     }
-    .card-val {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--green);
+    .calc-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
       margin: 8px 0;
+      text-align: center;
     }
-    .card-val span {
-      font-size: 0.8rem;
-      font-weight: 400;
+    .calc-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .calc-item span:first-child {
+      font-size: 0.65rem;
       color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .calc-item span:last-child {
+      font-size: 0.95rem;
+      font-weight: 800;
     }
     .card-summary {
       font-size: 0.8rem;
@@ -209,30 +227,43 @@
     }
     .card-actions {
       display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
       justify-content: space-between;
       align-items: center;
       margin-top: 8px;
     }
-    .btn-comp {
-      display: inline-block;
-      background: var(--ebay);
-      color: #fff;
-      text-decoration: none;
-      padding: 8px 12px;
+    .btn-card {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 7px 10px;
       border-radius: 6px;
       font-size: 0.75rem;
       font-weight: 700;
-      width: fit-content;
-    }
-    .btn-delete-card {
-      background: transparent;
-      color: var(--red);
-      border: 1px solid var(--border);
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
       cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-card.transfer {
+      background: #1e3a8a;
+      border-color: #2563eb;
+      color: #fff;
+    }
+    .btn-card.sold {
+      background: #064e3b;
+      border-color: #059669;
+      color: #fff;
+    }
+    .btn-card.delete {
+      color: var(--red);
+      background: transparent;
+    }
+    .btn-card.ebay {
+      background: var(--ebay);
+      color: #fff;
     }
     #detailModal {
       display: none;
@@ -250,7 +281,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
     .btn-back {
       background: var(--surface);
@@ -264,7 +295,7 @@
     }
     .modal-img {
       width: 100%;
-      max-height: 340px;
+      max-height: 320px;
       object-fit: contain;
       background: #000;
       border-radius: 8px;
@@ -297,22 +328,14 @@
   </header>
 
   <div class="mode-toggle">
-    <button id="modeScout" class="mode-btn active" onclick="switchMode('scout')">Thrift Scout Mode</button>
-    <button id="modeOwned" class="mode-btn" onclick="switchMode('owned')">Owned Inventory</button>
+    <button id="modeScout" class="mode-btn active" onclick="switchMode('scout')">1. Scout Mode</button>
+    <button id="modeOwned" class="mode-btn" onclick="switchMode('owned')">2. Inventory</button>
+    <button id="modeSold" class="mode-btn" onclick="switchMode('sold')">3. Sold Archive</button>
   </div>
 
-  <div class="portfolio-banner">
-    <div class="portfolio-metric">
-      <span class="label" id="portfolioLabel">Scout Hunt Value</span>
-      <span class="val" id="portfolioTotal">$0.00</span>
-    </div>
-    <div class="portfolio-metric" style="align-items: flex-end;">
-      <span class="label">Total Assets</span>
-      <span class="val" id="portfolioCount" style="color: #fff;">0</span>
-    </div>
-  </div>
+  <div class="portfolio-banner" id="bannerContainer"></div>
 
-  <div class="action-panel">
+  <div class="action-panel" id="actionPanel">
     <label class="btn-action" id="scanBtnLabel" for="cameraInput">
       📷 Scan Item Appraisal
     </label>
@@ -324,16 +347,16 @@
 
   <div id="detailModal">
     <div class="modal-nav">
-      <button class="btn-back" onclick="closeDetail()">← Back to Scanner</button>
-      <button id="modalDeleteBtn" class="btn-delete-card">Delete Item</button>
+      <button class="btn-back" onclick="closeDetail()">← Back</button>
+      <button id="modalDeleteBtn" class="btn-card delete">Delete Item</button>
     </div>
-    <img id="modalImage" class="modal-img" src="" alt="Captured Asset">
+    <img id="modalImage" class="modal-img" src="" alt="Asset Snapshot">
     <div id="modalContent"></div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAtDQnJuWvJOp__hVHO5fdNhjiRjZZkskI",
@@ -350,7 +373,7 @@
 
     const SYSTEM_PROMPT = `
 You are Thrift-Vault AI, an expert secondary-market appraiser.
-Analyze the provided image and output strictly in the following 8-section labeled format. Keep descriptions concise.
+Analyze the image and return strictly the following 8 sections.
 
 [ITEM_IDENTIFICATION]
 Brand: <Brand>
@@ -379,7 +402,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 <Key authentication markers, flaws to check, hardware specs, or tag details>
 
 [COMP_SEARCH_QUERY]
-<Optimized keyword string for eBay sold search, e.g., "WD Black 5TB P10 Game Drive">
+<Optimized keyword string for eBay sold search>
 
 [APPRAISAL_VERDICT]
 <BUY TO FLIP | PASS | PERSONAL KEEP | CURRENT ASSET VALUE>
@@ -402,7 +425,8 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       currentAppMode = mode;
       document.getElementById('modeScout').classList.toggle('active', mode === 'scout');
       document.getElementById('modeOwned').classList.toggle('active', mode === 'owned');
-      document.getElementById('portfolioLabel').textContent = mode === 'scout' ? 'Scout Hunt Value' : 'Portfolio Value';
+      document.getElementById('modeSold').classList.toggle('active', mode === 'sold');
+      document.getElementById('actionPanel').style.display = mode === 'scout' ? 'flex' : 'none';
       listenToCollection();
     };
 
@@ -447,6 +471,24 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       }, 1000);
     }
 
+    function getEstimatedShippingCost(tier, buyerPaysShipping) {
+      if (buyerPaysShipping) return 0.00;
+      const lower = (tier || '').toLowerCase();
+      if (lower.includes('under 16')) return 5.25;
+      if (lower.includes('1-5')) return 9.75;
+      if (lower.includes('5+') || lower.includes('oversized')) return 16.50;
+      return 6.50;
+    }
+
+    function calculateNetProfit(grossPrice, costPrice, shippingCost) {
+      const gross = Number(grossPrice) || 0;
+      const cost = Number(costPrice) || 0;
+      const ship = Number(shippingCost) || 0;
+      if (gross <= 0) return 0;
+      const ebayFee = (gross * 0.1325) + 0.40;
+      return Number((gross - cost - ebayFee - ship).toFixed(2));
+    }
+
     window.processCapture = async function(input) {
       if (isProcessing) return;
       const file = input.files[0];
@@ -461,7 +503,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       }
 
       setScanButtonState(false, '⚙️ Processing...');
-      triggerAlert('Optimizing image for fast transmission...');
+      triggerAlert('Compressing capture...');
       const base64Data = await resizeCanvas(file, 700, 700);
 
       triggerAlert('Consulting valuation engine (Lite)...');
@@ -542,17 +584,17 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 
         dismissAlert();
         const appraisal = parseResponseData(text, fullBase64);
-        await saveToCloud(appraisal);
-        startCooldown(5);
+        await addDoc(collection(db, 'scout_prospects'), appraisal);
+        startCooldown(4);
 
       } catch (err) {
         clearTimeout(timeoutId);
         if (err.name === 'AbortError') {
-          triggerAlert('Request timed out on cellular data. Try moving to better reception.', true);
+          triggerAlert('Request timed out on mobile network. Check signal.', true);
         } else {
           triggerAlert(err.message, true);
         }
-        startCooldown(5);
+        startCooldown(4);
       }
     }
 
@@ -587,6 +629,10 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 
       const brand = getVal(idBlock, 'Brand') || 'Unknown Brand';
       const item = getVal(idBlock, 'Model/Item') || 'Item';
+      const shipTier = getVal(shipBlock, 'Tier') || 'Standard Parcel';
+
+      const estShip = getEstimatedShippingCost(shipTier, false);
+      const initialNet = calculateNetProfit(estValue, 0, estShip);
 
       return {
         image: imageUri,
@@ -596,6 +642,10 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         estimatedValue: estValue,
         priceRange: getVal(valBlock, 'Price Range') || '$0 - $0',
         confidence: getVal(valBlock, 'Confidence') || 'Medium',
+        itemCost: 0.00,
+        buyerPaysShipping: false,
+        estimatedShippingOutlay: estShip,
+        projectedProfit: initialNet,
         disposition: {
           signal: signal,
           reason: getVal(dispBlock, 'Reason') || 'No rationale available.'
@@ -605,27 +655,84 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
           strategy: getVal(routeBlock, 'Listing Strategy') || 'Standard fixed-price'
         },
         shipping: {
-          tier: getVal(shipBlock, 'Tier') || 'Standard Parcel',
+          tier: shipTier,
           packaging: getVal(shipBlock, 'Packaging') || 'Boxed',
           service: getVal(shipBlock, 'Recommended Service') || 'USPS Ground Advantage'
         },
         intel: intelBlock,
         searchQuery: queryBlock !== 'N/A' ? queryBlock : `${brand} ${item}`,
         verdict: verdictBlock,
-        mode: currentAppMode,
+        status: 'prospect',
         createdAt: Date.now()
       };
     }
 
-    async function saveToCloud(item) {
-      const collectionName = currentAppMode === 'scout' ? 'scout_history' : 'owned_inventory';
-      await addDoc(collection(db, collectionName), item);
-    }
+    window.transferToInventory = async function(id, event) {
+      if (event) event.stopPropagation();
+      const target = currentItems.find(i => i.id === id);
+      if (!target) return;
+
+      const costInput = prompt(`Enter purchase cost for "${target.brand} - ${target.item}":`, '5.00');
+      if (costInput === null) return;
+      const cost = parseFloat(costInput) || 0.00;
+
+      const buyerPays = confirm('Does the BUYER pay shipping?\n\nOK = Buyer Pays ($0 outlay for you)\nCancel = Free Shipping (You pay estimated shipping)');
+      const shipOutlay = getEstimatedShippingCost(target.shipping.tier, buyerPays);
+      const netProfit = calculateNetProfit(target.estimatedValue, cost, shipOutlay);
+
+      const inventoryItem = {
+        ...target,
+        itemCost: cost,
+        buyerPaysShipping: buyerPays,
+        estimatedShippingOutlay: shipOutlay,
+        projectedProfit: netProfit,
+        status: 'owned',
+        purchasedAt: Date.now()
+      };
+      delete inventoryItem.id;
+
+      await addDoc(collection(db, 'vault_inventory'), inventoryItem);
+      await deleteDoc(doc(db, 'scout_prospects', target.id));
+      triggerAlert(`Transferred "${target.item}" to Inventory.`);
+    };
+
+    window.markAsSold = async function(id, event) {
+      if (event) event.stopPropagation();
+      const target = currentItems.find(i => i.id === id);
+      if (!target) return;
+
+      const soldPriceInput = prompt(`Enter final SOLD price for "${target.item}":`, target.estimatedValue.toFixed(2));
+      if (soldPriceInput === null) return;
+      const soldPrice = parseFloat(soldPriceInput) || target.estimatedValue;
+
+      const actualShipInput = prompt('Enter actual shipping cost paid by YOU ($0 if buyer paid):', target.buyerPaysShipping ? '0.00' : target.estimatedShippingOutlay.toFixed(2));
+      if (actualShipInput === null) return;
+      const actualShip = parseFloat(actualShipInput) || 0.00;
+
+      const realizedProfit = calculateNetProfit(soldPrice, target.itemCost, actualShip);
+
+      const soldItem = {
+        ...target,
+        finalSoldPrice: soldPrice,
+        actualShippingPaid: actualShip,
+        realizedProfit: realizedProfit,
+        status: 'sold',
+        soldAt: Date.now()
+      };
+      delete soldItem.id;
+
+      await addDoc(collection(db, 'vault_sold'), soldItem);
+      await deleteDoc(doc(db, 'vault_inventory', target.id));
+      triggerAlert(`Sold "${target.item}" logged (+$${realizedProfit.toFixed(2)} Profit).`);
+    };
 
     window.deleteItem = async function(id, event) {
       if (event) event.stopPropagation();
-      const collectionName = currentAppMode === 'scout' ? 'scout_history' : 'owned_inventory';
-      await deleteDoc(doc(db, collectionName, id));
+      const confirmed = confirm('Remove this item permanently?');
+      if (!confirmed) return;
+
+      const collName = currentAppMode === 'scout' ? 'scout_prospects' : (currentAppMode === 'owned' ? 'vault_inventory' : 'vault_sold');
+      await deleteDoc(doc(db, collName, id));
       window.closeDetail();
     };
 
@@ -634,56 +741,195 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
     function listenToCollection() {
       if (unsubscribeSnapshot) unsubscribeSnapshot();
 
-      const collectionName = currentAppMode === 'scout' ? 'scout_history' : 'owned_inventory';
-      const q = query(collection(db, collectionName), orderBy('createdAt', 'desc'));
+      const collName = currentAppMode === 'scout' ? 'scout_prospects' : (currentAppMode === 'owned' ? 'vault_inventory' : 'vault_sold');
+      const sortField = currentAppMode === 'sold' ? 'soldAt' : (currentAppMode === 'owned' ? 'purchasedAt' : 'createdAt');
+      const q = query(collection(db, collName), orderBy(sortField, 'desc'));
 
       unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
-        currentItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        updateMetrics();
+        currentItems = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderMetrics();
         renderFeed();
       });
     }
 
-    function updateMetrics() {
-      const total = currentItems.reduce((sum, item) => sum + (Number(item.estimatedValue) || 0), 0);
-      document.getElementById('portfolioTotal').textContent = `$${total.toFixed(2)}`;
-      document.getElementById('portfolioCount').textContent = currentItems.length;
+    function renderMetrics() {
+      const container = document.getElementById('bannerContainer');
+
+      if (currentAppMode === 'scout') {
+        const potentialProfit = currentItems.reduce((acc, i) => acc + (Number(i.projectedProfit) || 0), 0);
+        container.innerHTML = `
+          <div class="portfolio-metric">
+            <span class="label">Potential Flip Profit</span>
+            <span class="val">$${potentialProfit.toFixed(2)}</span>
+          </div>
+          <div class="portfolio-metric" style="align-items: flex-end;">
+            <span class="label">Prospects Triaged</span>
+            <span class="val neutral">${currentItems.length}</span>
+          </div>
+        `;
+      } else if (currentAppMode === 'owned') {
+        const totalInvested = currentItems.reduce((acc, i) => acc + (Number(i.itemCost) || 0), 0);
+        const projectedNet = currentItems.reduce((acc, i) => acc + (Number(i.projectedProfit) || 0), 0);
+        const grossValue = currentItems.reduce((acc, i) => acc + (Number(i.estimatedValue) || 0), 0);
+
+        container.innerHTML = `
+          <div class="portfolio-metric">
+            <span class="label">Total Cost Basis</span>
+            <span class="val cost">$${totalInvested.toFixed(2)}</span>
+          </div>
+          <div class="portfolio-metric">
+            <span class="label">Projected Net Profit</span>
+            <span class="val">$${projectedNet.toFixed(2)}</span>
+          </div>
+          <div class="portfolio-metric">
+            <span class="label">Gross Comps Value</span>
+            <span class="val neutral">$${grossValue.toFixed(2)}</span>
+          </div>
+          <div class="portfolio-metric" style="align-items: flex-end;">
+            <span class="label">Active Items</span>
+            <span class="val neutral">${currentItems.length}</span>
+          </div>
+        `;
+      } else if (currentAppMode === 'sold') {
+        const totalRealizedProfit = currentItems.reduce((acc, i) => acc + (Number(i.realizedProfit) || 0), 0);
+        const totalRevenue = currentItems.reduce((acc, i) => acc + (Number(i.finalSoldPrice) || 0), 0);
+        const totalOriginalCost = currentItems.reduce((acc, i) => acc + (Number(i.itemCost) || 0), 0);
+
+        container.innerHTML = `
+          <div class="portfolio-metric">
+            <span class="label">Realized Net Profit</span>
+            <span class="val">$${totalRealizedProfit.toFixed(2)}</span>
+          </div>
+          <div class="portfolio-metric">
+            <span class="label">Total Revenue</span>
+            <span class="val neutral">$${totalRevenue.toFixed(2)}</span>
+          </div>
+          <div class="portfolio-metric">
+            <span class="label">Original Cost</span>
+            <span class="val cost">$${totalOriginalCost.toFixed(2)}</span>
+          </div>
+          <div class="portfolio-metric" style="align-items: flex-end;">
+            <span class="label">Units Flipped</span>
+            <span class="val neutral">${currentItems.length}</span>
+          </div>
+        `;
+      }
     }
 
     function renderFeed() {
       const container = document.getElementById('cardsFeed');
       if (currentItems.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px;">No items logged in ${currentAppMode === 'scout' ? 'Scout' : 'Inventory'} mode.</div>`;
+        const labels = {
+          scout: 'No prospects scanned. Ready for field triage.',
+          owned: 'Inventory is empty. Transfer items from Scout mode when purchased.',
+          sold: 'No sold records logged yet.'
+        };
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px;">${labels[currentAppMode]}</div>`;
         return;
       }
 
       container.innerHTML = currentItems.map(item => {
         const sigColors = { GREEN: 'var(--green)', YELLOW: 'var(--yellow)', RED: 'var(--red)' };
-        const sigLabels = { GREEN: 'SELL NOW', YELLOW: 'MONITOR', RED: 'KEEP' };
+        const sigLabels = { GREEN: 'STRONG BUY', YELLOW: 'MARGINAL', RED: 'PASS' };
         const activeColor = sigColors[item.disposition.signal] || '#6b7280';
         const activeLabel = sigLabels[item.disposition.signal] || 'INFO';
         const sanitized = encodeURIComponent(item.searchQuery.replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
         const compUrl = `https://www.ebay.com/sch/i.html?_nkw=${sanitized}&LH_Complete=1&LH_Sold=1`;
 
-        return `
-          <div class="vault-card" style="border-left: 5px solid ${activeColor};" onclick="openDetail('${item.id}')">
-            <div class="card-top">
-              <div>
-                <div class="card-title">${item.brand} - ${item.item}</div>
-                <div class="card-sub">${item.specs}</div>
+        if (currentAppMode === 'scout') {
+          return `
+            <div class="vault-card" style="border-left: 5px solid ${activeColor};" onclick="openDetail('${item.id}')">
+              <div class="card-top">
+                <div>
+                  <div class="card-title">${item.brand} - ${item.item}</div>
+                  <div class="card-sub">${item.specs}</div>
+                </div>
+                <span class="badge-signal" style="background: ${activeColor};">${activeLabel}</span>
               </div>
-              <span class="badge-signal" style="background: ${activeColor};">${activeLabel}</span>
+              <div class="calc-row">
+                <div class="calc-item">
+                  <span>Sold Comp</span>
+                  <span style="color: #fff;">$${Number(item.estimatedValue).toFixed(2)}</span>
+                </div>
+                <div class="calc-item">
+                  <span>Ship Est.</span>
+                  <span style="color: var(--text-muted);">$${Number(item.estimatedShippingOutlay).toFixed(2)}</span>
+                </div>
+                <div class="calc-item">
+                  <span>Est. Net Profit</span>
+                  <span style="color: var(--green);">$${Number(item.projectedProfit).toFixed(2)}</span>
+                </div>
+              </div>
+              <div class="card-summary"><strong>Signal Rationale:</strong> ${item.disposition.reason}</div>
+              <div class="card-actions">
+                <button class="btn-card transfer" onclick="transferToInventory('${item.id}', event)">📥 Buy & Move to Inventory</button>
+                <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" onclick="event.stopPropagation();">eBay Sold Comps ↗</a>
+                <button class="btn-card delete" onclick="deleteItem('${item.id}', event)">Discard</button>
+              </div>
             </div>
-            <div class="card-val">$${Number(item.estimatedValue).toFixed(2)} <span>(${item.priceRange})</span></div>
-            <div class="card-summary"><strong>Signal:</strong> ${item.disposition.reason}</div>
-            <div class="card-actions">
-              <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-comp" onclick="event.stopPropagation();">
-                Live eBay Sold Comps ↗
-              </a>
-              <button class="btn-delete-card" onclick="deleteItem('${item.id}', event)">Remove</button>
+          `;
+        } else if (currentAppMode === 'owned') {
+          return `
+            <div class="vault-card" style="border-left: 5px solid var(--accent);" onclick="openDetail('${item.id}')">
+              <div class="card-top">
+                <div>
+                  <div class="card-title">${item.brand} - ${item.item}</div>
+                  <div class="card-sub">${item.specs}</div>
+                </div>
+                <span class="badge-signal" style="background: var(--accent); color: #fff;">IN STOCK</span>
+              </div>
+              <div class="calc-row">
+                <div class="calc-item">
+                  <span>Purchase Cost</span>
+                  <span style="color: var(--yellow);">$${Number(item.itemCost).toFixed(2)}</span>
+                </div>
+                <div class="calc-item">
+                  <span>Target Gross</span>
+                  <span style="color: #fff;">$${Number(item.estimatedValue).toFixed(2)}</span>
+                </div>
+                <div class="calc-item">
+                  <span>Projected Net</span>
+                  <span style="color: var(--green);">$${Number(item.projectedProfit).toFixed(2)}</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <button class="btn-card sold" onclick="markAsSold('${item.id}', event)">💰 Mark as Sold</button>
+                <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" onclick="event.stopPropagation();">Live Comps ↗</a>
+                <button class="btn-card delete" onclick="deleteItem('${item.id}', event)">Remove</button>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        } else {
+          return `
+            <div class="vault-card" style="border-left: 5px solid var(--green);" onclick="openDetail('${item.id}')">
+              <div class="card-top">
+                <div>
+                  <div class="card-title">${item.brand} - ${item.item}</div>
+                  <div class="card-sub">Sold on: ${new Date(item.soldAt).toLocaleDateString()}</div>
+                </div>
+                <span class="badge-signal" style="background: var(--green); color: #000;">COMPLETED</span>
+              </div>
+              <div class="calc-row">
+                <div class="calc-item">
+                  <span>Cost Basis</span>
+                  <span style="color: var(--yellow);">$${Number(item.itemCost).toFixed(2)}</span>
+                </div>
+                <div class="calc-item">
+                  <span>Sold Price</span>
+                  <span style="color: #fff;">$${Number(item.finalSoldPrice).toFixed(2)}</span>
+                </div>
+                <div class="calc-item">
+                  <span>Realized Profit</span>
+                  <span style="color: var(--green);">$${Number(item.realizedProfit).toFixed(2)}</span>
+                </div>
+              </div>
+              <div class="card-actions">
+                <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" onclick="event.stopPropagation();">Comps ↗</a>
+                <button class="btn-card delete" onclick="deleteItem('${item.id}', event)">Purge</button>
+              </div>
+            </div>
+          `;
+        }
       }).join('');
     }
 
@@ -705,19 +951,21 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         </div>
         <div class="modal-section">
           <strong>Valuation & Comps</strong>
-          <span style="font-size: 1.1rem; color: var(--green); font-weight: 700;">$${Number(target.estimatedValue).toFixed(2)}</span> (${target.priceRange})<br>
-          Confidence: ${target.confidence}<br>
-          Verdict: <strong>${target.verdict}</strong>
+          Sold Average: <span style="font-weight: 700; color: var(--green);">$${Number(target.estimatedValue).toFixed(2)}</span> (${target.priceRange})<br>
+          Model Confidence: ${target.confidence}<br>
+          Appraisal Verdict: <strong>${target.verdict}</strong>
         </div>
         <div class="modal-section">
-          <strong>Disposition Analysis</strong>
-          Signal: <strong>${target.disposition.signal}</strong><br>
-          Rationale: ${target.disposition.reason}
+          <strong>Financial Breakdown</strong>
+          Item Cost: $${Number(target.itemCost).toFixed(2)}<br>
+          Estimated Shipping Outlay: $${Number(target.estimatedShippingOutlay).toFixed(2)} (${target.buyerPaysShipping ? 'Buyer Pays' : 'Free Shipping'})<br>
+          Est. eBay Fee (13.25% + $0.40): $${((target.estimatedValue * 0.1325) + 0.40).toFixed(2)}<br>
+          Net Take-Home: <strong>$${Number(target.projectedProfit).toFixed(2)}</strong>
         </div>
         <div class="modal-section">
           <strong>Marketplace Routing & Logistics</strong>
           Platform: ${target.routing.platform}<br>
-          Strategy: ${target.routing.strategy}<br>
+          Listing Strategy: ${target.routing.strategy}<br>
           Shipping Tier: ${target.shipping.tier}<br>
           Packaging: ${target.shipping.packaging}<br>
           Service: ${target.shipping.service}
@@ -727,7 +975,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
           ${target.intel}
         </div>
         <div style="margin-top: 14px;">
-          <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-comp" style="width: 100%; text-align: center; padding: 12px;">
+          <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" style="width: 100%; justify-content: center; padding: 12px;">
             Open Live eBay Sold Comps ↗
           </a>
         </div>
@@ -739,7 +987,104 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       document.getElementById('detailModal').style.display = 'none';
     };
 
-    listenToCollection();
+    // Auto-seed initial baseline records if collections are empty
+    async function seedInitialDatabaseIfEmpty() {
+      const seededFlag = localStorage.getItem('thrift_db_seeded_v1');
+      if (seededFlag) return;
+
+      try {
+        const scoutSnap = await getDocs(collection(db, 'scout_prospects'));
+        const ownedSnap = await getDocs(collection(db, 'vault_inventory'));
+        const soldSnap = await getDocs(collection(db, 'vault_sold'));
+
+        if (scoutSnap.empty && ownedSnap.empty && soldSnap.empty) {
+          // Placeholder 1x1 gray pixel image for seeds
+          const placeholderImg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23222630%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%239ca3af%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2216%22%3EVerified%20Asset%20Snapshot%3C%2Ftext%3E%3C%2Fsvg%3E";
+
+          // Seed Scout prospect
+          await addDoc(collection(db, 'scout_prospects'), {
+            image: placeholderImg,
+            brand: 'Yamaha',
+            item: 'Natural Sound Stereo Receiver CR-620',
+            specs: 'Vintage 1970s Silverface Component',
+            estimatedValue: 145.00,
+            priceRange: '$120 - $175',
+            confidence: 'High',
+            itemCost: 0.00,
+            buyerPaysShipping: false,
+            estimatedShippingOutlay: 16.50,
+            projectedProfit: 108.91,
+            disposition: {
+              signal: 'GREEN',
+              reason: 'High collector velocity; vintage silverface audio consistently holds secondary demand.'
+            },
+            routing: { platform: 'eBay', strategy: 'List at $155, floor at $130' },
+            shipping: { tier: '5+ lbs / Oversized', packaging: 'Double-Box Fragile', service: 'UPS Ground' },
+            intel: 'Inspect dial illumination lamps and verify clean balance pot action.',
+            searchQuery: 'Yamaha CR-620 Stereo Receiver',
+            verdict: 'BUY TO FLIP',
+            status: 'prospect',
+            createdAt: Date.now() - 3600000
+          });
+
+          // Seed Owned inventory
+          await addDoc(collection(db, 'vault_inventory'), {
+            image: placeholderImg,
+            brand: 'Griswold',
+            item: 'Cast Iron Skillet #8 Large Block Logo',
+            specs: 'Pattern 704, Erie PA',
+            estimatedValue: 85.00,
+            priceRange: '$75 - $110',
+            confidence: 'High',
+            itemCost: 8.00,
+            buyerPaysShipping: true,
+            estimatedShippingOutlay: 0.00,
+            projectedProfit: 65.34,
+            disposition: { signal: 'GREEN', reason: 'Large block Griswold sells within 48 hours.' },
+            routing: { platform: 'eBay', strategy: 'List at $89 fixed price' },
+            shipping: { tier: '1-5 lbs', packaging: 'Boxed', service: 'USPS Ground Advantage' },
+            intel: 'Check cooking surface for wobble or hairline rim fractures.',
+            searchQuery: 'Griswold 8 Cast Iron Skillet 704',
+            verdict: 'BUY TO FLIP',
+            status: 'owned',
+            purchasedAt: Date.now() - 86400000
+          });
+
+          // Seed Sold archive
+          await addDoc(collection(db, 'vault_sold'), {
+            image: placeholderImg,
+            brand: 'Patagonia',
+            item: 'Synchilla Snap-T Fleece Pullover',
+            specs: 'Mens Large / Tribal Native Aztec Pattern',
+            estimatedValue: 95.00,
+            finalSoldPrice: 92.00,
+            priceRange: '$80 - $115',
+            confidence: 'High',
+            itemCost: 6.50,
+            buyerPaysShipping: true,
+            actualShippingPaid: 0.00,
+            realizedProfit: 72.91,
+            disposition: { signal: 'GREEN', reason: 'Pattern Synchilla commands rapid sell-through.' },
+            routing: { platform: 'eBay', strategy: 'Listed at $95' },
+            shipping: { tier: '1-5 lbs', packaging: 'Poly Mailer', service: 'USPS Ground Advantage' },
+            intel: 'Verified pocket snap tension and clean piping along cuffs.',
+            searchQuery: 'Patagonia Synchilla Snap T Aztec Fleece Large',
+            verdict: 'BUY TO FLIP',
+            status: 'sold',
+            soldAt: Date.now() - 172800000
+          });
+
+          localStorage.setItem('thrift_db_seeded_v1', 'true');
+        }
+      } catch (err) {
+        console.warn('Seeding skipped or already initialized:', err);
+      }
+    }
+
+    (async () => {
+      await seedInitialDatabaseIfEmpty();
+      listenToCollection();
+    })();
   </script>
 </body>
 </html>
