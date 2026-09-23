@@ -288,7 +288,7 @@
 <body>
 
   <header>
-    <div class="brand-title">THRIFT-VAULT <span>• AI</span></div>
+    <div class="brand-title">THRIFT SCOUT <span>• VAULT</span></div>
     <button class="btn-key" onclick="promptApiKey()">API Key</button>
   </header>
 
@@ -299,7 +299,7 @@
 
   <div class="portfolio-banner">
     <div class="portfolio-metric">
-      <span class="label" id="portfolioLabel">Portfolio Value</span>
+      <span class="label" id="portfolioLabel">Scout Hunt Value</span>
       <span class="val" id="portfolioTotal">$0.00</span>
     </div>
     <div class="portfolio-metric" style="align-items: flex-end;">
@@ -327,7 +327,23 @@
     <div id="modalContent"></div>
   </div>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtDQnJuWvJOp__hVHO5fdNhjiRjZZkskI",
+      authDomain: "thrift-scout-1b937.firebaseapp.com",
+      projectId: "thrift-scout-1b937",
+      storageBucket: "thrift-scout-1b937.firebasestorage.app",
+      messagingSenderId: "559782240794",
+      appId: "1:559782240794:web:5ace10f3f027b4cd82e7a3",
+      measurementId: "G-4KFLG8XRQ8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const SYSTEM_PROMPT = `
 You are Thrift-Vault AI, an expert secondary-market appraiser.
 Analyze the provided image(s) and output strictly in the following 8-section labeled format. Do not use markdown tables or unstructured bullet points outside these labels.
@@ -366,29 +382,24 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 `;
 
     let currentAppMode = 'scout';
+    let currentItems = [];
 
-    window.addEventListener('DOMContentLoaded', () => {
-      updatePortfolioMetrics();
-      loadActiveFeed();
-    });
-
-    function promptApiKey() {
+    window.promptApiKey = function() {
       const stored = localStorage.getItem('thrift_gemini_key') || '';
       const input = prompt('Enter Google AI Studio API Key:', stored);
       if (input !== null) {
         localStorage.setItem('thrift_gemini_key', input.trim());
         triggerAlert('API Key saved.');
       }
-    }
+    };
 
-    function switchMode(mode) {
+    window.switchMode = function(mode) {
       currentAppMode = mode;
       document.getElementById('modeScout').classList.toggle('active', mode === 'scout');
       document.getElementById('modeOwned').classList.toggle('active', mode === 'owned');
       document.getElementById('portfolioLabel').textContent = mode === 'scout' ? 'Scout Hunt Value' : 'Portfolio Value';
-      updatePortfolioMetrics();
-      loadActiveFeed();
-    }
+      listenToCollection();
+    };
 
     function triggerAlert(msg, isError = false) {
       const box = document.getElementById('statusAlert');
@@ -401,14 +412,14 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       document.getElementById('statusAlert').style.display = 'none';
     }
 
-    async function processCapture(input) {
+    window.processCapture = async function(input) {
       const file = input.files[0];
       if (!file) return;
 
       const key = localStorage.getItem('thrift_gemini_key');
       if (!key) {
         alert('API Key missing. Please provide your Google AI Studio key.');
-        promptApiKey();
+        window.promptApiKey();
         return;
       }
 
@@ -418,7 +429,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       triggerAlert('Consulting Gemini 3.6-flash valuation engine...');
       runAppraisal(base64Data, key);
       input.value = '';
-    }
+    };
 
     function resizeCanvas(file, maxW, maxH) {
       return new Promise((resolve) => {
@@ -443,7 +454,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
             canvas.width = w;
             canvas.height = h;
             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', 0.85));
+            resolve(canvas.toDataURL('image/jpeg', 0.70));
           };
           img.src = e.target.result;
         };
@@ -471,14 +482,12 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
           body: JSON.stringify(body)
         });
 
-        // 503 Capacity Limit Handling
         if (response.status === 503 && retries > 0) {
           triggerAlert('Capacity limit (503). Retrying in 2 seconds...');
           await new Promise(r => setTimeout(r, 2000));
           return runAppraisal(fullBase64, key, retries - 1, waitSeconds);
         }
 
-        // 429 Quota Exceeded Handling with Real-Time Countdown
         if (response.status === 429 && retries > 0) {
           for (let c = waitSeconds; c > 0; c--) {
             triggerAlert(`Rate limit active (429). Auto-resuming scan in ${c}s...`);
@@ -498,9 +507,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 
         dismissAlert();
         const appraisal = parseResponseData(text, fullBase64);
-        persistAppraisal(appraisal);
-        updatePortfolioMetrics();
-        loadActiveFeed();
+        await saveToCloud(appraisal);
 
       } catch (err) {
         triggerAlert(err.message, true);
@@ -540,7 +547,6 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       const item = getVal(idBlock, 'Model/Item') || 'Item';
 
       return {
-        id: Date.now(),
         image: imageUri,
         brand: brand,
         item: item,
@@ -564,47 +570,52 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         intel: intelBlock,
         searchQuery: queryBlock !== 'N/A' ? queryBlock : `${brand} ${item}`,
         verdict: verdictBlock,
-        timestamp: new Date().toLocaleString()
+        mode: currentAppMode,
+        createdAt: Date.now()
       };
     }
 
-    function persistAppraisal(item) {
-      const storageKey = currentAppMode === 'scout' ? 'thrift_scout_history' : 'thrift_owned_inventory';
-      const list = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      list.unshift(item);
-      localStorage.setItem(storageKey, JSON.stringify(list));
+    async function saveToCloud(item) {
+      const collectionName = currentAppMode === 'scout' ? 'scout_history' : 'owned_inventory';
+      await addDoc(collection(db, collectionName), item);
     }
 
-    function updatePortfolioMetrics() {
-      const storageKey = currentAppMode === 'scout' ? 'thrift_scout_history' : 'thrift_owned_inventory';
-      const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      const total = items.reduce((sum, item) => sum + (Number(item.estimatedValue) || 0), 0);
-      document.getElementById('portfolioTotal').textContent = `$${total.toFixed(2)}`;
-      document.getElementById('portfolioCount').textContent = items.length;
-    }
-
-    function deleteItem(id, event) {
+    window.deleteItem = async function(id, event) {
       if (event) event.stopPropagation();
-      const storageKey = currentAppMode === 'scout' ? 'thrift_scout_history' : 'thrift_owned_inventory';
-      let items = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      items = items.filter(i => i.id !== id);
-      localStorage.setItem(storageKey, JSON.stringify(items));
-      updatePortfolioMetrics();
-      loadActiveFeed();
-      closeDetail();
+      const collectionName = currentAppMode === 'scout' ? 'scout_history' : 'owned_inventory';
+      await deleteDoc(doc(db, collectionName, id));
+      window.closeDetail();
+    };
+
+    let unsubscribeSnapshot = null;
+
+    function listenToCollection() {
+      if (unsubscribeSnapshot) unsubscribeSnapshot();
+
+      const collectionName = currentAppMode === 'scout' ? 'scout_history' : 'owned_inventory';
+      const q = query(collection(db, collectionName), orderBy('createdAt', 'desc'));
+
+      unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+        currentItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        updateMetrics();
+        renderFeed();
+      });
     }
 
-    function loadActiveFeed() {
-      const storageKey = currentAppMode === 'scout' ? 'thrift_scout_history' : 'thrift_owned_inventory';
-      const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      const container = document.getElementById('cardsFeed');
+    function updateMetrics() {
+      const total = currentItems.reduce((sum, item) => sum + (Number(item.estimatedValue) || 0), 0);
+      document.getElementById('portfolioTotal').textContent = `$${total.toFixed(2)}`;
+      document.getElementById('portfolioCount').textContent = currentItems.length;
+    }
 
-      if (items.length === 0) {
+    function renderFeed() {
+      const container = document.getElementById('cardsFeed');
+      if (currentItems.length === 0) {
         container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px;">No items logged in ${currentAppMode === 'scout' ? 'Scout' : 'Inventory'} mode.</div>`;
         return;
       }
 
-      container.innerHTML = items.map(item => {
+      container.innerHTML = currentItems.map(item => {
         const sigColors = { GREEN: 'var(--green)', YELLOW: 'var(--yellow)', RED: 'var(--red)' };
         const sigLabels = { GREEN: 'SELL NOW', YELLOW: 'MONITOR', RED: 'KEEP' };
         const activeColor = sigColors[item.disposition.signal] || '#6b7280';
@@ -613,7 +624,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         const compUrl = `https://www.ebay.com/sch/i.html?_nkw=${sanitized}&LH_Complete=1&LH_Sold=1`;
 
         return `
-          <div class="vault-card" style="border-left: 5px solid ${activeColor};" onclick="openDetail(${item.id})">
+          <div class="vault-card" style="border-left: 5px solid ${activeColor};" onclick="openDetail('${item.id}')">
             <div class="card-top">
               <div>
                 <div class="card-title">${item.brand} - ${item.item}</div>
@@ -627,21 +638,19 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
               <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-comp" onclick="event.stopPropagation();">
                 Live eBay Sold Comps ↗
               </a>
-              <button class="btn-delete-card" onclick="deleteItem(${item.id}, event)">Remove</button>
+              <button class="btn-delete-card" onclick="deleteItem('${item.id}', event)">Remove</button>
             </div>
           </div>
         `;
       }).join('');
     }
 
-    function openDetail(id) {
-      const storageKey = currentAppMode === 'scout' ? 'thrift_scout_history' : 'thrift_owned_inventory';
-      const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      const target = items.find(i => i.id === id);
+    window.openDetail = function(id) {
+      const target = currentItems.find(i => i.id === id);
       if (!target) return;
 
       document.getElementById('modalImage').src = target.image;
-      document.getElementById('modalDeleteBtn').onclick = () => deleteItem(target.id);
+      document.getElementById('modalDeleteBtn').onclick = () => window.deleteItem(target.id);
 
       const sanitized = encodeURIComponent(target.searchQuery.replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
       const compUrl = `https://www.ebay.com/sch/i.html?_nkw=${sanitized}&LH_Complete=1&LH_Sold=1`;
@@ -682,11 +691,13 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         </div>
       `;
       document.getElementById('detailModal').style.display = 'block';
-    }
+    };
 
-    function closeDetail() {
+    window.closeDetail = function() {
       document.getElementById('detailModal').style.display = 'none';
-    }
+    };
+
+    listenToCollection();
   </script>
 </body>
 </html>
