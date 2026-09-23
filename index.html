@@ -203,6 +203,12 @@
       line-height: 1.4;
       margin-bottom: 10px;
     }
+    .card-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
     .btn-comp {
       display: inline-block;
       background: var(--ebay);
@@ -213,6 +219,16 @@
       font-size: 0.75rem;
       font-weight: 700;
       width: fit-content;
+    }
+    .btn-delete-card {
+      background: transparent;
+      color: var(--red);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
     }
     #detailModal {
       display: none;
@@ -228,8 +244,8 @@
     }
     .modal-nav {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 12px;
       margin-bottom: 16px;
     }
     .btn-back {
@@ -258,6 +274,7 @@
       padding: 12px;
       margin-bottom: 10px;
       font-size: 0.85rem;
+      line-height: 1.5;
     }
     .modal-section strong {
       display: block;
@@ -282,11 +299,11 @@
 
   <div class="portfolio-banner">
     <div class="portfolio-metric">
-      <span class="label">Owned Valuation</span>
+      <span class="label" id="portfolioLabel">Portfolio Value</span>
       <span class="val" id="portfolioTotal">$0.00</span>
     </div>
     <div class="portfolio-metric" style="align-items: flex-end;">
-      <span class="label">Total Items</span>
+      <span class="label">Total Assets</span>
       <span class="val" id="portfolioCount" style="color: #fff;">0</span>
     </div>
   </div>
@@ -304,7 +321,7 @@
   <div id="detailModal">
     <div class="modal-nav">
       <button class="btn-back" onclick="closeDetail()">← Back to Scanner</button>
-      <span style="font-weight: 700; font-size: 0.9rem;">Appraisal Details</span>
+      <button id="modalDeleteBtn" class="btn-delete-card">Delete Item</button>
     </div>
     <img id="modalImage" class="modal-img" src="" alt="Captured Asset">
     <div id="modalContent"></div>
@@ -330,7 +347,7 @@ Signal: <GREEN | YELLOW | RED>
 Reason: <1 concise sentence justifying the signal based on sell-through velocity or depreciation>
 
 [MARKETPLACE_ROUTING]
-Primary Platform: <eBay | Mercari | Poshmark | Etsy | Local (OfferUp/FB Marketplace)>
+Primary Platform: <eBay | Mercari | Poshmark | Etsy | Local (OfferUp/Craigslist)>
 Listing Strategy: List at $<Optimal List Price>, floor at $<Minimum Acceptable Offer>
 
 [SHIPPING_PROTOCOL]
@@ -368,6 +385,8 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       currentAppMode = mode;
       document.getElementById('modeScout').classList.toggle('active', mode === 'scout');
       document.getElementById('modeOwned').classList.toggle('active', mode === 'owned');
+      document.getElementById('portfolioLabel').textContent = mode === 'scout' ? 'Scout Hunt Value' : 'Portfolio Value';
+      updatePortfolioMetrics();
       loadActiveFeed();
     }
 
@@ -452,14 +471,14 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
           body: JSON.stringify(body)
         });
 
-        // 503 Capacity Handler
+        // 503 Capacity Limit Handling
         if (response.status === 503 && retries > 0) {
-          triggerAlert('Capacity busy (503). Retrying in 2 seconds...');
+          triggerAlert('Capacity limit (503). Retrying in 2 seconds...');
           await new Promise(r => setTimeout(r, 2000));
           return runAppraisal(fullBase64, key, retries - 1, waitSeconds);
         }
 
-        // 429 Quota Exceeded Handler with Live Countdown
+        // 429 Quota Exceeded Handling with Real-Time Countdown
         if (response.status === 429 && retries > 0) {
           for (let c = waitSeconds; c > 0; c--) {
             triggerAlert(`Rate limit active (429). Auto-resuming scan in ${c}s...`);
@@ -528,6 +547,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         specs: getVal(idBlock, 'Era/Size/Specs') || 'N/A',
         estimatedValue: estValue,
         priceRange: getVal(valBlock, 'Price Range') || '$0 - $0',
+        confidence: getVal(valBlock, 'Confidence') || 'Medium',
         disposition: {
           signal: signal,
           reason: getVal(dispBlock, 'Reason') || 'No rationale available.'
@@ -544,7 +564,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
         intel: intelBlock,
         searchQuery: queryBlock !== 'N/A' ? queryBlock : `${brand} ${item}`,
         verdict: verdictBlock,
-        date: new Date().toLocaleDateString()
+        timestamp: new Date().toLocaleString()
       };
     }
 
@@ -556,10 +576,22 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
     }
 
     function updatePortfolioMetrics() {
-      const owned = JSON.parse(localStorage.getItem('thrift_owned_inventory') || '[]');
-      const total = owned.reduce((sum, item) => sum + (Number(item.estimatedValue) || 0), 0);
+      const storageKey = currentAppMode === 'scout' ? 'thrift_scout_history' : 'thrift_owned_inventory';
+      const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      const total = items.reduce((sum, item) => sum + (Number(item.estimatedValue) || 0), 0);
       document.getElementById('portfolioTotal').textContent = `$${total.toFixed(2)}`;
-      document.getElementById('portfolioCount').textContent = owned.length;
+      document.getElementById('portfolioCount').textContent = items.length;
+    }
+
+    function deleteItem(id, event) {
+      if (event) event.stopPropagation();
+      const storageKey = currentAppMode === 'scout' ? 'thrift_scout_history' : 'thrift_owned_inventory';
+      let items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      items = items.filter(i => i.id !== id);
+      localStorage.setItem(storageKey, JSON.stringify(items));
+      updatePortfolioMetrics();
+      loadActiveFeed();
+      closeDetail();
     }
 
     function loadActiveFeed() {
@@ -591,9 +623,12 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
             </div>
             <div class="card-val">$${Number(item.estimatedValue).toFixed(2)} <span>(${item.priceRange})</span></div>
             <div class="card-summary"><strong>Signal:</strong> ${item.disposition.reason}</div>
-            <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-comp" onclick="event.stopPropagation();">
-              Live eBay Sold Comps ↗
-            </a>
+            <div class="card-actions">
+              <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-comp" onclick="event.stopPropagation();">
+                Live eBay Sold Comps ↗
+              </a>
+              <button class="btn-delete-card" onclick="deleteItem(${item.id}, event)">Remove</button>
+            </div>
           </div>
         `;
       }).join('');
@@ -606,29 +641,44 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       if (!target) return;
 
       document.getElementById('modalImage').src = target.image;
+      document.getElementById('modalDeleteBtn').onclick = () => deleteItem(target.id);
+
+      const sanitized = encodeURIComponent(target.searchQuery.replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
+      const compUrl = `https://www.ebay.com/sch/i.html?_nkw=${sanitized}&LH_Complete=1&LH_Sold=1`;
+
       document.getElementById('modalContent').innerHTML = `
         <div class="modal-section">
-          <strong>Identification</strong>
-          ${target.brand} - ${target.item} (${target.specs})
+          <strong>Item Identification</strong>
+          ${target.brand} - ${target.item}<br>
+          <span style="color: var(--text-muted);">${target.specs}</span>
         </div>
         <div class="modal-section">
-          <strong>Valuation & Verdict</strong>
-          $${Number(target.estimatedValue).toFixed(2)} [${target.priceRange}]<br>
-          Verdict: ${target.verdict}
+          <strong>Valuation & Comps</strong>
+          <span style="font-size: 1.1rem; color: var(--green); font-weight: 700;">$${Number(target.estimatedValue).toFixed(2)}</span> (${target.priceRange})<br>
+          Confidence: ${target.confidence}<br>
+          Verdict: <strong>${target.verdict}</strong>
         </div>
         <div class="modal-section">
-          <strong>Disposition Assessment</strong>
-          Signal: ${target.disposition.signal}<br>
-          Reason: ${target.disposition.reason}
+          <strong>Disposition Analysis</strong>
+          Signal: <strong>${target.disposition.signal}</strong><br>
+          Rationale: ${target.disposition.reason}
         </div>
         <div class="modal-section">
-          <strong>Platform & Shipping Protocol</strong>
-          Target: ${target.routing.platform} (${target.routing.strategy})<br>
-          Shipping: ${target.shipping.tier} | ${target.shipping.packaging} | ${target.shipping.service}
+          <strong>Marketplace Routing & Logistics</strong>
+          Platform: ${target.routing.platform}<br>
+          Strategy: ${target.routing.strategy}<br>
+          Shipping Tier: ${target.shipping.tier}<br>
+          Packaging: ${target.shipping.packaging}<br>
+          Service: ${target.shipping.service}
         </div>
         <div class="modal-section">
-          <strong>Technical Intel & Authentication</strong>
+          <strong>Technical Intel & Hardware Specs</strong>
           ${target.intel}
+        </div>
+        <div style="margin-top: 14px;">
+          <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-comp" style="width: 100%; text-align: center; padding: 12px;">
+            Open Live eBay Sold Comps ↗
+          </a>
         </div>
       `;
       document.getElementById('detailModal').style.display = 'block';
