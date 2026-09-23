@@ -426,7 +426,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
       triggerAlert('Compressing image to 1000px...');
       const base64Data = await resizeCanvas(file, 1000, 1000);
 
-      triggerAlert('Consulting Gemini 3.6-flash valuation engine...');
+      triggerAlert('Consulting Gemini 1.5-flash valuation engine...');
       runAppraisal(base64Data, key);
       input.value = '';
     };
@@ -464,7 +464,7 @@ Recommended Service: <USPS Ground Advantage | USPS Priority Mail | UPS Ground>
 
     async function runAppraisal(fullBase64, key, retries = 3, waitSeconds = 12) {
       const rawPayload = fullBase64.split(',')[1];
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${key}`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
 
       const body = {
         contents: [{
