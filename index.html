@@ -93,7 +93,7 @@
       padding: 12px 14px;
       margin-bottom: 14px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
       gap: 10px;
     }
     .portfolio-metric {
@@ -117,6 +117,23 @@
     }
     .portfolio-metric .val.cost {
       color: var(--yellow);
+    }
+    .search-wrapper {
+      display: none;
+      margin-bottom: 14px;
+    }
+    .search-input {
+      width: 100%;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      color: #fff;
+      outline: none;
+    }
+    .search-input:focus {
+      border-color: var(--accent);
     }
     .gesture-hint {
       font-size: 0.7rem;
@@ -202,6 +219,9 @@
       font-size: 0.75rem;
       color: var(--text-muted);
       margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     .badge-signal {
       font-size: 0.65rem;
@@ -211,6 +231,14 @@
       color: #000;
       text-transform: uppercase;
       white-space: nowrap;
+    }
+    .badge-age {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
     }
     .calc-row {
       display: grid;
@@ -352,6 +380,10 @@
   <div class="portfolio-banner" id="bannerContainer"></div>
   <div class="gesture-hint">⇄ Swipe Right to Advance • Swipe Left to Discard</div>
 
+  <div class="search-wrapper" id="searchWrapper">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search Inventory by brand, item, specs..." oninput="handleSearch()">
+  </div>
+
   <div class="action-panel" id="actionPanel">
     <label class="btn-action" id="scanBtnLabel" for="cameraInput">
       📷 Scan Item Appraisal
@@ -427,6 +459,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
 
     let currentAppMode = 'scout';
     let currentItems = [];
+    let filteredItems = [];
     let isProcessing = false;
 
     window.promptApiKey = function() {
@@ -444,6 +477,13 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       document.getElementById('modeOwned').classList.toggle('active', mode === 'owned');
       document.getElementById('modeSold').classList.toggle('active', mode === 'sold');
       document.getElementById('actionPanel').style.display = mode === 'scout' ? 'flex' : 'none';
+      
+      const searchWrapper = document.getElementById('searchWrapper');
+      const searchInput = document.getElementById('searchInput');
+      searchWrapper.style.display = mode !== 'scout' ? 'block' : 'none';
+      searchInput.value = '';
+      searchInput.placeholder = mode === 'owned' ? '🔍 Search Inventory by brand, item, specs...' : '🔍 Search Sold Archive...';
+
       listenToCollection();
     };
 
@@ -504,6 +544,12 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       if (gross <= 0) return 0;
       const ebayFee = (gross * 0.1325) + 0.40;
       return Number((gross - cost - ebayFee - ship).toFixed(2));
+    }
+
+    function getDaysInStock(timestamp) {
+      if (!timestamp) return 0;
+      const diffMs = Date.now() - timestamp;
+      return Math.floor(diffMs / (1000 * 60 * 60 * 24));
     }
 
     window.processCapture = async function(input) {
@@ -684,7 +730,6 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       };
     }
 
-    // Transfers to inventory with clean empty input prompt
     window.transferToInventory = async function(id, event) {
       if (event) event.stopPropagation();
       const target = currentItems.find(i => i.id === id);
@@ -714,7 +759,6 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       triggerAlert(`Added "${target.item}" to Inventory.`);
     };
 
-    // Marks as sold with clean empty input prompt
     window.markAsSold = async function(id, event) {
       if (event) event.stopPropagation();
       const target = currentItems.find(i => i.id === id);
@@ -757,7 +801,38 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
       window.closeDetail();
     };
 
-    // Native touch swipe listener engine
+    window.handleSearch = function() {
+      const term = document.getElementById('searchInput').value.toLowerCase().trim();
+      if (!term) {
+        filteredItems = [...currentItems];
+      } else {
+        filteredItems = currentItems.filter(item => {
+          const matchTarget = `${item.brand} ${item.item} ${item.specs} ${item.intel}`.toLowerCase();
+          return matchTarget.includes(term);
+        });
+      }
+      renderFeed();
+      setupSwipeGestures();
+    };
+
+    window.copyEbayListing = function(id) {
+      const item = currentItems.find(i => i.id === id);
+      if (!item) return;
+
+      const rawTitle = `${item.brand} ${item.item} ${item.specs}`.replace(/[\n\r]+/g, ' ').trim();
+      const title = rawTitle.length > 80 ? rawTitle.substring(0, 77) + '...' : rawTitle;
+
+      const description = `ITEM: ${item.brand} - ${item.item}\nSPECIFICATIONS: ${item.specs}\n\nCONDITION / TECHNICAL INTEL:\n${item.intel}\n\nSHIPPING:\nPackaged via ${item.shipping.packaging} with ${item.shipping.service}.`;
+
+      const formatted = `TITLE (Max 80 chars):\n${title}\n\nDESCRIPTION:\n${description}`;
+
+      navigator.clipboard.writeText(formatted).then(() => {
+        triggerAlert('Copied formatted eBay Title & Description to clipboard!');
+      }).catch(() => {
+        prompt('Copy listing details:', formatted);
+      });
+    };
+
     function setupSwipeGestures() {
       const cards = document.querySelectorAll('.vault-card');
       cards.forEach(card => {
@@ -780,7 +855,6 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
           const diffX = touchX - startX;
           const diffY = touchY - startY;
 
-          // Ignore horizontal gesture if vertical scrolling is prominent
           if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffX) < 15) {
             isSwiping = false;
             return;
@@ -790,9 +864,9 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
           card.style.transform = `translateX(${currentX}px)`;
 
           if (currentX > 30) {
-            card.style.backgroundColor = '#064e3b'; // Green cue for Advance
+            card.style.backgroundColor = '#064e3b';
           } else if (currentX < -30) {
-            card.style.backgroundColor = '#450a0a'; // Red cue for Discard
+            card.style.backgroundColor = '#450a0a';
           } else {
             card.style.backgroundColor = 'var(--panel)';
           }
@@ -806,7 +880,6 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
 
           const id = card.dataset.id;
           if (currentX > 75) {
-            // Swiped Right -> Advance
             card.style.transform = 'translateX(100%)';
             setTimeout(() => {
               if (currentAppMode === 'scout') {
@@ -817,14 +890,12 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
               card.style.transform = 'translateX(0px)';
             }, 180);
           } else if (currentX < -75) {
-            // Swiped Left -> Discard
             card.style.transform = 'translateX(-100%)';
             setTimeout(() => {
               window.deleteItem(id);
               card.style.transform = 'translateX(0px)';
             }, 180);
           } else {
-            // Return to rest
             card.style.transform = 'translateX(0px)';
           }
           currentX = 0;
@@ -843,6 +914,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
 
       unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
         currentItems = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        filteredItems = [...currentItems];
         renderMetrics();
         renderFeed();
         setupSwipeGestures();
@@ -871,20 +943,20 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
 
         container.innerHTML = `
           <div class="portfolio-metric">
-            <span class="label">Total Cost Basis</span>
+            <span class="label">Inventory Units</span>
+            <span class="val neutral">${currentItems.length}</span>
+          </div>
+          <div class="portfolio-metric">
+            <span class="label">Total Cost</span>
             <span class="val cost">$${totalInvested.toFixed(2)}</span>
           </div>
           <div class="portfolio-metric">
-            <span class="label">Projected Net Profit</span>
+            <span class="label">Projected Net</span>
             <span class="val">$${projectedNet.toFixed(2)}</span>
           </div>
           <div class="portfolio-metric">
-            <span class="label">Gross Comps Value</span>
+            <span class="label">Gross Comps</span>
             <span class="val neutral">$${grossValue.toFixed(2)}</span>
-          </div>
-          <div class="portfolio-metric" style="align-items: flex-end;">
-            <span class="label">Active Items</span>
-            <span class="val neutral">${currentItems.length}</span>
           </div>
         `;
       } else if (currentAppMode === 'sold') {
@@ -894,7 +966,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
 
         container.innerHTML = `
           <div class="portfolio-metric">
-            <span class="label">Realized Net Profit</span>
+            <span class="label">Realized Net</span>
             <span class="val">$${totalRealizedProfit.toFixed(2)}</span>
           </div>
           <div class="portfolio-metric">
@@ -902,7 +974,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
             <span class="val neutral">$${totalRevenue.toFixed(2)}</span>
           </div>
           <div class="portfolio-metric">
-            <span class="label">Original Cost</span>
+            <span class="label">Cost Basis</span>
             <span class="val cost">$${totalOriginalCost.toFixed(2)}</span>
           </div>
           <div class="portfolio-metric" style="align-items: flex-end;">
@@ -915,17 +987,17 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
 
     function renderFeed() {
       const container = document.getElementById('cardsFeed');
-      if (currentItems.length === 0) {
+      if (filteredItems.length === 0) {
         const labels = {
           scout: 'No prospects scanned. Ready for field triage.',
-          owned: 'Inventory is empty. Swipe right on Scout items to purchase.',
-          sold: 'No sold records logged yet.'
+          owned: 'No matching inventory found.',
+          sold: 'No matching sold records.'
         };
         container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px;">${labels[currentAppMode]}</div>`;
         return;
       }
 
-      container.innerHTML = currentItems.map(item => {
+      container.innerHTML = filteredItems.map(item => {
         const sigColors = { GREEN: 'var(--green)', YELLOW: 'var(--yellow)', RED: 'var(--red)' };
         const sigLabels = { GREEN: 'STRONG BUY', YELLOW: 'MARGINAL', RED: 'PASS' };
         const activeColor = sigColors[item.disposition.signal] || '#6b7280';
@@ -968,19 +1040,27 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
             </div>
           `;
         } else if (currentAppMode === 'owned') {
+          const daysHeld = getDaysInStock(item.purchasedAt);
+          let ageColor = '#fff';
+          if (daysHeld > 60) ageColor = 'var(--red)';
+          else if (daysHeld > 30) ageColor = 'var(--yellow)';
+
           return `
             <div class="vault-card-wrapper">
               <div class="vault-card" data-id="${item.id}" style="border-left: 5px solid var(--accent);" onclick="openDetail('${item.id}')">
                 <div class="card-top">
                   <div>
                     <div class="card-title">${item.brand} - ${item.item}</div>
-                    <div class="card-sub">${item.specs}</div>
+                    <div class="card-sub">
+                      <span>${item.specs}</span>
+                      <span class="badge-age" style="color: ${ageColor};">⏳ ${daysHeld}d in stock</span>
+                    </div>
                   </div>
                   <span class="badge-signal" style="background: var(--accent); color: #fff;">IN STOCK</span>
                 </div>
                 <div class="calc-row">
                   <div class="calc-item">
-                    <span>Purchase Cost</span>
+                    <span>Cost</span>
                     <span style="color: var(--yellow);">$${Number(item.itemCost).toFixed(2)}</span>
                   </div>
                   <div class="calc-item">
@@ -994,6 +1074,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
                 </div>
                 <div class="card-actions">
                   <button class="btn-card sold" onclick="markAsSold('${item.id}', event)">💰 Mark as Sold</button>
+                  <button class="btn-card" onclick="copyEbayListing('${item.id}', event)">📋 Copy Listing</button>
                   <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" onclick="event.stopPropagation();">Live Comps ↗</a>
                   <button class="btn-card delete" onclick="deleteItem('${item.id}', event)">Remove</button>
                 </div>
@@ -1077,7 +1158,10 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
           <strong>Technical Intel & Hardware Specs</strong>
           ${target.intel}
         </div>
-        <div style="margin-top: 14px;">
+        <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn-card" onclick="copyEbayListing('${target.id}')" style="width: 100%; justify-content: center; padding: 12px;">
+            📋 Copy eBay Title & Description
+          </button>
           <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" style="width: 100%; justify-content: center; padding: 12px;">
             Open Live eBay Sold Comps ↗
           </a>
@@ -1091,7 +1175,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
     };
 
     async function seedInitialDatabaseIfEmpty() {
-      const seededFlag = localStorage.getItem('thrift_db_seeded_v2');
+      const seededFlag = localStorage.getItem('thrift_db_seeded_v3');
       if (seededFlag) return;
 
       try {
@@ -1143,7 +1227,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
             searchQuery: 'Griswold 8 Cast Iron Skillet 704',
             verdict: 'BUY TO FLIP',
             status: 'owned',
-            purchasedAt: Date.now() - 86400000
+            purchasedAt: Date.now() - 172800000
           });
 
           await addDoc(collection(db, 'vault_sold'), {
@@ -1166,13 +1250,13 @@ Recommended Service: <USPS Ground Advantage|UPS Ground>
             searchQuery: 'Patagonia Synchilla Snap T Aztec Fleece Large',
             verdict: 'BUY TO FLIP',
             status: 'sold',
-            soldAt: Date.now() - 172800000
+            soldAt: Date.now() - 345600000
           });
 
-          localStorage.setItem('thrift_db_seeded_v2', 'true');
+          localStorage.setItem('thrift_db_seeded_v3', 'true');
         }
       } catch (err) {
-        console.warn('Seeding skipped or already initialized:', err);
+        console.warn('Seeding skipped or initialized:', err);
       }
     }
 
