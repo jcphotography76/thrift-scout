@@ -191,8 +191,8 @@
     }
     .mode-toggle {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 6px;
+      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+      gap: 4px;
       background: var(--panel);
       padding: 6px;
       border-radius: 8px;
@@ -203,8 +203,8 @@
       background: transparent;
       color: var(--text-muted);
       border: none;
-      padding: 10px 4px;
-      font-size: 0.85rem;
+      padding: 10px 2px;
+      font-size: 0.8rem;
       font-weight: 700;
       border-radius: 6px;
       cursor: pointer;
@@ -358,6 +358,76 @@
       border: 1px solid var(--border);
       object-fit: cover;
       display: none;
+    }
+    .locator-panel {
+      display: none;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .locator-header {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .locator-desc {
+      font-size: 0.9rem;
+      color: #d1d5db;
+      line-height: 1.4;
+    }
+    .store-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .store-title {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .store-address {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .nav-links-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn-nav {
+      background: var(--panel);
+      color: #fff;
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-nav.apple {
+      border-color: #9ca3af;
+    }
+    .btn-nav.waze {
+      border-color: #38bdf8;
+      color: #38bdf8;
+    }
+    .btn-nav.google {
+      border-color: #34d399;
+      color: #34d399;
     }
     .status-alert {
       display: none;
@@ -589,7 +659,7 @@
     <div>Tokens (Last Scan): <strong id="lastScanTokens">0</strong></div>
   </div>
 
-  <!-- THRIFT SNIPER DIRECTIVE WITH INTEGRATED VISUAL REFERENCE -->
+  <!-- THRIFT SNIPER DIRECTIVE WITH ILLUSTRATIVE TARGET CUES -->
   <div class="sniper-banner" id="sniperBanner">
     <div class="sniper-header">
       <span class="sniper-title">🎯 Thrift Sniper • Daily Directive</span>
@@ -619,15 +689,16 @@
   <div class="mode-toggle">
     <button id="modeScout" class="mode-btn active" onclick="switchMode('scout')">1. Scout</button>
     <button id="modeManual" class="mode-btn" onclick="switchMode('manual')">2. Manual</button>
-    <button id="modeOwned" class="mode-btn" onclick="switchMode('owned')">3. Inventory</button>
-    <button id="modeSold" class="mode-btn" onclick="switchMode('sold')">4. Sold</button>
+    <button id="modeStores" class="mode-btn" onclick="switchMode('stores')">3. Stores</button>
+    <button id="modeOwned" class="mode-btn" onclick="switchMode('owned')">4. Vault</button>
+    <button id="modeSold" class="mode-btn" onclick="switchMode('sold')">5. Sold</button>
   </div>
 
   <div class="portfolio-banner" id="bannerContainer"></div>
   <div class="gesture-hint" id="gestureHint">⇄ Swipe Right to Advance • Swipe Left to Discard</div>
 
   <div class="search-wrapper" id="searchWrapper">
-    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search Inventory by brand, item, specs..." oninput="handleSearch()">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search Vault inventory by brand, item, specs..." oninput="handleSearch()">
   </div>
 
   <!-- Mode 1: Scout Camera / Multi -->
@@ -647,16 +718,16 @@
   <div class="manual-panel" id="manualPanel">
     <div>
       <label class="manual-label">Item Title / Model / Maker</label>
-      <input type="text" id="manualTitle" class="manual-input" placeholder="e.g. Sony VCR DVD combo recorder RDR-VX515">
+      <input type="text" id="manualTitle" class="manual-input" placeholder="e.g. Vintage 1994 Brockum Pink Floyd tour shirt">
     </div>
 
     <div>
-      <label class="manual-label">Known Specs, Markings, or Serial Details</label>
-      <textarea id="manualSpecs" class="manual-input" placeholder="e.g. HDMI out, includes OEM remote control, powers on cleanly"></textarea>
+      <label class="manual-label">Known Specs, Tag RN, Stitching, or Copyright Marks</label>
+      <textarea id="manualSpecs" class="manual-input" placeholder="e.g. Single stitch sleeves and waist, Brockum tag Made in USA, dated 1994, no dry rot"></textarea>
     </div>
 
     <div>
-      <label class="manual-label">Optional Photo (Snap or Attach)</label>
+      <label class="manual-label">Optional Tag or Detail Photo</label>
       <div class="manual-photo-row">
         <label class="btn-card" for="manualPhotoInput" style="cursor: pointer;">📷 Attach Snapshot</label>
         <input type="file" id="manualPhotoInput" accept="image/*" onchange="previewManualPhoto(this)">
@@ -667,6 +738,22 @@
     <button class="btn-action" id="manualSubmitBtn" onclick="submitManualAppraisal()" style="margin-top: 4px;">
       🔍 Run Market Intelligence
     </button>
+  </div>
+
+  <!-- Mode 3: Location-Based Thrift Store Finder -->
+  <div class="locator-panel" id="locatorPanel">
+    <div class="locator-header">
+      📍 Nearby Thrift Route Finder
+    </div>
+    <div class="locator-desc">
+      Scan your immediate area for Goodwill, Savers, Deseret Industries, and local charity shops with 1-tap navigation deep links.
+    </div>
+
+    <button class="btn-action" onclick="findLocalThriftStores()">
+      🛰️ Locate Nearest Thrift Stores
+    </button>
+
+    <div id="storeListContainer" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;"></div>
   </div>
 
   <div id="statusAlert" class="status-alert"></div>
@@ -698,13 +785,47 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Target Bounties with Distinct SVGs
+    // Realistic Everyday Sourcing Bounties (Expanded for Clothing Tags, Toys, and Media)
     const SNIPER_TARGETS = [
       {
-        title: "Retro Video Game Controllers & Cords",
+        title: "Single-Stitch Graphic Tees & Band Shirts",
+        cue: "Examine sleeve hems and waist bottom for a single continuous thread line (pre-1996 manufacture).",
+        brands: "Screen Stars (white/blue bar), Brockum, Giant, Fruit of the Loom USA, 3D Emblem, Hanes Beefy-T.",
+        trap: "Hold fabric up to overhead lights to inspect for tiny moth pinholes; avoid cracked, dry-rotted black fabric.",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 12L10 24l8 6 4-4v26h20V26l4 4 8-6-12-12-10 4-10-4z" fill="#222630"/>
+          <path d="M24 52h16" stroke="#10b981" stroke-width="3" stroke-dasharray="2 2"/>
+          <path d="M12 26l6 4" stroke="#10b981" stroke-width="3" stroke-dasharray="2 2"/>
+        </svg>`
+      },
+      {
+        title: "Vintage 80s/90s Action Figures & Die-Cast Toys",
+        cue: "Check toy bags and bottom shelves for molded plastic figurines with raised copyright stamps on inner legs.",
+        brands: "Kenner (Star Wars, M.A.S.K.), Hasbro (G.I. Joe, Transformers G1), Mattel (He-Man/MOTU), Playmates (TMNT).",
+        trap: "Check figure neck joints and crotch O-rings for cracking; pass if paint is heavily chewed on hands/feet.",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="32" cy="14" r="6" fill="#222630"/>
+          <path d="M20 24h24v16H20z" fill="#222630"/>
+          <path d="M20 28l-8 12M44 28l8 12M24 40v16M40 40v16"/>
+          <circle cx="32" cy="30" r="2" fill="#f59e0b"/>
+        </svg>`
+      },
+      {
+        title: "Collectible First Edition Books & Boxed Sets",
+        cue: "Check hardcover spines under dust jackets and flip to copyright page to look for full number lines.",
+        brands: "Look for 'First Edition' stated with number lines: 1 2 3 4 5 6 7 8 9 10 (or terminating in 1).",
+        trap: "Pass on Book-of-the-Month Club editions (indicated by blind stamped debossed squares on rear back boards).",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 16c6-4 14-4 22 0 8-4 16-4 22 0v36c-6-4-14-4-22 0-8-4-16-4-22 0V16z" fill="#222630"/>
+          <path d="M32 16v36"/>
+          <path d="M16 28h10M38 28h10M16 36h8M40 36h8"/>
+        </svg>`
+      },
+      {
+        title: "Retro Video Game Controllers & Accessories",
         cue: "Check electronics cable bins and clear plastic hanging baggies for first-party console gamepads.",
-        brands: "OEM Nintendo (N64, GameCube, Wii U Pro), Sony PlayStation DualShock, Xbox 360 wireless.",
-        trap: "Skip lightweight unbranded knockoffs; inspect analog thumbstick tension and cord rubber.",
+        brands: "OEM Nintendo (N64, GameCube, Wii U Pro), Sony PlayStation DualShock, Microsoft Xbox 360 wireless.",
+        trap: "Skip lightweight unbranded knockoffs; inspect analog thumbstick tension and cord rubber integrity.",
         svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <rect x="8" y="18" width="48" height="32" rx="14" fill="#222630"/>
           <path d="M18 30v8M14 34h8"/>
@@ -716,10 +837,10 @@
         </svg>`
       },
       {
-        title: "Vintage Pyrex & Mid-Century Cookware",
+        title: "Vintage Pyrex & Mid-Century Milk Glass",
         cue: "Solid color or printed milk glass mixing bowls, refrigerator dishes, and handled casseroles.",
         brands: "Pyrex (Gooseberry, Butterprint, Horizon Blue), Corning Ware (Spice O' Life, Cornflower), Fire-King.",
-        trap: "Run fingernail along the rim to check for dishwasher etching (chalky paint) or flea-bite chips.",
+        trap: "Run fingernail along the rim to check for dishwasher etching (chalky dull paint) or flea-bite chips.",
         svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 22h52c0 18-12 32-26 32S6 40 6 22z" fill="#222630"/>
           <path d="M14 34c4 4 10 6 18 6s14-2 18-6"/>
@@ -760,17 +881,6 @@
         </svg>`
       },
       {
-        title: "Heavy American Canvas Work Jackets",
-        cue: "Stiff canvas duck fabric, blanket or flannel quilt lining, corduroy collar, heavyweight brass zipper.",
-        brands: "Carhartt (Detroit, Active J130), Dickies, Berne, Walls, Pointer Brand.",
-        trap: "Check cuffs and pocket edges for shredded fraying; oil stains are acceptable, broken main zippers are not.",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 10L10 22l6 8 6-4v28h20V26l6 4 6-8-12-12-10 6-10-6z" fill="#222630"/>
-          <path d="M32 16v38"/>
-          <path d="M24 10l8 6 8-6"/>
-        </svg>`
-      },
-      {
         title: "Mechanical Hand Tools & Socket Sets",
         cue: "Check the hardware bin for heavy chrome alloy ratchets, specialty socket rails, and metal hand planes.",
         brands: "Craftsman (vintage 'V' or 'VV' series), Snap-on, Proto, SK Tools, Stanley Bailey (No. 4/5 planes).",
@@ -782,47 +892,19 @@
           <path d="M44 22L12 54"/>
           <rect x="8" y="50" width="8" height="8" rx="2" fill="#f59e0b"/>
         </svg>`
-      },
-      {
-        title: "Vintage Stereo Receivers & Home Audio",
-        cue: "Silver aluminum faceplates, solid aluminum weighted volume knobs, analog backlit tuner scales.",
-        brands: "Yamaha, Pioneer, Marantz, Kenwood, Sony, Harman Kardon, Technics.",
-        trap: "Pass immediately on units with severed power cords or cracked display glass.",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="6" y="18" width="52" height="28" rx="4" fill="#222630"/>
-          <rect x="12" y="24" width="26" height="8" fill="#181b21"/>
-          <path d="M16 28h18"/>
-          <circle cx="48" cy="28" r="5" fill="#181b21"/>
-          <circle cx="48" cy="28" r="1.5" fill="#f59e0b"/>
-          <circle cx="16" cy="39" r="1.5" fill="#f59e0b"/>
-          <circle cx="24" cy="39" r="1.5" fill="#f59e0b"/>
-          <circle cx="32" cy="39" r="1.5" fill="#f59e0b"/>
-        </svg>`
-      },
-      {
-        title: "Cast Iron Skillets & Dutch Ovens",
-        cue: "Black iron cookware on lower housewares shelves; look for smooth milled interiors rather than bumpy modern sand casts.",
-        brands: "Griswold, Wagner Ware Sidney -O-, Lodge (single-notch or 3-notch vintage), BSR (Birmingham Stove).",
-        trap: "Place directly on a flat shelf and tap the edges—pass if it wobbles, spins, or has rim cracks.",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="28" cy="32" r="20" fill="#222630"/>
-          <circle cx="28" cy="32" r="15" fill="#181b21"/>
-          <path d="M48 32h12v4H48z" fill="#222630"/>
-          <circle cx="56" cy="34" r="1.5" fill="#f59e0b"/>
-        </svg>`
       }
     ];
 
     const SYSTEM_PROMPT = `
 You are Thrift-Vault AI, an expert secondary-market appraiser.
-Evaluate the item using any attached imagery, explicit query text, historical provenance, markings, and user specifications. 
+Evaluate the item using any attached imagery, tag typography, stitching construction (single vs double stitch), RN registry numbers, copyright years, toy mold stamps, book edition lines, provenance, markings, and user specifications. 
 Base your evaluation on authentic secondary market historical comps (eBay Sold, Live Auctions, Collector Forums).
 Output strictly in this format:
 
 [ITEM_IDENTIFICATION]
-Brand: <Brand, Maker, or Region of Origin>
-Model/Item: <Model, Traditional Name, or Object Type>
-Era/Size/Specs: <Accurate Era, Dimensions, Material, or Variant>
+Brand: <Brand, Maker, Publisher, or Toy Manufacturer>
+Model/Item: <Model, Title, Character, or Garment Name>
+Era/Size/Specs: <Accurate Era/Year, Size, Tag Style, Material, or Variant>
 
 [VALUATION_COMPS]
 Sold Average: $<Fair Market Value in USD as a number>
@@ -831,19 +913,19 @@ Confidence: <High|Medium|Low>
 
 [DISPOSITION_SIGNAL]
 Signal: <GREEN|YELLOW|RED>
-Reason: <1 short sentence justifying secondary market velocity or collectible liquidity>
+Reason: <1 short sentence justifying secondary market velocity, tag rarity, or collector liquidity>
 
 [MARKETPLACE_ROUTING]
-Primary Platform: <eBay|Etsy|LiveAuctioneers|RubyLane|Local>
+Primary Platform: <eBay|Etsy|Mercari|Poshmark|Local>
 Listing Strategy: <Listing and offer floor strategy>
 
 [SHIPPING_PROTOCOL]
 Tier: <Under 16 oz|1-5 lbs|5+ lbs / Oversized>
-Packaging: <Poly Mailer|Padded Box|Double-Box Fragile|Freight/Local Only>
-Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
+Packaging: <Poly Mailer|Padded Box|Double-Box Fragile|Bubble Mailer>
+Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
 
 [TECHNICAL_INTEL]
-<Key authentication markers, joinery/materials to verify, flaw watchouts, or historical context>
+<Key tag hallmarks, RN numbers, single/double stitch markers, toy joint flaws, book edition checks, or authenticity tips>
 
 [COMP_SEARCH_QUERY]
 <Concise keyword string optimized for eBay sold search>
@@ -896,7 +978,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       const current = parseInt(localStorage.getItem('thrift_sniper_curr_idx') || '0', 10);
       const next = (current + 1) % SNIPER_TARGETS.length;
       renderDailySniperTarget(next);
-      triggerAlert('🎯 New everyday sourcing objective active!');
+      triggerAlert('🎯 New sourcing objective active!');
     };
 
     function updateQuotaDisplay(tokensUsed = null) {
@@ -942,19 +1024,21 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       currentAppMode = mode;
       document.getElementById('modeScout').classList.toggle('active', mode === 'scout');
       document.getElementById('modeManual').classList.toggle('active', mode === 'manual');
+      document.getElementById('modeStores').classList.toggle('active', mode === 'stores');
       document.getElementById('modeOwned').classList.toggle('active', mode === 'owned');
       document.getElementById('modeSold').classList.toggle('active', mode === 'sold');
 
       document.getElementById('sniperBanner').style.display = (mode === 'scout' || mode === 'manual') ? 'block' : 'none';
       document.getElementById('actionPanel').style.display = mode === 'scout' ? 'grid' : 'none';
       document.getElementById('manualPanel').style.display = mode === 'manual' ? 'flex' : 'none';
-      document.getElementById('gestureHint').style.display = mode === 'manual' ? 'none' : 'block';
+      document.getElementById('locatorPanel').style.display = mode === 'stores' ? 'flex' : 'none';
+      document.getElementById('gestureHint').style.display = (mode === 'manual' || mode === 'stores') ? 'none' : 'block';
 
       const searchWrapper = document.getElementById('searchWrapper');
       const searchInput = document.getElementById('searchInput');
       searchWrapper.style.display = (mode === 'owned' || mode === 'sold') ? 'block' : 'none';
       searchInput.value = '';
-      if (mode === 'owned') searchInput.placeholder = '🔍 Search Inventory by brand, item, specs...';
+      if (mode === 'owned') searchInput.placeholder = '🔍 Search Vault inventory by brand, item, specs...';
       if (mode === 'sold') searchInput.placeholder = '🔍 Search Sold Archive...';
 
       listenToCollection();
@@ -1056,7 +1140,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       const specs = document.getElementById('manualSpecs').value.trim();
 
       if (!title && !specs && !manualCapturedBase64) {
-        alert('Please provide an item description, marking/serial info, or attach a photo.');
+        alert('Please provide an item title, tag details, or attach a photo.');
         return;
       }
 
@@ -1068,10 +1152,10 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       }
 
       setScanButtonsState(false, 'Consulting Intel Engine...');
-      triggerAlert('Analyzing manual query and comps...');
+      triggerAlert('Analyzing item characteristics and comps...');
 
       const photos = manualCapturedBase64 ? [manualCapturedBase64] : [];
-      await runAppraisalCore(photos, `MANUAL QUERY:\nItem Name/Keywords: ${title}\nUser Notes/Serial/Marks/Specs: ${specs}`, key);
+      await runAppraisalCore(photos, `MANUAL QUERY:\nItem Name/Keywords: ${title}\nUser Notes/Tag/Stitching/Specs: ${specs}`, key);
 
       document.getElementById('manualTitle').value = '';
       document.getElementById('manualSpecs').value = '';
@@ -1296,7 +1380,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       await addDoc(collection(db, 'vault_inventory'), inventoryItem);
       await deleteDoc(doc(db, 'scout_prospects', target.id));
       addHunterXP(100);
-      triggerAlert(`Added "${target.item}" to Inventory (+100 XP).`);
+      triggerAlert(`Added "${target.item}" to Vault (+100 XP).`);
     };
 
     window.markAsSold = async function(id, event) {
@@ -1373,6 +1457,79 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
         prompt('Copy listing details:', formatted);
       });
     };
+
+    // Location-Based Navigator (Apple Maps, Waze, Google Maps)
+    window.findLocalThriftStores = function() {
+      const container = document.getElementById('storeListContainer');
+      container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem;">🛰️ Getting your coordinates...</div>';
+
+      if (!navigator.geolocation) {
+        renderFallbackStoreSearch(container);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          renderCoordinateLinks(container, lat, lon);
+        },
+        () => {
+          renderFallbackStoreSearch(container);
+        },
+        { timeout: 8000 }
+      );
+    };
+
+    function renderCoordinateLinks(container, lat, lon) {
+      const query = encodeURIComponent("thrift stores");
+      const appleUrl = `https://maps.apple.com/?q=${query}&sll=${lat},${lon}`;
+      const wazeUrl = `https://waze.com/ul?q=${query}&ll=${lat},${lon}&navigate=yes`;
+      const googleUrl = `https://www.google.com/maps/search/${query}/@${lat},${lon},13z`;
+
+      container.innerHTML = `
+        <div class="store-card">
+          <div class="store-title">Immediate Area Sourcing Hub</div>
+          <div class="store-address">GPS Coordinates: ${lat.toFixed(4)}, ${lon.toFixed(4)}</div>
+          <div class="nav-links-row">
+            <a href="${appleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav apple">
+              🗺️ Open in Apple Maps
+            </a>
+            <a href="${wazeUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav waze">
+              🚙 Open in Waze
+            </a>
+            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav google">
+              🌐 Open in Google Maps
+            </a>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFallbackStoreSearch(container) {
+      const query = encodeURIComponent("thrift stores near me");
+      const appleUrl = `https://maps.apple.com/?q=${query}`;
+      const wazeUrl = `https://waze.com/ul?q=${query}&navigate=yes`;
+      const googleUrl = `https://www.google.com/maps/search/${query}`;
+
+      container.innerHTML = `
+        <div class="store-card">
+          <div class="store-title">Nearby Thrift Stores</div>
+          <div class="store-address">Device location unavailable. Launch direct search query:</div>
+          <div class="nav-links-row">
+            <a href="${appleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav apple">
+              🗺️ Apple Maps
+            </a>
+            <a href="${wazeUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav waze">
+              🚙 Waze
+            </a>
+            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav google">
+              🌐 Google Maps
+            </a>
+          </div>
+        </div>
+      `;
+    }
 
     function setupSwipeGestures() {
       const cards = document.querySelectorAll('.vault-card');
@@ -1465,7 +1622,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
     function renderMetrics() {
       const container = document.getElementById('bannerContainer');
 
-      if (currentAppMode === 'scout' || currentAppMode === 'manual') {
+      if (currentAppMode === 'scout' || currentAppMode === 'manual' || currentAppMode === 'stores') {
         const potentialProfit = currentItems.reduce((acc, i) => acc + (Number(i.projectedProfit) || 0), 0);
         container.innerHTML = `
           <div class="portfolio-metric">
@@ -1484,7 +1641,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
 
         container.innerHTML = `
           <div class="portfolio-metric">
-            <span class="label">Inventory Units</span>
+            <span class="label">Vault Units</span>
             <span class="val neutral">${currentItems.length}</span>
           </div>
           <div class="portfolio-metric">
@@ -1528,6 +1685,11 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
 
     function renderFeed() {
       const container = document.getElementById('cardsFeed');
+      if (currentAppMode === 'stores') {
+        container.innerHTML = '';
+        return;
+      }
+
       if (filteredItems.length === 0) {
         const labels = {
           scout: 'No prospects scanned. Ready for field triage.',
