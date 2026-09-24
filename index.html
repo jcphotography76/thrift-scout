@@ -11,7 +11,7 @@
       --surface: #222630;
       --border: #2d3340;
       --text: #f3f4f6;
-      --text-muted: #9ca3af;
+      --text-muted: #a3aab8;
       --accent: #2563eb;
       --accent-hover: #1d4ed8;
       --green: #10b981;
@@ -31,17 +31,18 @@
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       padding: 16px;
-      padding-bottom: 70px;
+      padding-bottom: 85px;
       overflow-x: hidden;
+      font-size: 16px;
     }
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
     .brand-title {
-      font-size: 1.15rem;
+      font-size: 1.35rem;
       font-weight: 800;
       letter-spacing: -0.5px;
       display: flex;
@@ -54,16 +55,16 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
     .btn-key {
       background: var(--surface);
-      color: var(--text-muted);
+      color: var(--text);
       border: 1px solid var(--border);
-      padding: 6px 10px;
+      padding: 8px 12px;
       border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.85rem;
+      font-weight: 700;
       cursor: pointer;
     }
     .token-bar {
@@ -73,59 +74,102 @@
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 6px 10px;
-      margin-bottom: 10px;
-      font-size: 0.72rem;
+      padding: 8px 12px;
+      margin-bottom: 14px;
+      font-size: 0.85rem;
       color: var(--text-muted);
     }
     .token-bar strong {
       color: var(--green);
+      font-size: 0.95rem;
     }
     .sniper-banner {
       background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
       border: 1px solid #78350f;
       border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
     }
     .sniper-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .sniper-title {
-      font-size: 0.8rem;
+      font-size: 0.95rem;
       font-weight: 800;
       color: var(--gold);
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
     .sniper-rank {
-      font-size: 0.7rem;
+      font-size: 0.8rem;
       color: #fed7aa;
       background: rgba(120, 53, 15, 0.4);
-      padding: 2px 6px;
+      padding: 4px 8px;
       border-radius: 4px;
       border: 1px solid #9a3412;
       font-weight: 700;
     }
+    .sniper-body {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+    .sniper-visual-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .sniper-visual {
+      width: 86px;
+      height: 86px;
+      min-width: 86px;
+      background: #111418;
+      border: 1px solid #9a3412;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+    }
+    .sniper-visual svg {
+      width: 100%;
+      height: 100%;
+    }
+    .sniper-visual-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #fed7aa;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .sniper-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
     .sniper-target-name {
-      font-size: 0.95rem;
+      font-size: 1.15rem;
       font-weight: 800;
       color: #fff;
       margin-bottom: 6px;
+      line-height: 1.25;
     }
     .sniper-bullets {
-      font-size: 0.75rem;
-      color: #d6d3d1;
-      line-height: 1.4;
+      font-size: 0.9rem;
+      color: #e5e7eb;
+      line-height: 1.5;
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 6px;
     }
     .sniper-bullets strong {
       color: #fbbf24;
@@ -133,34 +177,34 @@
     .sniper-actions {
       display: flex;
       justify-content: flex-end;
-      margin-top: 8px;
+      margin-top: 4px;
     }
     .btn-reroll {
       background: transparent;
       border: 1px solid #78350f;
       color: #fed7aa;
-      font-size: 0.7rem;
+      font-size: 0.85rem;
       font-weight: 700;
-      padding: 4px 8px;
-      border-radius: 4px;
+      padding: 6px 12px;
+      border-radius: 6px;
       cursor: pointer;
     }
     .mode-toggle {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr;
-      gap: 4px;
+      gap: 6px;
       background: var(--panel);
-      padding: 4px;
+      padding: 6px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     .mode-btn {
       background: transparent;
       color: var(--text-muted);
       border: none;
-      padding: 8px 2px;
-      font-size: 0.72rem;
+      padding: 10px 4px;
+      font-size: 0.85rem;
       font-weight: 700;
       border-radius: 6px;
       cursor: pointer;
@@ -175,25 +219,25 @@
       background: linear-gradient(135deg, #181b21 0%, #1f242d 100%);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 12px 14px;
-      margin-bottom: 12px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      gap: 12px;
     }
     .portfolio-metric {
       display: flex;
       flex-direction: column;
     }
     .portfolio-metric .label {
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-muted);
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
     .portfolio-metric .val {
-      font-size: 1.15rem;
+      font-size: 1.35rem;
       font-weight: 800;
       color: var(--green);
     }
@@ -205,15 +249,15 @@
     }
     .search-wrapper {
       display: none;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     .search-input {
       width: 100%;
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 10px 14px;
-      font-size: 0.85rem;
+      padding: 12px 16px;
+      font-size: 0.95rem;
       color: #fff;
       outline: none;
     }
@@ -221,11 +265,11 @@
       border-color: var(--accent);
     }
     .gesture-hint {
-      font-size: 0.7rem;
+      font-size: 0.8rem;
       color: var(--text-muted);
       text-align: center;
       margin-top: -4px;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
       letter-spacing: 0.3px;
     }
     .action-panel {
@@ -238,15 +282,15 @@
       background: var(--accent);
       color: #fff;
       border: none;
-      padding: 12px;
+      padding: 14px;
       border-radius: 8px;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       width: 100%;
       user-select: none;
       text-align: center;
@@ -272,15 +316,15 @@
       padding: 16px;
       margin-bottom: 16px;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
     .manual-label {
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
       color: var(--text-muted);
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       display: block;
     }
     .manual-input {
@@ -288,8 +332,8 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 10px 12px;
-      font-size: 0.85rem;
+      padding: 12px 14px;
+      font-size: 0.95rem;
       color: #fff;
       outline: none;
     }
@@ -298,17 +342,17 @@
     }
     textarea.manual-input {
       resize: vertical;
-      min-height: 70px;
+      min-height: 80px;
       font-family: inherit;
     }
     .manual-photo-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
     .manual-preview {
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       border-radius: 6px;
       background: #000;
       border: 1px solid var(--border);
@@ -317,18 +361,18 @@
     }
     .status-alert {
       display: none;
-      padding: 12px 14px;
+      padding: 14px 16px;
       border-radius: 6px;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       margin-bottom: 14px;
-      border-left: 4px solid var(--accent);
+      border-left: 5px solid var(--accent);
       background: var(--panel);
-      line-height: 1.4;
+      line-height: 1.5;
     }
     .feed-container {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
       position: relative;
     }
     .vault-card-wrapper {
@@ -340,17 +384,17 @@
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 12px;
+      padding: 14px;
       position: relative;
       touch-action: pan-y;
       transition: transform 0.15s ease-out, background-color 0.15s;
       display: flex;
-      gap: 12px;
+      gap: 14px;
     }
     .card-thumb {
-      width: 72px;
-      height: 72px;
-      min-width: 72px;
+      width: 82px;
+      height: 82px;
+      min-width: 82px;
       border-radius: 6px;
       object-fit: cover;
       background: #000;
@@ -366,10 +410,10 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
     .card-title {
-      font-size: 0.9rem;
+      font-size: 1.05rem;
       font-weight: 700;
       color: #fff;
       white-space: nowrap;
@@ -377,26 +421,26 @@
       text-overflow: ellipsis;
     }
     .card-sub {
-      font-size: 0.72rem;
+      font-size: 0.85rem;
       color: var(--text-muted);
-      margin-top: 2px;
+      margin-top: 3px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
     .badge-signal {
-      font-size: 0.65rem;
+      font-size: 0.75rem;
       font-weight: 800;
-      padding: 2px 6px;
+      padding: 4px 8px;
       border-radius: 4px;
       color: #000;
       text-transform: uppercase;
       white-space: nowrap;
     }
     .badge-age {
-      font-size: 0.62rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      padding: 1px 5px;
+      padding: 3px 6px;
       border-radius: 4px;
       background: var(--surface);
       border: 1px solid var(--border);
@@ -407,8 +451,8 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 6px;
-      margin: 6px 0;
+      padding: 8px;
+      margin: 8px 0;
       text-align: center;
     }
     .calc-item {
@@ -416,41 +460,41 @@
       flex-direction: column;
     }
     .calc-item span:first-child {
-      font-size: 0.6rem;
+      font-size: 0.72rem;
       color: var(--text-muted);
       text-transform: uppercase;
     }
     .calc-item span:last-child {
-      font-size: 0.85rem;
+      font-size: 1rem;
       font-weight: 800;
     }
     .card-summary {
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       color: #d1d5db;
-      line-height: 1.3;
-      margin-bottom: 8px;
+      line-height: 1.4;
+      margin-bottom: 10px;
     }
     .card-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 8px;
       justify-content: space-between;
       align-items: center;
-      margin-top: 4px;
+      margin-top: 6px;
     }
     .btn-card {
       background: var(--surface);
       color: var(--text);
       border: 1px solid var(--border);
-      padding: 6px 8px;
+      padding: 8px 12px;
       border-radius: 6px;
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
     }
     .btn-card.transfer {
       background: #1e3a8a;
@@ -486,28 +530,28 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
     .btn-back {
       background: var(--surface);
       color: var(--text);
       border: 1px solid var(--border);
-      padding: 8px 14px;
+      padding: 10px 16px;
       border-radius: 6px;
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.95rem;
       cursor: pointer;
     }
     .modal-gallery {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       overflow-x: auto;
-      margin-bottom: 14px;
-      padding-bottom: 4px;
+      margin-bottom: 16px;
+      padding-bottom: 6px;
     }
     .modal-gallery img {
-      height: 220px;
-      min-width: 180px;
+      height: 240px;
+      min-width: 190px;
       object-fit: cover;
       background: #000;
       border-radius: 8px;
@@ -517,17 +561,17 @@
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 10px;
-      font-size: 0.85rem;
+      padding: 14px;
+      margin-bottom: 12px;
+      font-size: 0.95rem;
       line-height: 1.5;
     }
     .modal-section strong {
       display: block;
       color: var(--text-muted);
-      font-size: 0.7rem;
+      font-size: 0.78rem;
       text-transform: uppercase;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
   </style>
 </head>
@@ -545,18 +589,28 @@
     <div>Tokens (Last Scan): <strong id="lastScanTokens">0</strong></div>
   </div>
 
-  <!-- THRIFT SNIPER HUNT DIRECTIVE -->
+  <!-- THRIFT SNIPER DIRECTIVE WITH INTEGRATED VISUAL REFERENCE -->
   <div class="sniper-banner" id="sniperBanner">
     <div class="sniper-header">
       <span class="sniper-title">🎯 Thrift Sniper • Daily Directive</span>
       <span class="sniper-rank" id="sniperRankBadge">Rookie Picker (0 XP)</span>
     </div>
-    <div class="sniper-target-name" id="sniperTargetTitle">Vintage Audio & Amplifiers</div>
-    <div class="sniper-bullets">
-      <div><strong>Visual Cue:</strong> <span id="sniperCue">Brushed silver aluminum faceplates, toggle switches, weighted analog tuning dials.</span></div>
-      <div><strong>Prime Marks:</strong> <span id="sniperBrands">Marantz, Pioneer, Yamaha, Sansui, Kenwood, Sony ES.</span></div>
-      <div><strong>Floor Trap:</strong> <span id="sniperTrap">Skip black plastic 90s rack systems or cut power cables without testing.</span></div>
+    
+    <div class="sniper-body">
+      <div class="sniper-visual-wrapper">
+        <div class="sniper-visual" id="sniperVisualBox"></div>
+        <span class="sniper-visual-label">Target Cue</span>
+      </div>
+      <div class="sniper-info">
+        <div class="sniper-target-name" id="sniperTargetTitle">Retro Video Game Controllers & Cords</div>
+        <div class="sniper-bullets">
+          <div><strong>Visual Cue:</strong> <span id="sniperCue">Look through electronics cable bins and clear plastic hanging baggies for first-party console gamepads.</span></div>
+          <div><strong>Prime Marks:</strong> <span id="sniperBrands">OEM Nintendo, Sony PlayStation DualShock, Microsoft Xbox 360, WaveBird wireless.</span></div>
+          <div><strong>Floor Trap:</strong> <span id="sniperTrap">Skip generic third-party budget pads; inspect cord for dog bites or broken USB/connector pins.</span></div>
+        </div>
+      </div>
     </div>
+
     <div class="sniper-actions">
       <button class="btn-reroll" onclick="rerollSniperTarget()">🎲 Reroll Target</button>
     </div>
@@ -593,12 +647,12 @@
   <div class="manual-panel" id="manualPanel">
     <div>
       <label class="manual-label">Item Title / Model / Maker</label>
-      <input type="text" id="manualTitle" class="manual-input" placeholder="e.g. Late 1800s Meiji Japanese student writing desk">
+      <input type="text" id="manualTitle" class="manual-input" placeholder="e.g. Sony VCR DVD combo recorder RDR-VX515">
     </div>
 
     <div>
-      <label class="manual-label">Known Specs, Provenance, or Serial Marks</label>
-      <textarea id="manualSpecs" class="manual-input" placeholder="e.g. Fuzukue portable floor desk, hand-cut joinery, iron hardware, acquired by missionary family"></textarea>
+      <label class="manual-label">Known Specs, Markings, or Serial Details</label>
+      <textarea id="manualSpecs" class="manual-input" placeholder="e.g. HDMI out, includes OEM remote control, powers on cleanly"></textarea>
     </div>
 
     <div>
@@ -644,55 +698,118 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Rotating 30-Day Zero-Token BOLO Hunter Directives
+    // Target Bounties with Distinct SVGs
     const SNIPER_TARGETS = [
       {
-        title: "Vintage Silverface Audio & Hi-Fi",
-        cue: "Heavy brushed aluminum faceplates, analog backlit VU meters, weighted solid metal dials.",
-        brands: "Marantz, Pioneer (SX-series), Yamaha (Natural Sound), Sansui, Kenwood.",
-        trap: "Skip all-plastic black rack units from the late 90s with built-in dual cassettes."
+        title: "Retro Video Game Controllers & Cords",
+        cue: "Check electronics cable bins and clear plastic hanging baggies for first-party console gamepads.",
+        brands: "OEM Nintendo (N64, GameCube, Wii U Pro), Sony PlayStation DualShock, Xbox 360 wireless.",
+        trap: "Skip lightweight unbranded knockoffs; inspect analog thumbstick tension and cord rubber.",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="8" y="18" width="48" height="32" rx="14" fill="#222630"/>
+          <path d="M18 30v8M14 34h8"/>
+          <circle cx="44" cy="31" r="2.5" fill="#f59e0b"/>
+          <circle cx="50" cy="37" r="2.5" fill="#f59e0b"/>
+          <circle cx="38" cy="37" r="2.5" fill="#f59e0b"/>
+          <circle cx="44" cy="43" r="2.5" fill="#f59e0b"/>
+          <path d="M32 18v-8M28 10h8"/>
+        </svg>`
       },
       {
-        title: "Pre-1960 American Cast Iron Cookware",
-        cue: "Silky glass-smooth cooking interior, heat ring on outer bottom rim, lightweight thin casting.",
-        brands: "Griswold (Large/Small Block Logo), Wagner Ware (Sidney -O-), Lodge (Single/3-Notch).",
-        trap: "Lay flat on store shelf—pass immediately if it wobbles, spins, or has hairline rim cracks."
+        title: "Vintage Pyrex & Mid-Century Cookware",
+        cue: "Solid color or printed milk glass mixing bowls, refrigerator dishes, and handled casseroles.",
+        brands: "Pyrex (Gooseberry, Butterprint, Horizon Blue), Corning Ware (Spice O' Life, Cornflower), Fire-King.",
+        trap: "Run fingernail along the rim to check for dishwasher etching (chalky paint) or flea-bite chips.",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 22h52c0 18-12 32-26 32S6 40 6 22z" fill="#222630"/>
+          <path d="M14 34c4 4 10 6 18 6s14-2 18-6"/>
+          <path d="M2 22h8M54 22h8"/>
+        </svg>`
       },
       {
-        title: "Texas Instruments Graphing Calculators",
-        cue: "Check electronics cable bins and office plastic bags for slide-cover calculators.",
-        brands: "TI-84 Plus, TI-84 Plus CE, TI-89 Titanium, TI-Nspire CX CAS.",
-        trap: "Pop battery door to verify zero acid leakage or blue battery corrosion on copper springs."
+        title: "VCR / DVD Recorder Combo Decks",
+        cue: "Dual-deck media players in the AV/VCR aisle, especially models featuring HDMI output.",
+        brands: "Sony, Panasonic, Toshiba, Magnavox, Funai, JVC.",
+        trap: "Look for tape door jammed shut; bonus value if the original remote is taped to the top.",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="20" width="52" height="26" rx="4" fill="#222630"/>
+          <rect x="12" y="27" width="22" height="6" rx="1" fill="#181b21"/>
+          <circle cx="44" cy="30" r="5" fill="#181b21"/>
+          <circle cx="44" cy="30" r="1.5" fill="#f59e0b"/>
+          <circle cx="12" cy="40" r="1.5" fill="#10b981"/>
+          <circle cx="17" cy="40" r="1.5" fill="#f59e0b"/>
+        </svg>`
       },
       {
-        title: "Vintage 90s Fleece & Outerwear",
-        cue: "Deep pile sherpa fleece, Aztec/tribal geometric prints, contrasting nylon chest pockets.",
-        brands: "Patagonia (Synchilla/Retro-X), The North Face (Made in USA brown label), Filson, Columbia (Bugaboo).",
-        trap: "Check zipper track teeth for missing stops and test pocket zipper pulls."
+        title: "Office Graphing Calculators",
+        cue: "Check office supply hanging bags, school gear bins, and behind the glass front display.",
+        brands: "TI-84 Plus, TI-84 Plus Silver, TI-89 Titanium, HP 12C Financial.",
+        trap: "Pop battery door off to confirm no blue corrosion or leaking batteries ruined the copper contacts.",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="14" y="8" width="36" height="48" rx="6" fill="#222630"/>
+          <rect x="20" y="14" width="24" height="12" rx="2" fill="#181b21"/>
+          <circle cx="22" cy="34" r="1.5" fill="#f59e0b"/>
+          <circle cx="32" cy="34" r="1.5" fill="#f59e0b"/>
+          <circle cx="42" cy="34" r="1.5" fill="#f59e0b"/>
+          <circle cx="22" cy="42" r="1.5" fill="#f59e0b"/>
+          <circle cx="32" cy="42" r="1.5" fill="#f59e0b"/>
+          <circle cx="42" cy="42" r="1.5" fill="#f59e0b"/>
+          <circle cx="22" cy="49" r="1.5" fill="#f59e0b"/>
+          <circle cx="32" cy="49" r="1.5" fill="#f59e0b"/>
+          <circle cx="42" cy="49" r="1.5" fill="#f59e0b"/>
+        </svg>`
       },
       {
-        title: "Japanese Meiji/Taisho Era Antiques & Folk Craft",
-        cue: "Hand-chiseled mortise/tenon joinery, forged iron strapping, paulownia or keyaki wood.",
-        brands: "Fuzukue writing desks, Hakone Yosegi parquetry boxes, Bizen pottery, cast iron tetsubin.",
-        trap: "Avoid tourist lacquerware with stamped resin finishes and modern Phillips head screws."
+        title: "Heavy American Canvas Work Jackets",
+        cue: "Stiff canvas duck fabric, blanket or flannel quilt lining, corduroy collar, heavyweight brass zipper.",
+        brands: "Carhartt (Detroit, Active J130), Dickies, Berne, Walls, Pointer Brand.",
+        trap: "Check cuffs and pocket edges for shredded fraying; oil stains are acceptable, broken main zippers are not.",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 10L10 22l6 8 6-4v28h20V26l6 4 6-8-12-12-10 6-10-6z" fill="#222630"/>
+          <path d="M32 16v38"/>
+          <path d="M24 10l8 6 8-6"/>
+        </svg>`
       },
       {
-        title: "Retro Gaming Consoles & Handhelds",
-        cue: "Matte plastic cartridges, branded battery covers intact, proprietary AV power blocks.",
-        brands: "Nintendo Game Boy (Color/Advance/SP), Nintendo 64, Sega Genesis, Sony PS Vita.",
-        trap: "Check Game Boy screen lenses for polarizing burn (dark black disc in center of LCD)."
+        title: "Mechanical Hand Tools & Socket Sets",
+        cue: "Check the hardware bin for heavy chrome alloy ratchets, specialty socket rails, and metal hand planes.",
+        brands: "Craftsman (vintage 'V' or 'VV' series), Snap-on, Proto, SK Tools, Stanley Bailey (No. 4/5 planes).",
+        trap: "Cycle ratchet mechanism back and forth to confirm gears catch cleanly without slipping.",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="42" y="10" width="14" height="14" rx="7" fill="#222630"/>
+          <circle cx="49" cy="17" r="3" fill="#f59e0b"/>
+          <path d="M44 22L12 54" stroke-width="5" stroke="#222630"/>
+          <path d="M44 22L12 54"/>
+          <rect x="8" y="50" width="8" height="8" rx="2" fill="#f59e0b"/>
+        </svg>`
       },
       {
-        title: "Heritage Workwear & Leather Boots",
-        cue: "Goodyear welted stitched soles, thick full-grain oiled leather, brass eyelets/hooks.",
-        brands: "Red Wing Heritage, White's, Danner (Made in USA Portland), Thorogood, Chippewa.",
-        trap: "Examine heel drag and flex the sole hard to confirm rubber has not succumbed to hydrolysis/crumbling."
+        title: "Vintage Stereo Receivers & Home Audio",
+        cue: "Silver aluminum faceplates, solid aluminum weighted volume knobs, analog backlit tuner scales.",
+        brands: "Yamaha, Pioneer, Marantz, Kenwood, Sony, Harman Kardon, Technics.",
+        trap: "Pass immediately on units with severed power cords or cracked display glass.",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="18" width="52" height="28" rx="4" fill="#222630"/>
+          <rect x="12" y="24" width="26" height="8" fill="#181b21"/>
+          <path d="M16 28h18"/>
+          <circle cx="48" cy="28" r="5" fill="#181b21"/>
+          <circle cx="48" cy="28" r="1.5" fill="#f59e0b"/>
+          <circle cx="16" cy="39" r="1.5" fill="#f59e0b"/>
+          <circle cx="24" cy="39" r="1.5" fill="#f59e0b"/>
+          <circle cx="32" cy="39" r="1.5" fill="#f59e0b"/>
+        </svg>`
       },
       {
-        title: "Single-Stitch 80s/90s Graphic Tees",
-        cue: "Single horizontal row of thread on sleeve hems and waist bottom (no double stitch).",
-        brands: "Screen Stars, Brockum, Fruit of the Loom (USA), Giant, Hanes Beefy-T.",
-        trap: "Look through fabric into overhead ceiling light to check for tiny moth pinholes in armpits/abdomen."
+        title: "Cast Iron Skillets & Dutch Ovens",
+        cue: "Black iron cookware on lower housewares shelves; look for smooth milled interiors rather than bumpy modern sand casts.",
+        brands: "Griswold, Wagner Ware Sidney -O-, Lodge (single-notch or 3-notch vintage), BSR (Birmingham Stove).",
+        trap: "Place directly on a flat shelf and tap the edges—pass if it wobbles, spins, or has rim cracks.",
+        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="28" cy="32" r="20" fill="#222630"/>
+          <circle cx="28" cy="32" r="15" fill="#181b21"/>
+          <path d="M48 32h12v4H48z" fill="#222630"/>
+          <circle cx="56" cy="34" r="1.5" fill="#f59e0b"/>
+        </svg>`
       }
     ];
 
@@ -741,7 +858,6 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
     let isProcessing = false;
     let manualCapturedBase64 = null;
 
-    // Sniper Gamification & Quota Tracking
     function getHunterXP() {
       return parseInt(localStorage.getItem('thrift_sniper_xp') || '0', 10);
     }
@@ -772,6 +888,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       document.getElementById('sniperCue').textContent = t.cue;
       document.getElementById('sniperBrands').textContent = t.brands;
       document.getElementById('sniperTrap').textContent = t.trap;
+      document.getElementById('sniperVisualBox').innerHTML = t.svg;
       localStorage.setItem('thrift_sniper_curr_idx', targetIndex.toString());
     }
 
@@ -779,7 +896,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       const current = parseInt(localStorage.getItem('thrift_sniper_curr_idx') || '0', 10);
       const next = (current + 1) % SNIPER_TARGETS.length;
       renderDailySniperTarget(next);
-      triggerAlert('🎯 New Thrift Sniper objective assigned!');
+      triggerAlert('🎯 New everyday sourcing objective active!');
     };
 
     function updateQuotaDisplay(tokensUsed = null) {
@@ -1061,7 +1178,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
 
         const tokensTotal = resData.usageMetadata?.totalTokenCount || 0;
         recordSuccessfulScan(tokensTotal);
-        addHunterXP(25); // +25 XP for conducting triage
+        addHunterXP(25);
 
         dismissAlert();
         const appraisal = parseResponseData(text, base64Array);
@@ -1115,7 +1232,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       const estShip = getEstimatedShippingCost(shipTier, false);
       const initialNet = calculateNetProfit(estValue, 0, estShip);
 
-      const defaultImg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23222630%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%239ca3af%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2216%22%3EManual%20Research%20Asset%3C%2Ftext%3E%3C%2Fsvg%3E";
+      const defaultImg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23222630%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%23a3aab8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2218%22%3EAsset%20Snapshot%3C%2Ftext%3E%3C%2Fsvg%3E";
       const photos = (base64Array && base64Array.length > 0) ? base64Array : [defaultImg];
 
       return {
@@ -1178,7 +1295,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
 
       await addDoc(collection(db, 'vault_inventory'), inventoryItem);
       await deleteDoc(doc(db, 'scout_prospects', target.id));
-      addHunterXP(100); // +100 XP for buying
+      addHunterXP(100);
       triggerAlert(`Added "${target.item}" to Inventory (+100 XP).`);
     };
 
@@ -1209,7 +1326,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
 
       await addDoc(collection(db, 'vault_sold'), soldItem);
       await deleteDoc(doc(db, 'vault_inventory', target.id));
-      addHunterXP(500); // +500 XP for completed flip
+      addHunterXP(500);
       triggerAlert(`Sold "${target.item}" (+$${realizedProfit.toFixed(2)} Profit, +500 XP!).`);
     };
 
@@ -1418,7 +1535,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
           owned: 'No matching inventory found.',
           sold: 'No matching sold records.'
         };
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 24px;">${labels[currentAppMode]}</div>`;
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.95rem; padding: 24px;">${labels[currentAppMode]}</div>`;
         return;
       }
 
@@ -1569,11 +1686,11 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
         <div class="modal-section">
           <strong>Item Identification</strong>
           ${target.brand} - ${target.item}<br>
-          <span style="color: var(--text-muted);">${target.specs}</span>
+          <span style="color: var(--text-muted); font-size: 0.9rem;">${target.specs}</span>
         </div>
         <div class="modal-section">
           <strong>Valuation & Comps</strong>
-          Sold Average: <span style="font-weight: 700; color: var(--green);">$${Number(target.estimatedValue).toFixed(2)}</span> (${target.priceRange})<br>
+          Sold Average: <span style="font-weight: 700; color: var(--green); font-size: 1.15rem;">$${Number(target.estimatedValue).toFixed(2)}</span> (${target.priceRange})<br>
           Model Confidence: ${target.confidence}<br>
           Appraisal Verdict: <strong>${target.verdict}</strong>
         </div>
@@ -1597,10 +1714,10 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
           ${target.intel || 'None provided'}
         </div>
         <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
-          <button class="btn-card" onclick="copyEbayListing('${target.id}')" style="width: 100%; justify-content: center; padding: 12px;">
+          <button class="btn-card" onclick="copyEbayListing('${target.id}')" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.9rem;">
             📋 Copy eBay Title & Description
           </button>
-          <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" style="width: 100%; justify-content: center; padding: 12px;">
+          <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.9rem;">
             Open Live eBay Sold Comps ↗
           </a>
         </div>
