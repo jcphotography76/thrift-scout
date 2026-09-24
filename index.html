@@ -18,6 +18,7 @@
       --yellow: #f59e0b;
       --red: #ef4444;
       --ebay: #0064d2;
+      --gold: #f59e0b;
     }
     * {
       box-sizing: border-box;
@@ -37,7 +38,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
     .brand-title {
       font-size: 1.15rem;
@@ -73,12 +74,76 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       padding: 6px 10px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       font-size: 0.72rem;
       color: var(--text-muted);
     }
     .token-bar strong {
       color: var(--green);
+    }
+    .sniper-banner {
+      background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
+      border: 1px solid #78350f;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .sniper-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .sniper-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .sniper-rank {
+      font-size: 0.7rem;
+      color: #fed7aa;
+      background: rgba(120, 53, 15, 0.4);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #9a3412;
+      font-weight: 700;
+    }
+    .sniper-target-name {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .sniper-bullets {
+      font-size: 0.75rem;
+      color: #d6d3d1;
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .sniper-bullets strong {
+      color: #fbbf24;
+    }
+    .sniper-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+    .btn-reroll {
+      background: transparent;
+      border: 1px solid #78350f;
+      color: #fed7aa;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
     }
     .mode-toggle {
       display: grid;
@@ -88,7 +153,7 @@
       padding: 4px;
       border-radius: 8px;
       border: 1px solid var(--border);
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .mode-btn {
       background: transparent;
@@ -111,7 +176,7 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 12px 14px;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
       gap: 10px;
@@ -140,7 +205,7 @@
     }
     .search-wrapper {
       display: none;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
     .search-input {
       width: 100%;
@@ -159,7 +224,7 @@
       font-size: 0.7rem;
       color: var(--text-muted);
       text-align: center;
-      margin-top: -6px;
+      margin-top: -4px;
       margin-bottom: 12px;
       letter-spacing: 0.3px;
     }
@@ -480,6 +545,23 @@
     <div>Tokens (Last Scan): <strong id="lastScanTokens">0</strong></div>
   </div>
 
+  <!-- THRIFT SNIPER HUNT DIRECTIVE -->
+  <div class="sniper-banner" id="sniperBanner">
+    <div class="sniper-header">
+      <span class="sniper-title">🎯 Thrift Sniper • Daily Directive</span>
+      <span class="sniper-rank" id="sniperRankBadge">Rookie Picker (0 XP)</span>
+    </div>
+    <div class="sniper-target-name" id="sniperTargetTitle">Vintage Audio & Amplifiers</div>
+    <div class="sniper-bullets">
+      <div><strong>Visual Cue:</strong> <span id="sniperCue">Brushed silver aluminum faceplates, toggle switches, weighted analog tuning dials.</span></div>
+      <div><strong>Prime Marks:</strong> <span id="sniperBrands">Marantz, Pioneer, Yamaha, Sansui, Kenwood, Sony ES.</span></div>
+      <div><strong>Floor Trap:</strong> <span id="sniperTrap">Skip black plastic 90s rack systems or cut power cables without testing.</span></div>
+    </div>
+    <div class="sniper-actions">
+      <button class="btn-reroll" onclick="rerollSniperTarget()">🎲 Reroll Target</button>
+    </div>
+  </div>
+
   <div class="mode-toggle">
     <button id="modeScout" class="mode-btn active" onclick="switchMode('scout')">1. Scout</button>
     <button id="modeManual" class="mode-btn" onclick="switchMode('manual')">2. Manual</button>
@@ -562,6 +644,58 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // Rotating 30-Day Zero-Token BOLO Hunter Directives
+    const SNIPER_TARGETS = [
+      {
+        title: "Vintage Silverface Audio & Hi-Fi",
+        cue: "Heavy brushed aluminum faceplates, analog backlit VU meters, weighted solid metal dials.",
+        brands: "Marantz, Pioneer (SX-series), Yamaha (Natural Sound), Sansui, Kenwood.",
+        trap: "Skip all-plastic black rack units from the late 90s with built-in dual cassettes."
+      },
+      {
+        title: "Pre-1960 American Cast Iron Cookware",
+        cue: "Silky glass-smooth cooking interior, heat ring on outer bottom rim, lightweight thin casting.",
+        brands: "Griswold (Large/Small Block Logo), Wagner Ware (Sidney -O-), Lodge (Single/3-Notch).",
+        trap: "Lay flat on store shelf—pass immediately if it wobbles, spins, or has hairline rim cracks."
+      },
+      {
+        title: "Texas Instruments Graphing Calculators",
+        cue: "Check electronics cable bins and office plastic bags for slide-cover calculators.",
+        brands: "TI-84 Plus, TI-84 Plus CE, TI-89 Titanium, TI-Nspire CX CAS.",
+        trap: "Pop battery door to verify zero acid leakage or blue battery corrosion on copper springs."
+      },
+      {
+        title: "Vintage 90s Fleece & Outerwear",
+        cue: "Deep pile sherpa fleece, Aztec/tribal geometric prints, contrasting nylon chest pockets.",
+        brands: "Patagonia (Synchilla/Retro-X), The North Face (Made in USA brown label), Filson, Columbia (Bugaboo).",
+        trap: "Check zipper track teeth for missing stops and test pocket zipper pulls."
+      },
+      {
+        title: "Japanese Meiji/Taisho Era Antiques & Folk Craft",
+        cue: "Hand-chiseled mortise/tenon joinery, forged iron strapping, paulownia or keyaki wood.",
+        brands: "Fuzukue writing desks, Hakone Yosegi parquetry boxes, Bizen pottery, cast iron tetsubin.",
+        trap: "Avoid tourist lacquerware with stamped resin finishes and modern Phillips head screws."
+      },
+      {
+        title: "Retro Gaming Consoles & Handhelds",
+        cue: "Matte plastic cartridges, branded battery covers intact, proprietary AV power blocks.",
+        brands: "Nintendo Game Boy (Color/Advance/SP), Nintendo 64, Sega Genesis, Sony PS Vita.",
+        trap: "Check Game Boy screen lenses for polarizing burn (dark black disc in center of LCD)."
+      },
+      {
+        title: "Heritage Workwear & Leather Boots",
+        cue: "Goodyear welted stitched soles, thick full-grain oiled leather, brass eyelets/hooks.",
+        brands: "Red Wing Heritage, White's, Danner (Made in USA Portland), Thorogood, Chippewa.",
+        trap: "Examine heel drag and flex the sole hard to confirm rubber has not succumbed to hydrolysis/crumbling."
+      },
+      {
+        title: "Single-Stitch 80s/90s Graphic Tees",
+        cue: "Single horizontal row of thread on sleeve hems and waist bottom (no double stitch).",
+        brands: "Screen Stars, Brockum, Fruit of the Loom (USA), Giant, Hanes Beefy-T.",
+        trap: "Look through fabric into overhead ceiling light to check for tiny moth pinholes in armpits/abdomen."
+      }
+    ];
+
     const SYSTEM_PROMPT = `
 You are Thrift-Vault AI, an expert secondary-market appraiser.
 Evaluate the item using any attached imagery, explicit query text, historical provenance, markings, and user specifications. 
@@ -601,11 +735,52 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
 <BUY TO FLIP|PASS|PERSONAL KEEP>
 `;
 
-    let currentAppMode = 'scout'; // 'scout' | 'manual' | 'owned' | 'sold'
+    let currentAppMode = 'scout';
     let currentItems = [];
     let filteredItems = [];
     let isProcessing = false;
     let manualCapturedBase64 = null;
+
+    // Sniper Gamification & Quota Tracking
+    function getHunterXP() {
+      return parseInt(localStorage.getItem('thrift_sniper_xp') || '0', 10);
+    }
+
+    function addHunterXP(pts) {
+      const current = getHunterXP() + pts;
+      localStorage.setItem('thrift_sniper_xp', current.toString());
+      renderSniperRank();
+    }
+
+    function renderSniperRank() {
+      const xp = getHunterXP();
+      let rank = "Rookie Picker";
+      if (xp >= 5000) rank = "Master Sniper";
+      else if (xp >= 2000) rank = "Thrift Marksman";
+      else if (xp >= 500) rank = "Aisle Scout";
+
+      document.getElementById('sniperRankBadge').textContent = `${rank} (${xp.toLocaleString()} XP)`;
+    }
+
+    function renderDailySniperTarget(targetIndex = null) {
+      if (targetIndex === null) {
+        const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+        targetIndex = dayOfYear % SNIPER_TARGETS.length;
+      }
+      const t = SNIPER_TARGETS[targetIndex];
+      document.getElementById('sniperTargetTitle').textContent = t.title;
+      document.getElementById('sniperCue').textContent = t.cue;
+      document.getElementById('sniperBrands').textContent = t.brands;
+      document.getElementById('sniperTrap').textContent = t.trap;
+      localStorage.setItem('thrift_sniper_curr_idx', targetIndex.toString());
+    }
+
+    window.rerollSniperTarget = function() {
+      const current = parseInt(localStorage.getItem('thrift_sniper_curr_idx') || '0', 10);
+      const next = (current + 1) % SNIPER_TARGETS.length;
+      renderDailySniperTarget(next);
+      triggerAlert('🎯 New Thrift Sniper objective assigned!');
+    };
 
     function updateQuotaDisplay(tokensUsed = null) {
       const today = new Date().toDateString();
@@ -653,6 +828,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       document.getElementById('modeOwned').classList.toggle('active', mode === 'owned');
       document.getElementById('modeSold').classList.toggle('active', mode === 'sold');
 
+      document.getElementById('sniperBanner').style.display = (mode === 'scout' || mode === 'manual') ? 'block' : 'none';
       document.getElementById('actionPanel').style.display = mode === 'scout' ? 'grid' : 'none';
       document.getElementById('manualPanel').style.display = mode === 'manual' ? 'flex' : 'none';
       document.getElementById('gestureHint').style.display = mode === 'manual' ? 'none' : 'block';
@@ -780,13 +956,11 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       const photos = manualCapturedBase64 ? [manualCapturedBase64] : [];
       await runAppraisalCore(photos, `MANUAL QUERY:\nItem Name/Keywords: ${title}\nUser Notes/Serial/Marks/Specs: ${specs}`, key);
 
-      // Reset fields
       document.getElementById('manualTitle').value = '';
       document.getElementById('manualSpecs').value = '';
       document.getElementById('manualPhotoPreview').style.display = 'none';
       manualCapturedBase64 = null;
 
-      // Switch to Scout tab to see the freshly created card
       switchMode('scout');
     };
 
@@ -887,6 +1061,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
 
         const tokensTotal = resData.usageMetadata?.totalTokenCount || 0;
         recordSuccessfulScan(tokensTotal);
+        addHunterXP(25); // +25 XP for conducting triage
 
         dismissAlert();
         const appraisal = parseResponseData(text, base64Array);
@@ -940,9 +1115,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       const estShip = getEstimatedShippingCost(shipTier, false);
       const initialNet = calculateNetProfit(estValue, 0, estShip);
 
-      // Default placeholder SVG if no photo was attached during manual research
       const defaultImg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23222630%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%239ca3af%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2216%22%3EManual%20Research%20Asset%3C%2Ftext%3E%3C%2Fsvg%3E";
-
       const photos = (base64Array && base64Array.length > 0) ? base64Array : [defaultImg];
 
       return {
@@ -1005,7 +1178,8 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
 
       await addDoc(collection(db, 'vault_inventory'), inventoryItem);
       await deleteDoc(doc(db, 'scout_prospects', target.id));
-      triggerAlert(`Added "${target.item}" to Inventory.`);
+      addHunterXP(100); // +100 XP for buying
+      triggerAlert(`Added "${target.item}" to Inventory (+100 XP).`);
     };
 
     window.markAsSold = async function(id, event) {
@@ -1035,7 +1209,8 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
 
       await addDoc(collection(db, 'vault_sold'), soldItem);
       await deleteDoc(doc(db, 'vault_inventory', target.id));
-      triggerAlert(`Sold "${target.item}" (+$${realizedProfit.toFixed(2)} Profit).`);
+      addHunterXP(500); // +500 XP for completed flip
+      triggerAlert(`Sold "${target.item}" (+$${realizedProfit.toFixed(2)} Profit, +500 XP!).`);
     };
 
     window.deleteItem = async function(id, event) {
@@ -1437,98 +1612,10 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|Local Pickup>
       document.getElementById('detailModal').style.display = 'none';
     };
 
-    async function seedInitialDatabaseIfEmpty() {
-      const seededFlag = localStorage.getItem('thrift_db_seeded_v6');
-      if (seededFlag) return;
-
-      try {
-        const scoutSnap = await getDocs(collection(db, 'scout_prospects'));
-        const ownedSnap = await getDocs(collection(db, 'vault_inventory'));
-        const soldSnap = await getDocs(collection(db, 'vault_sold'));
-
-        if (scoutSnap.empty && ownedSnap.empty && soldSnap.empty) {
-          const placeholderImg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23222630%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%239ca3af%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2216%22%3EAsset%20Snapshot%3C%2Ftext%3E%3C%2Fsvg%3E";
-
-          await addDoc(collection(db, 'scout_prospects'), {
-            image: placeholderImg,
-            gallery: [placeholderImg],
-            brand: 'Yamaha',
-            item: 'Natural Sound Receiver CR-620',
-            specs: 'Vintage 1970s Silverface',
-            estimatedValue: 145.00,
-            priceRange: '$120 - $175',
-            confidence: 'High',
-            itemCost: 0.00,
-            buyerPaysShipping: false,
-            estimatedShippingOutlay: 16.50,
-            projectedProfit: 108.91,
-            disposition: { signal: 'GREEN', reason: 'High collector velocity for silverface audio.' },
-            routing: { platform: 'eBay', strategy: 'List at $155' },
-            shipping: { tier: '5+ lbs / Oversized', packaging: 'Double-Box Fragile', service: 'UPS Ground' },
-            intel: 'Inspect dial illumination lamps and clean pot action.',
-            searchQuery: 'Yamaha CR-620 Receiver',
-            verdict: 'BUY TO FLIP',
-            status: 'prospect',
-            createdAt: Date.now() - 3600000
-          });
-
-          await addDoc(collection(db, 'vault_inventory'), {
-            image: placeholderImg,
-            gallery: [placeholderImg],
-            brand: 'Griswold',
-            item: 'Cast Iron Skillet #8 Large Block',
-            specs: 'Pattern 704, Erie PA',
-            estimatedValue: 85.00,
-            priceRange: '$75 - $110',
-            confidence: 'High',
-            itemCost: 8.00,
-            buyerPaysShipping: true,
-            estimatedShippingOutlay: 0.00,
-            projectedProfit: 65.34,
-            disposition: { signal: 'GREEN', reason: 'Large block Griswold sells in 48 hours.' },
-            routing: { platform: 'eBay', strategy: 'List at $89' },
-            shipping: { tier: '1-5 lbs', packaging: 'Boxed', service: 'USPS Ground Advantage' },
-            intel: 'Check cooking surface for wobble or hairline rim fractures.',
-            searchQuery: 'Griswold 8 Cast Iron Skillet 704',
-            verdict: 'BUY TO FLIP',
-            status: 'owned',
-            purchasedAt: Date.now() - 172800000
-          });
-
-          await addDoc(collection(db, 'vault_sold'), {
-            image: placeholderImg,
-            gallery: [placeholderImg],
-            brand: 'Patagonia',
-            item: 'Synchilla Snap-T Pullover',
-            specs: 'Mens Large Aztec Pattern',
-            estimatedValue: 95.00,
-            finalSoldPrice: 92.00,
-            priceRange: '$80 - $115',
-            confidence: 'High',
-            itemCost: 6.50,
-            buyerPaysShipping: true,
-            actualShippingPaid: 0.00,
-            realizedProfit: 72.91,
-            disposition: { signal: 'GREEN', reason: 'Aztec pattern Synchilla commands rapid sell-through.' },
-            routing: { platform: 'eBay', strategy: 'Listed at $95' },
-            shipping: { tier: '1-5 lbs', packaging: 'Poly Mailer', service: 'USPS Ground Advantage' },
-            intel: 'Verified pocket snap tension and piping along cuffs.',
-            searchQuery: 'Patagonia Synchilla Snap T Aztec Fleece Large',
-            verdict: 'BUY TO FLIP',
-            status: 'sold',
-            soldAt: Date.now() - 345600000
-          });
-
-          localStorage.setItem('thrift_db_seeded_v6', 'true');
-        }
-      } catch (err) {
-        console.warn('Seeding skipped or initialized:', err);
-      }
-    }
-
     (async () => {
+      renderSniperRank();
+      renderDailySniperTarget();
       updateQuotaDisplay();
-      await seedInitialDatabaseIfEmpty();
       listenToCollection();
     })();
   </script>
