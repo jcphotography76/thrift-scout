@@ -785,7 +785,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Realistic Everyday Sourcing Bounties (Expanded for Clothing Tags, Toys, and Media)
     const SNIPER_TARGETS = [
       {
         title: "Single-Stitch Graphic Tees & Band Shirts",
@@ -1458,10 +1457,9 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       });
     };
 
-    // Location-Based Navigator (Apple Maps, Waze, Google Maps)
     window.findLocalThriftStores = function() {
       const container = document.getElementById('storeListContainer');
-      container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.9rem;">🛰️ Getting your coordinates...</div>';
+      container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.95rem;">🛰️ Getting your coordinates...</div>';
 
       if (!navigator.geolocation) {
         renderFallbackStoreSearch(container);
@@ -1484,7 +1482,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
     function renderCoordinateLinks(container, lat, lon) {
       const query = encodeURIComponent("thrift stores");
       const appleUrl = `https://maps.apple.com/?q=${query}&sll=${lat},${lon}`;
-      const wazeUrl = `https://waze.com/ul?q=${query}&ll=${lat},${lon}&navigate=yes`;
+      const wazeUrl = `https://waze.com/ul?q=${query}`;
       const googleUrl = `https://www.google.com/maps/search/${query}/@${lat},${lon},13z`;
 
       container.innerHTML = `
@@ -1496,7 +1494,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
               🗺️ Open in Apple Maps
             </a>
             <a href="${wazeUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav waze">
-              🚙 Open in Waze
+              🚙 Search in Waze
             </a>
             <a href="${googleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav google">
               🌐 Open in Google Maps
@@ -1509,7 +1507,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
     function renderFallbackStoreSearch(container) {
       const query = encodeURIComponent("thrift stores near me");
       const appleUrl = `https://maps.apple.com/?q=${query}`;
-      const wazeUrl = `https://waze.com/ul?q=${query}&navigate=yes`;
+      const wazeUrl = `https://waze.com/ul?q=${query}`;
       const googleUrl = `https://www.google.com/maps/search/${query}`;
 
       container.innerHTML = `
