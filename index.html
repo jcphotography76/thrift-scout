@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Thrift Scout / Thrift-Vault</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root {
       --bg: #0f1115;
@@ -11,7 +12,7 @@
       --surface: #222630;
       --border: #2d3340;
       --text: #f3f4f6;
-      --text-muted: #a3aab8;
+      --text-muted: #9ca3af;
       --accent: #2563eb;
       --accent-hover: #1d4ed8;
       --green: #10b981;
@@ -31,741 +32,188 @@
       color: var(--text);
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       padding: 16px;
-      padding-bottom: 85px;
+      padding-bottom: 90px;
       overflow-x: hidden;
       font-size: 16px;
     }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .brand-title {
-      font-size: 1.35rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .brand-title span {
-      color: var(--green);
-    }
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .btn-key {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .token-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px 12px;
-      margin-bottom: 14px;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-    .token-bar strong {
-      color: var(--green);
-      font-size: 0.95rem;
-    }
-    .sniper-banner {
-      background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
-      border: 1px solid #78350f;
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-    .sniper-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-    .sniper-title {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: var(--gold);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .sniper-rank {
-      font-size: 0.8rem;
-      color: #fed7aa;
-      background: rgba(120, 53, 15, 0.4);
-      padding: 4px 8px;
-      border-radius: 4px;
-      border: 1px solid #9a3412;
-      font-weight: 700;
-    }
-    .sniper-body {
-      display: flex;
-      gap: 14px;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-    .sniper-visual-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-    .sniper-visual {
-      width: 86px;
-      height: 86px;
-      min-width: 86px;
-      background: #111418;
-      border: 1px solid #9a3412;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 6px;
-    }
-    .sniper-visual svg {
-      width: 100%;
-      height: 100%;
-    }
-    .sniper-visual-label {
-      font-size: 0.65rem;
-      font-weight: 800;
-      color: #fed7aa;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .sniper-info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-    .sniper-target-name {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #fff;
-      margin-bottom: 6px;
-      line-height: 1.25;
-    }
-    .sniper-bullets {
-      font-size: 0.9rem;
-      color: #e5e7eb;
-      line-height: 1.5;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .sniper-bullets strong {
-      color: #fbbf24;
-    }
-    .sniper-actions {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 4px;
-    }
-    .btn-reroll {
-      background: transparent;
-      border: 1px solid #78350f;
-      color: #fed7aa;
-      font-size: 0.85rem;
-      font-weight: 700;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .mode-toggle {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-      gap: 4px;
-      background: var(--panel);
-      padding: 6px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      margin-bottom: 14px;
-    }
-    .mode-btn {
-      background: transparent;
-      color: var(--text-muted);
-      border: none;
-      padding: 10px 2px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: center;
-    }
-    .mode-btn.active {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .portfolio-banner {
-      background: linear-gradient(135deg, #181b21 0%, #1f242d 100%);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px 16px;
-      margin-bottom: 14px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-      gap: 12px;
-    }
-    .portfolio-metric {
-      display: flex;
-      flex-direction: column;
-    }
-    .portfolio-metric .label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-    .portfolio-metric .val {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: var(--green);
-    }
-    .portfolio-metric .val.neutral {
-      color: #fff;
-    }
-    .portfolio-metric .val.cost {
-      color: var(--yellow);
-    }
-    .search-wrapper {
+    .custom-scroll::-webkit-scrollbar {
       display: none;
-      margin-bottom: 14px;
-    }
-    .search-input {
-      width: 100%;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 12px 16px;
-      font-size: 0.95rem;
-      color: #fff;
-      outline: none;
-    }
-    .search-input:focus {
-      border-color: var(--accent);
-    }
-    .gesture-hint {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-align: center;
-      margin-top: -4px;
-      margin-bottom: 14px;
-      letter-spacing: 0.3px;
-    }
-    .action-panel {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-    .btn-action {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      padding: 14px;
-      border-radius: 8px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-      user-select: none;
-      text-align: center;
-    }
-    .btn-action.secondary {
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-    .btn-action.disabled {
-      background: var(--surface);
-      color: var(--text-muted);
-      pointer-events: none;
-      cursor: not-allowed;
-    }
-    input[type="file"] {
-      display: none;
-    }
-    .manual-panel {
-      display: none;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .manual-label {
-      font-size: 0.85rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      display: block;
-    }
-    .manual-input {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 12px 14px;
-      font-size: 0.95rem;
-      color: #fff;
-      outline: none;
-    }
-    .manual-input:focus {
-      border-color: var(--accent);
-    }
-    textarea.manual-input {
-      resize: vertical;
-      min-height: 80px;
-      font-family: inherit;
-    }
-    .manual-photo-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .manual-preview {
-      width: 60px;
-      height: 60px;
-      border-radius: 6px;
-      background: #000;
-      border: 1px solid var(--border);
-      object-fit: cover;
-      display: none;
-    }
-    .locator-panel {
-      display: none;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .locator-header {
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .locator-desc {
-      font-size: 0.9rem;
-      color: #d1d5db;
-      line-height: 1.4;
-    }
-    .store-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .store-title {
-      font-size: 1rem;
-      font-weight: 800;
-      color: #fff;
-    }
-    .store-address {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-    .nav-links-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .btn-nav {
-      background: var(--panel);
-      color: #fff;
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .btn-nav.apple {
-      border-color: #9ca3af;
-    }
-    .btn-nav.waze {
-      border-color: #38bdf8;
-      color: #38bdf8;
-    }
-    .btn-nav.google {
-      border-color: #34d399;
-      color: #34d399;
-    }
-    .status-alert {
-      display: none;
-      padding: 14px 16px;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      margin-bottom: 14px;
-      border-left: 5px solid var(--accent);
-      background: var(--panel);
-      line-height: 1.5;
-    }
-    .feed-container {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      position: relative;
-    }
-    .vault-card-wrapper {
-      position: relative;
-      overflow: hidden;
-      border-radius: 8px;
     }
     .vault-card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 14px;
-      position: relative;
+      transition: transform 0.15s ease-out, background-color 0.15s ease-out;
       touch-action: pan-y;
-      transition: transform 0.15s ease-out, background-color 0.15s;
-      display: flex;
-      gap: 14px;
-    }
-    .card-thumb {
-      width: 82px;
-      height: 82px;
-      min-width: 82px;
-      border-radius: 6px;
-      object-fit: cover;
-      background: #000;
-      border: 1px solid var(--border);
-    }
-    .card-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-    .card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 6px;
-    }
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .card-sub {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-top: 3px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .badge-signal {
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 4px;
-      color: #000;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-    .badge-age {
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 3px 6px;
-      border-radius: 4px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-    .calc-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 8px;
-      margin: 8px 0;
-      text-align: center;
-    }
-    .calc-item {
-      display: flex;
-      flex-direction: column;
-    }
-    .calc-item span:first-child {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
-    .calc-item span:last-child {
-      font-size: 1rem;
-      font-weight: 800;
-    }
-    .card-summary {
-      font-size: 0.85rem;
-      color: #d1d5db;
-      line-height: 1.4;
-      margin-bottom: 10px;
-    }
-    .card-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 6px;
-    }
-    .btn-card {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .btn-card.transfer {
-      background: #1e3a8a;
-      border-color: #2563eb;
-      color: #fff;
-    }
-    .btn-card.sold {
-      background: #064e3b;
-      border-color: #059669;
-      color: #fff;
-    }
-    .btn-card.delete {
-      color: var(--red);
-      background: transparent;
-    }
-    .btn-card.ebay {
-      background: var(--ebay);
-      color: #fff;
-    }
-    #detailModal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: var(--bg);
-      z-index: 100;
-      overflow-y: auto;
-      padding: 16px;
-    }
-    .modal-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-    .btn-back {
-      background: var(--surface);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 10px 16px;
-      border-radius: 6px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      cursor: pointer;
-    }
-    .modal-gallery {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      margin-bottom: 16px;
-      padding-bottom: 6px;
-    }
-    .modal-gallery img {
-      height: 240px;
-      min-width: 190px;
-      object-fit: cover;
-      background: #000;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-    .modal-section {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px;
-      margin-bottom: 12px;
-      font-size: 0.95rem;
-      line-height: 1.5;
-    }
-    .modal-section strong {
-      display: block;
-      color: var(--text-muted);
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      margin-bottom: 6px;
     }
   </style>
 </head>
-<body>
+<body class="selection:bg-blue-600 selection:text-white">
 
-  <header>
-    <div class="brand-title">THRIFT SCOUT <span>• VAULT</span></div>
-    <div class="header-actions">
-      <button class="btn-key" onclick="promptApiKey()">API Key</button>
+  <header class="flex justify-between items-center mb-3">
+    <div class="text-xl font-extrabold tracking-tight flex items-center gap-1.5 text-white">
+      THRIFT SCOUT <span class="text-emerald-500">• VAULT</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="bg-[#222630] text-gray-200 border border-[#2d3340] px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#2d3340] transition" onclick="promptApiKey()">
+        API Key
+      </button>
     </div>
   </header>
 
-  <div class="token-bar">
-    <div>Daily Scans Remaining: <strong id="scansRemaining">1,000</strong> / 1,000</div>
-    <div>Tokens (Last Scan): <strong id="lastScanTokens">0</strong></div>
+  <div class="flex justify-between items-center bg-[#181b21] border border-[#2d3340] rounded-lg px-3 py-2 mb-3.5 text-xs text-gray-400">
+    <div>Daily Scans Remaining: <strong id="scansRemaining" class="text-emerald-400 text-sm font-bold">1,000</strong> / 1,000</div>
+    <div>Tokens (Last Scan): <strong id="lastScanTokens" class="text-emerald-400 text-sm font-bold">0</strong></div>
   </div>
 
-  <!-- THRIFT SNIPER DIRECTIVE WITH ILLUSTRATIVE TARGET CUES -->
-  <div class="sniper-banner" id="sniperBanner">
-    <div class="sniper-header">
-      <span class="sniper-title">🎯 Thrift Sniper • Daily Directive</span>
-      <span class="sniper-rank" id="sniperRankBadge">Rookie Picker (0 XP)</span>
+  <div class="bg-gradient-to-br from-[#1c1917] to-[#292524] border border-[#78350f] rounded-xl p-4 mb-3.5 shadow-lg">
+    <div class="flex justify-between items-center mb-2.5">
+      <span class="text-xs font-black text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+        🎯 Thrift Sniper • Daily Directive
+      </span>
+      <span id="sniperRankBadge" class="text-xs font-bold text-orange-200 bg-orange-950/60 border border-orange-800 px-2 py-0.5 rounded-md">
+        Rookie Picker (0 XP)
+      </span>
     </div>
-    
-    <div class="sniper-body">
-      <div class="sniper-visual-wrapper">
-        <div class="sniper-visual" id="sniperVisualBox"></div>
-        <span class="sniper-visual-label">Target Cue</span>
+
+    <div class="flex gap-3.5 items-start mb-2.5">
+      <div class="flex flex-col items-center gap-1 flex-shrink-0">
+        <a id="sniperPhotoLink" class="block rounded-lg overflow-hidden border-2 border-amber-600 shadow-md" href="#" target="_blank" rel="noopener noreferrer">
+          <img id="sniperVisualImg" class="w-24 h-24 object-cover bg-black" src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&auto=format&fit=crop&q=80" alt="Target Reference">
+        </a>
+        <span class="text-[10px] font-bold text-amber-400 uppercase tracking-tight text-center">Tap for Comps</span>
       </div>
-      <div class="sniper-info">
-        <div class="sniper-target-name" id="sniperTargetTitle">Retro Video Game Controllers & Cords</div>
-        <div class="sniper-bullets">
-          <div><strong>Visual Cue:</strong> <span id="sniperCue">Look through electronics cable bins and clear plastic hanging baggies for first-party console gamepads.</span></div>
-          <div><strong>Prime Marks:</strong> <span id="sniperBrands">OEM Nintendo, Sony PlayStation DualShock, Microsoft Xbox 360, WaveBird wireless.</span></div>
-          <div><strong>Floor Trap:</strong> <span id="sniperTrap">Skip generic third-party budget pads; inspect cord for dog bites or broken USB/connector pins.</span></div>
+      <div class="flex-1 min-w-0">
+        <a id="sniperTargetTitle" class="text-base font-extrabold text-white block mb-1 hover:text-amber-400 transition" href="#" target="_blank" rel="noopener noreferrer">
+          Single-Stitch Graphic Tees & Band Shirts
+        </a>
+        <div class="text-xs text-gray-300 leading-snug space-y-1">
+          <div><strong class="text-amber-400">Visual Cue:</strong> <span id="sniperCue">Examine sleeve hems and waist bottom for a single continuous thread line.</span></div>
+          <div><strong class="text-amber-400">Prime Marks:</strong> <span id="sniperBrands">Screen Stars (white/blue bar), Brockum, Giant, 3D Emblem.</span></div>
+          <div><strong class="text-amber-400">Floor Trap:</strong> <span id="sniperTrap">Hold fabric to overhead lights for moth holes; pass on dry-rotted fabric.</span></div>
         </div>
       </div>
     </div>
 
-    <div class="sniper-actions">
-      <button class="btn-reroll" onclick="rerollSniperTarget()">🎲 Reroll Target</button>
+    <div class="flex justify-between items-center pt-2.5 border-t border-amber-950/70">
+      <a id="sniperCompsBtn" class="bg-[#0064d2] hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg inline-flex items-center gap-1 shadow transition" href="#" target="_blank" rel="noopener noreferrer">
+        View Live Sold Comps on eBay ↗
+      </a>
+      <button class="bg-transparent border border-amber-800 hover:bg-amber-950/40 text-orange-200 text-xs font-bold px-3 py-1.5 rounded-lg transition" onclick="rerollSniperTarget()">
+        🎲 Reroll Target
+      </button>
     </div>
   </div>
 
-  <div class="mode-toggle">
-    <button id="modeScout" class="mode-btn active" onclick="switchMode('scout')">1. Scout</button>
-    <button id="modeManual" class="mode-btn" onclick="switchMode('manual')">2. Manual</button>
-    <button id="modeStores" class="mode-btn" onclick="switchMode('stores')">3. Stores</button>
-    <button id="modeOwned" class="mode-btn" onclick="switchMode('owned')">4. Vault</button>
-    <button id="modeSold" class="mode-btn" onclick="switchMode('sold')">5. Sold</button>
+  <div class="grid grid-cols-6 gap-1 bg-[#181b21] p-1.5 rounded-xl border border-[#2d3340] mb-3.5 text-center">
+    <button id="modeScout" class="py-2 px-1 text-xs font-extrabold rounded-lg text-gray-400 hover:text-white transition" onclick="switchMode('scout')">1. Scout</button>
+    <button id="modeTags" class="py-2 px-1 text-xs font-extrabold rounded-lg text-gray-400 hover:text-white transition" onclick="switchMode('tags')">2. Tag ID</button>
+    <button id="modeManual" class="py-2 px-1 text-xs font-extrabold rounded-lg text-gray-400 hover:text-white transition" onclick="switchMode('manual')">3. Manual</button>
+    <button id="modeStores" class="py-2 px-1 text-xs font-extrabold rounded-lg text-gray-400 hover:text-white transition" onclick="switchMode('stores')">4. Stores</button>
+    <button id="modeOwned" class="py-2 px-1 text-xs font-extrabold rounded-lg text-gray-400 hover:text-white transition" onclick="switchMode('owned')">5. Vault</button>
+    <button id="modeSold" class="py-2 px-1 text-xs font-extrabold rounded-lg text-gray-400 hover:text-white transition" onclick="switchMode('sold')">6. Sold</button>
   </div>
 
-  <div class="portfolio-banner" id="bannerContainer"></div>
-  <div class="gesture-hint" id="gestureHint">⇄ Swipe Right to Advance • Swipe Left to Discard</div>
-
-  <div class="search-wrapper" id="searchWrapper">
-    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search Vault inventory by brand, item, specs..." oninput="handleSearch()">
+  <div id="bannerContainer" class="bg-gradient-to-br from-[#181b21] to-[#1f242d] border border-[#2d3340] rounded-xl p-3.5 mb-3.5 grid grid-cols-2 md:grid-cols-4 gap-3">
+    <!-- Populated dynamically via JS -->
   </div>
 
-  <!-- Mode 1: Scout Camera / Multi -->
-  <div class="action-panel" id="actionPanel">
-    <label class="btn-action" id="camBtnLabel" for="cameraInput">
+  <div id="gestureHint" class="text-xs text-gray-400 text-center -mt-1 mb-3.5 tracking-wide">
+    ⇄ Swipe Right to Advance • Swipe Left to Discard
+  </div>
+
+  <div id="searchWrapper" class="hidden mb-3.5">
+    <input type="text" id="searchInput" class="w-full bg-[#181b21] border border-[#2d3340] rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="🔍 Search Vault inventory by brand, item, specs..." oninput="handleSearch()">
+  </div>
+
+  <div id="actionPanel" class="grid grid-cols-2 gap-2.5 mb-4">
+    <label id="camBtnLabel" for="cameraInput" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-2 rounded-xl text-sm cursor-pointer flex justify-center items-center gap-1.5 shadow-md transition text-center select-none">
       📷 Live Camera
     </label>
-    <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="processCaptures(this)">
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" class="hidden" onchange="processCaptures(this)">
 
-    <label class="btn-action secondary" id="uploadBtnLabel" for="galleryInput">
+    <label id="uploadBtnLabel" for="galleryInput" class="bg-[#222630] hover:bg-[#2d3340] text-gray-200 border border-[#2d3340] font-bold py-3 px-2 rounded-xl text-sm cursor-pointer flex justify-center items-center gap-1.5 shadow-md transition text-center select-none">
       🖼️ Upload / Multi
     </label>
-    <input type="file" id="galleryInput" accept="image/*" multiple onchange="processCaptures(this)">
+    <input type="file" id="galleryInput" accept="image/*" multiple class="hidden" onchange="processCaptures(this)">
   </div>
 
-  <!-- Mode 2: Dedicated Manual Research Console -->
-  <div class="manual-panel" id="manualPanel">
+  <div id="tagPanel" class="hidden bg-[#181b21] border border-[#2d3340] rounded-xl p-4 mb-4 flex-col gap-3.5 shadow-lg">
+    <div class="text-base font-extrabold text-white flex items-center gap-2">
+      🏷️ Vintage Tag & Maker Mark Chronology Inspector
+    </div>
+    <div class="text-xs text-gray-300 leading-relaxed">
+      Snap a macro photo of garment neck tags, care labels, RN numbers, toy mold marks, or hallmarks to identify production year, single/double stitch status, and authenticity tier.
+    </div>
+
+    <div class="grid grid-cols-2 gap-2.5">
+      <label id="tagCamBtn" for="tagCameraInput" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-2 rounded-xl text-sm cursor-pointer flex justify-center items-center gap-1.5 shadow-md transition text-center select-none">
+        📷 Scan Label
+      </label>
+      <input type="file" id="tagCameraInput" accept="image/*" capture="environment" class="hidden" onchange="processTagScan(this)">
+
+      <label id="tagUploadBtn" for="tagGalleryInput" class="bg-[#222630] hover:bg-[#2d3340] text-gray-200 border border-[#2d3340] font-bold py-3 px-2 rounded-xl text-sm cursor-pointer flex justify-center items-center gap-1.5 shadow-md transition text-center select-none">
+        🖼️ Upload Tag Photo
+      </label>
+      <input type="file" id="tagGalleryInput" accept="image/*" class="hidden" onchange="processTagScan(this)">
+    </div>
+
+    <div id="tagResultContainer" class="hidden"></div>
+  </div>
+
+  <div id="manualPanel" class="hidden bg-[#181b21] border border-[#2d3340] rounded-xl p-4 mb-4 flex-col gap-3 shadow-lg">
     <div>
-      <label class="manual-label">Item Title / Model / Maker</label>
-      <input type="text" id="manualTitle" class="manual-input" placeholder="e.g. Vintage 1994 Brockum Pink Floyd tour shirt">
+      <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block mb-1">Item Title / Model / Maker</label>
+      <input type="text" id="manualTitle" class="w-full bg-[#222630] border border-[#2d3340] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500" placeholder="e.g. 1994 Brockum Pink Floyd Division Bell Tour Tee">
     </div>
 
     <div>
-      <label class="manual-label">Known Specs, Tag RN, Stitching, or Copyright Marks</label>
-      <textarea id="manualSpecs" class="manual-input" placeholder="e.g. Single stitch sleeves and waist, Brockum tag Made in USA, dated 1994, no dry rot"></textarea>
+      <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block mb-1">Known Specs, Tag RN, Stitching, or Copyright</label>
+      <textarea id="manualSpecs" class="w-full bg-[#222630] border border-[#2d3340] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500 min-h-[75px]" placeholder="e.g. Single stitch sleeves & hem, Brockum USA tag, dated 1994 under graphics, zero dry rot"></textarea>
     </div>
 
     <div>
-      <label class="manual-label">Optional Tag or Detail Photo</label>
-      <div class="manual-photo-row">
-        <label class="btn-card" for="manualPhotoInput" style="cursor: pointer;">📷 Attach Snapshot</label>
-        <input type="file" id="manualPhotoInput" accept="image/*" onchange="previewManualPhoto(this)">
-        <img id="manualPhotoPreview" class="manual-preview" alt="Preview">
+      <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block mb-1">Optional Tag or Detail Photo</label>
+      <div class="flex items-center gap-3">
+        <label for="manualPhotoInput" class="bg-[#222630] border border-[#2d3340] text-gray-200 text-xs font-bold px-3 py-2 rounded-lg cursor-pointer hover:bg-[#2d3340] transition">
+          📷 Attach Snapshot
+        </label>
+        <input type="file" id="manualPhotoInput" accept="image/*" class="hidden" onchange="previewManualPhoto(this)">
+        <img id="manualPhotoPreview" class="w-12 h-12 rounded-lg object-cover bg-black border border-[#2d3340] hidden" alt="Preview">
       </div>
     </div>
 
-    <button class="btn-action" id="manualSubmitBtn" onclick="submitManualAppraisal()" style="margin-top: 4px;">
+    <button id="manualSubmitBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition mt-1" onclick="submitManualAppraisal()">
       🔍 Run Market Intelligence
     </button>
   </div>
 
-  <!-- Mode 3: Location-Based Thrift Store Finder -->
-  <div class="locator-panel" id="locatorPanel">
-    <div class="locator-header">
+  <div id="locatorPanel" class="hidden bg-[#181b21] border border-[#2d3340] rounded-xl p-4 mb-4 flex-col gap-3 shadow-lg">
+    <div class="text-base font-extrabold text-white flex items-center gap-2">
       📍 Nearby Thrift Route Finder
     </div>
-    <div class="locator-desc">
-      Scan your immediate area for Goodwill, Savers, Deseret Industries, and local charity shops with 1-tap navigation deep links.
+    <div class="text-xs text-gray-300 leading-relaxed">
+      Detect nearby thrift stores, donation centers, and vintage outposts with one-tap deep links to Apple Maps, Waze, and Google Maps.
     </div>
 
-    <button class="btn-action" onclick="findLocalThriftStores()">
+    <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition" onclick="findLocalThriftStores()">
       🛰️ Locate Nearest Thrift Stores
     </button>
 
-    <div id="storeListContainer" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;"></div>
+    <div id="storeListContainer" class="flex flex-col gap-2.5 mt-1"></div>
   </div>
 
-  <div id="statusAlert" class="status-alert"></div>
-  <div id="cardsFeed" class="feed-container"></div>
+  <div id="statusAlert" class="hidden p-3.5 rounded-lg text-sm mb-3.5 border-l-4 bg-[#181b21] leading-relaxed"></div>
+  <div id="cardsFeed" class="flex flex-col gap-3.5 relative"></div>
 
-  <div id="detailModal">
-    <div class="modal-nav">
-      <button class="btn-back" onclick="closeDetail()">← Back</button>
-      <button id="modalDeleteBtn" class="btn-card delete">Delete Item</button>
+  <div id="detailModal" class="hidden fixed inset-0 bg-[#0f1115] z-50 overflow-y-auto p-4">
+    <div class="flex justify-between items-center mb-4">
+      <button class="bg-[#222630] border border-[#2d3340] text-gray-200 px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#2d3340] transition" onclick="closeDetail()">
+        ← Back
+      </button>
+      <button id="modalDeleteBtn" class="bg-red-950/40 border border-red-800 text-red-400 px-3 py-2 rounded-lg text-xs font-bold hover:bg-red-900/50 transition">
+        Delete Item
+      </button>
     </div>
-    <div class="modal-gallery" id="modalGallery"></div>
-    <div id="modalContent"></div>
+    <div id="modalGallery" class="flex gap-2.5 overflow-x-auto mb-4 pb-1 custom-scroll"></div>
+    <div id="modalContent" class="space-y-3"></div>
   </div>
 
   <script type="module">
@@ -784,115 +232,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
-    const SNIPER_TARGETS = [
-      {
-        title: "Single-Stitch Graphic Tees & Band Shirts",
-        cue: "Examine sleeve hems and waist bottom for a single continuous thread line (pre-1996 manufacture).",
-        brands: "Screen Stars (white/blue bar), Brockum, Giant, Fruit of the Loom USA, 3D Emblem, Hanes Beefy-T.",
-        trap: "Hold fabric up to overhead lights to inspect for tiny moth pinholes; avoid cracked, dry-rotted black fabric.",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 12L10 24l8 6 4-4v26h20V26l4 4 8-6-12-12-10 4-10-4z" fill="#222630"/>
-          <path d="M24 52h16" stroke="#10b981" stroke-width="3" stroke-dasharray="2 2"/>
-          <path d="M12 26l6 4" stroke="#10b981" stroke-width="3" stroke-dasharray="2 2"/>
-        </svg>`
-      },
-      {
-        title: "Vintage 80s/90s Action Figures & Die-Cast Toys",
-        cue: "Check toy bags and bottom shelves for molded plastic figurines with raised copyright stamps on inner legs.",
-        brands: "Kenner (Star Wars, M.A.S.K.), Hasbro (G.I. Joe, Transformers G1), Mattel (He-Man/MOTU), Playmates (TMNT).",
-        trap: "Check figure neck joints and crotch O-rings for cracking; pass if paint is heavily chewed on hands/feet.",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="32" cy="14" r="6" fill="#222630"/>
-          <path d="M20 24h24v16H20z" fill="#222630"/>
-          <path d="M20 28l-8 12M44 28l8 12M24 40v16M40 40v16"/>
-          <circle cx="32" cy="30" r="2" fill="#f59e0b"/>
-        </svg>`
-      },
-      {
-        title: "Collectible First Edition Books & Boxed Sets",
-        cue: "Check hardcover spines under dust jackets and flip to copyright page to look for full number lines.",
-        brands: "Look for 'First Edition' stated with number lines: 1 2 3 4 5 6 7 8 9 10 (or terminating in 1).",
-        trap: "Pass on Book-of-the-Month Club editions (indicated by blind stamped debossed squares on rear back boards).",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10 16c6-4 14-4 22 0 8-4 16-4 22 0v36c-6-4-14-4-22 0-8-4-16-4-22 0V16z" fill="#222630"/>
-          <path d="M32 16v36"/>
-          <path d="M16 28h10M38 28h10M16 36h8M40 36h8"/>
-        </svg>`
-      },
-      {
-        title: "Retro Video Game Controllers & Accessories",
-        cue: "Check electronics cable bins and clear plastic hanging baggies for first-party console gamepads.",
-        brands: "OEM Nintendo (N64, GameCube, Wii U Pro), Sony PlayStation DualShock, Microsoft Xbox 360 wireless.",
-        trap: "Skip lightweight unbranded knockoffs; inspect analog thumbstick tension and cord rubber integrity.",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="8" y="18" width="48" height="32" rx="14" fill="#222630"/>
-          <path d="M18 30v8M14 34h8"/>
-          <circle cx="44" cy="31" r="2.5" fill="#f59e0b"/>
-          <circle cx="50" cy="37" r="2.5" fill="#f59e0b"/>
-          <circle cx="38" cy="37" r="2.5" fill="#f59e0b"/>
-          <circle cx="44" cy="43" r="2.5" fill="#f59e0b"/>
-          <path d="M32 18v-8M28 10h8"/>
-        </svg>`
-      },
-      {
-        title: "Vintage Pyrex & Mid-Century Milk Glass",
-        cue: "Solid color or printed milk glass mixing bowls, refrigerator dishes, and handled casseroles.",
-        brands: "Pyrex (Gooseberry, Butterprint, Horizon Blue), Corning Ware (Spice O' Life, Cornflower), Fire-King.",
-        trap: "Run fingernail along the rim to check for dishwasher etching (chalky dull paint) or flea-bite chips.",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 22h52c0 18-12 32-26 32S6 40 6 22z" fill="#222630"/>
-          <path d="M14 34c4 4 10 6 18 6s14-2 18-6"/>
-          <path d="M2 22h8M54 22h8"/>
-        </svg>`
-      },
-      {
-        title: "VCR / DVD Recorder Combo Decks",
-        cue: "Dual-deck media players in the AV/VCR aisle, especially models featuring HDMI output.",
-        brands: "Sony, Panasonic, Toshiba, Magnavox, Funai, JVC.",
-        trap: "Look for tape door jammed shut; bonus value if the original remote is taped to the top.",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="6" y="20" width="52" height="26" rx="4" fill="#222630"/>
-          <rect x="12" y="27" width="22" height="6" rx="1" fill="#181b21"/>
-          <circle cx="44" cy="30" r="5" fill="#181b21"/>
-          <circle cx="44" cy="30" r="1.5" fill="#f59e0b"/>
-          <circle cx="12" cy="40" r="1.5" fill="#10b981"/>
-          <circle cx="17" cy="40" r="1.5" fill="#f59e0b"/>
-        </svg>`
-      },
-      {
-        title: "Office Graphing Calculators",
-        cue: "Check office supply hanging bags, school gear bins, and behind the glass front display.",
-        brands: "TI-84 Plus, TI-84 Plus Silver, TI-89 Titanium, HP 12C Financial.",
-        trap: "Pop battery door off to confirm no blue corrosion or leaking batteries ruined the copper contacts.",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="14" y="8" width="36" height="48" rx="6" fill="#222630"/>
-          <rect x="20" y="14" width="24" height="12" rx="2" fill="#181b21"/>
-          <circle cx="22" cy="34" r="1.5" fill="#f59e0b"/>
-          <circle cx="32" cy="34" r="1.5" fill="#f59e0b"/>
-          <circle cx="42" cy="34" r="1.5" fill="#f59e0b"/>
-          <circle cx="22" cy="42" r="1.5" fill="#f59e0b"/>
-          <circle cx="32" cy="42" r="1.5" fill="#f59e0b"/>
-          <circle cx="42" cy="42" r="1.5" fill="#f59e0b"/>
-          <circle cx="22" cy="49" r="1.5" fill="#f59e0b"/>
-          <circle cx="32" cy="49" r="1.5" fill="#f59e0b"/>
-          <circle cx="42" cy="49" r="1.5" fill="#f59e0b"/>
-        </svg>`
-      },
-      {
-        title: "Mechanical Hand Tools & Socket Sets",
-        cue: "Check the hardware bin for heavy chrome alloy ratchets, specialty socket rails, and metal hand planes.",
-        brands: "Craftsman (vintage 'V' or 'VV' series), Snap-on, Proto, SK Tools, Stanley Bailey (No. 4/5 planes).",
-        trap: "Cycle ratchet mechanism back and forth to confirm gears catch cleanly without slipping.",
-        svg: `<svg viewBox="0 0 64 64" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="42" y="10" width="14" height="14" rx="7" fill="#222630"/>
-          <circle cx="49" cy="17" r="3" fill="#f59e0b"/>
-          <path d="M44 22L12 54" stroke-width="5" stroke="#222630"/>
-          <path d="M44 22L12 54"/>
-          <rect x="8" y="50" width="8" height="8" rx="2" fill="#f59e0b"/>
-        </svg>`
-      }
-    ];
 
     const SYSTEM_PROMPT = `
 You are Thrift-Vault AI, an expert secondary-market appraiser.
@@ -933,6 +272,95 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
 <BUY TO FLIP|PASS|PERSONAL KEEP>
 `;
 
+    const TAG_ANALYSIS_PROMPT = `
+You are Thrift-Vault Tag & Brand Chronology AI.
+Analyze the provided image of a tag, label, stamp, RN number, or maker mark.
+Determine the era, authenticity, and manufacturing quality tier.
+Output strictly in the following 5 labeled sections:
+
+[ESTIMATED_TIMEFRAME]
+<e.g. Circa 1987 - 1992 (Late 1980s)>
+
+[TAG_STYLE_CLASSIFICATION]
+<e.g. Screen Stars 50/50 Red Bar / Fruit of the Loom RN 13765>
+
+[COUNTRY_AND_CONSTRUCTION]
+<e.g. Made in USA. Single-stitch sleeves and hem verified. Woven paper care tag.>
+
+[QUALITY_AND_DEMAND_TIER]
+<e.g. Grade A Vintage Collectible (High secondary market demand among vintage collectors)>
+
+[HISTORICAL_INTEL_AND_WATCHOUTS]
+<Concise authentication tips: what fonts were used, copyright date location, RN registry notes, or modern reproduction flags>
+`;
+
+    const SNIPER_TARGETS = [
+      {
+        title: "Single-Stitch Graphic Tees & Band Shirts",
+        cue: "Examine sleeve hems and waist bottom for a single continuous thread line (pre-1996 manufacture).",
+        brands: "Screen Stars (white/blue bar), Brockum, Giant, Fruit of the Loom USA, 3D Emblem, Hanes Beefy-T.",
+        trap: "Hold fabric up to overhead lights to inspect for tiny moth pinholes; avoid cracked, dry-rotted black fabric.",
+        query: "vintage single stitch t shirt made in usa",
+        img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Vintage 80s/90s Action Figures & Die-Cast Toys",
+        cue: "Check toy bags and bottom shelves for molded plastic figurines with raised copyright stamps on inner legs.",
+        brands: "Kenner (Star Wars, M.A.S.K.), Hasbro (G.I. Joe, Transformers G1), Mattel (He-Man/MOTU), Playmates (TMNT).",
+        trap: "Check figure neck joints and crotch O-rings for cracking; pass if paint is heavily chewed on hands/feet.",
+        query: "vintage action figures kenner hasbro 1980s",
+        img: "https://images.unsplash.com/photo-1566576912321-d58ddd74b0ae?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Collectible First Edition Books & Boxed Sets",
+        cue: "Check hardcover spines under dust jackets and flip to copyright page to look for full number lines.",
+        brands: "Look for 'First Edition' stated with number lines: 1 2 3 4 5 6 7 8 9 10 (or terminating in 1).",
+        trap: "Pass on Book-of-the-Month Club editions (indicated by blind stamped debossed squares on rear back boards).",
+        query: "first edition first printing hardcover book",
+        img: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Retro Video Game Controllers & Accessories",
+        cue: "Check electronics cable bins and clear plastic hanging baggies for first-party console gamepads.",
+        brands: "OEM Nintendo (N64, GameCube, Wii U Pro), Sony PlayStation DualShock, Microsoft Xbox 360 wireless.",
+        trap: "Skip lightweight unbranded knockoffs; inspect analog thumbstick tension and cord rubber integrity.",
+        query: "oem nintendo controller original",
+        img: "https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Vintage Pyrex & Mid-Century Milk Glass",
+        cue: "Solid color or printed milk glass mixing bowls, refrigerator dishes, and handled casseroles.",
+        brands: "Pyrex (Gooseberry, Butterprint, Horizon Blue), Corning Ware (Spice O' Life, Cornflower), Fire-King.",
+        trap: "Run fingernail along the rim to check for dishwasher etching (chalky dull paint) or flea-bite chips.",
+        query: "vintage pyrex bowl butterprint gooseberry",
+        img: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "VCR / DVD Recorder Combo Decks",
+        cue: "Dual-deck media players in the AV/VCR aisle, especially models featuring HDMI output.",
+        brands: "Sony, Panasonic, Toshiba, Magnavox, Funai, JVC.",
+        trap: "Look for tape door jammed shut; bonus value if the original remote is taped to the top.",
+        query: "vcr dvd recorder combo hdmi remote",
+        img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Office Graphing Calculators",
+        cue: "Check office supply hanging bags, school gear bins, and behind the glass front display.",
+        brands: "TI-84 Plus, TI-84 Plus Silver, TI-89 Titanium, HP 12C Financial.",
+        trap: "Pop battery door off to confirm no blue corrosion or leaking batteries ruined the copper contacts.",
+        query: "ti 84 plus graphing calculator texas instruments",
+        img: "https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Mechanical Hand Tools & Socket Sets",
+        cue: "Check the hardware bin for heavy chrome alloy ratchets, specialty socket rails, and metal hand planes.",
+        brands: "Craftsman (vintage 'V' or 'VV' series), Snap-on, Proto, SK Tools, Stanley Bailey (No. 4/5 planes).",
+        trap: "Cycle ratchet mechanism back and forth to confirm gears catch cleanly without slipping.",
+        query: "vintage craftsman v series ratchet socket set",
+        img: "https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=300&auto=format&fit=crop&q=80"
+      }
+    ];
+
     let currentAppMode = 'scout';
     let currentItems = [];
     let filteredItems = [];
@@ -965,11 +393,19 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
         targetIndex = dayOfYear % SNIPER_TARGETS.length;
       }
       const t = SNIPER_TARGETS[targetIndex];
+      const compUrl = `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(t.query)}&LH_Complete=1&LH_Sold=1`;
+
       document.getElementById('sniperTargetTitle').textContent = t.title;
+      document.getElementById('sniperTargetTitle').href = compUrl;
       document.getElementById('sniperCue').textContent = t.cue;
       document.getElementById('sniperBrands').textContent = t.brands;
       document.getElementById('sniperTrap').textContent = t.trap;
-      document.getElementById('sniperVisualBox').innerHTML = t.svg;
+
+      const visualImg = document.getElementById('sniperVisualImg');
+      visualImg.src = t.img;
+      document.getElementById('sniperPhotoLink').href = compUrl;
+      document.getElementById('sniperCompsBtn').href = compUrl;
+
       localStorage.setItem('thrift_sniper_curr_idx', targetIndex.toString());
     }
 
@@ -977,7 +413,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       const current = parseInt(localStorage.getItem('thrift_sniper_curr_idx') || '0', 10);
       const next = (current + 1) % SNIPER_TARGETS.length;
       renderDailySniperTarget(next);
-      triggerAlert('🎯 New sourcing objective active!');
+      triggerAlert('🎯 New sourcing directive active!');
     };
 
     function updateQuotaDisplay(tokensUsed = null) {
@@ -1021,21 +457,29 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
 
     window.switchMode = function(mode) {
       currentAppMode = mode;
-      document.getElementById('modeScout').classList.toggle('active', mode === 'scout');
-      document.getElementById('modeManual').classList.toggle('active', mode === 'manual');
-      document.getElementById('modeStores').classList.toggle('active', mode === 'stores');
-      document.getElementById('modeOwned').classList.toggle('active', mode === 'owned');
-      document.getElementById('modeSold').classList.toggle('active', mode === 'sold');
+      const modes = ['scout', 'tags', 'manual', 'stores', 'owned', 'sold'];
+      modes.forEach(m => {
+        const btn = document.getElementById('mode' + m.charAt(0).toUpperCase() + m.slice(1));
+        if (btn) {
+          if (m === mode) {
+            btn.classList.add('bg-[#222630]', 'text-white', 'border', 'border-[#2d3340]');
+            btn.classList.remove('text-gray-400');
+          } else {
+            btn.classList.remove('bg-[#222630]', 'text-white', 'border', 'border-[#2d3340]');
+            btn.classList.add('text-gray-400');
+          }
+        }
+      });
 
-      document.getElementById('sniperBanner').style.display = (mode === 'scout' || mode === 'manual') ? 'block' : 'none';
-      document.getElementById('actionPanel').style.display = mode === 'scout' ? 'grid' : 'none';
-      document.getElementById('manualPanel').style.display = mode === 'manual' ? 'flex' : 'none';
-      document.getElementById('locatorPanel').style.display = mode === 'stores' ? 'flex' : 'none';
-      document.getElementById('gestureHint').style.display = (mode === 'manual' || mode === 'stores') ? 'none' : 'block';
+      document.getElementById('actionPanel').classList.toggle('hidden', mode !== 'scout');
+      document.getElementById('tagPanel').classList.toggle('hidden', mode !== 'tags');
+      document.getElementById('manualPanel').classList.toggle('hidden', mode !== 'manual');
+      document.getElementById('locatorPanel').classList.toggle('hidden', mode !== 'stores');
+      document.getElementById('gestureHint').classList.toggle('hidden', mode === 'manual' || mode === 'stores' || mode === 'tags');
 
       const searchWrapper = document.getElementById('searchWrapper');
       const searchInput = document.getElementById('searchInput');
-      searchWrapper.style.display = (mode === 'owned' || mode === 'sold') ? 'block' : 'none';
+      searchWrapper.classList.toggle('hidden', !(mode === 'owned' || mode === 'sold'));
       searchInput.value = '';
       if (mode === 'owned') searchInput.placeholder = '🔍 Search Vault inventory by brand, item, specs...';
       if (mode === 'sold') searchInput.placeholder = '🔍 Search Sold Archive...';
@@ -1045,13 +489,13 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
 
     function triggerAlert(msg, isError = false) {
       const box = document.getElementById('statusAlert');
-      box.style.display = 'block';
+      box.classList.remove('hidden');
       box.style.borderLeftColor = isError ? 'var(--red)' : 'var(--accent)';
       box.textContent = msg;
     }
 
     function dismissAlert() {
-      document.getElementById('statusAlert').style.display = 'none';
+      document.getElementById('statusAlert').classList.add('hidden');
     }
 
     function setScanButtonsState(enabled, text = null) {
@@ -1062,24 +506,28 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       const manualBtn = document.getElementById('manualSubmitBtn');
 
       if (enabled) {
-        camLabel.classList.remove('disabled');
-        upLabel.classList.remove('disabled');
+        camLabel.classList.remove('opacity-50', 'pointer-events-none');
+        upLabel.classList.remove('opacity-50', 'pointer-events-none');
         camLabel.textContent = '📷 Live Camera';
         upLabel.textContent = '🖼️ Upload / Multi';
         camIn.disabled = false;
         galIn.disabled = false;
-        manualBtn.disabled = false;
-        manualBtn.textContent = '🔍 Run Market Intelligence';
+        if (manualBtn) {
+          manualBtn.disabled = false;
+          manualBtn.textContent = '🔍 Run Market Intelligence';
+        }
         isProcessing = false;
       } else {
-        camLabel.classList.add('disabled');
-        upLabel.classList.add('disabled');
+        camLabel.classList.add('opacity-50', 'pointer-events-none');
+        upLabel.classList.add('opacity-50', 'pointer-events-none');
         camLabel.textContent = text || '⚙️ Processing...';
         upLabel.textContent = text || '⚙️ Processing...';
         camIn.disabled = true;
         galIn.disabled = true;
-        manualBtn.disabled = true;
-        manualBtn.textContent = text || '⚙️ Querying Database...';
+        if (manualBtn) {
+          manualBtn.disabled = true;
+          manualBtn.textContent = text || '⚙️ Querying Database...';
+        }
         isProcessing = true;
       }
     }
@@ -1095,7 +543,8 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
         } else {
           document.getElementById('camBtnLabel').textContent = `⏳ ${count}s...`;
           document.getElementById('uploadBtnLabel').textContent = `⏳ ${count}s...`;
-          document.getElementById('manualSubmitBtn').textContent = `⏳ Wait ${count}s...`;
+          const manualBtn = document.getElementById('manualSubmitBtn');
+          if (manualBtn) manualBtn.textContent = `⏳ Wait ${count}s...`;
         }
       }, 1000);
     }
@@ -1124,13 +573,107 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       return Math.floor(diffMs / (1000 * 60 * 60 * 24));
     }
 
+    window.processTagScan = async function(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const key = localStorage.getItem('thrift_gemini_key');
+      if (!key) {
+        alert('API Key missing. Please provide your Google AI Studio key.');
+        window.promptApiKey();
+        input.value = '';
+        return;
+      }
+
+      triggerAlert('Analyzing tag typography, RN numbers, and era hallmarks...');
+      const base64Data = await resizeCanvas(file, 700, 700);
+
+      const cleanKey = key.trim();
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=${encodeURIComponent(cleanKey)}`;
+
+      const body = {
+        contents: [{
+          parts: [
+            { text: TAG_ANALYSIS_PROMPT },
+            { inline_data: { mime_type: 'image/jpeg', data: base64Data.split(',')[1] } }
+          ]
+        }]
+      };
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) throw new Error(`Tag scan API error: ${res.statusText}`);
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error('Could not analyze tag.');
+
+        const tokensTotal = data.usageMetadata?.totalTokenCount || 0;
+        recordSuccessfulScan(tokensTotal);
+        addHunterXP(50);
+
+        dismissAlert();
+        renderTagResults(text, base64Data);
+
+      } catch (err) {
+        triggerAlert(err.message, true);
+      }
+      input.value = '';
+    };
+
+    function renderTagResults(rawText, imageUri) {
+      const container = document.getElementById('tagResultContainer');
+      const clean = rawText.replace(/[*#]/g, '');
+
+      const extract = (sec) => {
+        const pattern = new RegExp(`\\[${sec}\\]([\\s\\S]*?)(?=\\[[A-Z_]+\\]|$)`, 'i');
+        const match = clean.match(pattern);
+        return match ? match[1].trim() : 'N/A';
+      };
+
+      const timeframe = extract('ESTIMATED_TIMEFRAME');
+      const tagStyle = extract('TAG_STYLE_CLASSIFICATION');
+      const construction = extract('COUNTRY_AND_CONSTRUCTION');
+      const quality = extract('QUALITY_AND_DEMAND_TIER');
+      const intel = extract('HISTORICAL_INTEL_AND_WATCHOUTS');
+
+      container.innerHTML = `
+        <div class="bg-[#222630] border border-[#2d3340] rounded-xl p-3.5 flex flex-col gap-2.5 text-sm leading-relaxed mt-3 shadow-inner">
+          <div class="flex gap-3 items-center border-b border-[#2d3340] pb-2.5">
+            <img src="${imageUri}" class="w-20 h-20 object-cover rounded-lg border border-[#2d3340]" alt="Tag Snapshot">
+            <div>
+              <div class="text-base font-extrabold text-white">${timeframe}</div>
+              <div class="text-xs text-emerald-400 font-bold">${tagStyle}</div>
+            </div>
+          </div>
+          <div>
+            <strong class="text-amber-400 text-xs uppercase block font-bold">Construction & Stitching</strong>
+            <span class="text-gray-200 text-xs">${construction}</span>
+          </div>
+          <div>
+            <strong class="text-amber-400 text-xs uppercase block font-bold">Collector Demand & Tier</strong>
+            <span class="text-gray-200 text-xs">${quality}</span>
+          </div>
+          <div>
+            <strong class="text-amber-400 text-xs uppercase block font-bold">Authentication Intelligence</strong>
+            <span class="text-gray-200 text-xs">${intel}</span>
+          </div>
+        </div>
+      `;
+      container.classList.remove('hidden');
+    }
+
     window.previewManualPhoto = async function(input) {
       const file = input.files[0];
       if (!file) return;
       manualCapturedBase64 = await resizeCanvas(file, 600, 600);
       const img = document.getElementById('manualPhotoPreview');
       img.src = manualCapturedBase64;
-      img.style.display = 'block';
+      img.classList.remove('hidden');
     };
 
     window.submitManualAppraisal = async function() {
@@ -1158,7 +701,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
 
       document.getElementById('manualTitle').value = '';
       document.getElementById('manualSpecs').value = '';
-      document.getElementById('manualPhotoPreview').style.display = 'none';
+      document.getElementById('manualPhotoPreview').classList.add('hidden');
       manualCapturedBase64 = null;
 
       switchMode('scout');
@@ -1362,7 +905,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       const cost = parseFloat(costInput.replace(/[^0-9.]/g, '')) || 0.00;
 
       const buyerPays = confirm('Does the BUYER pay shipping?\n\nOK = Buyer Pays ($0 shipping outlay for you)\nCancel = Free Shipping (You pay estimated shipping)');
-      const shipOutlay = getEstimatedShippingCost(target.shipping.tier, buyerPays);
+      const shipOutlay = getEstimatedShippingCost(target.shipping?.tier, buyerPays);
       const netProfit = calculateNetProfit(target.estimatedValue, cost, shipOutlay);
 
       const inventoryItem = {
@@ -1420,7 +963,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       const confirmed = confirm(`Permanently discard "${name}"?`);
       if (!confirmed) return;
 
-      const collName = (currentAppMode === 'scout' || currentAppMode === 'manual') ? 'scout_prospects' : (currentAppMode === 'owned' ? 'vault_inventory' : 'vault_sold');
+      const collName = (currentAppMode === 'scout' || currentAppMode === 'manual' || currentAppMode === 'tags') ? 'scout_prospects' : (currentAppMode === 'owned' ? 'vault_inventory' : 'vault_sold');
       await deleteDoc(doc(db, collName, id));
       window.closeDetail();
     };
@@ -1446,7 +989,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       const rawTitle = `${item.brand} ${item.item} ${item.specs}`.replace(/[\n\r]+/g, ' ').trim();
       const title = rawTitle.length > 80 ? rawTitle.substring(0, 77) + '...' : rawTitle;
 
-      const description = `ITEM: ${item.brand} - ${item.item}\nSPECIFICATIONS: ${item.specs}\n\nCONDITION / TECHNICAL INTEL:\n${item.intel}\n\nSHIPPING:\nPackaged via ${item.shipping.packaging} with ${item.shipping.service}.`;
+      const description = `ITEM: ${item.brand} - ${item.item}\nSPECIFICATIONS: ${item.specs}\n\nCONDITION / TECHNICAL INTEL:\n${item.intel}\n\nSHIPPING:\nPackaged via ${item.shipping?.packaging || 'Boxed'} with ${item.shipping?.service || 'USPS Ground Advantage'}.`;
 
       const formatted = `TITLE (Max 80 chars):\n${title}\n\nDESCRIPTION:\n${description}`;
 
@@ -1459,7 +1002,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
 
     window.findLocalThriftStores = function() {
       const container = document.getElementById('storeListContainer');
-      container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.95rem;">🛰️ Getting your coordinates...</div>';
+      container.innerHTML = '<div class="text-gray-400 text-sm py-2">🛰️ Getting your coordinates...</div>';
 
       if (!navigator.geolocation) {
         renderFallbackStoreSearch(container);
@@ -1486,17 +1029,17 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       const googleUrl = `https://www.google.com/maps/search/${query}/@${lat},${lon},13z`;
 
       container.innerHTML = `
-        <div class="store-card">
-          <div class="store-title">Immediate Area Sourcing Hub</div>
-          <div class="store-address">GPS Coordinates: ${lat.toFixed(4)}, ${lon.toFixed(4)}</div>
-          <div class="nav-links-row">
-            <a href="${appleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav apple">
+        <div class="bg-[#222630] border border-[#2d3340] rounded-xl p-3.5 flex flex-col gap-2.5">
+          <div class="text-sm font-extrabold text-white">Immediate Area Sourcing Hub</div>
+          <div class="text-xs text-gray-400">GPS Coordinates: ${lat.toFixed(4)}, ${lon.toFixed(4)}</div>
+          <div class="flex gap-2 flex-wrap">
+            <a href="${appleUrl}" target="_blank" rel="noopener noreferrer" class="bg-[#181b21] hover:bg-[#2d3340] border border-gray-500 text-white text-xs font-bold px-3 py-2 rounded-lg inline-flex items-center gap-1.5 transition">
               🗺️ Open in Apple Maps
             </a>
-            <a href="${wazeUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav waze">
+            <a href="${wazeUrl}" target="_blank" rel="noopener noreferrer" class="bg-[#181b21] hover:bg-[#2d3340] border border-sky-400 text-sky-400 text-xs font-bold px-3 py-2 rounded-lg inline-flex items-center gap-1.5 transition">
               🚙 Search in Waze
             </a>
-            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav google">
+            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer" class="bg-[#181b21] hover:bg-[#2d3340] border border-emerald-400 text-emerald-400 text-xs font-bold px-3 py-2 rounded-lg inline-flex items-center gap-1.5 transition">
               🌐 Open in Google Maps
             </a>
           </div>
@@ -1511,17 +1054,17 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       const googleUrl = `https://www.google.com/maps/search/${query}`;
 
       container.innerHTML = `
-        <div class="store-card">
-          <div class="store-title">Nearby Thrift Stores</div>
-          <div class="store-address">Device location unavailable. Launch direct search query:</div>
-          <div class="nav-links-row">
-            <a href="${appleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav apple">
+        <div class="bg-[#222630] border border-[#2d3340] rounded-xl p-3.5 flex flex-col gap-2.5">
+          <div class="text-sm font-extrabold text-white">Nearby Thrift Stores</div>
+          <div class="text-xs text-gray-400">Device location unavailable. Launch direct search query:</div>
+          <div class="flex gap-2 flex-wrap">
+            <a href="${appleUrl}" target="_blank" rel="noopener noreferrer" class="bg-[#181b21] hover:bg-[#2d3340] border border-gray-500 text-white text-xs font-bold px-3 py-2 rounded-lg inline-flex items-center gap-1.5 transition">
               🗺️ Apple Maps
             </a>
-            <a href="${wazeUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav waze">
+            <a href="${wazeUrl}" target="_blank" rel="noopener noreferrer" class="bg-[#181b21] hover:bg-[#2d3340] border border-sky-400 text-sky-400 text-xs font-bold px-3 py-2 rounded-lg inline-flex items-center gap-1.5 transition">
               🚙 Waze
             </a>
-            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav google">
+            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer" class="bg-[#181b21] hover:bg-[#2d3340] border border-emerald-400 text-emerald-400 text-xs font-bold px-3 py-2 rounded-lg inline-flex items-center gap-1.5 transition">
               🌐 Google Maps
             </a>
           </div>
@@ -1578,7 +1121,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
           if (currentX > 75) {
             card.style.transform = 'translateX(100%)';
             setTimeout(() => {
-              if (currentAppMode === 'scout' || currentAppMode === 'manual') {
+              if (currentAppMode === 'scout' || currentAppMode === 'manual' || currentAppMode === 'tags') {
                 window.transferToInventory(id);
               } else if (currentAppMode === 'owned') {
                 window.markAsSold(id);
@@ -1604,7 +1147,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
     function listenToCollection() {
       if (unsubscribeSnapshot) unsubscribeSnapshot();
 
-      const collName = (currentAppMode === 'scout' || currentAppMode === 'manual') ? 'scout_prospects' : (currentAppMode === 'owned' ? 'vault_inventory' : 'vault_sold');
+      const collName = (currentAppMode === 'scout' || currentAppMode === 'manual' || currentAppMode === 'tags') ? 'scout_prospects' : (currentAppMode === 'owned' ? 'vault_inventory' : 'vault_sold');
       const sortField = currentAppMode === 'sold' ? 'soldAt' : (currentAppMode === 'owned' ? 'purchasedAt' : 'createdAt');
       const q = query(collection(db, collName), orderBy(sortField, 'desc'));
 
@@ -1620,16 +1163,16 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
     function renderMetrics() {
       const container = document.getElementById('bannerContainer');
 
-      if (currentAppMode === 'scout' || currentAppMode === 'manual' || currentAppMode === 'stores') {
+      if (currentAppMode === 'scout' || currentAppMode === 'manual' || currentAppMode === 'stores' || currentAppMode === 'tags') {
         const potentialProfit = currentItems.reduce((acc, i) => acc + (Number(i.projectedProfit) || 0), 0);
         container.innerHTML = `
-          <div class="portfolio-metric">
-            <span class="label">Potential Flip Profit</span>
-            <span class="val">$${potentialProfit.toFixed(2)}</span>
+          <div class="flex flex-col">
+            <span class="text-[11px] uppercase tracking-wider text-gray-400 mb-1">Potential Flip Profit</span>
+            <span class="text-xl font-extrabold text-emerald-400">$${potentialProfit.toFixed(2)}</span>
           </div>
-          <div class="portfolio-metric" style="align-items: flex-end;">
-            <span class="label">Prospects Triaged</span>
-            <span class="val neutral">${currentItems.length}</span>
+          <div class="flex flex-col items-end md:items-start">
+            <span class="text-[11px] uppercase tracking-wider text-gray-400 mb-1">Prospects Triaged</span>
+            <span class="text-xl font-extrabold text-white">${currentItems.length}</span>
           </div>
         `;
       } else if (currentAppMode === 'owned') {
@@ -1638,21 +1181,21 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
         const grossValue = currentItems.reduce((acc, i) => acc + (Number(i.estimatedValue) || 0), 0);
 
         container.innerHTML = `
-          <div class="portfolio-metric">
-            <span class="label">Vault Units</span>
-            <span class="val neutral">${currentItems.length}</span>
+          <div class="flex flex-col">
+            <span class="text-[11px] uppercase tracking-wider text-gray-400 mb-1">Vault Units</span>
+            <span class="text-xl font-extrabold text-white">${currentItems.length}</span>
           </div>
-          <div class="portfolio-metric">
-            <span class="label">Total Cost</span>
-            <span class="val cost">$${totalInvested.toFixed(2)}</span>
+          <div class="flex flex-col">
+            <span class="text-[11px] uppercase tracking-wider text-gray-400 mb-1">Total Cost</span>
+            <span class="text-xl font-extrabold text-amber-400">$${totalInvested.toFixed(2)}</span>
           </div>
-          <div class="portfolio-metric">
-            <span class="label">Projected Net</span>
-            <span class="val">$${projectedNet.toFixed(2)}</span>
+          <div class="flex flex-col">
+            <span class="text-[11px] uppercase tracking-wider text-gray-400 mb-1">Projected Net</span>
+            <span class="text-xl font-extrabold text-emerald-400">$${projectedNet.toFixed(2)}</span>
           </div>
-          <div class="portfolio-metric">
-            <span class="label">Gross Comps</span>
-            <span class="val neutral">$${grossValue.toFixed(2)}</span>
+          <div class="flex flex-col items-end md:items-start">
+            <span class="text-[11px] uppercase tracking-wider text-gray-400 mb-1">Gross Comps</span>
+            <span class="text-xl font-extrabold text-white">$${grossValue.toFixed(2)}</span>
           </div>
         `;
       } else if (currentAppMode === 'sold') {
@@ -1661,21 +1204,21 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
         const totalOriginalCost = currentItems.reduce((acc, i) => acc + (Number(i.itemCost) || 0), 0);
 
         container.innerHTML = `
-          <div class="portfolio-metric">
-            <span class="label">Realized Net</span>
-            <span class="val">$${totalRealizedProfit.toFixed(2)}</span>
+          <div class="flex flex-col">
+            <span class="text-[11px] uppercase tracking-wider text-gray-400 mb-1">Realized Net</span>
+            <span class="text-xl font-extrabold text-emerald-400">$${totalRealizedProfit.toFixed(2)}</span>
           </div>
-          <div class="portfolio-metric">
-            <span class="label">Total Revenue</span>
-            <span class="val neutral">$${totalRevenue.toFixed(2)}</span>
+          <div class="flex flex-col">
+            <span class="text-[11px] uppercase tracking-wider text-gray-400 mb-1">Total Revenue</span>
+            <span class="text-xl font-extrabold text-white">$${totalRevenue.toFixed(2)}</span>
           </div>
-          <div class="portfolio-metric">
-            <span class="label">Cost Basis</span>
-            <span class="val cost">$${totalOriginalCost.toFixed(2)}</span>
+          <div class="flex flex-col">
+            <span class="text-[11px] uppercase tracking-wider text-gray-400 mb-1">Cost Basis</span>
+            <span class="text-xl font-extrabold text-amber-400">$${totalOriginalCost.toFixed(2)}</span>
           </div>
-          <div class="portfolio-metric" style="align-items: flex-end;">
-            <span class="label">Units Flipped</span>
-            <span class="val neutral">${currentItems.length}</span>
+          <div class="flex flex-col items-end md:items-start">
+            <span class="text-[11px] uppercase tracking-wider text-gray-400 mb-1">Units Flipped</span>
+            <span class="text-xl font-extrabold text-white">${currentItems.length}</span>
           </div>
         `;
       }
@@ -1683,7 +1226,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
 
     function renderFeed() {
       const container = document.getElementById('cardsFeed');
-      if (currentAppMode === 'stores') {
+      if (currentAppMode === 'stores' || currentAppMode === 'tags') {
         container.innerHTML = '';
         return;
       }
@@ -1691,11 +1234,12 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       if (filteredItems.length === 0) {
         const labels = {
           scout: 'No prospects scanned. Ready for field triage.',
+          tags: '',
           manual: 'No manual prospects logged.',
           owned: 'No matching inventory found.',
           sold: 'No matching sold records.'
         };
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.95rem; padding: 24px;">${labels[currentAppMode]}</div>`;
+        container.innerHTML = `<div class="text-center text-gray-400 text-sm py-8">${labels[currentAppMode]}</div>`;
         return;
       }
 
@@ -1710,36 +1254,27 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
 
         if (currentAppMode === 'scout' || currentAppMode === 'manual') {
           return `
-            <div class="vault-card-wrapper">
-              <div class="vault-card" data-id="${item.id}" style="border-left: 5px solid ${activeColor};" onclick="openDetail('${item.id}')">
-                <img src="${thumbSrc}" class="card-thumb" alt="Thumbnail">
-                <div class="card-main">
-                  <div class="card-top">
-                    <div>
-                      <div class="card-title">${item.brand} - ${item.item}</div>
-                      <div class="card-sub">${item.specs}</div>
+            <div class="overflow-hidden rounded-xl">
+              <div class="vault-card bg-[#181b21] border border-[#2d3340] rounded-xl p-3.5 flex gap-3.5 cursor-pointer shadow-md" data-id="${item.id}" style="border-left: 5px solid ${activeColor};" onclick="openDetail('${item.id}')">
+                <img src="${thumbSrc}" class="w-20 h-20 min-w-20 rounded-lg object-cover bg-black border border-[#2d3340]" alt="Thumbnail">
+                <div class="flex-1 flex flex-col min-w-0">
+                  <div class="flex justify-between items-start mb-1">
+                    <div class="min-w-0 pr-2">
+                      <div class="text-sm font-extrabold text-white truncate">${item.brand} - ${item.item}</div>
+                      <div class="text-xs text-gray-400 truncate">${item.specs}</div>
                     </div>
-                    <span class="badge-signal" style="background: ${activeColor};">${activeLabel}</span>
+                    <span class="text-[10px] font-black px-2 py-0.5 rounded text-black uppercase tracking-wider flex-shrink-0" style="background: ${activeColor};">${activeLabel}</span>
                   </div>
-                  <div class="calc-row">
-                    <div class="calc-item">
-                      <span>Sold Comp</span>
-                      <span style="color: #fff;">$${Number(item.estimatedValue).toFixed(2)}</span>
-                    </div>
-                    <div class="calc-item">
-                      <span>Ship Est.</span>
-                      <span style="color: var(--text-muted);">$${Number(item.estimatedShippingOutlay).toFixed(2)}</span>
-                    </div>
-                    <div class="calc-item">
-                      <span>Est. Net</span>
-                      <span style="color: var(--green);">$${Number(item.projectedProfit).toFixed(2)}</span>
-                    </div>
+                  <div class="grid grid-cols-3 bg-[#222630] border border-[#2d3340] rounded-lg p-2 my-1.5 text-center text-xs">
+                    <div><span class="block text-[10px] text-gray-400 uppercase">Comp</span><strong class="text-white text-xs">$${Number(item.estimatedValue).toFixed(2)}</strong></div>
+                    <div><span class="block text-[10px] text-gray-400 uppercase">Ship</span><strong class="text-gray-400 text-xs">$${Number(item.estimatedShippingOutlay).toFixed(2)}</strong></div>
+                    <div><span class="block text-[10px] text-gray-400 uppercase">Est Net</span><strong class="text-emerald-400 text-xs">$${Number(item.projectedProfit).toFixed(2)}</strong></div>
                   </div>
-                  <div class="card-summary">${item.disposition?.reason || ''}</div>
-                  <div class="card-actions">
-                    <button class="btn-card transfer" onclick="transferToInventory('${item.id}', event)">📥 Buy & Move</button>
-                    <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" onclick="event.stopPropagation();">eBay Sold ↗</a>
-                    <button class="btn-card delete" onclick="deleteItem('${item.id}', event)">Discard</button>
+                  <div class="text-xs text-gray-300 leading-snug mb-2">${item.disposition?.reason || ''}</div>
+                  <div class="flex flex-wrap gap-2 justify-between items-center mt-1">
+                    <button class="bg-blue-900 border border-blue-600 hover:bg-blue-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition" onclick="transferToInventory('${item.id}', event)">📥 Buy & Move</button>
+                    <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="bg-[#0064d2] hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition" onclick="event.stopPropagation();">eBay Sold ↗</a>
+                    <button class="text-red-400 text-xs font-bold px-2 py-1.5 hover:text-red-300 transition" onclick="deleteItem('${item.id}', event)">Discard</button>
                   </div>
                 </div>
               </div>
@@ -1752,39 +1287,30 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
           else if (daysHeld > 30) ageColor = 'var(--yellow)';
 
           return `
-            <div class="vault-card-wrapper">
-              <div class="vault-card" data-id="${item.id}" style="border-left: 5px solid var(--accent);" onclick="openDetail('${item.id}')">
-                <img src="${thumbSrc}" class="card-thumb" alt="Thumbnail">
-                <div class="card-main">
-                  <div class="card-top">
-                    <div>
-                      <div class="card-title">${item.brand} - ${item.item}</div>
-                      <div class="card-sub">
-                        <span>${item.specs}</span>
-                        <span class="badge-age" style="color: ${ageColor};">⏳ ${daysHeld}d in stock</span>
+            <div class="overflow-hidden rounded-xl">
+              <div class="vault-card bg-[#181b21] border border-[#2d3340] rounded-xl p-3.5 flex gap-3.5 cursor-pointer shadow-md" data-id="${item.id}" style="border-left: 5px solid var(--accent);" onclick="openDetail('${item.id}')">
+                <img src="${thumbSrc}" class="w-20 h-20 min-w-20 rounded-lg object-cover bg-black border border-[#2d3340]" alt="Thumbnail">
+                <div class="flex-1 flex flex-col min-w-0">
+                  <div class="flex justify-between items-start mb-1">
+                    <div class="min-w-0 pr-2">
+                      <div class="text-sm font-extrabold text-white truncate">${item.brand} - ${item.item}</div>
+                      <div class="text-xs text-gray-400 flex items-center gap-2 mt-0.5">
+                        <span class="truncate">${item.specs}</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#222630] border border-[#2d3340]" style="color: ${ageColor};">⏳ ${daysHeld}d in stock</span>
                       </div>
                     </div>
-                    <span class="badge-signal" style="background: var(--accent); color: #fff;">IN STOCK</span>
+                    <span class="text-[10px] font-black px-2 py-0.5 rounded bg-blue-600 text-white uppercase tracking-wider flex-shrink-0">IN STOCK</span>
                   </div>
-                  <div class="calc-row">
-                    <div class="calc-item">
-                      <span>Cost</span>
-                      <span style="color: var(--yellow);">$${Number(item.itemCost).toFixed(2)}</span>
-                    </div>
-                    <div class="calc-item">
-                      <span>Target Gross</span>
-                      <span style="color: #fff;">$${Number(item.estimatedValue).toFixed(2)}</span>
-                    </div>
-                    <div class="calc-item">
-                      <span>Projected Net</span>
-                      <span style="color: var(--green);">$${Number(item.projectedProfit).toFixed(2)}</span>
-                    </div>
+                  <div class="grid grid-cols-3 bg-[#222630] border border-[#2d3340] rounded-lg p-2 my-1.5 text-center text-xs">
+                    <div><span class="block text-[10px] text-gray-400 uppercase">Cost</span><strong class="text-amber-400 text-xs">$${Number(item.itemCost).toFixed(2)}</strong></div>
+                    <div><span class="block text-[10px] text-gray-400 uppercase">Target</span><strong class="text-white text-xs">$${Number(item.estimatedValue).toFixed(2)}</strong></div>
+                    <div><span class="block text-[10px] text-gray-400 uppercase">Net</span><strong class="text-emerald-400 text-xs">$${Number(item.projectedProfit).toFixed(2)}</strong></div>
                   </div>
-                  <div class="card-actions">
-                    <button class="btn-card sold" onclick="markAsSold('${item.id}', event)">💰 Mark as Sold</button>
-                    <button class="btn-card" onclick="copyEbayListing('${item.id}', event)">📋 Copy Listing</button>
-                    <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" onclick="event.stopPropagation();">Live Comps ↗</a>
-                    <button class="btn-card delete" onclick="deleteItem('${item.id}', event)">Remove</button>
+                  <div class="flex flex-wrap gap-2 justify-between items-center mt-1">
+                    <button class="bg-emerald-900 border border-emerald-600 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition" onclick="markAsSold('${item.id}', event)">💰 Mark as Sold</button>
+                    <button class="bg-[#222630] border border-[#2d3340] hover:bg-[#2d3340] text-white text-xs font-bold px-3 py-1.5 rounded-lg transition" onclick="copyEbayListing('${item.id}', event)">📋 Copy</button>
+                    <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="bg-[#0064d2] hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition" onclick="event.stopPropagation();">Comps ↗</a>
+                    <button class="text-red-400 text-xs font-bold px-2 py-1.5 hover:text-red-300 transition" onclick="deleteItem('${item.id}', event)">Remove</button>
                   </div>
                 </div>
               </div>
@@ -1792,34 +1318,25 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
           `;
         } else {
           return `
-            <div class="vault-card-wrapper">
-              <div class="vault-card" data-id="${item.id}" style="border-left: 5px solid var(--green);" onclick="openDetail('${item.id}')">
-                <img src="${thumbSrc}" class="card-thumb" alt="Thumbnail">
-                <div class="card-main">
-                  <div class="card-top">
-                    <div>
-                      <div class="card-title">${item.brand} - ${item.item}</div>
-                      <div class="card-sub">Sold on: ${new Date(item.soldAt).toLocaleDateString()}</div>
+            <div class="overflow-hidden rounded-xl">
+              <div class="vault-card bg-[#181b21] border border-[#2d3340] rounded-xl p-3.5 flex gap-3.5 cursor-pointer shadow-md" data-id="${item.id}" style="border-left: 5px solid var(--green);" onclick="openDetail('${item.id}')">
+                <img src="${thumbSrc}" class="w-20 h-20 min-w-20 rounded-lg object-cover bg-black border border-[#2d3340]" alt="Thumbnail">
+                <div class="flex-1 flex flex-col min-w-0">
+                  <div class="flex justify-between items-start mb-1">
+                    <div class="min-w-0 pr-2">
+                      <div class="text-sm font-extrabold text-white truncate">${item.brand} - ${item.item}</div>
+                      <div class="text-xs text-gray-400">Sold: ${new Date(item.soldAt).toLocaleDateString()}</div>
                     </div>
-                    <span class="badge-signal" style="background: var(--green); color: #000;">COMPLETED</span>
+                    <span class="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-500 text-black uppercase tracking-wider flex-shrink-0">COMPLETED</span>
                   </div>
-                  <div class="calc-row">
-                    <div class="calc-item">
-                      <span>Cost Basis</span>
-                      <span style="color: var(--yellow);">$${Number(item.itemCost).toFixed(2)}</span>
-                    </div>
-                    <div class="calc-item">
-                      <span>Sold Price</span>
-                      <span style="color: #fff;">$${Number(item.finalSoldPrice).toFixed(2)}</span>
-                    </div>
-                    <div class="calc-item">
-                      <span>Realized Net</span>
-                      <span style="color: var(--green);">$${Number(item.realizedProfit).toFixed(2)}</span>
-                    </div>
+                  <div class="grid grid-cols-3 bg-[#222630] border border-[#2d3340] rounded-lg p-2 my-1.5 text-center text-xs">
+                    <div><span class="block text-[10px] text-gray-400 uppercase">Cost Basis</span><strong class="text-amber-400 text-xs">$${Number(item.itemCost).toFixed(2)}</strong></div>
+                    <div><span class="block text-[10px] text-gray-400 uppercase">Sold At</span><strong class="text-white text-xs">$${Number(item.finalSoldPrice).toFixed(2)}</strong></div>
+                    <div><span class="block text-[10px] text-gray-400 uppercase">Realized</span><strong class="text-emerald-400 text-xs">$${Number(item.realizedProfit).toFixed(2)}</strong></div>
                   </div>
-                  <div class="card-actions">
-                    <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" onclick="event.stopPropagation();">Comps ↗</a>
-                    <button class="btn-card delete" onclick="deleteItem('${item.id}', event)">Purge</button>
+                  <div class="flex flex-wrap gap-2 justify-between items-center mt-1">
+                    <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="bg-[#0064d2] hover:bg-blue-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition" onclick="event.stopPropagation();">Comps ↗</a>
+                    <button class="text-red-400 text-xs font-bold px-2 py-1.5 hover:text-red-300 transition" onclick="deleteItem('${item.id}', event)">Purge</button>
                   </div>
                 </div>
               </div>
@@ -1835,7 +1352,7 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
 
       const galleryContainer = document.getElementById('modalGallery');
       const photos = (target.gallery && target.gallery.length > 0) ? target.gallery : [target.image];
-      galleryContainer.innerHTML = photos.map(src => `<img src="${src}" alt="Angle">`).join('');
+      galleryContainer.innerHTML = photos.map(src => `<img src="${src}" class="h-56 min-w-44 object-cover rounded-xl border border-[#2d3340]" alt="Angle">`).join('');
 
       document.getElementById('modalDeleteBtn').onclick = () => window.deleteItem(target.id);
 
@@ -1843,50 +1360,50 @@ Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
       const compUrl = `https://www.ebay.com/sch/i.html?_nkw=${sanitized}&LH_Complete=1&LH_Sold=1`;
 
       document.getElementById('modalContent').innerHTML = `
-        <div class="modal-section">
-          <strong>Item Identification</strong>
+        <div class="bg-[#181b21] border border-[#2d3340] rounded-xl p-3.5 text-sm leading-relaxed">
+          <strong class="text-gray-400 text-xs uppercase block font-bold mb-1">Item Identification</strong>
           ${target.brand} - ${target.item}<br>
-          <span style="color: var(--text-muted); font-size: 0.9rem;">${target.specs}</span>
+          <span class="text-gray-400 text-xs">${target.specs}</span>
         </div>
-        <div class="modal-section">
-          <strong>Valuation & Comps</strong>
-          Sold Average: <span style="font-weight: 700; color: var(--green); font-size: 1.15rem;">$${Number(target.estimatedValue).toFixed(2)}</span> (${target.priceRange})<br>
+        <div class="bg-[#181b21] border border-[#2d3340] rounded-xl p-3.5 text-sm leading-relaxed">
+          <strong class="text-gray-400 text-xs uppercase block font-bold mb-1">Valuation & Comps</strong>
+          Sold Average: <span class="font-extrabold text-emerald-400 text-base">$${Number(target.estimatedValue).toFixed(2)}</span> (${target.priceRange})<br>
           Model Confidence: ${target.confidence}<br>
-          Appraisal Verdict: <strong>${target.verdict}</strong>
+          Appraisal Verdict: <strong class="text-white">${target.verdict}</strong>
         </div>
-        <div class="modal-section">
-          <strong>Financial Breakdown</strong>
+        <div class="bg-[#181b21] border border-[#2d3340] rounded-xl p-3.5 text-sm leading-relaxed">
+          <strong class="text-gray-400 text-xs uppercase block font-bold mb-1">Financial Breakdown</strong>
           Item Cost: $${Number(target.itemCost).toFixed(2)}<br>
           Estimated Shipping Outlay: $${Number(target.estimatedShippingOutlay).toFixed(2)} (${target.buyerPaysShipping ? 'Buyer Pays' : 'Free Shipping'})<br>
           Est. eBay Fee (13.25% + $0.40): $${((target.estimatedValue * 0.1325) + 0.40).toFixed(2)}<br>
-          Net Take-Home: <strong>$${Number(target.projectedProfit).toFixed(2)}</strong>
+          Net Take-Home: <strong class="text-emerald-400">$${Number(target.projectedProfit).toFixed(2)}</strong>
         </div>
-        <div class="modal-section">
-          <strong>Marketplace Routing & Logistics</strong>
+        <div class="bg-[#181b21] border border-[#2d3340] rounded-xl p-3.5 text-sm leading-relaxed">
+          <strong class="text-gray-400 text-xs uppercase block font-bold mb-1">Marketplace Routing & Logistics</strong>
           Platform: ${target.routing?.platform || 'eBay'}<br>
           Listing Strategy: ${target.routing?.strategy || 'Fixed Price'}<br>
           Shipping Tier: ${target.shipping?.tier || 'Standard'}<br>
           Packaging: ${target.shipping?.packaging || 'Boxed'}<br>
           Service: ${target.shipping?.service || 'USPS Ground Advantage'}
         </div>
-        <div class="modal-section">
-          <strong>Technical Intel & Hardware Specs</strong>
+        <div class="bg-[#181b21] border border-[#2d3340] rounded-xl p-3.5 text-sm leading-relaxed">
+          <strong class="text-gray-400 text-xs uppercase block font-bold mb-1">Technical Intel & Hardware Specs</strong>
           ${target.intel || 'None provided'}
         </div>
-        <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
-          <button class="btn-card" onclick="copyEbayListing('${target.id}')" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.9rem;">
+        <div class="mt-4 flex flex-col gap-2.5">
+          <button class="bg-[#222630] border border-[#2d3340] hover:bg-[#2d3340] text-white font-bold py-3 px-4 rounded-xl text-sm transition" onclick="copyEbayListing('${target.id}')">
             📋 Copy eBay Title & Description
           </button>
-          <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.9rem;">
+          <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="bg-[#0064d2] hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl text-sm text-center transition">
             Open Live eBay Sold Comps ↗
           </a>
         </div>
       `;
-      document.getElementById('detailModal').style.display = 'block';
+      document.getElementById('detailModal').classList.remove('hidden');
     };
 
     window.closeDetail = function() {
-      document.getElementById('detailModal').style.display = 'none';
+      document.getElementById('detailModal').classList.add('hidden');
     };
 
     (async () => {
