@@ -6,32 +6,22 @@
   <title>Thrift Scout • Vault</title>
   <style>
     :root {
-      --bg: #0b0f19;
-      --card-bg: #131b2e;
-      --surface: #1e293b;
-      --border: #334155;
-      --border-focus: #475569;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #000000;
+      --card-bg: #0d1117;
+      --border: #21262d;
+      --border-focus: #388bfd;
+      --text: #f0f6fc;
+      --text-muted: #8b949e;
       --emerald: #10b981;
-      --emerald-dark: #064e3b;
-      --emerald-glow: rgba(16, 185, 129, 0.18);
+      --emerald-glow: rgba(16, 185, 129, 0.15);
       --amber: #f59e0b;
-      --amber-dark: #78350f;
-      --amber-glow: rgba(245, 158, 11, 0.18);
+      --amber-glow: rgba(245, 158, 11, 0.15);
       --red: #ef4444;
-      --red-dark: #450a0a;
-      --ebay-blue: #0064d2;
+      --red-glow: rgba(239, 68, 68, 0.15);
+      --blue: #2563eb;
       --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
       background-color: var(--bg);
       color: var(--text);
@@ -39,310 +29,169 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      padding: 12px 14px;
-      padding-bottom: calc(85px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: calc(75px + env(safe-area-inset-bottom));
       overflow-x: hidden;
-      font-size: 15px;
     }
-
     header {
       position: sticky;
       top: 0;
       z-index: 50;
-      background: rgba(11, 15, 25, 0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--border);
-      padding: 10px 4px;
-      margin-bottom: 12px;
+      padding: 10px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
-    .brand-title {
-      font-size: 1.15rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .brand-title span {
-      color: var(--emerald);
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    .brand { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; }
+    .brand-accent { color: var(--emerald); }
+    .header-pills { display: flex; gap: 8px; align-items: center; }
     .rank-pill {
       background: var(--amber-glow);
       border: 1px solid var(--amber);
       color: var(--amber);
       font-size: 0.72rem;
       font-weight: 700;
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 999px;
     }
-
     .scan-pill {
       background: var(--emerald-glow);
       border: 1px solid var(--emerald);
       color: var(--emerald);
       font-size: 0.72rem;
       font-weight: 700;
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 999px;
     }
-
-    .btn-key {
-      background: var(--surface);
-      color: var(--text);
+    .settings-btn {
+      background: var(--card-bg);
       border: 1px solid var(--border);
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
+      color: var(--text-muted);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
       cursor: pointer;
     }
-
-    main {
-      flex: 1;
-      width: 100%;
-      max-width: 640px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .tab-view {
-      display: none;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .tab-view.active {
-      display: flex;
-    }
-
+    main { flex: 1; width: 100%; max-width: 650px; margin: 0 auto; padding: 16px; }
+    .tab-view { display: none; flex-direction: column; gap: 14px; }
+    .tab-view.active { display: flex; }
     .card {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 14px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
-
-    .card-title {
-      font-size: 0.88rem;
-      font-weight: 800;
-      color: var(--text);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
+    .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
     .badge-amber {
       background: var(--amber-glow);
       color: var(--amber);
       border: 1px solid var(--amber);
-      font-size: 0.68rem;
-      font-weight: 800;
-      padding: 2px 7px;
-      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
     }
-
-    /* Sniper Directive Banner */
-    .sniper-body {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
-    .sniper-thumb {
-      width: 80px;
-      height: 80px;
-      min-width: 80px;
+    .status-alert {
+      display: none;
+      padding: 12px 14px;
       border-radius: 8px;
-      border: 1px solid var(--amber);
-      object-fit: cover;
-      background: #000;
+      font-size: 0.88rem;
+      border-left: 4px solid var(--blue);
+      background: var(--card-bg);
+      line-height: 1.4;
     }
-
-    .sniper-info {
-      flex: 1;
+    .target-scroller { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+    .target-scroller::-webkit-scrollbar { display: none; }
+    .target-card {
+      flex: 0 0 160px;
+      background: #05070a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      min-width: 0;
+      text-decoration: none;
+      color: inherit;
     }
-
-    .sniper-name {
-      font-size: 0.98rem;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .sniper-line {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      line-height: 1.35;
-    }
-
-    .sniper-line strong {
-      color: var(--amber);
-    }
-
-    .sniper-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-top: 4px;
-    }
-
-    /* Inputs & Buttons */
-    .action-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .input-field {
+    .target-img-ph {
       width: 100%;
-      background: #070a12;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: var(--text);
-      font-size: 0.88rem;
-      font-family: inherit;
-      outline: none;
+      height: 85px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
     }
-
-    .input-field:focus {
-      border-color: var(--border-focus);
-    }
-
+    .target-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; }
+    .target-name { font-size: 0.8rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .target-range { font-size: 0.72rem; color: var(--emerald); font-weight: 700; }
     .btn {
       width: 100%;
       padding: 12px;
       border-radius: 8px;
       font-weight: 700;
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       cursor: pointer;
       border: none;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 8px;
       text-decoration: none;
       user-select: none;
-      text-align: center;
     }
-
-    .btn-emerald {
-      background: var(--emerald);
-      color: #000;
-    }
-
-    .btn-amber {
-      background: var(--amber);
-      color: #000;
-    }
-
-    .btn-outline {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text);
-    }
-
-    .btn-ebay {
-      background: var(--ebay-blue);
-      color: #fff;
-    }
-
-    /* Valuation Metric Boxes */
-    .metric-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
-
-    .metric-box {
-      background: #070a12;
+    .btn-emerald { background: var(--emerald); color: #000; }
+    .btn-amber { background: var(--amber); color: #000; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-blue { background: var(--blue); color: #fff; }
+    .input-field {
+      width: 100%;
+      background: #000;
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 9px 11px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .input-field:focus { border-color: var(--border-focus); }
+    .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .metric-box {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 4px;
     }
-
-    .metric-label {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .metric-val {
-      font-size: 1.1rem;
-      font-weight: 800;
-    }
-
-    .metric-val.profit {
-      color: var(--emerald);
-    }
-
+    .metric-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .metric-val { font-size: 1.15rem; font-weight: 800; }
+    .metric-val.profit { color: var(--emerald); }
     .disposition-pill {
-      padding: 3px 8px;
-      border-radius: 4px;
+      padding: 4px 10px;
+      border-radius: 6px;
       font-weight: 800;
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
-
-    .disp-flip {
-      background: var(--emerald-glow);
-      color: var(--emerald);
-      border: 1px solid var(--emerald);
-    }
-
-    .disp-monitor {
-      background: var(--amber-glow);
-      color: var(--amber);
-      border: 1px solid var(--amber);
-    }
-
-    .disp-pass {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--red);
-      border: 1px solid var(--red);
-    }
-
-    /* Vault Lists & Rows */
-    .vault-subtoggle {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      background: #070a12;
-      padding: 4px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-
+    .disp-flip { background: var(--emerald-glow); color: var(--emerald); border: 1px solid var(--emerald); }
+    .disp-monitor { background: var(--amber-glow); color: var(--amber); border: 1px solid var(--amber); }
+    .disp-pass { background: var(--red-glow); color: var(--red); border: 1px solid var(--red); }
+    .vault-summary { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    .vault-subtoggle { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #000; padding: 4px; border-radius: 8px; border: 1px solid var(--border); }
     .vault-subbtn {
       background: transparent;
       color: var(--text-muted);
@@ -352,70 +201,58 @@
       font-weight: 700;
       border-radius: 6px;
       cursor: pointer;
-    }
-
-    .vault-subbtn.active {
-      background: var(--surface);
-      color: #fff;
-      border: 1px solid var(--border);
-    }
-
-    .vault-card {
-      background: #070a12;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .store-item {
-      background: #070a12;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .store-map-btns {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-    }
-
-    .store-map-btn {
-      padding: 8px 4px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      border-radius: 6px;
       text-align: center;
-      text-decoration: none;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: #fff;
     }
-
-    /* Bottom Dock Navigation */
+    .vault-subbtn.active { background: var(--card-bg); color: #fff; border: 1px solid var(--border); }
+    .vault-list { display: flex; flex-direction: column; gap: 10px; }
+    .vault-item { display: flex; gap: 12px; background: #05070a; border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+    .item-thumb { width: 72px; height: 72px; min-width: 72px; border-radius: 6px; object-fit: cover; background: #000; border: 1px solid var(--border); }
+    .item-content { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .item-title { font-weight: 700; font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-meta { font-size: 0.78rem; color: var(--text-muted); }
+    .item-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+    .timeline-node { border-left: 2px solid var(--amber); padding-left: 12px; margin-left: 4px; position: relative; margin-bottom: 12px; }
+    .timeline-node::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+    .timeline-era { font-size: 0.8rem; font-weight: 700; color: var(--amber); }
+    .timeline-desc { font-size: 0.82rem; color: var(--text-muted); }
+    .store-row { display: flex; flex-direction: column; gap: 8px; background: #05070a; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+    .map-btn-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .map-link {
+      text-align: center;
+      padding: 8px 4px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
     .bottom-dock {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      height: calc(60px + env(safe-area-inset-bottom, 0px));
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      background: rgba(11, 15, 25, 0.95);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      height: calc(60px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      background: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border-top: 1px solid var(--border);
       display: flex;
       justify-content: space-around;
       align-items: center;
       z-index: 100;
     }
-
     .dock-btn {
       flex: 1;
       height: 100%;
@@ -423,30 +260,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
+      gap: 4px;
       background: transparent;
       border: none;
       color: var(--text-muted);
       cursor: pointer;
       font-size: 0.75rem;
-      font-weight: 800;
-      letter-spacing: 0.03em;
+      font-weight: 700;
     }
-
-    .dock-btn.active {
-      color: var(--emerald);
-    }
-
-    .status-toast {
-      display: none;
-      padding: 10px 14px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      background: var(--surface);
-      border-left: 4px solid var(--emerald);
-      color: #fff;
-    }
-
+    .dock-btn.active { color: var(--emerald); }
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -457,97 +279,101 @@
       padding: 16px;
       z-index: 200;
     }
-
-    .modal-overlay.active {
-      display: flex;
-    }
-
-    .modal-box {
+    .modal-overlay.active { display: flex; }
+    .modal-content {
       background: var(--card-bg);
       border: 1px solid var(--border);
       border-radius: 12px;
       padding: 18px;
-      max-width: 440px;
+      max-width: 480px;
       width: 100%;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
+    #webcamVideo {
+      width: 100%;
+      height: 240px;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      object-fit: cover;
+    }
   </style>
 </head>
 <body>
+
   <header>
-    <div class="brand-title">
-      THRIFT SCOUT <span>• VAULT</span>
+    <div class="brand">
+      <span>THRIFT</span><span class="brand-accent">SCOUT</span>
     </div>
-    <div class="header-actions">
+    <div class="header-pills">
       <div class="rank-pill" id="rankPill">Rookie (0 XP)</div>
-      <div class="scan-pill" id="scanPill">100 SCANS</div>
-      <button class="btn-key" id="configOpenBtn">API Key</button>
+      <div class="scan-pill" id="scanPill">100 LEFT</div>
+      <button class="settings-btn" id="configBtn">Config</button>
     </div>
   </header>
 
-  <div id="statusToast" class="status-toast"></div>
-
   <main>
-    <!-- TAB 1: SCOUT -->
+    <div id="statusAlert" class="status-alert"></div>
+
     <section id="tab-scout" class="tab-view active">
-      <!-- Daily Sourcing Directive -->
       <div class="card">
         <div class="card-title">
-          <span>DAILY TARGET DIRECTIVE</span>
-          <span class="badge-amber">High Demand</span>
+          <span>HIGH-DEMAND DIRECTIVES</span>
+          <span class="badge-amber">Live Comps</span>
         </div>
-        <div class="sniper-body">
-          <img id="sniperImg" class="sniper-thumb" alt="Target Comp">
-          <div class="sniper-info">
-            <div id="sniperTitle" class="sniper-name">Target Item</div>
-            <div class="sniper-line"><strong>Visual Cue:</strong> <span id="sniperCue"></span></div>
-            <div class="sniper-line"><strong>Prime Marks:</strong> <span id="sniperBrands"></span></div>
-            <div class="sniper-line"><strong>Floor Trap:</strong> <span id="sniperTrap"></span></div>
-          </div>
-        </div>
-        <div class="sniper-actions">
-          <a id="sniperEbayBtn" target="_blank" class="btn btn-ebay" style="flex:1; padding:8px; font-size:0.78rem;">LIVE SOLD COMPS</a>
-          <button class="btn btn-outline" style="flex:1; padding:8px; font-size:0.78rem;" id="rerollSniperBtn">REROLL TARGET</button>
+        <div class="target-scroller">
+          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+patagonia+made+in+usa&LH_Sold=1&LH_Complete=1">
+            <div class="target-img-ph" style="background:#131c26;">Patagonia USA</div>
+            <div class="target-body">
+              <span class="target-name">USA Snap-T / Fleece</span>
+              <span class="target-range">$75 - $220</span>
+            </div>
+          </a>
+          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+single+stitch+band+shirt&LH_Sold=1&LH_Complete=1">
+            <div class="target-img-ph" style="background:#24161a;">Single Stitch</div>
+            <div class="target-body">
+              <span class="target-name">90s Tour T-Shirts</span>
+              <span class="target-range">$45 - $350</span>
+            </div>
+          </a>
+          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=graphing+calculator+ti-84+plus&LH_Sold=1&LH_Complete=1">
+            <div class="target-img-ph" style="background:#13221b;">Electronics</div>
+            <div class="target-body">
+              <span class="target-name">TI-84 Plus Silver</span>
+              <span class="target-range">$35 - $65</span>
+            </div>
+          </a>
         </div>
       </div>
 
-      <!-- Rapid Valuation Camera & Manual Toggle -->
       <div class="card">
-        <div class="card-title">ITEM APPRAISAL ENGINE</div>
+        <div class="card-title">RAPID VALUATION</div>
         
-        <input type="file" id="scoutCameraInput" accept="image/*" capture="environment" style="display:none;">
-        <input type="file" id="scoutUploadInput" accept="image/*" multiple style="display:none;">
+        <input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
+        <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
 
-        <div class="action-grid">
-          <button class="btn btn-emerald" id="snapCameraBtn">LIVE CAMERA</button>
-          <button class="btn btn-outline" id="uploadPhotosBtn">UPLOAD PHOTOS</button>
+        <div class="camera-row">
+          <button class="btn btn-emerald" id="snapMobileBtn">SNAP (MOBILE)</button>
+          <button class="btn btn-blue" id="openWebcamBtn">WEBCAM (DESKTOP)</button>
         </div>
 
-        <div id="previewContainer" style="display:none; text-align:center;">
-          <img id="scoutPreviewImg" style="max-height:160px; border-radius:8px; border:1px solid var(--border);" alt="Preview">
-        </div>
+        <button class="btn btn-outline" id="uploadFileBtn" style="padding: 10px;">UPLOAD FROM FILES / MULTI</button>
 
-        <button class="btn btn-outline" id="toggleManualBtn" style="font-size:0.78rem; padding:8px;">
-          Type Model or Maker Specs Manually
-        </button>
-
-        <div id="manualInputSection" style="display:none; flex-direction:column; gap:8px;">
-          <input type="text" id="manualItemName" class="input-field" placeholder="Brand & Model (e.g. Sony VCR RDR-VX515)">
-          <textarea id="manualSpecs" class="input-field" rows="2" placeholder="Condition, cords, tags, or serial markings..."></textarea>
+        <div id="imagePreviewContainer" style="display:none; text-align:center;">
+          <img id="previewImg" style="max-height:180px; border-radius:8px; border:1px solid var(--border);" alt="Preview">
         </div>
 
         <div style="display:flex; gap:8px;">
-          <input type="number" id="purchaseCost" class="input-field" placeholder="Buy Cost ($)" value="4.00" step="0.50">
-          <button class="btn btn-emerald" id="evaluateBtn" style="flex:1;">EVALUATE</button>
+          <input type="number" id="purchaseCost" class="input-field" placeholder="Cost ($)" value="4.00" step="0.50">
+          <button class="btn btn-outline" id="evaluateBtn" style="flex:1;">EVALUATE ITEM</button>
         </div>
       </div>
 
-      <!-- Appraisal Output Results -->
       <div class="card" id="appraisalCard" style="display:none;">
         <div class="card-title">
-          <span id="resItemName">Identified Item</span>
+          <span id="resItemTitle">Identified Item</span>
           <span id="resDispPill" class="disposition-pill disp-flip">FLIP</span>
         </div>
         <div class="metric-grid">
@@ -556,462 +382,573 @@
             <span class="metric-val" id="resEstResale">$0.00</span>
           </div>
           <div class="metric-box">
-            <span class="metric-label">Est Net Profit</span>
+            <span class="metric-label">Net Profit (Est)</span>
             <span class="metric-val profit" id="resEstProfit">$0.00</span>
           </div>
           <div class="metric-box">
-            <span class="metric-label">Target Platform</span>
-            <span class="metric-val" id="resPlatform" style="font-size:0.95rem;">eBay</span>
+            <span class="metric-label">Brand / Origin</span>
+            <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
           </div>
           <div class="metric-box">
-            <span class="metric-label">Shipping Class</span>
-            <span class="metric-val" id="resShipping" style="font-size:0.95rem;">USPS Ground</span>
+            <span class="metric-label">Shipping / Service</span>
+            <span class="metric-val" id="resShipping" style="font-size:0.85rem;">USPS Ground</span>
           </div>
         </div>
+        <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
         <div style="display:flex; gap:8px; margin-top:4px;">
-          <a id="resEbayCompsLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.78rem;">VIEW SOLD COMPS</a>
-          <button class="btn btn-emerald" id="saveVaultBtn" style="flex:1; font-size:0.78rem;">TRANSFER TO VAULT</button>
+          <a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW SOLD COMPS</a>
+          <button class="btn btn-emerald" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
         </div>
       </div>
     </section>
 
-    <!-- TAB 2: TAG ID -->
     <section id="tab-tags" class="tab-view">
       <div class="card">
         <div class="card-title">
-          <span>VINTAGE TAG & MAKER MARK CHRONOLOGY</span>
-          <span class="badge-amber">Era Clues</span>
+          <span>VINTAGE TAG & MAKER MARK ID</span>
+          <span class="badge-amber">Chronology</span>
         </div>
-        <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">
-          Photograph garment labels, care tags, RN numbers, union bugs, or maker stamps to deduce the manufacturing window.
-        </p>
-        
-        <input type="file" id="tagCameraInput" accept="image/*" capture="environment" style="display:none;">
-        <div class="action-grid">
-          <button class="btn btn-amber" id="snapTagBtn">CAPTURE TAG</button>
-          <button class="btn btn-outline" id="uploadTagBtn">UPLOAD PHOTO</button>
-        </div>
+        <p style="font-size:0.82rem; color:var(--text-muted);">Snap clothing labels, care stamps, union bugs, RN codes, or maker marks for era classification.</p>
+        <input type="file" id="tagImageInput" accept="image/*" capture="environment" style="display:none;">
+        <button class="btn btn-amber" id="snapTagBtn">SCAN TAG / MAKER MARK</button>
       </div>
 
       <div class="card" id="tagResultCard" style="display:none;">
         <div class="card-title" id="tagEraTitle">Era Analysis</div>
-        <div id="tagDetails" style="display:flex; flex-direction:column; gap:8px; font-size:0.85rem;"></div>
+        <div id="tagTimelineContainer"></div>
       </div>
     </section>
 
-    <!-- TAB 3: VAULT -->
     <section id="tab-vault" class="tab-view">
-      <div class="vault-subtoggle">
-        <button id="vaultSubActive" class="vault-subbtn active">Active Inventory</button>
-        <button id="vaultSubSold" class="vault-subbtn">Sold Archive</button>
-      </div>
-
-      <div class="metric-grid">
-        <div class="metric-box">
-          <span class="metric-label" id="vaultMetricLabel1">Total Capital</span>
-          <span class="metric-val" id="vaultMetricVal1">$0.00</span>
+      <div class="card">
+        <div class="vault-subtoggle">
+          <button id="vaultSubActive" class="vault-subbtn active">Active Inventory</button>
+          <button id="vaultSubSold" class="vault-subbtn">Sold Archive</button>
         </div>
-        <div class="metric-box">
-          <span class="metric-label" id="vaultMetricLabel2">Projected Profit</span>
-          <span class="metric-val profit" id="vaultMetricVal2">$0.00</span>
+        <div class="vault-summary">
+          <div>
+            <div class="metric-label">Vault Portfolio</div>
+            <div class="metric-val profit" id="vaultTotal">$0.00</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="metric-label">Tracked Items</div>
+            <div class="metric-val" id="vaultCount">0 items</div>
+          </div>
         </div>
+        <div class="vault-list" id="vaultItemList"></div>
       </div>
-
-      <input type="text" id="vaultSearchInput" class="input-field" placeholder="Search Vault by brand, title, or platform...">
-
-      <div id="vaultListContainer" style="display:flex; flex-direction:column; gap:10px;"></div>
     </section>
 
-    <!-- TAB 4: STORES -->
     <section id="tab-stores" class="tab-view">
       <div class="card">
-        <div class="card-title">LIVE GPS THRIFT RADAR</div>
-        <p style="font-size:0.82rem; color:var(--text-muted);">
-          Launch real-time route searches centered on your phone's current GPS location.
-        </p>
-        <div class="store-map-btns">
-          <button class="btn btn-outline" style="font-size:0.75rem; padding:8px 4px;" onclick="searchNearbyThrift('google')">Google Maps</button>
-          <button class="btn btn-outline" style="font-size:0.75rem; padding:8px 4px;" onclick="searchNearbyThrift('apple')">Apple Maps</button>
-          <button class="btn btn-outline" style="font-size:0.75rem; padding:8px 4px;" onclick="searchNearbyThrift('waze')">Waze</button>
+        <div class="card-title">LIVE GPS SEARCH</div>
+        <p style="font-size:0.82rem; color:var(--text-muted);">Find stores within driving range of your current GPS position.</p>
+        <div class="map-btn-group">
+          <button class="btn btn-outline" style="font-size:0.75rem;" onclick="openNearbySearch('google')">Google Maps</button>
+          <button class="btn btn-outline" style="font-size:0.75rem;" onclick="openNearbySearch('apple')">Apple Maps</button>
+          <button class="btn btn-outline" style="font-size:0.75rem;" onclick="openNearbySearch('waze')">Waze</button>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">PRIMARY SOURCING HUBS (NORTHERN UTAH)</div>
+        <div class="card-title">REGIONAL NODES (NORTHERN UTAH)</div>
         <div style="display:flex; flex-direction:column; gap:10px;">
-
-          <!-- Goodwill Riverdale -->
-          <div class="store-item">
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <strong style="font-size:0.88rem;">Goodwill - Riverdale</strong>
-              <span style="font-size:0.72rem; color:var(--text-muted);">4123 Riverdale Rd</span>
-            </div>
-            <div class="store-map-btns">
-              <a class="store-map-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=4123+Riverdale+Rd+Riverdale+UT+84405">Google</a>
-              <a class="store-map-btn" target="_blank" href="https://maps.apple.com/?daddr=4123+Riverdale+Rd,+Riverdale,+UT+84405">Apple</a>
-              <a class="store-map-btn" target="_blank" href="https://waze.com/ul?q=4123+Riverdale+Rd+Riverdale+UT&navigate=yes">Waze</a>
+          <div class="store-row">
+            <span style="font-weight:700; font-size:0.9rem;">Goodwill - Riverdale</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">4123 Riverdale Rd, Riverdale, UT</span>
+            <div class="map-btn-group">
+              <a class="map-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=4123+Riverdale+Rd+Riverdale+UT">Google</a>
+              <a class="map-link" target="_blank" href="https://maps.apple.com/?daddr=4123+Riverdale+Rd,+Riverdale,+UT+84405">Apple</a>
+              <a class="map-link" target="_blank" href="https://waze.com/ul?q=4123+Riverdale+Rd+Riverdale+UT&navigate=yes">Waze</a>
             </div>
           </div>
 
-          <!-- Deseret Industries Harrisville -->
-          <div class="store-item">
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <strong style="font-size:0.88rem;">Deseret Industries - Harrisville</strong>
-              <span style="font-size:0.72rem; color:var(--text-muted);">1111 N 2000 W</span>
-            </div>
-            <div class="store-map-btns">
-              <a class="store-map-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=1111+N+2000+W+Harrisville+UT+84404">Google</a>
-              <a class="store-map-btn" target="_blank" href="https://maps.apple.com/?daddr=1111+N+2000+W,+Harrisville,+UT+84404">Apple</a>
-              <a class="store-map-btn" target="_blank" href="https://waze.com/ul?q=1111+N+2000+W+Harrisville+UT&navigate=yes">Waze</a>
+          <div class="store-row">
+            <span style="font-weight:700; font-size:0.9rem;">Deseret Industries - Harrisville</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">1111 N 2000 W, Harrisville, UT</span>
+            <div class="map-btn-group">
+              <a class="map-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=1111+N+2000+W+Harrisville+UT">Google</a>
+              <a class="map-link" target="_blank" href="https://maps.apple.com/?daddr=1111+N+2000+W,+Harrisville,+UT+84404">Apple</a>
+              <a class="map-link" target="_blank" href="https://waze.com/ul?q=1111+N+2000+W+Harrisville+UT&navigate=yes">Waze</a>
             </div>
           </div>
 
-          <!-- Savers Ogden -->
-          <div class="store-item">
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <strong style="font-size:0.88rem;">Savers - Ogden</strong>
-              <span style="font-size:0.72rem; color:var(--text-muted);">150 36th St</span>
-            </div>
-            <div class="store-map-btns">
-              <a class="store-map-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=150+36th+St+Ogden+UT+84405">Google</a>
-              <a class="store-map-btn" target="_blank" href="https://maps.apple.com/?daddr=150+36th+St,+Ogden,+UT+84405">Apple</a>
-              <a class="store-map-btn" target="_blank" href="https://waze.com/ul?q=150+36th+St+Ogden+UT&navigate=yes">Waze</a>
+          <div class="store-row">
+            <span style="font-weight:700; font-size:0.9rem;">Savers - Ogden</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">150 36th St, Ogden, UT</span>
+            <div class="map-btn-group">
+              <a class="map-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=150+36th+St+Ogden+UT">Google</a>
+              <a class="map-link" target="_blank" href="https://maps.apple.com/?daddr=150+36th+St,+Ogden,+UT+84405">Apple</a>
+              <a class="map-link" target="_blank" href="https://waze.com/ul?q=150+36th+St+Ogden+UT&navigate=yes">Waze</a>
             </div>
           </div>
-
-          <!-- Assistance League Layton -->
-          <div class="store-item">
-            <div style="display:flex; justify-content:space-between; align-items:baseline;">
-              <strong style="font-size:0.88rem;">Assistance League - Layton</strong>
-              <span style="font-size:0.72rem; color:var(--text-muted);">522 Heritage Park Blvd</span>
-            </div>
-            <div class="store-map-btns">
-              <a class="store-map-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=522+Heritage+Park+Blvd+Layton+UT+84041">Google</a>
-              <a class="store-map-btn" target="_blank" href="https://maps.apple.com/?daddr=522+Heritage+Park+Blvd,+Layton,+UT+84041">Apple</a>
-              <a class="store-map-btn" target="_blank" href="https://waze.com/ul?q=522+Heritage+Park+Blvd+Layton+UT&navigate=yes">Waze</a>
-            </div>
-          </div>
-
         </div>
       </div>
     </section>
   </main>
 
   <nav class="bottom-dock">
-    <button class="dock-btn active" data-tab="tab-scout">SCOUT</button>
-    <button class="dock-btn" data-tab="tab-tags">TAG ID</button>
-    <button class="dock-btn" data-tab="tab-vault">VAULT</button>
-    <button class="dock-btn" data-tab="tab-stores">STORES</button>
+    <button class="dock-btn active" data-target="tab-scout">SCOUT</button>
+    <button class="dock-btn" data-target="tab-tags">TAG ID</button>
+    <button class="dock-btn" data-target="tab-vault">VAULT</button>
+    <button class="dock-btn" data-target="tab-stores">STORES</button>
   </nav>
 
-  <!-- Settings Modal -->
+  <div class="modal-overlay" id="webcamModal">
+    <div class="modal-content">
+      <div class="card-title">
+        <span>Desktop Camera Capture</span>
+        <button class="settings-btn" id="closeWebcamBtn">X</button>
+      </div>
+      <video id="webcamVideo" autoplay playsinline></video>
+      <select id="cameraSourceSelect" class="input-field" style="display:none;"></select>
+      <button class="btn btn-emerald" id="captureWebcamBtn">CAPTURE PHOTO</button>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="configModal">
-    <div class="modal-box">
-      <div class="card-title">Settings & Gemini Key</div>
+    <div class="modal-content">
+      <div class="card-title">System Settings</div>
       <div>
-        <label class="metric-label">Google AI Studio Key</label>
-        <input type="password" id="geminiKeyInput" class="input-field" placeholder="AIzaSy..." style="margin-top:4px;">
+        <label class="metric-label">Gemini API Key</label>
+        <input type="password" id="geminiApiKey" class="input-field" placeholder="AIzaSy..." style="margin-top:4px;">
       </div>
       <div>
-        <label class="metric-label">Quota Counter</label>
-        <button class="btn btn-outline" style="margin-top:4px; padding:8px; font-size:0.8rem;" id="resetQuotaBtn">Reset to 100 Scans</button>
+        <label class="metric-label">Quota Reset</label>
+        <button class="btn btn-outline" style="margin-top:4px; padding:8px;" onclick="resetQuota()">Reset Daily Quota (100)</button>
       </div>
       <div style="display:flex; gap:8px;">
-        <button class="btn btn-outline" id="configCloseBtn" style="flex:1;">Cancel</button>
-        <button class="btn btn-emerald" id="configSaveBtn" style="flex:1;">Save Key</button>
+        <button class="btn btn-outline" id="closeConfigBtn" style="flex:1;">Cancel</button>
+        <button class="btn btn-emerald" id="saveConfigBtn" style="flex:1;">Save</button>
       </div>
     </div>
   </div>
 
-  <script>
-    const APP_STATE = {
-      geminiKey: localStorage.getItem('ts_gemini_key') || '',
-      dailyScans: parseInt(localStorage.getItem('ts_daily_scans') || '100', 10),
-      hunterXp: parseInt(localStorage.getItem('ts_hunter_xp') || '0', 10),
-      vaultActive: JSON.parse(localStorage.getItem('ts_vault_active') || '[]'),
-      vaultSold: JSON.parse(localStorage.getItem('ts_vault_sold') || '[]'),
-      sniperIndex: parseInt(localStorage.getItem('ts_sniper_idx') || '0', 10)
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { 
+      getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy 
+    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtDQnJuWvJOp__hVHO5fdNhjiRjZZkskI",
+      authDomain: "thrift-scout-1b937.firebaseapp.com",
+      projectId: "thrift-scout-1b937",
+      storageBucket: "thrift-scout-1b937.firebasestorage.app",
+      messagingSenderId: "559782240794",
+      appId: "1:559782240794:web:5ace10f3f027b4cd82e7a3"
     };
 
-    let selectedBase64Image = null;
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const STATE = {
+      geminiKey: localStorage.getItem('ts_gemini_key') || '',
+      dailyScans: parseInt(localStorage.getItem('ts_scans_left') || '100', 10),
+      xp: parseInt(localStorage.getItem('ts_xp') || '0', 10),
+      activeTab: 'scout',
+      vaultSub: 'active',
+      activeItems: [],
+      soldItems: []
+    };
+
     let currentAppraisal = null;
-    let activeVaultSubTab = 'active';
+    let selectedImageBase64 = null;
+    let webcamStream = null;
 
-    const SNIPER_TARGETS = [
-      {
-        title: "USA Patagonia Deep Pile Fleece",
-        cue: "Check outerwear racks for Made in USA tag and contrast chest pocket.",
-        brands: "Patagonia (Snap-T, Retro-X, Synchilla), The North Face Made in USA.",
-        trap: "Look for matted elbows and melted fleece near cuffs.",
-        query: "patagonia fleece made in usa vintage",
-        img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&auto=format&fit=crop&q=80"
-      },
-      {
-        title: "Single-Stitch Graphic & Band Tees",
-        cue: "Single continuous thread along sleeve hems (pre-1996 manufacture).",
-        brands: "Brockum, Giant, Screen Stars, Fruit of the Loom USA, 3D Emblem.",
-        trap: "Inspect for dry rot or tiny pinholes near bottom hems.",
-        query: "vintage single stitch graphic tee usa",
-        img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&auto=format&fit=crop&q=80"
-      },
-      {
-        title: "Texas Instruments Graphing Calculators",
-        cue: "Check office hanging baggies and front glass counter.",
-        brands: "TI-84 Plus, TI-84 Plus Silver Edition, TI-89 Titanium.",
-        trap: "Check battery contacts for blue chemical corrosion.",
-        query: "ti-84 plus silver edition graphing calculator",
-        img: "https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=300&auto=format&fit=crop&q=80"
-      },
-      {
-        title: "Retro Video Game Controllers",
-        cue: "Inspect wire bins for OEM Nintendo and Sony gamepads.",
-        brands: "Nintendo OEM (N64, GameCube), Sony DualShock, Xbox 360 Wireless.",
-        trap: "Avoid third-party clones; check thumbsticks for looseness.",
-        query: "oem nintendo controller authentic",
-        img: "https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?w=300&auto=format&fit=crop&q=80"
-      }
-    ];
-
-    function showToast(msg) {
-      const toast = document.getElementById('statusToast');
-      toast.textContent = msg;
-      toast.style.display = 'block';
-      setTimeout(function() { toast.style.display = 'none'; }, 3500);
-    }
-
-    function calculateRank(xp) {
-      if (xp >= 5000) return 'Master Sniper';
+    function getRank(xp) {
+      if (xp >= 5000) return 'Master Scout';
       if (xp >= 2000) return 'Pro Hunter';
-      if (xp >= 600) return 'Aisle Scout';
+      if (xp >= 750)  return 'Picker';
       return 'Rookie';
     }
 
     function updatePills() {
-      const rank = calculateRank(APP_STATE.hunterXp);
-      document.getElementById('rankPill').textContent = rank + " (" + APP_STATE.hunterXp.toLocaleString() + " XP)";
-      document.getElementById('scanPill').textContent = APP_STATE.dailyScans + " SCANS";
-      localStorage.setItem('ts_daily_scans', APP_STATE.dailyScans.toString());
-      localStorage.setItem('ts_hunter_xp', APP_STATE.hunterXp.toString());
+      const rank = getRank(STATE.xp);
+      document.getElementById('rankPill').textContent = rank + ' (' + STATE.xp.toLocaleString() + ' XP)';
+      document.getElementById('scanPill').textContent = STATE.dailyScans + ' LEFT';
+      localStorage.setItem('ts_scans_left', STATE.dailyScans);
+      localStorage.setItem('ts_xp', STATE.xp);
     }
+    updatePills();
 
-    function loadSniperDirective(idx) {
-      const target = SNIPER_TARGETS[idx % SNIPER_TARGETS.length];
-      document.getElementById('sniperTitle').textContent = target.title;
-      document.getElementById('sniperCue').textContent = target.cue;
-      document.getElementById('sniperBrands').textContent = target.brands;
-      document.getElementById('sniperTrap').textContent = target.trap;
-      document.getElementById('sniperImg').src = target.img;
-      document.getElementById('sniperEbayBtn').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(target.query) + "&LH_Complete=1&LH_Sold=1";
-      localStorage.setItem('ts_sniper_idx', idx.toString());
-    }
-
-    document.getElementById('rerollSniperBtn').onclick = function() {
-      APP_STATE.sniperIndex = (APP_STATE.sniperIndex + 1) % SNIPER_TARGETS.length;
-      loadSniperDirective(APP_STATE.sniperIndex);
-      showToast('🎯 New directive rolled!');
+    window.resetQuota = function() {
+      STATE.dailyScans = 100;
+      updatePills();
+      alert('Quota reset to 100.');
     };
 
-    document.querySelectorAll('.dock-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        document.querySelectorAll('.dock-btn').forEach(function(b) { b.classList.remove('active'); });
-        document.querySelectorAll('.tab-view').forEach(function(tv) { tv.classList.remove('active'); });
+    function triggerAlert(msg, isErr = false) {
+      const box = document.getElementById('statusAlert');
+      box.style.display = 'block';
+      box.style.borderLeftColor = isErr ? 'var(--red)' : 'var(--emerald)';
+      box.textContent = msg;
+    }
+    function dismissAlert() {
+      document.getElementById('statusAlert').style.display = 'none';
+    }
+
+    document.querySelectorAll('.dock-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-        if (btn.dataset.tab === 'tab-vault') renderVault();
+        STATE.activeTab = btn.dataset.target.replace('tab-', '');
+        document.getElementById(btn.dataset.target).classList.add('active');
       });
     });
 
-    const modal = document.getElementById('configModal');
-    document.getElementById('configOpenBtn').onclick = function() {
-      document.getElementById('geminiKeyInput').value = APP_STATE.geminiKey;
-      modal.classList.add('active');
+    document.getElementById('vaultSubActive').onclick = () => {
+      STATE.vaultSub = 'active';
+      document.getElementById('vaultSubActive').classList.add('active');
+      document.getElementById('vaultSubSold').classList.remove('active');
+      renderVault();
     };
-    document.getElementById('configCloseBtn').onclick = function() {
-      modal.classList.remove('active');
-    };
-    document.getElementById('configSaveBtn').onclick = function() {
-      APP_STATE.geminiKey = document.getElementById('geminiKeyInput').value.trim();
-      localStorage.setItem('ts_gemini_key', APP_STATE.geminiKey);
-      modal.classList.remove('active');
-      showToast('API Key saved successfully.');
-    };
-    document.getElementById('resetQuotaBtn').onclick = function() {
-      APP_STATE.dailyScans = 100;
-      updatePills();
-      showToast('Daily scans reset to 100.');
+    document.getElementById('vaultSubSold').onclick = () => {
+      STATE.vaultSub = 'sold';
+      document.getElementById('vaultSubSold').classList.add('active');
+      document.getElementById('vaultSubActive').classList.remove('active');
+      renderVault();
     };
 
-    const scoutCamIn = document.getElementById('scoutCameraInput');
-    const scoutUpIn = document.getElementById('scoutUploadInput');
-    const scoutPrev = document.getElementById('scoutPreviewImg');
-    const prevCont = document.getElementById('previewContainer');
+    const configModal = document.getElementById('configModal');
+    document.getElementById('configBtn').onclick = () => {
+      document.getElementById('geminiApiKey').value = STATE.geminiKey;
+      configModal.classList.add('active');
+    };
+    document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
+    document.getElementById('saveConfigBtn').onclick = () => {
+      STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
+      localStorage.setItem('ts_gemini_key', STATE.geminiKey);
+      configModal.classList.remove('active');
+      triggerAlert('API Key saved.');
+    };
 
-    document.getElementById('snapCameraBtn').onclick = function() { scoutCamIn.click(); };
-    document.getElementById('uploadPhotosBtn').onclick = function() { scoutUpIn.click(); };
+    const mobileCam = document.getElementById('mobileCameraInput');
+    const mobileGal = document.getElementById('mobileGalleryInput');
+    const previewImg = document.getElementById('previewImg');
+    const previewBox = document.getElementById('imagePreviewContainer');
 
-    function handleFileSelected(file) {
+    document.getElementById('snapMobileBtn').onclick = () => mobileCam.click();
+    document.getElementById('uploadFileBtn').onclick = () => mobileGal.click();
+
+    function handleFileSelection(file) {
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = function(e) {
+      reader.onload = (e) => {
         const img = new Image();
-        img.onload = function() {
+        img.onload = () => {
           const canvas = document.createElement('canvas');
           let w = img.width;
           let h = img.height;
           const maxDim = 800;
-          if (w > h && w > maxDim) {
-            h = Math.round((h * maxDim) / w);
-            w = maxDim;
-          } else if (h > maxDim) {
-            w = Math.round((w * maxDim) / h);
-            h = maxDim;
-          }
+          if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+          else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
           canvas.width = w;
           canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          const compressed = canvas.toDataURL('image/jpeg', 0.7);
-          selectedBase64Image = compressed.split(',')[1];
-          scoutPrev.src = compressed;
-          prevCont.style.display = 'block';
+          selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.70).split(',')[1];
+          previewImg.src = canvas.toDataURL('image/jpeg', 0.70);
+          previewBox.style.display = 'block';
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
     }
 
-    scoutCamIn.onchange = function(e) { handleFileSelected(e.target.files[0]); };
-    scoutUpIn.onchange = function(e) { handleFileSelected(e.target.files[0]); };
+    mobileCam.onchange = (e) => handleFileSelection(e.target.files[0]);
+    mobileGal.onchange = (e) => handleFileSelection(e.target.files[0]);
 
-    document.getElementById('toggleManualBtn').onclick = function() {
-      const sec = document.getElementById('manualInputSection');
-      sec.style.display = sec.style.display === 'none' ? 'flex' : 'none';
+    const webcamModal = document.getElementById('webcamModal');
+    const webcamVideo = document.getElementById('webcamVideo');
+    const cameraSelect = document.getElementById('cameraSourceSelect');
+
+    document.getElementById('openWebcamBtn').onclick = async () => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        alert('Webcam stream not supported on this browser or requires HTTPS.');
+        return;
+      }
+      webcamModal.classList.add('active');
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(d => d.kind === 'videoinput');
+        cameraSelect.innerHTML = '';
+        if (videoDevices.length > 1) {
+          videoDevices.forEach((dev, idx) => {
+            const opt = document.createElement('option');
+            opt.value = dev.deviceId;
+            opt.text = dev.label || ('Camera ' + (idx + 1));
+            cameraSelect.appendChild(opt);
+          });
+          cameraSelect.style.display = 'block';
+        }
+        startWebcamStream(videoDevices[0]?.deviceId);
+      } catch (err) {
+        alert('Could not access camera: ' + err.message);
+        webcamModal.classList.remove('active');
+      }
     };
 
-    document.getElementById('evaluateBtn').onclick = async function() {
-      const manualName = document.getElementById('manualItemName').value.trim();
-      const manualSpecs = document.getElementById('manualSpecs').value.trim();
+    async function startWebcamStream(deviceId) {
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(track => track.stop());
+      }
+      const constraints = {
+        video: deviceId ? { deviceId: { exact: deviceId } } : { facingMode: 'environment' }
+      };
+      webcamStream = await navigator.mediaDevices.getUserMedia(constraints);
+      webcamVideo.srcObject = webcamStream;
+    }
 
-      if (!selectedBase64Image && !manualName) {
-        showToast('Please snap a photo or enter item specs first.');
+    cameraSelect.onchange = () => startWebcamStream(cameraSelect.value);
+
+    document.getElementById('closeWebcamBtn').onclick = () => {
+      if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+      webcamModal.classList.remove('active');
+    };
+
+    document.getElementById('captureWebcamBtn').onclick = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = webcamVideo.videoWidth || 640;
+      canvas.height = webcamVideo.videoHeight || 480;
+      canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
+      selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
+      previewImg.src = canvas.toDataURL('image/jpeg', 0.75);
+      previewBox.style.display = 'block';
+      if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+      webcamModal.classList.remove('active');
+    };
+
+    document.getElementById('evaluateBtn').onclick = async () => {
+      if (!selectedImageBase64) {
+        alert('Snap or select an image first.');
         return;
       }
-      if (!APP_STATE.geminiKey) {
-        showToast('Click "API Key" at top to add your Gemini key.');
+      if (!STATE.geminiKey) {
+        alert('Set Gemini API key in Config.');
+        configModal.classList.add('active');
         return;
       }
-      if (APP_STATE.dailyScans <= 0) {
-        showToast('Daily scans reached zero.');
+      if (STATE.dailyScans <= 0) {
+        alert('Daily scan limit reached.');
         return;
       }
 
-      showToast('Contacting valuation engine...');
-      const buyCost = parseFloat(document.getElementById('purchaseCost').value) || 0;
-      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(APP_STATE.geminiKey);
+      triggerAlert('Analyzing secondary market comps & tags...');
+      const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
+      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
-      let promptText = "Analyze this thrift store item for secondary resale. Respond ONLY with valid JSON in this exact structure:\n" +
+      const promptText = "Analyze this thrift item for secondary market resale. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
         "{\n" +
-        '  "name": "Specific item title and model",\n' +
-        '  "resale": 45.00,\n' +
+        '  "brand": "Manufacturer, brand, or publisher",\n' +
+        '  "item": "Model, title, or garment descriptor",\n' +
+        '  "resale": 35.00,\n' +
         '  "disposition": "FLIP",\n' +
         '  "platform": "eBay",\n' +
-        '  "shipping": "USPS Ground",\n' +
-        '  "query": "clean search keywords for ebay sold comps"\n' +
+        '  "shipping": "USPS Ground Advantage",\n' +
+        '  "intel": "Key tag hallmarks, single stitch status, RN codes, or flaws",\n' +
+        '  "query": "clean keywords for ebay sold search"\n' +
         "}";
 
-      if (manualName || manualSpecs) {
-        promptText += "\nUser notes: " + manualName + " | " + manualSpecs;
-      }
-
-      const parts = [{ text: promptText }];
-      if (selectedBase64Image) {
-        parts.push({
-          inline_data: { mime_type: "image/jpeg", data: selectedBase64Image }
-        });
-      }
-
       try {
-        const response = await fetch(endpoint, {
+        const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: parts }] })
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: promptText },
+                { inlineData: { mimeType: 'image/jpeg', data: selectedImageBase64 } }
+              ]
+            }]
+          })
         });
 
-        if (!response.ok) {
-          throw new Error('API error ' + response.status);
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody.error?.message || ('HTTP ' + res.status));
         }
 
-        const data = await response.json();
-        const rawResponse = data.candidates[0].content.parts[0].text;
-        const cleanJson = rawResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleanJson);
+        const data = await res.json();
+        const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawContent) throw new Error('Model produced an empty evaluation.');
 
+        const cleaned = rawContent.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleaned);
+
+        const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded / Unknown';
+        const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
         const estResale = parseFloat(parsed.resale) || 0;
-        const netProfit = estResale - buyCost - (estResale * 0.1325);
+        const estProfit = estResale - cost - (estResale * 0.1325);
 
         currentAppraisal = {
-          name: parsed.name,
-          cost: buyCost,
+          brand: parsedBrand,
+          item: parsedItem,
+          name: parsedBrand + " - " + parsedItem,
+          cost: cost,
           resale: estResale,
-          profit: Number(netProfit.toFixed(2)),
+          profit: Number(estProfit.toFixed(2)),
           platform: parsed.platform || 'eBay',
-          shipping: parsed.shipping || 'USPS Ground',
-          disposition: parsed.disposition || 'FLIP',
-          query: parsed.query || parsed.name,
-          date: Date.now()
+          shipping: parsed.shipping || 'USPS Ground Advantage',
+          disposition: parsed.disposition || 'MONITOR',
+          intel: parsed.intel || 'Standard secondary market asset.',
+          query: parsed.query || (parsedBrand + " " + parsedItem),
+          imageThumb: "data:image/jpeg;base64," + selectedImageBase64,
+          status: 'prospect',
+          createdAt: Date.now()
         };
 
-        renderAppraisalCard(currentAppraisal);
-        APP_STATE.dailyScans = Math.max(0, APP_STATE.dailyScans - 1);
-        APP_STATE.hunterXp += 30;
+        renderAppraisal(currentAppraisal);
+        STATE.dailyScans--;
+        STATE.xp += 25;
         updatePills();
-        showToast('Appraisal complete! (+30 XP)');
+        dismissAlert();
 
       } catch (err) {
-        showToast('Evaluation failed: verify API key & connection.');
-        console.error(err);
+        triggerAlert('Evaluation error: ' + err.message, true);
       }
     };
 
-    function renderAppraisalCard(appraisal) {
-      document.getElementById('resItemName').textContent = appraisal.name;
-      document.getElementById('resEstResale').textContent = "$" + appraisal.resale.toFixed(2);
-      document.getElementById('resEstProfit').textContent = "$" + appraisal.profit.toFixed(2);
-      document.getElementById('resPlatform').textContent = appraisal.platform;
-      document.getElementById('resShipping').textContent = appraisal.shipping;
+    function renderAppraisal(item) {
+      document.getElementById('resItemTitle').textContent = item.name;
+      document.getElementById('resEstResale').textContent = '$' + item.resale.toFixed(2);
+      document.getElementById('resEstProfit').textContent = '$' + item.profit.toFixed(2);
+      document.getElementById('resBrand').textContent = item.brand;
+      document.getElementById('resShipping').textContent = item.shipping;
+      document.getElementById('resIntel').textContent = item.intel;
 
       const pill = document.getElementById('resDispPill');
-      pill.textContent = appraisal.disposition;
-      pill.className = "disposition-pill " + (appraisal.disposition === 'FLIP' ? 'disp-flip' : appraisal.disposition === 'MONITOR' ? 'disp-monitor' : 'disp-pass');
+      pill.textContent = item.disposition;
+      pill.className = 'disposition-pill ' + (item.disposition === 'FLIP' ? 'disp-flip' : item.disposition === 'MONITOR' ? 'disp-monitor' : 'disp-pass');
 
-      const ebayUrl = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(appraisal.query) + "&LH_Complete=1&LH_Sold=1";
-      document.getElementById('resEbayCompsLink').href = ebayUrl;
-
+      const ebayUrl = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
+      document.getElementById('resEbayLink').href = ebayUrl;
       document.getElementById('appraisalCard').style.display = 'flex';
     }
 
-    const tagCamIn = document.getElementById('tagCameraInput');
-    document.getElementById('snapTagBtn').onclick = function() { tagCamIn.click(); };
-    document.getElementById('uploadTagBtn').onclick = function() { tagCamIn.click(); };
+    document.getElementById('saveVaultBtn').onclick = async () => {
+      if (!currentAppraisal) return;
+      try {
+        triggerAlert('Syncing item to Cloud Vault...');
+        const docData = { ...currentAppraisal, status: 'owned', purchasedAt: Date.now() };
+        await addDoc(collection(db, 'vault_inventory'), docData);
+        STATE.xp += 50;
+        updatePills();
+        triggerAlert('Saved to Vault across all devices.');
+        alert('Item added to Cloud Vault!');
+      } catch (err) {
+        triggerAlert('Cloud sync failed: ' + err.message, true);
+      }
+    };
 
-    tagCamIn.onchange = function(e) {
+    function attachFirestoreListeners() {
+      onSnapshot(query(collection(db, 'vault_inventory'), orderBy('purchasedAt', 'desc')), (snap) => {
+        STATE.activeItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (STATE.vaultSub === 'active') renderVault();
+      });
+
+      onSnapshot(query(collection(db, 'vault_sold'), orderBy('soldAt', 'desc')), (snap) => {
+        STATE.soldItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (STATE.vaultSub === 'sold') renderVault();
+      });
+    }
+    attachFirestoreListeners();
+
+    function renderVault() {
+      const container = document.getElementById('vaultItemList');
+      container.innerHTML = '';
+      const list = (STATE.vaultSub === 'active') ? STATE.activeItems : STATE.soldItems;
+      let totalValue = 0;
+
+      list.forEach(item => {
+        const val = Number(item.profit || item.realizedProfit || 0);
+        totalValue += val;
+
+        const displayBrand = item.brand || 'Unbranded';
+        const displayItem = item.item || item.name || 'Thrift Asset';
+
+        const row = document.createElement('div');
+        row.className = 'vault-item';
+        row.innerHTML = 
+          '<img class="item-thumb" src="' + (item.imageThumb || '') + '" alt="Thumb">' +
+          '<div class="item-content">' +
+            '<div class="item-title">' + displayBrand + ' - ' + displayItem + '</div>' +
+            '<div class="item-meta">' + item.platform + ' • Buy: $' + Number(item.cost || 0).toFixed(2) + ' • Target: $' + Number(item.resale || 0).toFixed(2) + '</div>' +
+            '<div class="item-actions">' +
+              (STATE.vaultSub === 'active' 
+                ? '<button class="btn btn-emerald" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="markSoldCloud(\'' + item.id + '\')">MARK SOLD</button>'
+                : '<span style="color:var(--emerald); font-size:0.75rem; font-weight:700;">SOLD: +$' + val.toFixed(2) + '</span>') +
+              '<button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; width:auto; color:var(--red);" onclick="deleteCloudItem(\'' + item.id + '\')">DELETE</button>' +
+            '</div>' +
+          '</div>' +
+          '<div style="text-align:right;">' +
+            '<div style="color:var(--emerald); font-weight:800; font-size:1rem;">+$' + val.toFixed(2) + '</div>' +
+          '</div>';
+        container.appendChild(row);
+      });
+
+      document.getElementById('vaultTotal').textContent = '$' + totalValue.toFixed(2);
+      document.getElementById('vaultCount').textContent = list.length + ' items';
+    }
+
+    window.markSoldCloud = async (id) => {
+      const target = STATE.activeItems.find(i => i.id === id);
+      if (!target) return;
+      const soldInput = prompt('Enter final sold price ($):', target.resale);
+      if (soldInput === null) return;
+      const finalPrice = parseFloat(soldInput) || target.resale;
+      const realized = finalPrice - target.cost - (finalPrice * 0.1325);
+
+      try {
+        await addDoc(collection(db, 'vault_sold'), {
+          ...target,
+          finalSoldPrice: finalPrice,
+          realizedProfit: Number(realized.toFixed(2)),
+          soldAt: Date.now()
+        });
+        await deleteDoc(doc(db, 'vault_inventory', id));
+        STATE.xp += 100;
+        updatePills();
+      } catch (err) {
+        alert('Action failed: ' + err.message);
+      }
+    };
+
+    window.deleteCloudItem = async (id) => {
+      if (!confirm('Remove this item from the cloud?')) return;
+      const coll = (STATE.vaultSub === 'active') ? 'vault_inventory' : 'vault_sold';
+      try {
+        await deleteDoc(doc(db, coll, id));
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
+      }
+    };
+
+    const snapTagBtn = document.getElementById('snapTagBtn');
+    const tagInput = document.getElementById('tagImageInput');
+
+    snapTagBtn.onclick = () => tagInput.click();
+    tagInput.onchange = async (e) => {
       const file = e.target.files[0];
-      if (!file || !APP_STATE.geminiKey) {
-        if (!APP_STATE.geminiKey) showToast('Set your Gemini API key first.');
+      if (!file || !STATE.geminiKey) {
+        if (!STATE.geminiKey) alert('Set Gemini API Key in Config.');
         return;
       }
+      triggerAlert('Analyzing tag typography & RN codes...');
 
       const reader = new FileReader();
-      reader.onload = async function(evt) {
-        showToast('Analyzing tag chronology...');
-        const base64Tag = evt.target.result.split(',')[1];
-        const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(APP_STATE.geminiKey);
+      reader.onload = async (event) => {
+        const b64 = event.target.result.split(',')[1];
+        const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
-        const prompt = "Analyze this garment tag, RN number, or maker mark. Provide dating clues. Respond ONLY with valid JSON:\n" +
+        const prompt = "Analyze this garment tag, maker stamp, or RN number. Return ONLY JSON:\n" +
           "{\n" +
-          '  "maker": "Brand or Manufacturer",\n' +
-          '  "era": "e.g. 1982-1987 (Mid 1980s)",\n' +
-          '  "construction": "Single stitch details, fabric composition, origin",\n' +
-          '  "demand": "Collector grade, velocity, and rarity"\n' +
+          '  "maker": "Brand / Manufacturer",\n' +
+          '  "era": "e.g. 1982-1988",\n' +
+          '  "clues": [\n' +
+          '    {"label": "Key Hallmark", "desc": "Single stitch details, made in USA, font design"},\n' +
+          '    {"label": "Dating Signal", "desc": "Why this confirms the chronological production window"}\n' +
+          '  ]\n' +
           "}";
 
         try {
@@ -1022,211 +959,66 @@
               contents: [{
                 parts: [
                   { text: prompt },
-                  { inline_data: { mime_type: "image/jpeg", data: base64Tag } }
+                  { inlineData: { mimeType: 'image/jpeg', data: b64 } }
                 ]
               }]
             })
           });
 
           const data = await res.json();
-          const clean = data.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim();
-          const parsed = JSON.parse(clean);
+          const cleanText = data.candidates[0].content.parts[0].text.replace(/```json/gi, '').replace(/```/g, '').trim();
+          const parsed = JSON.parse(cleanText);
 
-          document.getElementById('tagEraTitle').textContent = parsed.maker + " • " + parsed.era;
-          const container = document.getElementById('tagDetails');
-          container.innerHTML = 
-            '<div><strong>Construction:</strong> ' + parsed.construction + '</div>' +
-            '<div><strong>Collector Demand:</strong> ' + parsed.demand + '</div>';
+          document.getElementById('tagEraTitle').textContent = parsed.maker + ' (' + parsed.era + ')';
+          const container = document.getElementById('tagTimelineContainer');
+          container.innerHTML = '';
+
+          parsed.clues.forEach(c => {
+            const node = document.createElement('div');
+            node.className = 'timeline-node';
+            node.innerHTML = '<div class="timeline-era">' + c.label + '</div><div class="timeline-desc">' + c.desc + '</div>';
+            container.appendChild(node);
+          });
 
           document.getElementById('tagResultCard').style.display = 'flex';
-          APP_STATE.dailyScans = Math.max(0, APP_STATE.dailyScans - 1);
-          APP_STATE.hunterXp += 40;
+          STATE.dailyScans--;
+          STATE.xp += 35;
           updatePills();
-          showToast('Tag dated! (+40 XP)');
-
+          dismissAlert();
         } catch (err) {
-          showToast('Tag inspection failed.');
-          console.error(err);
+          triggerAlert('Tag scan failed: ' + err.message, true);
         }
       };
       reader.readAsDataURL(file);
     };
 
-    document.getElementById('saveVaultBtn').onclick = function() {
-      if (!currentAppraisal) return;
-      APP_STATE.vaultActive.unshift(currentAppraisal);
-      APP_STATE.hunterXp += 50;
-      localStorage.setItem('ts_vault_active', JSON.stringify(APP_STATE.vaultActive));
-      updatePills();
-      showToast('Saved to Vault (+50 XP)');
-    };
-
-    document.getElementById('vaultSubActive').onclick = function() {
-      activeVaultSubTab = 'active';
-      this.classList.add('active');
-      document.getElementById('vaultSubSold').classList.remove('active');
-      renderVault();
-    };
-
-    document.getElementById('vaultSubSold').onclick = function() {
-      activeVaultSubTab = 'sold';
-      this.classList.add('active');
-      document.getElementById('vaultSubActive').classList.remove('active');
-      renderVault();
-    };
-
-    document.getElementById('vaultSearchInput').oninput = function() {
-      renderVault();
-    };
-
-    function renderVault() {
-      const container = document.getElementById('vaultListContainer');
-      const search = document.getElementById('vaultSearchInput').value.toLowerCase().trim();
-      container.innerHTML = '';
-
-      let list = activeVaultSubTab === 'active' ? APP_STATE.vaultActive : APP_STATE.vaultSold;
-      if (search) {
-        list = list.filter(function(i) {
-          return (i.name + " " + i.platform + " " + i.shipping).toLowerCase().includes(search);
-        });
-      }
-
-      let totalCost = 0;
-      let totalProfit = 0;
-
-      list.forEach(function(item, idx) {
-        totalCost += Number(item.cost) || 0;
-        totalProfit += Number(item.profit) || 0;
-
-        const card = document.createElement('div');
-        card.className = 'vault-card';
-
-        const daysHeld = Math.floor((Date.now() - (item.date || Date.now())) / (1000 * 60 * 60 * 24));
-        const ebayCompUrl = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query || item.name) + "&LH_Complete=1&LH_Sold=1";
-
-        let actionBtns = '';
-        if (activeVaultSubTab === 'active') {
-          actionBtns = 
-            '<button class="btn btn-emerald" style="padding:6px 10px; font-size:0.75rem;" onclick="markItemSold(' + idx + ')">Mark Sold</button>' +
-            '<button class="btn btn-outline" style="padding:6px 10px; font-size:0.75rem;" onclick="copyListingText(' + idx + ')">Copy Info</button>' +
-            '<a href="' + ebayCompUrl + '" target="_blank" class="btn btn-ebay" style="padding:6px 10px; font-size:0.75rem;">Comps</a>' +
-            '<button class="btn btn-outline" style="padding:6px 10px; font-size:0.75rem; color:var(--red);" onclick="removeActiveVault(' + idx + ')">Delete</button>';
-        } else {
-          actionBtns = 
-            '<a href="' + ebayCompUrl + '" target="_blank" class="btn btn-ebay" style="padding:6px 10px; font-size:0.75rem;">Comps</a>' +
-            '<button class="btn btn-outline" style="padding:6px 10px; font-size:0.75rem; color:var(--red);" onclick="removeSoldVault(' + idx + ')">Purge</button>';
-        }
-
-        card.innerHTML = 
-          '<div style="display:flex; justify-content:space-between; align-items:flex-start;">' +
-            '<div>' +
-              '<strong style="font-size:0.92rem;">' + item.name + '</strong>' +
-              '<div style="font-size:0.75rem; color:var(--text-muted);">' + item.platform + ' • ' + daysHeld + 'd in Vault</div>' +
-            '</div>' +
-            '<span class="metric-val profit" style="font-size:0.95rem;">+$' + item.profit.toFixed(2) + '</span>' +
-          '</div>' +
-          '<div style="display:flex; justify-content:space-between; font-size:0.78rem; color:var(--text-muted);">' +
-            '<span>Cost: $' + Number(item.cost).toFixed(2) + '</span>' +
-            '<span>Target: $' + Number(item.resale).toFixed(2) + '</span>' +
-            '<span>Ship: ' + item.shipping + '</span>' +
-          '</div>' +
-          '<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;">' + actionBtns + '</div>';
-
-        container.appendChild(card);
-      });
-
-      if (activeVaultSubTab === 'active') {
-        document.getElementById('vaultMetricLabel1').textContent = 'Capital Deployed';
-        document.getElementById('vaultMetricVal1').textContent = "$" + totalCost.toFixed(2);
-        document.getElementById('vaultMetricLabel2').textContent = 'Projected Profit';
-        document.getElementById('vaultMetricVal2').textContent = "$" + totalProfit.toFixed(2);
-      } else {
-        document.getElementById('vaultMetricLabel1').textContent = 'Realized Revenue';
-        document.getElementById('vaultMetricVal1').textContent = "$" + (totalCost + totalProfit).toFixed(2);
-        document.getElementById('vaultMetricLabel2').textContent = 'Realized Net';
-        document.getElementById('vaultMetricVal2').textContent = "$" + totalProfit.toFixed(2);
-      }
-    }
-
-    window.markItemSold = function(idx) {
-      const item = APP_STATE.vaultActive[idx];
-      const soldPrice = parseFloat(prompt('Final Sale Price ($):', item.resale.toString())) || item.resale;
-      item.resale = soldPrice;
-      item.profit = Number((soldPrice - item.cost - (soldPrice * 0.1325)).toFixed(2));
-      item.soldDate = Date.now();
-
-      APP_STATE.vaultSold.unshift(item);
-      APP_STATE.vaultActive.splice(idx, 1);
-      APP_STATE.hunterXp += 150;
-
-      localStorage.setItem('ts_vault_active', JSON.stringify(APP_STATE.vaultActive));
-      localStorage.setItem('ts_vault_sold', JSON.stringify(APP_STATE.vaultSold));
-      updatePills();
-      renderVault();
-      showToast('Marked as Sold! (+150 XP)');
-    };
-
-    window.copyListingText = function(idx) {
-      const item = APP_STATE.vaultActive[idx];
-      const text = item.name + "\n" +
-        "Estimated Resale: $" + item.resale.toFixed(2) + "\n" +
-        "Shipping: " + item.shipping + "\n" +
-        "Search: " + item.query;
-
-      const input = document.createElement('textarea');
-      input.value = text;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand('copy');
-      document.body.removeChild(input);
-      showToast('Listing summary copied to clipboard!');
-    };
-
-    window.removeActiveVault = function(idx) {
-      APP_STATE.vaultActive.splice(idx, 1);
-      localStorage.setItem('ts_vault_active', JSON.stringify(APP_STATE.vaultActive));
-      renderVault();
-    };
-
-    window.removeSoldVault = function(idx) {
-      APP_STATE.vaultSold.splice(idx, 1);
-      localStorage.setItem('ts_vault_sold', JSON.stringify(APP_STATE.vaultSold));
-      renderVault();
-    };
-
-    window.searchNearbyThrift = function(platform) {
+    window.openNearbySearch = function(appType) {
       if (!navigator.geolocation) {
-        showToast('Geolocation not available on this device.');
+        alert('Geolocation not supported by device.');
         return;
       }
-      showToast('Locking onto GPS coordinates...');
       navigator.geolocation.getCurrentPosition(
-        function(pos) {
+        (pos) => {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
           const term = 'thrift store';
 
-          if (platform === 'google') {
-            window.open("https://www.google.com/maps/search/" + encodeURIComponent(term) + "/@" + lat + "," + lon + ",13z", "_blank");
-          } else if (platform === 'apple') {
-            window.open("https://maps.apple.com/?q=" + encodeURIComponent(term) + "&sll=" + lat + "," + lon + "&z=13", "_blank");
-          } else if (platform === 'waze') {
-            window.open("https://waze.com/ul?ll=" + lat + "," + lon + "&q=" + encodeURIComponent(term) + "&navigate=yes", "_blank");
+          if (appType === 'google') {
+            window.open('https://www.google.com/maps/search/' + encodeURIComponent(term) + '/@' + lat + ',' + lon + ',13z', '_blank');
+          } else if (appType === 'apple') {
+            window.open('https://maps.apple.com/?q=' + encodeURIComponent(term) + '&sll=' + lat + ',' + lon + '&z=13', '_blank');
+          } else if (appType === 'waze') {
+            window.open('https://waze.com/ul?ll=' + lat + ',' + lon + '&q=' + encodeURIComponent(term) + '&navigate=yes', '_blank');
           }
         },
-        function() {
-          const term = 'thrift stores near me';
-          if (platform === 'google') window.open("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(term), "_blank");
-          if (platform === 'apple') window.open("https://maps.apple.com/?q=" + encodeURIComponent(term), "_blank");
-          if (platform === 'waze') window.open("https://waze.com/ul?q=" + encodeURIComponent(term) + "&navigate=yes", "_blank");
+        () => {
+          const fallbackTerm = 'thrift stores near me';
+          if (appType === 'google') window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(fallbackTerm), '_blank');
+          if (appType === 'apple') window.open('https://maps.apple.com/?q=' + encodeURIComponent(fallbackTerm), '_blank');
+          if (appType === 'waze') window.open('https://waze.com/ul?q=' + encodeURIComponent(fallbackTerm) + '&navigate=yes', '_blank');
         },
         { enableHighAccuracy: true, timeout: 8000 }
       );
-    };
-
-    window.onload = function() {
-      updatePills();
-      loadSniperDirective(APP_STATE.sniperIndex);
     };
   </script>
 </body>
