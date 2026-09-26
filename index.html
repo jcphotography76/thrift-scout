@@ -121,15 +121,12 @@
       text-decoration: none;
       color: inherit;
     }
-    .target-img-ph {
+    .target-card-img {
       width: 100%;
-      height: 85px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 600;
+      height: 95px;
+      object-fit: cover;
+      background: #000;
+      display: block;
     }
     .target-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; }
     .target-name { font-size: 0.8rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -155,7 +152,7 @@
     .btn-blue { background: var(--blue); color: #fff; }
     .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-    /* Purchase Cost Basis Input Component */
+    /* Acquisition Cost Input Component */
     .cost-input-wrapper {
       display: flex;
       flex-direction: column;
@@ -242,8 +239,8 @@
     }
     .vault-subbtn.active { background: var(--card-bg); color: #fff; border: 1px solid var(--border); }
     .vault-list { display: flex; flex-direction: column; gap: 10px; }
-    .vault-item { display: flex; gap: 12px; background: #05070a; border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
-    .item-thumb { width: 72px; height: 72px; min-width: 72px; border-radius: 6px; object-fit: cover; background: #000; border: 1px solid var(--border); }
+    .vault-item { display: flex; gap: 12px; background: #05070a; border: 1px solid var(--border); border-radius: 10px; padding: 12px; align-items: flex-start; }
+    .item-thumb { width: 78px; height: 78px; min-width: 78px; border-radius: 6px; object-fit: cover; background: #161b22; border: 1px solid var(--border); }
     .item-content { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
     .item-title { font-weight: 700; font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .item-meta { font-size: 0.78rem; color: var(--text-muted); }
@@ -336,6 +333,18 @@
       border: 1px solid var(--border);
       object-fit: cover;
     }
+    .input-field {
+      width: 100%;
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .input-field:focus { border-color: var(--border-focus); }
   </style>
 </head>
 <body>
@@ -362,22 +371,22 @@
           <span class="badge-amber">Live Comps</span>
         </div>
         <div class="target-scroller">
-          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+patagonia+made+in+usa&LH_Sold=1&LH_Complete=1">
-            <div class="target-img-ph" style="background:#131c26;">Patagonia USA</div>
+          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+patagonia+fleece+made+in+usa&LH_Sold=1&LH_Complete=1">
+            <img class="target-card-img" src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=360&auto=format&fit=crop&q=80" alt="Patagonia Fleece">
             <div class="target-body">
               <span class="target-name">USA Snap-T / Fleece</span>
               <span class="target-range">$75 - $220</span>
             </div>
           </a>
           <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+single+stitch+band+shirt&LH_Sold=1&LH_Complete=1">
-            <div class="target-img-ph" style="background:#24161a;">Single Stitch</div>
+            <img class="target-card-img" src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=360&auto=format&fit=crop&q=80" alt="Single Stitch Tee">
             <div class="target-body">
               <span class="target-name">90s Tour T-Shirts</span>
               <span class="target-range">$45 - $350</span>
             </div>
           </a>
           <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=graphing+calculator+ti-84+plus&LH_Sold=1&LH_Complete=1">
-            <div class="target-img-ph" style="background:#13221b;">Electronics</div>
+            <img class="target-card-img" src="https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=360&auto=format&fit=crop&q=80" alt="Graphing Calculator">
             <div class="target-body">
               <span class="target-name">TI-84 Plus Silver</span>
               <span class="target-range">$35 - $65</span>
@@ -606,6 +615,7 @@
 
     let currentAppraisal = null;
     let selectedImageBase64 = null;
+    let compressedThumbDataUrl = null;
     let webcamStream = null;
 
     function getRank(xp) {
@@ -690,6 +700,7 @@
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
+          // Main high-res canvas for Gemini Vision
           const canvas = document.createElement('canvas');
           let w = img.width;
           let h = img.height;
@@ -702,6 +713,18 @@
           selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.70).split(',')[1];
           previewImg.src = canvas.toDataURL('image/jpeg', 0.70);
           previewBox.style.display = 'block';
+
+          // Ultra-compact thumbnail specifically for persistent Cloud Firestore storage
+          const thumbCanvas = document.createElement('canvas');
+          let tw = img.width;
+          let th = img.height;
+          const thumbMax = 140;
+          if (tw > th && tw > thumbMax) { th = Math.round((th * thumbMax) / tw); tw = thumbMax; }
+          else if (th > thumbMax) { tw = Math.round((tw * thumbMax) / th); tw = thumbMax; }
+          thumbCanvas.width = tw;
+          thumbCanvas.height = th;
+          thumbCanvas.getContext('2d').drawImage(img, 0, 0, tw, th);
+          compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
         };
         img.src = e.target.result;
       };
@@ -767,11 +790,18 @@
       selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
       previewImg.src = canvas.toDataURL('image/jpeg', 0.75);
       previewBox.style.display = 'block';
+
+      const thumbCanvas = document.createElement('canvas');
+      thumbCanvas.width = 140;
+      thumbCanvas.height = Math.round((canvas.height * 140) / canvas.width);
+      thumbCanvas.getContext('2d').drawImage(webcamVideo, 0, 0, thumbCanvas.width, thumbCanvas.height);
+      compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
+
       if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
       webcamModal.classList.remove('active');
     };
 
-    // Upgraded Gemini 3.8-Flash Endpoint Call
+    // Upgraded Gemini 3.8 Flash Endpoint Call
     document.getElementById('evaluateBtn').onclick = async () => {
       if (!selectedImageBase64) {
         alert('Snap or select an image first.');
@@ -846,7 +876,7 @@
           disposition: parsed.disposition || 'MONITOR',
           intel: parsed.intel || 'Standard secondary market asset.',
           query: parsed.query || (parsedBrand + " " + parsedItem),
-          imageThumb: "data:image/jpeg;base64," + selectedImageBase64,
+          imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImageBase64),
           status: 'prospect',
           createdAt: Date.now()
         };
@@ -919,14 +949,18 @@
 
         const displayBrand = item.brand || 'Unbranded';
         const displayItem = item.item || item.name || 'Thrift Asset';
+        const costBasis = Number(item.cost || item.itemCost || 0).toFixed(2);
+        const estResale = Number(item.resale || item.estimatedValue || 0).toFixed(2);
+
+        const thumbSrc = item.imageThumb || item.image || "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23161b22%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%238b949e%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E";
 
         const row = document.createElement('div');
         row.className = 'vault-item';
         row.innerHTML = 
-          '<img class="item-thumb" src="' + (item.imageThumb || '') + '" alt="Thumb">' +
+          '<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23161b22%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%238b949e%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
           '<div class="item-content">' +
             '<div class="item-title">' + displayBrand + ' - ' + displayItem + '</div>' +
-            '<div class="item-meta">' + item.platform + ' • Buy: $' + Number(item.cost || 0).toFixed(2) + ' • Target: $' + Number(item.resale || 0).toFixed(2) + '</div>' +
+            '<div class="item-meta">' + (item.platform || 'eBay') + ' • Buy: $' + costBasis + ' • Target: $' + estResale + '</div>' +
             '<div class="item-actions">' +
               (STATE.vaultSub === 'active' 
                 ? '<button class="btn btn-emerald" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="markSoldCloud(\'' + item.id + '\')">MARK SOLD</button>'
@@ -947,10 +981,12 @@
     window.markSoldCloud = async (id) => {
       const target = STATE.activeItems.find(i => i.id === id);
       if (!target) return;
-      const soldInput = prompt('Enter final sold price ($):', target.resale);
+      const defaultPrice = target.resale || target.estimatedValue || 0;
+      const soldInput = prompt('Enter final sold price ($):', defaultPrice);
       if (soldInput === null) return;
-      const finalPrice = parseFloat(soldInput) || target.resale;
-      const realized = finalPrice - target.cost - (finalPrice * 0.1325);
+      const finalPrice = parseFloat(soldInput) || defaultPrice;
+      const costBasis = target.cost || target.itemCost || 0;
+      const realized = finalPrice - costBasis - (finalPrice * 0.1325);
 
       try {
         await addDoc(collection(db, 'vault_sold'), {
@@ -977,7 +1013,7 @@
       }
     };
 
-    // Upgraded Gemini 3.8-Flash Tag Chronology Scanner
+    // Upgraded Gemini 3.8 Flash Tag Chronology Scanner
     const snapTagBtn = document.getElementById('snapTagBtn');
     const tagInput = document.getElementById('tagImageInput');
 
@@ -1046,32 +1082,48 @@
       reader.readAsDataURL(file);
     };
 
+    // Geolocation Sourcing Query with instantaneous fallback
     window.openNearbySearch = function(appType) {
+      triggerAlert('🛰️ Fetching coordinates for local thrift search...');
+      
+      const executeDirectSearch = (lat, lon) => {
+        dismissAlert();
+        const term = encodeURIComponent('thrift store');
+        if (appType === 'google') {
+          if (lat && lon) {
+            window.open('https://www.google.com/maps/search/' + term + '/@' + lat + ',' + lon + ',13z', '_blank');
+          } else {
+            window.open('https://www.google.com/maps/search/?api=1&query=' + term, '_blank');
+          }
+        } else if (appType === 'apple') {
+          if (lat && lon) {
+            window.open('https://maps.apple.com/?q=' + term + '&sll=' + lat + ',' + lon + '&z=13', '_blank');
+          } else {
+            window.open('https://maps.apple.com/?q=' + term, '_blank');
+          }
+        } else if (appType === 'waze') {
+          if (lat && lon) {
+            window.open('https://waze.com/ul?ll=' + lat + ',' + lon + '&q=' + term + '&navigate=yes', '_blank');
+          } else {
+            window.open('https://waze.com/ul?q=' + term + '&navigate=yes', '_blank');
+          }
+        }
+      };
+
       if (!navigator.geolocation) {
-        alert('Geolocation not supported by device.');
+        executeDirectSearch(null, null);
         return;
       }
+
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const lat = pos.coords.latitude;
-          const lon = pos.coords.longitude;
-          const term = 'thrift store';
-
-          if (appType === 'google') {
-            window.open('https://www.google.com/maps/search/' + encodeURIComponent(term) + '/@' + lat + ',' + lon + ',13z', '_blank');
-          } else if (appType === 'apple') {
-            window.open('https://maps.apple.com/?q=' + encodeURIComponent(term) + '&sll=' + lat + ',' + lon + '&z=13', '_blank');
-          } else if (appType === 'waze') {
-            window.open('https://waze.com/ul?ll=' + lat + ',' + lon + '&q=' + encodeURIComponent(term) + '&navigate=yes', '_blank');
-          }
+          executeDirectSearch(pos.coords.latitude, pos.coords.longitude);
         },
-        () => {
-          const fallbackTerm = 'thrift stores near me';
-          if (appType === 'google') window.open('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(fallbackTerm), '_blank');
-          if (appType === 'apple') window.open('https://maps.apple.com/?q=' + encodeURIComponent(fallbackTerm), '_blank');
-          if (appType === 'waze') window.open('https://waze.com/ul?q=' + encodeURIComponent(fallbackTerm) + '&navigate=yes', '_blank');
+        (err) => {
+          console.warn('Geolocation access deferred or unavailable:', err.message);
+          executeDirectSearch(null, null);
         },
-        { enableHighAccuracy: true, timeout: 8000 }
+        { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 }
       );
     };
   </script>
