@@ -8,6 +8,7 @@
     :root {
       --bg: #000000;
       --card-bg: #0d1117;
+      --surface: #161b22;
       --border: #21262d;
       --border-focus: #388bfd;
       --text: #f0f6fc;
@@ -152,7 +153,7 @@
     .btn-blue { background: var(--blue); color: #fff; }
     .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-    /* Acquisition Cost Input Component */
+    /* Acquisition Cost Basis Input Component */
     .cost-input-wrapper {
       display: flex;
       flex-direction: column;
@@ -224,6 +225,7 @@
     .disp-flip { background: var(--emerald-glow); color: var(--emerald); border: 1px solid var(--emerald); }
     .disp-monitor { background: var(--amber-glow); color: var(--amber); border: 1px solid var(--amber); }
     .disp-pass { background: var(--red-glow); color: var(--red); border: 1px solid var(--red); }
+    
     .vault-summary { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
     .vault-subtoggle { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #000; padding: 4px; border-radius: 8px; border: 1px solid var(--border); }
     .vault-subbtn {
@@ -245,6 +247,93 @@
     .item-title { font-weight: 700; font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .item-meta { font-size: 0.78rem; color: var(--text-muted); }
     .item-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+
+    /* Modern Stores / Radar Interface */
+    .radar-header-card {
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .gps-status-pill {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--emerald);
+      border: 1px solid var(--emerald);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      width: fit-content;
+    }
+    .store-radar-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .store-card-modern {
+      background: #05070a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .store-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    .store-name-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .store-dist-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--emerald);
+      background: var(--emerald-glow);
+      border: 1px solid var(--emerald);
+      padding: 2px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .store-address-text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .nav-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .nav-app-btn {
+      text-align: center;
+      padding: 9px 4px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .nav-app-btn:active {
+      background: var(--border);
+    }
+
     .timeline-node { border-left: 2px solid var(--amber); padding-left: 12px; margin-left: 4px; position: relative; margin-bottom: 12px; }
     .timeline-node::before {
       content: '';
@@ -258,19 +347,7 @@
     }
     .timeline-era { font-size: 0.8rem; font-weight: 700; color: var(--amber); }
     .timeline-desc { font-size: 0.82rem; color: var(--text-muted); }
-    .store-row { display: flex; flex-direction: column; gap: 8px; background: #05070a; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
-    .map-btn-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-    .map-link {
-      text-align: center;
-      padding: 8px 4px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-decoration: none;
-    }
+
     .bottom-dock {
       position: fixed;
       bottom: 0;
@@ -371,22 +448,22 @@
           <span class="badge-amber">Live Comps</span>
         </div>
         <div class="target-scroller">
-          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+patagonia+fleece+made+in+usa&LH_Sold=1&LH_Complete=1">
-            <img class="target-card-img" src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=360&auto=format&fit=crop&q=80" alt="Patagonia Fleece">
+          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+patagonia+snap+t+fleece+made+in+usa&LH_Sold=1&LH_Complete=1">
+            <img class="target-card-img" src="https://images.unsplash.com/photo-1544441893-675973e31985?w=360&auto=format&fit=crop&q=80" alt="Patagonia Fleece Pullover">
             <div class="target-body">
               <span class="target-name">USA Snap-T / Fleece</span>
               <span class="target-range">$75 - $220</span>
             </div>
           </a>
-          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+single+stitch+band+shirt&LH_Sold=1&LH_Complete=1">
-            <img class="target-card-img" src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=360&auto=format&fit=crop&q=80" alt="Single Stitch Tee">
+          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+single+stitch+band+tee&LH_Sold=1&LH_Complete=1">
+            <img class="target-card-img" src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=360&auto=format&fit=crop&q=80" alt="Vintage Band T-Shirt">
             <div class="target-body">
               <span class="target-name">90s Tour T-Shirts</span>
               <span class="target-range">$45 - $350</span>
             </div>
           </a>
-          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=graphing+calculator+ti-84+plus&LH_Sold=1&LH_Complete=1">
-            <img class="target-card-img" src="https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=360&auto=format&fit=crop&q=80" alt="Graphing Calculator">
+          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=ti-84+plus+silver+edition+calculator&LH_Sold=1&LH_Complete=1">
+            <img class="target-card-img" src="https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=360&auto=format&fit=crop&q=80" alt="Texas Instruments Calculator">
             <div class="target-body">
               <span class="target-name">TI-84 Plus Silver</span>
               <span class="target-range">$35 - $65</span>
@@ -497,51 +574,27 @@
       </div>
     </section>
 
-    <!-- TAB 4: STORES -->
+    <!-- TAB 4: STORES (MODERN RADAR LOCATOR) -->
     <section id="tab-stores" class="tab-view">
-      <div class="card">
-        <div class="card-title">LIVE GPS SEARCH</div>
-        <p style="font-size:0.82rem; color:var(--text-muted);">Find stores within driving range of your current GPS position.</p>
-        <div class="map-btn-group">
-          <button class="btn btn-outline" style="font-size:0.75rem;" onclick="openNearbySearch('google')">Google Maps</button>
-          <button class="btn btn-outline" style="font-size:0.75rem;" onclick="openNearbySearch('apple')">Apple Maps</button>
-          <button class="btn btn-outline" style="font-size:0.75rem;" onclick="openNearbySearch('waze')">Waze</button>
+      <div class="radar-header-card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-weight:800; font-size:1rem; letter-spacing:-0.01em;">SOURCING RADAR</div>
+          <div class="gps-status-pill" id="gpsStatusPill">GPS READY</div>
+        </div>
+        <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">Instant 1-tap route search to all thrift stores centered on your live coordinates.</p>
+        <div class="nav-actions-grid">
+          <a class="nav-app-btn" id="radarGoogleBtn" href="https://www.google.com/maps/search/thrift+stores/" target="_blank">Google Maps</a>
+          <a class="nav-app-btn" id="radarAppleBtn" href="https://maps.apple.com/?q=thrift+stores" target="_blank">Apple Maps</a>
+          <a class="nav-app-btn" id="radarWazeBtn" href="https://waze.com/ul?q=thrift+stores&navigate=yes" target="_blank">Waze</a>
         </div>
       </div>
 
       <div class="card">
-        <div class="card-title">REGIONAL NODES (NORTHERN UTAH)</div>
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <div class="store-row">
-            <span style="font-weight:700; font-size:0.9rem;">Goodwill - Riverdale</span>
-            <span style="font-size:0.75rem; color:var(--text-muted);">4123 Riverdale Rd, Riverdale, UT</span>
-            <div class="map-btn-group">
-              <a class="map-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=4123+Riverdale+Rd+Riverdale+UT">Google</a>
-              <a class="map-link" target="_blank" href="https://maps.apple.com/?daddr=4123+Riverdale+Rd,+Riverdale,+UT+84405">Apple</a>
-              <a class="map-link" target="_blank" href="https://waze.com/ul?q=4123+Riverdale+Rd+Riverdale+UT&navigate=yes">Waze</a>
-            </div>
-          </div>
-
-          <div class="store-row">
-            <span style="font-weight:700; font-size:0.9rem;">Deseret Industries - Harrisville</span>
-            <span style="font-size:0.75rem; color:var(--text-muted);">1111 N 2000 W, Harrisville, UT</span>
-            <div class="map-btn-group">
-              <a class="map-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=1111+N+2000+W+Harrisville+UT">Google</a>
-              <a class="map-link" target="_blank" href="https://maps.apple.com/?daddr=1111+N+2000+W,+Harrisville,+UT+84404">Apple</a>
-              <a class="map-link" target="_blank" href="https://waze.com/ul?q=1111+N+2000+W+Harrisville+UT&navigate=yes">Waze</a>
-            </div>
-          </div>
-
-          <div class="store-row">
-            <span style="font-weight:700; font-size:0.9rem;">Savers - Ogden</span>
-            <span style="font-size:0.75rem; color:var(--text-muted);">150 36th St, Ogden, UT</span>
-            <div class="map-btn-group">
-              <a class="map-link" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=150+36th+St+Ogden+UT">Google</a>
-              <a class="map-link" target="_blank" href="https://maps.apple.com/?daddr=150+36th+St,+Ogden,+UT+84405">Apple</a>
-              <a class="map-link" target="_blank" href="https://waze.com/ul?q=150+36th+St+Ogden+UT&navigate=yes">Waze</a>
-            </div>
-          </div>
+        <div class="card-title">
+          <span>AREA SOURCING HUBS</span>
+          <span class="badge-amber">Northern Utah</span>
         </div>
+        <div class="store-radar-grid" id="storeRadarGrid"></div>
       </div>
     </section>
   </main>
@@ -610,13 +663,42 @@
       activeTab: 'scout',
       vaultSub: 'active',
       activeItems: [],
-      soldItems: []
+      soldItems: [],
+      userLat: null,
+      userLon: null
     };
 
     let currentAppraisal = null;
     let selectedImageBase64 = null;
     let compressedThumbDataUrl = null;
     let webcamStream = null;
+
+    const STORES = [
+      {
+        name: "Goodwill - Riverdale",
+        address: "4123 Riverdale Rd, Riverdale, UT",
+        lat: 41.1764,
+        lon: -111.9961
+      },
+      {
+        name: "Deseret Industries - Harrisville",
+        address: "1111 N 2000 W, Harrisville, UT",
+        lat: 41.2825,
+        lon: -112.0125
+      },
+      {
+        name: "Savers - Ogden",
+        address: "150 36th St, Ogden, UT",
+        lat: 41.2052,
+        lon: -111.9723
+      },
+      {
+        name: "Deseret Industries - Centerville",
+        address: "351 N Marketplace Dr, Centerville, UT",
+        lat: 40.9238,
+        lon: -111.8872
+      }
+    ];
 
     function getRank(xp) {
       if (xp >= 5000) return 'Master Scout';
@@ -650,6 +732,7 @@
       document.getElementById('statusAlert').style.display = 'none';
     }
 
+    // Navigation Controls
     document.querySelectorAll('.dock-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
@@ -657,6 +740,9 @@
         btn.classList.add('active');
         STATE.activeTab = btn.dataset.target.replace('tab-', '');
         document.getElementById(btn.dataset.target).classList.add('active');
+        if (STATE.activeTab === 'stores') {
+          initStoresRadar();
+        }
       });
     });
 
@@ -700,7 +786,6 @@
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
-          // Main high-res canvas for Gemini Vision
           const canvas = document.createElement('canvas');
           let w = img.width;
           let h = img.height;
@@ -714,7 +799,7 @@
           previewImg.src = canvas.toDataURL('image/jpeg', 0.70);
           previewBox.style.display = 'block';
 
-          // Ultra-compact thumbnail specifically for persistent Cloud Firestore storage
+          // Ultra-compact 140px thumbnail for Firestore
           const thumbCanvas = document.createElement('canvas');
           let tw = img.width;
           let th = img.height;
@@ -801,7 +886,7 @@
       webcamModal.classList.remove('active');
     };
 
-    // Upgraded Gemini 3.8 Flash Endpoint Call
+    // AI Valuation Engine with Gemini 3.8 Flash
     document.getElementById('evaluateBtn').onclick = async () => {
       if (!selectedImageBase64) {
         alert('Snap or select an image first.');
@@ -960,10 +1045,10 @@
           '<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23161b22%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%238b949e%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
           '<div class="item-content">' +
             '<div class="item-title">' + displayBrand + ' - ' + displayItem + '</div>' +
-            '<div class="item-meta">' + (item.platform || 'eBay') + ' • Buy: $' + costBasis + ' • Target: $' + estResale + '</div>' +
+            '<div class="item-meta">' + (item.platform || 'eBay') + ' • Buy: \(' + costBasis + ' • Target:\)' + estResale + '</div>' +
             '<div class="item-actions">' +
               (STATE.vaultSub === 'active' 
-                ? '<button class="btn btn-emerald" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="markSoldCloud(\'' + item.id + '\')">MARK SOLD</button>'
+                ? '<button class="btn btn-emerald" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="markSoldCloud(\'' + item.id + '\')">MARK SOLD</button>' 
                 : '<span style="color:var(--emerald); font-size:0.75rem; font-weight:700;">SOLD: +$' + val.toFixed(2) + '</span>') +
               '<button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; width:auto; color:var(--red);" onclick="deleteCloudItem(\'' + item.id + '\')">DELETE</button>' +
             '</div>' +
@@ -1013,7 +1098,7 @@
       }
     };
 
-    // Upgraded Gemini 3.8 Flash Tag Chronology Scanner
+    // Tag Chronology Scanner
     const snapTagBtn = document.getElementById('snapTagBtn');
     const tagInput = document.getElementById('tagImageInput');
 
@@ -1082,50 +1167,84 @@
       reader.readAsDataURL(file);
     };
 
-    // Geolocation Sourcing Query with instantaneous fallback
-    window.openNearbySearch = function(appType) {
-      triggerAlert('🛰️ Fetching coordinates for local thrift search...');
-      
-      const executeDirectSearch = (lat, lon) => {
-        dismissAlert();
-        const term = encodeURIComponent('thrift store');
-        if (appType === 'google') {
-          if (lat && lon) {
-            window.open('https://www.google.com/maps/search/' + term + '/@' + lat + ',' + lon + ',13z', '_blank');
-          } else {
-            window.open('https://www.google.com/maps/search/?api=1&query=' + term, '_blank');
-          }
-        } else if (appType === 'apple') {
-          if (lat && lon) {
-            window.open('https://maps.apple.com/?q=' + term + '&sll=' + lat + ',' + lon + '&z=13', '_blank');
-          } else {
-            window.open('https://maps.apple.com/?q=' + term, '_blank');
-          }
-        } else if (appType === 'waze') {
-          if (lat && lon) {
-            window.open('https://waze.com/ul?ll=' + lat + ',' + lon + '&q=' + term + '&navigate=yes', '_blank');
-          } else {
-            window.open('https://waze.com/ul?q=' + term + '&navigate=yes', '_blank');
-          }
-        }
-      };
+    // Haversine Distance Formula in Miles
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 3958.8;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return (R * c).toFixed(1);
+    }
+
+    // Modern Stores Radar Initialization
+    function initStoresRadar() {
+      const grid = document.getElementById('storeRadarGrid');
+      const pill = document.getElementById('gpsStatusPill');
 
       if (!navigator.geolocation) {
-        executeDirectSearch(null, null);
+        pill.textContent = "GPS UNAVAILABLE";
+        pill.style.borderColor = "var(--red)";
+        pill.style.color = "var(--red)";
+        renderStoreCards(STORES);
         return;
       }
 
+      pill.textContent = "ACQUIRING FIX...";
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          executeDirectSearch(pos.coords.latitude, pos.coords.longitude);
+          STATE.userLat = pos.coords.latitude;
+          STATE.userLon = pos.coords.longitude;
+          pill.textContent = "GPS LOCKED (" + STATE.userLat.toFixed(2) + ", " + STATE.userLon.toFixed(2) + ")";
+
+          const q = encodeURIComponent("thrift store");
+          document.getElementById('radarGoogleBtn').href = "https://www.google.com/maps/search/" + q + "/@" + STATE.userLat + "," + STATE.userLon + ",13z";
+          document.getElementById('radarAppleBtn').href = "https://maps.apple.com/?q=" + q + "&sll=" + STATE.userLat + "," + STATE.userLon + "&z=13";
+          document.getElementById('radarWazeBtn').href = "https://waze.com/ul?ll=" + STATE.userLat + "," + STATE.userLon + "&q=" + q + "&navigate=yes";
+
+          const enriched = STORES.map(s => {
+            const dist = calculateDistance(STATE.userLat, STATE.userLon, s.lat, s.lon);
+            return { ...s, dist: parseFloat(dist) };
+          }).sort((a, b) => a.dist - b.dist);
+
+          renderStoreCards(enriched);
         },
         (err) => {
-          console.warn('Geolocation access deferred or unavailable:', err.message);
-          executeDirectSearch(null, null);
+          pill.textContent = "LOCAL MODE";
+          renderStoreCards(STORES);
         },
         { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 }
       );
-    };
+    }
+
+    function renderStoreCards(storeList) {
+      const grid = document.getElementById('storeRadarGrid');
+      grid.innerHTML = '';
+
+      storeList.forEach(s => {
+        const destQuery = encodeURIComponent(s.address);
+        const card = document.createElement('div');
+        card.className = 'store-card-modern';
+        card.innerHTML = 
+          '<div class="store-card-top">' +
+            '<div>' +
+              '<div class="store-name-title">' + s.name + '</div>' +
+              '<div class="store-address-text">' + s.address + '</div>' +
+            '</div>' +
+            (s.dist !== undefined ? '<span class="store-dist-badge">' + s.dist + ' mi</span>' : '') +
+          '</div>' +
+          '<div class="nav-actions-grid">' +
+            '<a class="nav-app-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=' + destQuery + '">Google</a>' +
+            '<a class="nav-app-btn" target="_blank" href="https://maps.apple.com/?daddr=' + destQuery + '">Apple</a>' +
+            '<a class="nav-app-btn" target="_blank" href="https://waze.com/ul?q=' + destQuery + '&navigate=yes">Waze</a>' +
+          '</div>';
+        grid.appendChild(card);
+      });
+    }
+
+    initStoresRadar();
   </script>
 </body>
 </html>
