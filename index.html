@@ -1,72 +1,1412 @@
-Thrift Scout • Vault
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Thrift Scout • Vault</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --panel: #131b2e;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #2563eb;
+      --green: #10b981;
+      --green-dark: #064e3b;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --red-dark: #450a0a;
+      --ebay: #0064d2;
+      --gold: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 16px;
+      padding-bottom: 95px;
+      overflow-x: hidden;
+      font-size: 16px;
+    }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .brand-title { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 6px; }
+    .brand-title span { color: var(--green); }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .scan-pill { background: var(--panel); border: 1px solid var(--border); color: var(--green); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; }
+    .btn-key { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+    
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
+      background: rgba(19, 27, 46, 0.96); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(4, 1fr); z-index: 90;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .nav-tab { display: flex; flex-direction: column; align-items: center; justify-content: center; background: transparent; border: none; color: var(--text-muted); cursor: pointer; gap: 4px; user-select: none; }
+    .nav-tab .icon { font-size: 1.35rem; }
+    .nav-tab .label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.3px; }
+    .nav-tab.active { color: var(--green); }
+    .nav-tab.active .icon { transform: scale(1.1); transition: transform 0.15s ease-out; }
 
-THRIFT SCOUT • VAULT
+    .sniper-banner { background: linear-gradient(135deg, #181d28 0%, #1e2433 100%); border: 1px solid #78350f; border-radius: 10px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    .sniper-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .sniper-title { font-size: 0.85rem; font-weight: 800; color: var(--gold); display: flex; align-items: center; gap: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sniper-rank { font-size: 0.78rem; color: #fed7aa; background: rgba(120, 53, 15, 0.4); padding: 3px 8px; border-radius: 4px; border: 1px solid #9a3412; font-weight: 700; }
+    .sniper-body { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 12px; }
+    .sniper-visual-wrapper { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .sniper-visual-link { display: block; text-decoration: none; }
+    .sniper-visual { width: 90px; height: 90px; min-width: 90px; background: #0b0f19; border: 2px solid #9a3412; border-radius: 8px; object-fit: cover; display: block; }
+    .sniper-visual-label { font-size: 0.68rem; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; text-align: center; }
+    .sniper-info { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .sniper-target-name { font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 6px; line-height: 1.3; text-decoration: none; }
+    .sniper-bullets { font-size: 0.88rem; color: #e2e8f0; line-height: 1.5; display: flex; flex-direction: column; gap: 5px; }
+    .sniper-bullets strong { color: #fbbf24; }
+    .sniper-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(120, 53, 15, 0.3); }
+    .btn-sniper-comps { background: var(--ebay); color: #fff; text-decoration: none; font-size: 0.85rem; font-weight: 700; padding: 8px 12px; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-reroll { background: transparent; border: 1px solid #78350f; color: #fed7aa; font-size: 0.85rem; font-weight: 700; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
 
-Scans: 1,000
+    .action-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .btn-action { background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 0.95rem; font-weight: 700; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; user-select: none; text-align: center; min-height: 48px; }
+    .btn-action.secondary { background: var(--surface); border: 1px solid var(--border); }
+    .btn-action.disabled { background: var(--surface); color: var(--text-muted); pointer-events: none; cursor: not-allowed; }
+    input[type="file"] { display: none; }
 
-API Key
+    .portfolio-banner { background: linear-gradient(135deg, #131b2e 0%, #1e293b 100%); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 12px; }
+    .portfolio-metric { display: flex; flex-direction: column; }
+    .portfolio-metric .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 4px; }
+    .portfolio-metric .val { font-size: 1.35rem; font-weight: 800; color: var(--green); }
+    .portfolio-metric .val.neutral { color: #fff; }
+    .portfolio-metric .val.cost { color: var(--yellow); }
 
-🎯 Daily Target Directive
-Rookie Picker (0 XP)
+    .search-wrapper { margin-bottom: 14px; }
+    .search-input { width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; font-size: 0.95rem; color: #fff; outline: none; }
+    .search-input:focus { border-color: var(--accent); }
+    .gesture-hint { font-size: 0.8rem; color: var(--text-muted); text-align: center; margin-top: -4px; margin-bottom: 12px; letter-spacing: 0.3px; }
+    .feed-container { display: flex; flex-direction: column; gap: 12px; position: relative; }
 
-[
+    .vault-card-wrapper { position: relative; overflow: hidden; border-radius: 10px; }
+    .vault-card { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 14px; position: relative; touch-action: pan-y; transition: transform 0.15s ease-out, background-color 0.15s; display: flex; gap: 14px; }
+    .card-thumb { width: 82px; height: 82px; min-width: 82px; border-radius: 8px; object-fit: cover; background: #000; border: 1px solid var(--border); }
+    .card-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px; }
+    .card-title { font-size: 1.05rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-sub { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; display: flex; align-items: center; gap: 8px; }
+    .badge-signal { font-size: 0.72rem; font-weight: 800; padding: 3px 8px; border-radius: 4px; color: #000; text-transform: uppercase; white-space: nowrap; }
+    .badge-age { font-size: 0.72rem; font-weight: 700; padding: 3px 6px; border-radius: 4px; background: var(--surface); border: 1px solid var(--border); }
 
-](#)
-Tap for Comps
+    .calc-row { display: grid; grid-template-columns: 1fr 1fr 1fr; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin: 8px 0; text-align: center; }
+    .calc-item { display: flex; flex-direction: column; }
+    .calc-item span:first-child { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+    .calc-item span:last-child { font-size: 1rem; font-weight: 800; }
+    .card-summary { font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 8px; }
+    .card-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; margin-top: 6px; }
 
-Retro Video Game Controllers
+    .btn-card { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; min-height: 42px; }
+    .btn-card.transfer { background: #1e3a8a; border-color: #2563eb; color: #fff; }
+    .btn-card.sold { background: var(--green-dark); border-color: var(--green); color: #fff; }
+    .btn-card.delete { color: var(--red); background: transparent; }
+    .btn-card.ebay { background: var(--ebay); color: #fff; }
 
-Visual Cue: Look through electronics cable bins for first-party console gamepads.
+    .panel-view { display: none; flex-direction: column; gap: 14px; }
+    .panel-box { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+    .panel-header { font-size: 1.15rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .panel-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; }
+    .tag-result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; font-size: 0.92rem; line-height: 1.5; }
+    .tag-result-card strong { color: var(--gold); text-transform: uppercase; font-size: 0.75rem; display: block; margin-top: 4px; }
+    .status-alert { display: none; padding: 14px 16px; border-radius: 8px; font-size: 0.92rem; margin-bottom: 14px; border-left: 5px solid var(--accent); background: var(--panel); line-height: 1.4; }
 
-Prime Marks: OEM Nintendo, Sony PlayStation DualShock, Microsoft Xbox 360.
+    .store-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .store-title { font-size: 1rem; font-weight: 800; color: #fff; }
+    .store-address { font-size: 0.85rem; color: var(--text-muted); }
+    .nav-links-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-nav { background: var(--panel); color: #fff; border: 1px solid var(--border); padding: 8px 12px; border-radius: 6px; font-size: 0.82rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; }
+    .btn-nav.apple { border-color: #9ca3af; }
+    .btn-nav.waze { border-color: #38bdf8; color: #38bdf8; }
+    .btn-nav.google { border-color: #34d399; color: #34d399; }
 
-Floor Trap: Skip generic third-party pads; inspect cord rubber and stick drift.
+    .vault-subtoggle { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--panel); padding: 4px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px; }
+    .vault-subbtn { background: transparent; color: var(--text-muted); border: none; padding: 10px; font-size: 0.85rem; font-weight: 700; border-radius: 6px; cursor: pointer; text-align: center; }
+    .vault-subbtn.active { background: var(--surface); color: #fff; border: 1px solid var(--border); }
 
-Live Sold Comps ↗
-🎲 Reroll Target
+    #detailModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 100; overflow-y: auto; padding: 16px; padding-bottom: 90px; }
+    .modal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .btn-back { background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 10px 16px; border-radius: 6px; font-weight: 700; font-size: 0.95rem; cursor: pointer; }
+    .modal-gallery { display: flex; gap: 10px; overflow-x: auto; margin-bottom: 16px; padding-bottom: 6px; }
+    .modal-gallery img { height: 240px; min-width: 190px; object-fit: cover; background: #000; border-radius: 8px; border: 1px solid var(--border); }
+    .modal-section { background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 14px; margin-bottom: 12px; font-size: 0.95rem; line-height: 1.5; }
+    .modal-section strong { display: block; color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
 
-📷 Live Camera
+  <header>
+    <div class="brand-title">THRIFT SCOUT <span>• VAULT</span></div>
+    <div class="header-actions">
+      <div class="scan-pill">Scans: <span id="scansRemaining">1,000</span></div>
+      <button class="btn-key" onclick="promptApiKey()">API Key</button>
+    </div>
+  </header>
 
-🖼️ Upload / Multi
+  <div id="statusAlert" class="status-alert"></div>
 
-✏️ Need to type a brand, serial, or model manually?
+  <!-- VIEW 1: SCOUT -->
+  <div id="viewScout" class="panel-view" style="display: flex;">
+    <div class="sniper-banner" id="sniperBanner">
+      <div class="sniper-header">
+        <span class="sniper-title">🎯 Daily Target Directive</span>
+        <span class="sniper-rank" id="sniperRankBadge">Rookie Picker (0 XP)</span>
+      </div>
+      <div class="sniper-body">
+        <div class="sniper-visual-wrapper">
+          <a id="sniperPhotoLink" class="sniper-visual-link" href="#" target="_blank" rel="noopener noreferrer">
+            <img id="sniperVisualImg" class="sniper-visual" src="" alt="Target">
+          </a>
+          <span class="sniper-visual-label">Tap for Comps</span>
+        </div>
+        <div class="sniper-info">
+          <a id="sniperTargetTitle" class="sniper-target-name" href="#" target="_blank" rel="noopener noreferrer">Retro Video Game Controllers</a>
+          <div class="sniper-bullets">
+            <div><strong>Visual Cue:</strong> <span id="sniperCue">Look through electronics cable bins for first-party console gamepads.</span></div>
+            <div><strong>Prime Marks:</strong> <span id="sniperBrands">OEM Nintendo, Sony PlayStation DualShock, Microsoft Xbox 360.</span></div>
+            <div><strong>Floor Trap:</strong> <span id="sniperTrap">Skip generic third-party pads; inspect cord rubber and stick drift.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="sniper-actions">
+        <a id="sniperCompsBtn" class="btn-sniper-comps" href="#" target="_blank" rel="noopener noreferrer">Live Sold Comps ↗</a>
+        <button class="btn-reroll" onclick="rerollSniperTarget()">🎲 Reroll Target</button>
+      </div>
+    </div>
 
-Item / Model / Maker
+    <div class="action-panel">
+      <label class="btn-action" id="camBtnLabel" for="cameraInput">📷 Live Camera</label>
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="processCaptures(this)">
 
-Known Specs or Markings
+      <label class="btn-action secondary" id="uploadBtnLabel" for="galleryInput">🖼️ Upload / Multi</label>
+      <input type="file" id="galleryInput" accept="image/*" multiple="" onchange="processCaptures(this)">
+    </div>
 
-🔍 Run Market Intelligence
+    <button class="btn-card" onclick="toggleManualConsole()" style="width: 100%; justify-content: center; margin-bottom: 12px;">
+      ✏️ Need to type a brand, serial, or model manually?
+    </button>
 
-⇄ Swipe Right to Advance • Swipe Left to Discard
+    <div id="manualSearchBox" class="panel-box" style="display: none; margin-bottom: 14px;">
+      <div>
+        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Item / Model / Maker</label>
+        <input type="text" id="manualTitle" class="search-input" style="margin-top: 4px;" placeholder="e.g. Sony VCR DVD combo recorder RDR-VX515">
+      </div>
+      <div>
+        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Known Specs or Markings</label>
+        <textarea id="manualSpecs" class="search-input" style="min-height: 70px; margin-top: 4px; font-family: inherit;" placeholder="e.g. HDMI out, includes OEM remote, powers on cleanly"></textarea>
+      </div>
+      <button class="btn-action" onclick="submitManualAppraisal()">🔍 Run Market Intelligence</button>
+    </div>
 
-🏷️ Tag & Brand Chronology Inspector
+    <div class="portfolio-banner" id="scoutBanner"></div>
+    <div class="gesture-hint">⇄ Swipe Right to Advance • Swipe Left to Discard</div>
+    <div id="cardsFeedScout" class="feed-container"></div>
+  </div>
 
-Snap a clear photo of clothing neck tags, care labels, RN numbers, toy mold stamps, or maker marks to determine exact timeframe of production and authentic quality tier.
+  <!-- VIEW 2: TAG ID -->
+  <div id="viewTags" class="panel-view">
+    <div class="panel-box">
+      <div class="panel-header">🏷️ Tag & Brand Chronology Inspector</div>
+      <div class="panel-desc">Snap a clear photo of clothing neck tags, care labels, RN numbers, toy mold stamps, or maker marks to determine exact timeframe of production and authentic quality tier.</div>
+      <div class="action-panel" style="margin-bottom: 0;">
+        <label class="btn-action" id="tagCamBtn" for="tagCameraInput">📷 Scan Tag / Stamp</label>
+        <input type="file" id="tagCameraInput" accept="image/*" capture="environment" onchange="processTagScan(this)">
 
-📷 Scan Tag / Stamp
+        <label class="btn-action secondary" id="tagUploadBtn" for="tagGalleryInput">🖼️ Upload Tag Photo</label>
+        <input type="file" id="tagGalleryInput" accept="image/*" onchange="processTagScan(this)">
+      </div>
+      <div id="tagResultContainer" style="display: none;"></div>
+    </div>
+  </div>
 
-🖼️ Upload Tag Photo
+  <!-- VIEW 3: VAULT -->
+  <div id="viewVault" class="panel-view">
+    <div class="vault-subtoggle">
+      <button id="vaultSubActive" class="vault-subbtn active" onclick="switchVaultSub(&#39;active&#39;)">Active Inventory</button>
+      <button id="vaultSubSold" class="vault-subbtn" onclick="switchVaultSub(&#39;sold&#39;)">Sold Archive</button>
+    </div>
+    <div class="portfolio-banner" id="vaultBanner"></div>
+    <div class="search-wrapper">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search Vault by brand, item, specs..." oninput="handleSearch()">
+    </div>
+    <div id="cardsFeedVault" class="feed-container"></div>
+  </div>
 
-Active Inventory
-Sold Archive
+  <!-- VIEW 4: STORES -->
+  <div id="viewStores" class="panel-view">
+    <div class="panel-box">
+      <div class="panel-header">📍 Nearby Thrift Route Finder</div>
+      <div class="panel-desc">Locate thrift stores around your immediate GPS coordinates and open 1-tap route searches in Apple Maps, Waze, or Google Maps.</div>
+      <button class="btn-action" onclick="findLocalThriftStores()">🛰️ Locate Nearest Thrift Stores</button>
+      <div id="storeListContainer" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;"></div>
+    </div>
+  </div>
 
-📍 Nearby Thrift Route Finder
+  <!-- DETAIL MODAL -->
+  <div id="detailModal">
+    <div class="modal-nav">
+      <button class="btn-back" onclick="closeDetail()">← Back</button>
+      <button id="modalDeleteBtn" class="btn-card delete">Delete Item</button>
+    </div>
+    <div class="modal-gallery" id="modalGallery"></div>
+    <div id="modalContent"></div>
+  </div>
 
-Locate thrift stores around your immediate GPS coordinates and open 1-tap route searches in Apple Maps, Waze, or Google Maps.
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-tab active" id="tabScout" onclick="switchMainTab(&#39;scout&#39;)">
+      <span class="icon">📷</span>
+      <span class="label">Scout</span>
+    </button>
+    <button class="nav-tab" id="tabTags" onclick="switchMainTab(&#39;tags&#39;)">
+      <span class="icon">🏷️</span>
+      <span class="label">Tag ID</span>
+    </button>
+    <button class="nav-tab" id="tabVault" onclick="switchMainTab(&#39;vault&#39;)">
+      <span class="icon">📦</span>
+      <span class="label">Vault</span>
+    </button>
+    <button class="nav-tab" id="tabStores" onclick="switchMainTab(&#39;stores&#39;)">
+      <span class="icon">🧭</span>
+      <span class="label">Stores</span>
+    </button>
+  </nav>
 
-🛰️ Locate Nearest Thrift Stores
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
-← Back
-Delete Item
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtDQnJuWvJOp__hVHO5fdNhjiRjZZkskI",
+      authDomain: "thrift-scout-1b937.firebaseapp.com",
+      projectId: "thrift-scout-1b937",
+      storageBucket: "thrift-scout-1b937.firebasestorage.app",
+      messagingSenderId: "559782240794",
+      appId: "1:559782240794:web:5ace10f3f027b4cd82e7a3",
+      measurementId: "G-4KFLG8XRQ8"
+    };
 
-📷
-Scout
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-🏷️
-Tag ID
+    const SNIPER_TARGETS = [
+      {
+        title: "Single-Stitch Graphic Tees & Band Shirts",
+        cue: "Examine sleeve hems and waist bottom for a single continuous thread line (pre-1996 manufacture).",
+        brands: "Screen Stars, Brockum, Giant, Fruit of the Loom USA, 3D Emblem, Hanes Beefy-T.",
+        trap: "Hold fabric up to overhead lights to inspect for tiny moth pinholes; avoid cracked, dry-rotted black fabric.",
+        query: "vintage single stitch t shirt made in usa",
+        img: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Vintage Action Figures & Die-Cast Toys",
+        cue: "Check toy bags and bottom shelves for molded plastic figurines with raised copyright stamps on inner legs.",
+        brands: "Kenner (Star Wars, M.A.S.K.), Hasbro (G.I. Joe, Transformers G1), Mattel (He-Man/MOTU), Playmates (TMNT).",
+        trap: "Check figure neck joints and crotch O-rings for cracking; pass if paint is heavily chewed on hands/feet.",
+        query: "vintage action figures kenner hasbro 1980s",
+        img: "https://images.unsplash.com/photo-1566576912321-d58ddd74b0ae?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Retro Video Game Controllers & Accessories",
+        cue: "Check electronics cable bins and clear plastic hanging baggies for first-party console gamepads.",
+        brands: "OEM Nintendo (N64, GameCube, Wii U Pro), Sony PlayStation DualShock, Microsoft Xbox 360 wireless.",
+        trap: "Skip lightweight unbranded knockoffs; inspect analog thumbstick tension and cord rubber integrity.",
+        query: "oem nintendo controller original",
+        img: "https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Vintage Pyrex & Mid-Century Milk Glass",
+        cue: "Solid color or printed milk glass mixing bowls, refrigerator dishes, and handled casseroles.",
+        brands: "Pyrex (Gooseberry, Butterprint, Horizon Blue), Corning Ware (Spice O' Life, Cornflower), Fire-King.",
+        trap: "Run fingernail along the rim to check for dishwasher etching (chalky dull paint) or flea-bite chips.",
+        query: "vintage pyrex bowl butterprint gooseberry",
+        img: "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "VCR / DVD Recorder Combo Decks",
+        cue: "Dual-deck media players in the AV/VCR aisle, especially models featuring HDMI output.",
+        brands: "Sony, Panasonic, Toshiba, Magnavox, Funai, JVC.",
+        trap: "Look for tape door jammed shut; bonus value if the original remote is taped to the top.",
+        query: "vcr dvd recorder combo hdmi remote",
+        img: "https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Office Graphing Calculators",
+        cue: "Check office supply hanging bags, school gear bins, and behind the glass front display.",
+        brands: "TI-84 Plus, TI-84 Plus Silver, TI-89 Titanium, HP 12C Financial.",
+        trap: "Pop battery door off to confirm no blue corrosion or leaking batteries ruined the copper contacts.",
+        query: "ti 84 plus graphing calculator texas instruments",
+        img: "https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Heavy American Canvas Work Jackets",
+        cue: "Stiff canvas duck fabric, blanket or flannel quilt lining, corduroy collar, heavyweight brass zipper.",
+        brands: "Carhartt (Detroit, Active J130), Dickies, Berne, Walls, Pointer Brand.",
+        trap: "Check cuffs and pocket edges for shredded fraying; oil stains are acceptable, broken main zippers are not.",
+        query: "carhartt detroit jacket vintage usa",
+        img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&auto=format&fit=crop&q=80"
+      },
+      {
+        title: "Mechanical Hand Tools & Socket Sets",
+        cue: "Check the hardware bin for heavy chrome alloy ratchets, specialty socket rails, and metal hand planes.",
+        brands: "Craftsman (vintage 'V' or 'VV' series), Snap-on, Proto, SK Tools, Stanley Bailey (No. 4/5 planes).",
+        trap: "Cycle ratchet mechanism back and forth to confirm gears catch cleanly without slipping.",
+        query: "vintage craftsman v series ratchet socket set",
+        img: "https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=300&auto=format&fit=crop&q=80"
+      }
+    ];
 
-📦
-Vault
+    const SYSTEM_PROMPT = `
+You are Thrift-Vault AI, an expert secondary-market appraiser.
+Evaluate the item using any attached imagery, tag typography, stitching construction (single vs double stitch), RN registry numbers, copyright years, toy mold stamps, book edition lines, provenance, markings, and user specifications. 
+Base your evaluation on authentic secondary market historical comps (eBay Sold, Live Auctions, Collector Forums).
+Output strictly in this format:
 
-🧭
-Stores
+[ITEM_IDENTIFICATION]
+Brand: <Brand, Maker, Publisher, or Toy Manufacturer>
+Model/Item: <Model, Title, Character, or Garment Name>
+Era/Size/Specs: <Accurate Era/Year, Size, Tag Style, Material, or Variant>
+
+[VALUATION_COMPS]
+Sold Average: $<Fair Market Value in USD as a number>
+Price Range: \(<Low> -\)<High>
+Confidence: <High|Medium|Low>
+
+[DISPOSITION_SIGNAL]
+Signal: <GREEN|YELLOW|RED>
+Reason: <1 short sentence justifying secondary market velocity, tag rarity, or collector liquidity>
+
+[MARKETPLACE_ROUTING]
+Primary Platform: <eBay|Etsy|Mercari|Poshmark|Local>
+Listing Strategy: <Listing and offer floor strategy>
+
+[SHIPPING_PROTOCOL]
+Tier: <Under 16 oz|1-5 lbs|5+ lbs / Oversized>
+Packaging: <Poly Mailer|Padded Box|Double-Box Fragile|Bubble Mailer>
+Recommended Service: <USPS Ground Advantage|UPS Ground|USPS Priority Mail>
+
+[TECHNICAL_INTEL]
+<Key tag hallmarks, RN numbers, single/double stitch markers, toy joint flaws, book edition checks, or authenticity tips>
+
+[COMP_SEARCH_QUERY]
+<Concise keyword string optimized for eBay sold search>
+
+[APPRAISAL_VERDICT]
+<BUY TO FLIP|PASS|PERSONAL KEEP>
+`;
+
+    const TAG_ANALYSIS_PROMPT = `
+You are Thrift-Vault Tag & Brand Chronology AI.
+Analyze the provided image of a tag, label, stamp, RN number, or maker mark.
+Determine the era, authenticity, and manufacturing quality tier.
+Output strictly in the following 5 labeled sections:
+
+[ESTIMATED_TIMEFRAME]
+<e.g. Circa 1987 - 1992 (Late 1980s)>
+
+[TAG_STYLE_CLASSIFICATION]
+<e.g. Screen Stars 50/50 Red Bar / Fruit of the Loom RN 13765>
+
+[COUNTRY_AND_CONSTRUCTION]
+<e.g. Made in USA. Single-stitch sleeves and hem verified. Woven paper care tag.>
+
+[QUALITY_AND_DEMAND_TIER]
+<e.g. Grade A Vintage Collectible (High secondary market demand among vintage collectors)>
+
+[HISTORICAL_INTEL_AND_WATCHOUTS]
+<Concise authentication tips: what fonts were used, copyright date location, RN registry notes, or modern reproduction flags>
+`;
+
+    let activeMainTab = 'scout';
+    let activeVaultSub = 'active';
+    let currentScoutItems = [];
+    let currentVaultActiveItems = [];
+    let currentVaultSoldItems = [];
+    let filteredVaultItems = [];
+    let isProcessing = false;
+
+    function getHunterXP() {
+      return parseInt(localStorage.getItem('thrift_sniper_xp') || '0', 10);
+    }
+
+    function addHunterXP(pts) {
+      const current = getHunterXP() + pts;
+      localStorage.setItem('thrift_sniper_xp', current.toString());
+      renderSniperRank();
+    }
+
+    function renderSniperRank() {
+      const xp = getHunterXP();
+      let rank = "Rookie Picker";
+      if (xp >= 5000) rank = "Master Sniper";
+      else if (xp >= 2000) rank = "Thrift Marksman";
+      else if (xp >= 500) rank = "Aisle Scout";
+      document.getElementById('sniperRankBadge').textContent = `\({rank} (\){xp.toLocaleString()} XP)`;
+    }
+
+    function renderDailySniperTarget(targetIndex = null) {
+      if (targetIndex === null) {
+        const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+        targetIndex = dayOfYear % SNIPER_TARGETS.length;
+      }
+      const t = SNIPER_TARGETS[targetIndex];
+      const compUrl = `https://www.ebay.com/sch/i.html?_nkw=\(){encodeURIComponent(t.query)}&LH_Complete=1&LH_Sold=1`;
+
+      document.getElementById('sniperTargetTitle').textContent = t.title;
+      document.getElementById('sniperTargetTitle').href = compUrl;
+      document.getElementById('sniperCue').textContent = t.cue;
+      document.getElementById('sniperBrands').textContent = t.brands;
+      document.getElementById('sniperTrap').textContent = t.trap;
+
+      const visualImg = document.getElementById('sniperVisualImg');
+      visualImg.src = t.img;
+      document.getElementById('sniperPhotoLink').href = compUrl;
+      document.getElementById('sniperCompsBtn').href = compUrl;
+
+      localStorage.setItem('thrift_sniper_curr_idx', targetIndex.toString());
+    }
+
+    window.rerollSniperTarget = function() {
+      const current = parseInt(localStorage.getItem('thrift_sniper_curr_idx') || '0', 10);
+      const next = (current + 1) % SNIPER_TARGETS.length;
+      renderDailySniperTarget(next);
+      triggerAlert('🎯 New everyday sourcing objective active!');
+    };
+
+    function updateQuotaDisplay() {
+      const today = new Date().toDateString();
+      const savedDate = localStorage.getItem('thrift_quota_date');
+      let count = parseInt(localStorage.getItem('thrift_quota_scans') || '0', 10);
+
+      if (savedDate !== today) {
+        count = 0;
+        localStorage.setItem('thrift_quota_date', today);
+        localStorage.setItem('thrift_quota_scans', '0');
+      }
+
+      const remaining = Math.max(0, 1000 - count);
+      document.getElementById('scansRemaining').textContent = remaining.toLocaleString();
+    }
+
+    function recordSuccessfulScan() {
+      let count = parseInt(localStorage.getItem('thrift_quota_scans') || '0', 10);
+      count++;
+      localStorage.setItem('thrift_quota_scans', count.toString());
+      updateQuotaDisplay();
+    }
+
+    window.promptApiKey = function() {
+      const stored = localStorage.getItem('thrift_gemini_key') || '';
+      const input = prompt('Enter Google AI Studio Key (AQ...):', stored);
+      if (input !== null) {
+        localStorage.setItem('thrift_gemini_key', input.trim());
+        triggerAlert('API Key saved.');
+      }
+    };
+
+    window.switchMainTab = function(tab) {
+      activeMainTab = tab;
+      document.getElementById('tabScout').classList.toggle('active', tab === 'scout');
+      document.getElementById('tabTags').classList.toggle('active', tab === 'tags');
+      document.getElementById('tabVault').classList.toggle('active', tab === 'vault');
+      document.getElementById('tabStores').classList.toggle('active', tab === 'stores');
+
+      document.getElementById('viewScout').style.display = tab === 'scout' ? 'flex' : 'none';
+      document.getElementById('viewTags').style.display = tab === 'tags' ? 'flex' : 'none';
+      document.getElementById('viewVault').style.display = tab === 'vault' ? 'flex' : 'none';
+      document.getElementById('viewStores').style.display = tab === 'stores' ? 'flex' : 'none';
+
+      if (tab === 'vault') {
+        handleSearch();
+      }
+    };
+
+    window.switchVaultSub = function(sub) {
+      activeVaultSub = sub;
+      document.getElementById('vaultSubActive').classList.toggle('active', sub === 'active');
+      document.getElementById('vaultSubSold').classList.toggle('active', sub === 'sold');
+      document.getElementById('searchInput').value = '';
+      handleSearch();
+    };
+
+    window.toggleManualConsole = function() {
+      const box = document.getElementById('manualSearchBox');
+      box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+    };
+
+    function triggerAlert(msg, isError = false) {
+      const box = document.getElementById('statusAlert');
+      box.style.display = 'block';
+      box.style.borderLeftColor = isError ? 'var(--red)' : 'var(--accent)';
+      box.textContent = msg;
+    }
+
+    function dismissAlert() {
+      document.getElementById('statusAlert').style.display = 'none';
+    }
+
+    function setScanButtonsState(enabled, text = null) {
+      const camLabel = document.getElementById('camBtnLabel');
+      const upLabel = document.getElementById('uploadBtnLabel');
+      const camIn = document.getElementById('cameraInput');
+      const galIn = document.getElementById('galleryInput');
+
+      if (enabled) {
+        camLabel.classList.remove('disabled');
+        upLabel.classList.remove('disabled');
+        camLabel.textContent = '📷 Live Camera';
+        upLabel.textContent = '🖼️ Upload / Multi';
+        camIn.disabled = false;
+        galIn.disabled = false;
+        isProcessing = false;
+      } else {
+        camLabel.classList.add('disabled');
+        upLabel.classList.add('disabled');
+        camLabel.textContent = text || '⚙️ Processing...';
+        upLabel.textContent = text || '⚙️ Processing...';
+        camIn.disabled = true;
+        galIn.disabled = true;
+        isProcessing = true;
+      }
+    }
+
+    function startCooldown(seconds) {
+      let count = seconds;
+      setScanButtonsState(false, `⏳ ${count}s...`);
+      const timer = setInterval(() => {
+        count--;
+        if (count <= 0) {
+          clearInterval(timer);
+          setScanButtonsState(true);
+        } else {
+          document.getElementById('camBtnLabel').textContent = `⏳ ${count}s...`;
+          document.getElementById('uploadBtnLabel').textContent = `⏳ ${count}s...`;
+        }
+      }, 1000);
+    }
+
+    function getEstimatedShippingCost(tier, buyerPaysShipping) {
+      if (buyerPaysShipping) return 0.00;
+      const lower = (tier || '').toLowerCase();
+      if (lower.includes('under 16')) return 5.25;
+      if (lower.includes('1-5')) return 9.75;
+      if (lower.includes('5+') || lower.includes('oversized')) return 16.50;
+      return 6.50;
+    }
+
+    function calculateNetProfit(grossPrice, costPrice, shippingCost) {
+      const gross = Number(grossPrice) || 0;
+      const cost = Number(costPrice) || 0;
+      const ship = Number(shippingCost) || 0;
+      if (gross <= 0) return 0;
+      const ebayFee = (gross * 0.1325) + 0.40;
+      return Number((gross - cost - ebayFee - ship).toFixed(2));
+    }
+
+    function getDaysInStock(timestamp) {
+      if (!timestamp) return 0;
+      const diffMs = Date.now() - timestamp;
+      return Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    }
+
+    window.processTagScan = async function(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const key = localStorage.getItem('thrift_gemini_key');
+      if (!key) {
+        alert('API Key missing. Please provide your Google AI Studio key.');
+        window.promptApiKey();
+        input.value = '';
+        return;
+      }
+
+      triggerAlert('Analyzing tag typography, RN, and era hallmarks...');
+      const base64Data = await resizeCanvas(file, 700, 700);
+
+      const cleanKey = key.trim();
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=\(){encodeURIComponent(cleanKey)}`;
+
+      const body = {
+        contents: [{
+          parts: [
+            { text: TAG_ANALYSIS_PROMPT },
+            { inline_data: { mime_type: 'image/jpeg', data: base64Data.split(',')[1] } }
+          ]
+        }]
+      };
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (!res.ok) throw new Error(`Tag scan API error: ${res.statusText}`);
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error('Could not analyze tag.');
+
+        recordSuccessfulScan();
+        addHunterXP(50);
+
+        dismissAlert();
+        renderTagResults(text, base64Data);
+
+      } catch (err) {
+        triggerAlert(err.message, true);
+      }
+      input.value = '';
+    };
+
+    function renderTagResults(rawText, imageUri) {
+      const container = document.getElementById('tagResultContainer');
+      const clean = rawText.replace(/[*#]/g, '');
+
+      const extract = (sec) => {
+        const pattern = new RegExp(`\[${sec}\]([\\s\\S]*?)(?=\[[A-Z_]+\]|$)`, 'i');
+        const match = clean.match(pattern);
+        return match ? match[1].trim() : 'N/A';
+      };
+
+      const timeframe = extract('ESTIMATED_TIMEFRAME');
+      const tagStyle = extract('TAG_STYLE_CLASSIFICATION');
+      const construction = extract('COUNTRY_AND_CONSTRUCTION');
+      const quality = extract('QUALITY_AND_DEMAND_TIER');
+      const intel = extract('HISTORICAL_INTEL_AND_WATCHOUTS');
+
+      container.innerHTML = `
+        <div class="tag-result-card" style="margin-top: 14px;">
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <img src="${imageUri}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);" alt="Tag Snapshot">
+            <div>
+              <div style="font-size: 1.1rem; font-weight: 800; color: #fff;">${timeframe}</div>
+              <div style="font-size: 0.85rem; color: var(--green); font-weight: 700;">${tagStyle}</div>
+            </div>
+          </div>
+          <div><strong>Construction & Stitching</strong>${construction}</div>
+          <div><strong>Collector Demand & Tier</strong>${quality}</div>
+          <div><strong>Authentication Intelligence</strong>${intel}</div>
+        </div>
+      `;
+      container.style.display = 'block';
+    }
+
+    window.submitManualAppraisal = async function() {
+      if (isProcessing) return;
+      const title = document.getElementById('manualTitle').value.trim();
+      const specs = document.getElementById('manualSpecs').value.trim();
+
+      if (!title && !specs) {
+        alert('Please provide an item title or markings to search.');
+        return;
+      }
+
+      const key = localStorage.getItem('thrift_gemini_key');
+      if (!key) {
+        alert('API Key missing. Please provide your Google AI Studio key.');
+        window.promptApiKey();
+        return;
+      }
+
+      setScanButtonsState(false, 'Consulting Intel Engine...');
+      triggerAlert('Analyzing item characteristics and comps...');
+
+      await runAppraisalCore([], `MANUAL QUERY:\nItem Name/Keywords: \({title}\nUser Notes/Tag/Specs:\){specs}`, key);
+
+      document.getElementById('manualTitle').value = '';
+      document.getElementById('manualSpecs').value = '';
+      document.getElementById('manualSearchBox').style.display = 'none';
+    };
+
+    window.processCaptures = async function(input) {
+      if (isProcessing) return;
+      const files = Array.from(input.files);
+      if (!files || files.length === 0) return;
+
+      const key = localStorage.getItem('thrift_gemini_key');
+      if (!key) {
+        alert('API Key missing. Please provide your Google AI Studio key.');
+        window.promptApiKey();
+        input.value = '';
+        return;
+      }
+
+      setScanButtonsState(false, '⚙️ Compressing...');
+      triggerAlert(`Optimizing ${files.length} image(s)...`);
+
+      const base64List = await Promise.all(files.map(file => resizeCanvas(file, 600, 600)));
+      triggerAlert(`Consulting secondary comps (\({files.length} angle\){files.length > 1 ? 's' : ''})...`);
+
+      await runAppraisalCore(base64List, 'Evaluate the attached photograph(s) for secondary market appraisal.', key);
+      input.value = '';
+    };
+
+    function resizeCanvas(file, maxW, maxH) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width;
+            let h = img.height;
+            if (w > h) {
+              if (w > maxW) { h = Math.round((h * maxW) / w); w = maxW; }
+            } else {
+              if (h > maxH) { w = Math.round((w * maxH) / h); h = maxH; }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', 0.60));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function runAppraisalCore(base64Array, customUserPrompt, key) {
+      const cleanKey = key.trim();
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=\(){encodeURIComponent(cleanKey)}`;
+
+      const parts = [{ text: `\({SYSTEM_PROMPT}\n\n\){customUserPrompt}` }];
+      base64Array.forEach(uri => {
+        parts.push({
+          inline_data: { mime_type: 'image/jpeg', data: uri.split(',')[1] }
+        });
+      });
+
+      const body = { contents: [{ parts: parts }] };
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 22000);
+
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (response.status === 429) {
+          throw new Error('Rate limit reached (429). Wait 15 seconds.');
+        }
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          const errMsg = errData.error?.message || response.statusText;
+          throw new Error(`API error \({response.status}:\){errMsg}`);
+        }
+
+        const resData = await response.json();
+        const text = resData.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error('Valuation engine returned an empty response.');
+
+        recordSuccessfulScan();
+        addHunterXP(25);
+
+        dismissAlert();
+        const appraisal = parseResponseData(text, base64Array);
+        await addDoc(collection(db, 'scout_prospects'), appraisal);
+        startCooldown(3);
+
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === 'AbortError') {
+          triggerAlert('Upload timed out on weak cellular signal.', true);
+        } else {
+          triggerAlert(err.message, true);
+        }
+        startCooldown(3);
+      }
+    }
+
+    function parseResponseData(rawText, base64Array) {
+      const clean = rawText.replace(/[*#]/g, '');
+
+      const extract = (sec) => {
+        const pattern = new RegExp(`\[${sec}\]([\\s\\S]*?)(?=\[[A-Z_]+\]|$)`, 'i');
+        const match = clean.match(pattern);
+        return match ? match[1].trim() : 'N/A';
+      };
+
+      const idBlock = extract('ITEM_IDENTIFICATION');
+      const valBlock = extract('VALUATION_COMPS');
+      const dispBlock = extract('DISPOSITION_SIGNAL');
+      const routeBlock = extract('MARKETPLACE_ROUTING');
+      const shipBlock = extract('SHIPPING_PROTOCOL');
+      const intelBlock = extract('TECHNICAL_INTEL');
+      const queryBlock = extract('COMP_SEARCH_QUERY');
+      const verdictBlock = extract('APPRAISAL_VERDICT');
+
+      const getVal = (block, key) => {
+        const match = block.match(new RegExp(`${key}:\\s*(.+)`, 'i'));
+        return match ? match[1].trim() : null;
+      };
+
+      const sigMatch = dispBlock.match(/Signal:\s*(GREEN|YELLOW|RED)/i);
+      const signal = sigMatch ? sigMatch[1].toUpperCase() : 'YELLOW';
+
+      const avgMatch = valBlock.match(/Sold Average:\s*\$?([\d,]+(\.\d{2})?)/i);
+      const estValue = avgMatch ? parseFloat(avgMatch[1].replace(/,/g, '')) : 0.00;
+
+      const brand = getVal(idBlock, 'Brand') || 'Unknown Origin';
+      const item = getVal(idBlock, 'Model/Item') || 'Item';
+      const shipTier = getVal(shipBlock, 'Tier') || 'Standard Parcel';
+
+      const estShip = getEstimatedShippingCost(shipTier, false);
+      const initialNet = calculateNetProfit(estValue, 0, estShip);
+
+      const defaultImg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22400%22%20height%3D%22300%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231e293b%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2218%22%3EAsset%20Snapshot%3C%2Ftext%3E%3C%2Fsvg%3E";
+      const photos = (base64Array && base64Array.length > 0) ? base64Array : [defaultImg];
+
+      return {
+        image: photos[0],
+        gallery: photos,
+        brand: brand,
+        item: item,
+        specs: getVal(idBlock, 'Era/Size/Specs') || 'N/A',
+        estimatedValue: estValue,
+        priceRange: getVal(valBlock, 'Price Range') || '$0 - $0',
+        confidence: getVal(valBlock, 'Confidence') || 'Medium',
+        itemCost: 0.00,
+        buyerPaysShipping: false,
+        estimatedShippingOutlay: estShip,
+        projectedProfit: initialNet,
+        disposition: { signal: signal, reason: getVal(dispBlock, 'Reason') || 'No rationale available.' },
+        routing: { platform: getVal(routeBlock, 'Primary Platform') || 'eBay', strategy: getVal(routeBlock, 'Listing Strategy') || 'Standard fixed-price' },
+        shipping: { tier: shipTier, packaging: getVal(shipBlock, 'Packaging') || 'Boxed', service: getVal(shipBlock, 'Recommended Service') || 'USPS Ground Advantage' },
+        intel: intelBlock,
+        searchQuery: queryBlock !== 'N/A' ? queryBlock : `\({brand}\){item}`,
+        verdict: verdictBlock,
+        status: 'prospect',
+        createdAt: Date.now()
+      };
+    }
+
+    window.transferToInventory = async function(id, event) {
+      if (event) event.stopPropagation();
+      const target = currentScoutItems.find(i => i.id === id);
+      if (!target) return;
+
+      const costInput = prompt(`Purchase cost for "\({target.brand} -\){target.item}":\n(Type amount only, e.g. 4.50)`, '');
+      if (costInput === null) return;
+      const cost = parseFloat(costInput.replace(/[^0-9.]/g, '')) || 0.00;
+
+      const buyerPays = confirm('Does the BUYER pay shipping?\n\nOK = Buyer Pays ($0 outlay for you)\nCancel = Free Shipping (You pay estimated shipping)');
+      const shipOutlay = getEstimatedShippingCost(target.shipping.tier, buyerPays);
+      const netProfit = calculateNetProfit(target.estimatedValue, cost, shipOutlay);
+
+      const inventoryItem = {
+        ...target,
+        itemCost: cost,
+        buyerPaysShipping: buyerPays,
+        estimatedShippingOutlay: shipOutlay,
+        projectedProfit: netProfit,
+        status: 'owned',
+        purchasedAt: Date.now()
+      };
+      delete inventoryItem.id;
+
+      await addDoc(collection(db, 'vault_inventory'), inventoryItem);
+      await deleteDoc(doc(db, 'scout_prospects', target.id));
+      addHunterXP(100);
+      triggerAlert(`Added "${target.item}" to Vault (+100 XP).`);
+    };
+
+    window.markAsSold = async function(id, event) {
+      if (event) event.stopPropagation();
+      const target = currentVaultActiveItems.find(i => i.id === id);
+      if (!target) return;
+
+      const soldPriceInput = prompt(`Final SOLD price for "${target.item}":\n(Type amount only, e.g. 45)`, '');
+      if (soldPriceInput === null) return;
+      const soldPrice = parseFloat(soldPriceInput.replace(/[^0-9.]/g, '')) || target.estimatedValue;
+
+      const actualShipInput = prompt('Actual shipping cost paid by YOU:\n($0 if buyer paid)', target.buyerPaysShipping ? '0' : '');
+      if (actualShipInput === null) return;
+      const actualShip = parseFloat(actualShipInput.replace(/[^0-9.]/g, '')) || 0.00;
+
+      const realizedProfit = calculateNetProfit(soldPrice, target.itemCost, actualShip);
+
+      const soldItem = {
+        ...target,
+        finalSoldPrice: soldPrice,
+        actualShippingPaid: actualShip,
+        realizedProfit: realizedProfit,
+        status: 'sold',
+        soldAt: Date.now()
+      };
+      delete soldItem.id;
+
+      await addDoc(collection(db, 'vault_sold'), soldItem);
+      await deleteDoc(doc(db, 'vault_inventory', target.id));
+      addHunterXP(500);
+      triggerAlert(`Sold "\({target.item}" (+\)${realizedProfit.toFixed(2)} Profit, +500 XP!).`);
+    };
+
+    window.deleteItem = async function(id, event) {
+      if (event) event.stopPropagation();
+      const confirmed = confirm('Permanently discard this item?');
+      if (!confirmed) return;
+
+      let collName = 'scout_prospects';
+      if (activeMainTab === 'vault') {
+        collName = activeVaultSub === 'active' ? 'vault_inventory' : 'vault_sold';
+      }
+
+      await deleteDoc(doc(db, collName, id));
+      window.closeDetail();
+    };
+
+    window.handleSearch = function() {
+      const term = document.getElementById('searchInput').value.toLowerCase().trim();
+      const sourceList = activeVaultSub === 'active' ? currentVaultActiveItems : currentVaultSoldItems;
+
+      if (!term) {
+        filteredVaultItems = [...sourceList];
+      } else {
+        filteredVaultItems = sourceList.filter(item => {
+          const matchTarget = `\({item.brand}\){item.item} \({item.specs}\){item.intel}`.toLowerCase();
+          return matchTarget.includes(term);
+        });
+      }
+      renderVaultFeed();
+      setupSwipeGestures();
+    };
+
+    window.copyEbayListing = function(id) {
+      const allItems = [...currentScoutItems, ...currentVaultActiveItems, ...currentVaultSoldItems];
+      const item = allItems.find(i => i.id === id);
+      if (!item) return;
+
+      const rawTitle = `\({item.brand}\){item.item} ${item.specs}`.replace(/[\n\r]+/g, ' ').trim();
+      const title = rawTitle.length > 80 ? rawTitle.substring(0, 77) + '...' : rawTitle;
+      const description = `ITEM: \({item.brand} -\){item.item}\nSPECIFICATIONS: \({item.specs}\n\nCONDITION / TECHNICAL INTEL:\n\){item.intel}\n\nSHIPPING:\nPackaged via \({item.shipping.packaging} with\){item.shipping.service}.`;
+      const formatted = `TITLE (Max 80 chars):\n\({title}\n\nDESCRIPTION:\n\){description}`;
+
+      navigator.clipboard.writeText(formatted).then(() => {
+        triggerAlert('Copied formatted eBay Title & Description to clipboard!');
+      }).catch(() => {
+        prompt('Copy listing details:', formatted);
+      });
+    };
+
+    window.findLocalThriftStores = function() {
+      const container = document.getElementById('storeListContainer');
+      container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.95rem;">🛰️ Getting your coordinates...</div>';
+
+      if (!navigator.geolocation) {
+        renderFallbackStoreSearch(container);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          renderCoordinateLinks(container, lat, lon);
+        },
+        () => {
+          renderFallbackStoreSearch(container);
+        },
+        { timeout: 8000 }
+      );
+    };
+
+    function renderCoordinateLinks(container, lat, lon) {
+      const query = encodeURIComponent("thrift stores");
+      const appleUrl = `https://maps.apple.com/?q=\(){query}&sll=\({lat},\){lon}`;
+      const wazeUrl = `https://waze.com/ul?q=\(){query}`;
+      const googleUrl = `https://www.google.com/maps/search/\(){query}/@\({lat},\){lon},13z`;
+
+      container.innerHTML = `
+        <div class="store-card">
+          <div class="store-title">Immediate Area Sourcing Hub</div>
+          <div class="store-address">GPS Coordinates: \({lat.toFixed(4)},\){lon.toFixed(4)}</div>
+          <div class="nav-links-row">
+            <a href="${appleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav apple">🗺️ Open in Apple Maps</a>
+            <a href="${wazeUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav waze">🚙 Search in Waze</a>
+            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav google">🌐 Open in Google Maps</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFallbackStoreSearch(container) {
+      const query = encodeURIComponent("thrift stores near me");
+      const appleUrl = `https://maps.apple.com/?q=\(){query}`;
+      const wazeUrl = `https://waze.com/ul?q=\(){query}`;
+      const googleUrl = `https://www.google.com/maps/search/\(){query}`;
+
+      container.innerHTML = `
+        <div class="store-card">
+          <div class="store-title">Nearby Thrift Stores</div>
+          <div class="store-address">Device location unavailable. Launch direct search query:</div>
+          <div class="nav-links-row">
+            <a href="${appleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav apple">🗺️ Apple Maps</a>
+            <a href="${wazeUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav waze">🚙 Waze</a>
+            <a href="${googleUrl}" target="_blank" rel="noopener noreferrer" class="btn-nav google">🌐 Google Maps</a>
+          </div>
+        </div>
+      `;
+    }
+
+    function setupSwipeGestures() {
+      const cards = document.querySelectorAll('.vault-card');
+      cards.forEach(card => {
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let isSwiping = false;
+
+        card.addEventListener('touchstart', (e) => {
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+          isSwiping = true;
+          card.style.transition = 'none';
+        }, { passive: true });
+
+        card.addEventListener('touchmove', (e) => {
+          if (!isSwiping) return;
+          const touchX = e.touches[0].clientX;
+          const touchY = e.touches[0].clientY;
+          const diffX = touchX - startX;
+          const diffY = touchY - startY;
+
+          if (Math.abs(diffY) > Math.abs(diffX) && Math.abs(diffX) < 15) {
+            isSwiping = false;
+            return;
+          }
+
+          currentX = diffX;
+          card.style.transform = `translateX(${currentX}px)`;
+
+          if (currentX > 30) {
+            card.style.backgroundColor = 'var(--green-dark)';
+          } else if (currentX < -30) {
+            card.style.backgroundColor = 'var(--red-dark)';
+          } else {
+            card.style.backgroundColor = 'var(--panel)';
+          }
+        }, { passive: true });
+
+        card.addEventListener('touchend', () => {
+          if (!isSwiping) return;
+          isSwiping = false;
+          card.style.transition = 'transform 0.2s ease, background-color 0.2s';
+          card.style.backgroundColor = 'var(--panel)';
+
+          const id = card.dataset.id;
+          if (currentX > 75) {
+            card.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+              if (activeMainTab === 'scout') {
+                window.transferToInventory(id);
+              } else if (activeMainTab === 'vault' && activeVaultSub === 'active') {
+                window.markAsSold(id);
+              }
+              card.style.transform = 'translateX(0px)';
+            }, 180);
+          } else if (currentX < -75) {
+            card.style.transform = 'translateX(-100%)';
+            setTimeout(() => {
+              window.deleteItem(id);
+              card.style.transform = 'translateX(0px)';
+            }, 180);
+          } else {
+            card.style.transform = 'translateX(0px)';
+          }
+          currentX = 0;
+        });
+      });
+    }
+
+    function listenToCollections() {
+      onSnapshot(query(collection(db, 'scout_prospects'), orderBy('createdAt', 'desc')), (snapshot) => {
+        currentScoutItems = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderScoutMetrics();
+        renderScoutFeed();
+        setupSwipeGestures();
+      });
+
+      onSnapshot(query(collection(db, 'vault_inventory'), orderBy('purchasedAt', 'desc')), (snapshot) => {
+        currentVaultActiveItems = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (activeMainTab === 'vault') {
+          handleSearch();
+          renderVaultMetrics();
+        }
+      });
+
+      onSnapshot(query(collection(db, 'vault_sold'), orderBy('soldAt', 'desc')), (snapshot) => {
+        currentVaultSoldItems = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (activeMainTab === 'vault') {
+          handleSearch();
+          renderVaultMetrics();
+        }
+      });
+    }
+
+    function renderScoutMetrics() {
+      const container = document.getElementById('scoutBanner');
+      const potentialProfit = currentScoutItems.reduce((acc, i) => acc + (Number(i.projectedProfit) || 0), 0);
+      container.innerHTML = `
+        <div class="portfolio-metric">
+          <span class="label">Potential Profit</span>
+          <span class="val">$${potentialProfit.toFixed(2)}</span>
+        </div>
+        <div class="portfolio-metric" style="align-items: flex-end;">
+          <span class="label">Items Triaged</span>
+          <span class="val neutral">${currentScoutItems.length}</span>
+        </div>
+      `;
+    }
+
+    function renderVaultMetrics() {
+      const container = document.getElementById('vaultBanner');
+      if (activeVaultSub === 'active') {
+        const totalCost = currentVaultActiveItems.reduce((acc, i) => acc + (Number(i.itemCost) || 0), 0);
+        const projectedNet = currentVaultActiveItems.reduce((acc, i) => acc + (Number(i.projectedProfit) || 0), 0);
+        container.innerHTML = `
+          <div class="portfolio-metric">
+            <span class="label">In Stock</span>
+            <span class="val neutral">${currentVaultActiveItems.length}</span>
+          </div>
+          <div class="portfolio-metric">
+            <span class="label">Total Cost</span>
+            <span class="val cost">$${totalCost.toFixed(2)}</span>
+          </div>
+          <div class="portfolio-metric">
+            <span class="label">Projected Net</span>
+            <span class="val">$${projectedNet.toFixed(2)}</span>
+          </div>
+        `;
+      } else {
+        const realizedNet = currentVaultSoldItems.reduce((acc, i) => acc + (Number(i.realizedProfit) || 0), 0);
+        const totalRevenue = currentVaultSoldItems.reduce((acc, i) => acc + (Number(i.finalSoldPrice) || 0), 0);
+        container.innerHTML = `
+          <div class="portfolio-metric">
+            <span class="label">Units Sold</span>
+            <span class="val neutral">${currentVaultSoldItems.length}</span>
+          </div>
+          <div class="portfolio-metric">
+            <span class="label">Revenue</span>
+            <span class="val cost">$${totalRevenue.toFixed(2)}</span>
+          </div>
+          <div class="portfolio-metric">
+            <span class="label">Realized Net</span>
+            <span class="val">$${realizedNet.toFixed(2)}</span>
+          </div>
+        `;
+      }
+    }
+
+    function renderScoutFeed() {
+      const container = document.getElementById('cardsFeedScout');
+      if (currentScoutItems.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 28px;">No prospects scanned. Ready for floor triage.</div>';
+        return;
+      }
+
+      container.innerHTML = currentScoutItems.map(item => {
+        const sigColors = { GREEN: 'var(--green)', YELLOW: 'var(--yellow)', RED: 'var(--red)' };
+        const sigLabels = { GREEN: 'STRONG BUY', YELLOW: 'MARGINAL', RED: 'PASS' };
+        const activeColor = sigColors[item.disposition?.signal] || '#64748b';
+        const activeLabel = sigLabels[item.disposition?.signal] || 'INFO';
+        const sanitized = encodeURIComponent((item.searchQuery || `\({item.brand}\){item.item}`).replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
+        const compUrl = `https://www.ebay.com/sch/i.html?_nkw=\(){sanitized}&LH_Complete=1&LH_Sold=1`;
+        const thumbSrc = (item.gallery && item.gallery[0]) ? item.gallery[0] : (item.image || '');
+
+        return `
+          <div class="vault-card-wrapper">
+            <div class="vault-card" data-id="\({item.id}" style="border-left: 5px solid\){activeColor};" onclick="openDetail('${item.id}', 'scout')">
+              <img src="${thumbSrc}" class="card-thumb" alt="Thumbnail">
+              <div class="card-main">
+                <div class="card-top">
+                  <div>
+                    <div class="card-title">\({item.brand} -\){item.item}</div>
+                    <div class="card-sub">${item.specs}</div>
+                  </div>
+                  <span class="badge-signal" style="background: \({activeColor};">\){activeLabel}</span>
+                </div>
+                <div class="calc-row">
+                  <div class="calc-item"><span>Sold Comp</span><span style="color: #fff;">$${Number(item.estimatedValue).toFixed(2)}</span></div>
+                  <div class="calc-item"><span>Ship Est.</span><span style="color: var(--text-muted);">$${Number(item.estimatedShippingOutlay).toFixed(2)}</span></div>
+                  <div class="calc-item"><span>Est. Net</span><span style="color: var(--green);">$${Number(item.projectedProfit).toFixed(2)}</span></div>
+                </div>
+                <div class="card-summary">${item.disposition?.reason || ''}</div>
+                <div class="card-actions">
+                  <button class="btn-card transfer" onclick="transferToInventory('${item.id}', event)">📥 Move to Vault</button>
+                  <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" onclick="event.stopPropagation();">eBay Sold ↗</a>
+                  <button class="btn-card delete" onclick="deleteItem('${item.id}', event)">Discard</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderVaultFeed() {
+      const container = document.getElementById('cardsFeedVault');
+      renderVaultMetrics();
+
+      if (filteredVaultItems.length === 0) {
+        container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 28px;">No matching items in Vault.</div>';
+        return;
+      }
+
+      container.innerHTML = filteredVaultItems.map(item => {
+        const sanitized = encodeURIComponent((item.searchQuery || `\({item.brand}\){item.item}`).replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
+        const compUrl = `https://www.ebay.com/sch/i.html?_nkw=\(){sanitized}&LH_Complete=1&LH_Sold=1`;
+        const thumbSrc = (item.gallery && item.gallery[0]) ? item.gallery[0] : (item.image || '');
+
+        if (activeVaultSub === 'active') {
+          const daysHeld = getDaysInStock(item.purchasedAt);
+          let ageColor = '#fff';
+          if (daysHeld > 60) ageColor = 'var(--red)';
+          else if (daysHeld > 30) ageColor = 'var(--yellow)';
+
+          return `
+            <div class="vault-card-wrapper">
+              <div class="vault-card" data-id="\({item.id}" style="border-left: 5px solid var(--accent);" onclick="openDetail('\){item.id}', 'vaultActive')">
+                <img src="${thumbSrc}" class="card-thumb" alt="Thumbnail">
+                <div class="card-main">
+                  <div class="card-top">
+                    <div>
+                      <div class="card-title">\({item.brand} -\){item.item}</div>
+                      <div class="card-sub">
+                        <span>${item.specs}</span>
+                        <span class="badge-age" style="color: \({ageColor};">⏳\){daysHeld}d in stock</span>
+                      </div>
+                    </div>
+                    <span class="badge-signal" style="background: var(--accent); color: #fff;">IN STOCK</span>
+                  </div>
+                  <div class="calc-row">
+                    <div class="calc-item"><span>Cost</span><span style="color: var(--yellow);">$${Number(item.itemCost).toFixed(2)}</span></div>
+                    <div class="calc-item"><span>Target Gross</span><span style="color: #fff;">$${Number(item.estimatedValue).toFixed(2)}</span></div>
+                    <div class="calc-item"><span>Projected Net</span><span style="color: var(--green);">$${Number(item.projectedProfit).toFixed(2)}</span></div>
+                  </div>
+                  <div class="card-actions">
+                    <button class="btn-card sold" onclick="markAsSold('${item.id}', event)">💰 Mark as Sold</button>
+                    <button class="btn-card" onclick="copyEbayListing('${item.id}', event)">📋 Copy Listing</button>
+                    <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" onclick="event.stopPropagation();">Live Comps ↗</a>
+                    <button class="btn-card delete" onclick="deleteItem('${item.id}', event)">Remove</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        } else {
+          return `
+            <div class="vault-card-wrapper">
+              <div class="vault-card" data-id="\({item.id}" style="border-left: 5px solid var(--green);" onclick="openDetail('\){item.id}', 'vaultSold')">
+                <img src="${thumbSrc}" class="card-thumb" alt="Thumbnail">
+                <div class="card-main">
+                  <div class="card-top">
+                    <div>
+                      <div class="card-title">\({item.brand} -\){item.item}</div>
+                      <div class="card-sub">Sold on: ${new Date(item.soldAt).toLocaleDateString()}</div>
+                    </div>
+                    <span class="badge-signal" style="background: var(--green); color: #000;">COMPLETED</span>
+                  </div>
+                  <div class="calc-row">
+                    <div class="calc-item"><span>Cost Basis</span><span style="color: var(--yellow);">$${Number(item.itemCost).toFixed(2)}</span></div>
+                    <div class="calc-item"><span>Sold Price</span><span style="color: #fff;">$${Number(item.finalSoldPrice).toFixed(2)}</span></div>
+                    <div class="calc-item"><span>Realized Net</span><span style="color: var(--green);">$${Number(item.realizedProfit).toFixed(2)}</span></div>
+                  </div>
+                  <div class="card-actions">
+                    <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" onclick="event.stopPropagation();">Comps ↗</a>
+                    <button class="btn-card delete" onclick="deleteItem('${item.id}', event)">Purge</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      }).join('');
+    }
+
+    window.openDetail = function(id, source) {
+      let target = null;
+      if (source === 'scout') target = currentScoutItems.find(i => i.id === id);
+      else if (source === 'vaultActive') target = currentVaultActiveItems.find(i => i.id === id);
+      else if (source === 'vaultSold') target = currentVaultSoldItems.find(i => i.id === id);
+
+      if (!target) return;
+
+      const galleryContainer = document.getElementById('modalGallery');
+      const photos = (target.gallery && target.gallery.length > 0) ? target.gallery : [target.image];
+      galleryContainer.innerHTML = photos.map(src => `<img src="${src}" alt="Angle">`).join('');
+
+      document.getElementById('modalDeleteBtn').onclick = () => window.deleteItem(target.id);
+
+      const sanitized = encodeURIComponent((target.searchQuery || `\({target.brand}\){target.item}`).replace(/[^a-zA-Z0-9\s]/g, ' ').trim());
+      const compUrl = `https://www.ebay.com/sch/i.html?_nkw=\(){sanitized}&LH_Complete=1&LH_Sold=1`;
+
+      document.getElementById('modalContent').innerHTML = `
+        <div class="modal-section">
+          <strong>Item Identification</strong>
+          \({target.brand} -\){target.item}<br>
+          <span style="color: var(--text-muted); font-size: 0.9rem;">${target.specs}</span>
+        </div>
+        <div class="modal-section">
+          <strong>Valuation & Comps</strong>
+          Sold Average: <span style="font-weight: 700; color: var(--green); font-size: 1.15rem;">$\({Number(target.estimatedValue).toFixed(2)}</span> (\){target.priceRange})<br>
+          Model Confidence: ${target.confidence}<br>
+          Appraisal Verdict: <strong>${target.verdict}</strong>
+        </div>
+        <div class="modal-section">
+          <strong>Financial Breakdown</strong>
+          Item Cost: $${Number(target.itemCost).toFixed(2)}<br>
+          Estimated Shipping Outlay: $\({Number(target.estimatedShippingOutlay).toFixed(2)} (\){target.buyerPaysShipping ? 'Buyer Pays' : 'Free Shipping'})<br>
+          Est. eBay Fee (13.25% + $0.40): $${((target.estimatedValue * 0.1325) + 0.40).toFixed(2)}<br>
+          Net Take-Home: <strong>$${Number(target.projectedProfit).toFixed(2)}</strong>
+        </div>
+        <div class="modal-section">
+          <strong>Marketplace Routing & Logistics</strong>
+          Platform: ${target.routing?.platform || 'eBay'}<br>
+          Listing Strategy: ${target.routing?.strategy || 'Fixed Price'}<br>
+          Shipping Tier: ${target.shipping?.tier || 'Standard'}<br>
+          Packaging: ${target.shipping?.packaging || 'Boxed'}<br>
+          Service: ${target.shipping?.service || 'USPS Ground Advantage'}
+        </div>
+        <div class="modal-section">
+          <strong>Technical Intel & Hardware Specs</strong>
+          ${target.intel || 'None provided'}
+        </div>
+        <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn-card" onclick="copyEbayListing('${target.id}')" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.9rem;">
+            📋 Copy eBay Title & Description
+          </button>
+          <a href="${compUrl}" target="_blank" rel="noopener noreferrer" class="btn-card ebay" style="width: 100%; justify-content: center; padding: 14px; font-size: 0.9rem;">
+            Open Live eBay Sold Comps ↗
+          </a>
+        </div>
+      `;
+      document.getElementById('detailModal').style.display = 'block';
+    };
+
+    window.closeDetail = function() {
+      document.getElementById('detailModal').style.display = 'none';
+    };
+
+    (async () => {
+      renderSniperRank();
+      renderDailySniperTarget();
+      updateQuotaDisplay();
+      listenToCollections();
+    })();
+  </script>
+</body>
+</html>
