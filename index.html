@@ -153,19 +153,56 @@
     .btn-amber { background: var(--amber); color: #000; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
     .btn-blue { background: var(--blue); color: #fff; }
-    .input-field {
+    .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* Purchase Cost Basis Input Component */
+    .cost-input-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+    .cost-explanation-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+    .cost-input-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .currency-symbol {
+      position: absolute;
+      left: 12px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--emerald);
+      pointer-events: none;
+    }
+    .cost-input-field {
       width: 100%;
       background: #000;
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 12px 12px 12px 28px;
       color: var(--text);
-      font-size: 0.9rem;
+      font-size: 0.95rem;
+      font-weight: 700;
       font-family: inherit;
       outline: none;
     }
-    .input-field:focus { border-color: var(--border-focus); }
-    .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .cost-input-field:focus { border-color: var(--border-focus); }
+
+    .eval-action-wrapper {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      flex: 1.2;
+    }
+
     .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
     .metric-box {
       background: #000;
@@ -317,6 +354,7 @@
   <main>
     <div id="statusAlert" class="status-alert"></div>
 
+    <!-- TAB 1: SCOUT -->
     <section id="tab-scout" class="tab-view active">
       <div class="card">
         <div class="card-title">
@@ -365,9 +403,18 @@
           <img id="previewImg" style="max-height:180px; border-radius:8px; border:1px solid var(--border);" alt="Preview">
         </div>
 
-        <div style="display:flex; gap:8px;">
-          <input type="number" id="purchaseCost" class="input-field" placeholder="Cost ($)" value="4.00" step="0.50">
-          <button class="btn btn-outline" id="evaluateBtn" style="flex:1;">EVALUATE ITEM</button>
+        <!-- Acquisition Cost Basis Component -->
+        <div style="display:flex; gap:10px; align-items:flex-end;">
+          <div class="cost-input-wrapper">
+            <label class="cost-explanation-label">Thrift Store Tag Price</label>
+            <div class="cost-input-container">
+              <span class="currency-symbol">$</span>
+              <input type="number" id="purchaseCost" class="cost-input-field" placeholder="0.00" value="4.00" step="0.50">
+            </div>
+          </div>
+          <div class="eval-action-wrapper">
+            <button class="btn btn-outline" id="evaluateBtn">EVALUATE ITEM</button>
+          </div>
         </div>
       </div>
 
@@ -402,6 +449,7 @@
       </div>
     </section>
 
+    <!-- TAB 2: TAG ID -->
     <section id="tab-tags" class="tab-view">
       <div class="card">
         <div class="card-title">
@@ -419,6 +467,7 @@
       </div>
     </section>
 
+    <!-- TAB 3: VAULT -->
     <section id="tab-vault" class="tab-view">
       <div class="card">
         <div class="vault-subtoggle">
@@ -439,6 +488,7 @@
       </div>
     </section>
 
+    <!-- TAB 4: STORES -->
     <section id="tab-stores" class="tab-view">
       <div class="card">
         <div class="card-title">LIVE GPS SEARCH</div>
@@ -494,6 +544,7 @@
     <button class="dock-btn" data-target="tab-stores">STORES</button>
   </nav>
 
+  <!-- WEBCAM MODAL -->
   <div class="modal-overlay" id="webcamModal">
     <div class="modal-content">
       <div class="card-title">
@@ -506,6 +557,7 @@
     </div>
   </div>
 
+  <!-- CONFIG MODAL -->
   <div class="modal-overlay" id="configModal">
     <div class="modal-content">
       <div class="card-title">System Settings</div>
@@ -621,7 +673,7 @@
       STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
       localStorage.setItem('ts_gemini_key', STATE.geminiKey);
       configModal.classList.remove('active');
-      triggerAlert('API Key saved.');
+      triggerAlert('API Key verified and saved.');
     };
 
     const mobileCam = document.getElementById('mobileCameraInput');
@@ -719,6 +771,7 @@
       webcamModal.classList.remove('active');
     };
 
+    // Upgraded Gemini 3.8-Flash Endpoint Call
     document.getElementById('evaluateBtn').onclick = async () => {
       if (!selectedImageBase64) {
         alert('Snap or select an image first.');
@@ -736,7 +789,7 @@
 
       triggerAlert('Analyzing secondary market comps & tags...');
       const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
-      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
       const promptText = "Analyze this thrift item for secondary market resale. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
         "{\n" +
@@ -924,6 +977,7 @@
       }
     };
 
+    // Upgraded Gemini 3.8-Flash Tag Chronology Scanner
     const snapTagBtn = document.getElementById('snapTagBtn');
     const tagInput = document.getElementById('tagImageInput');
 
@@ -939,7 +993,7 @@
       const reader = new FileReader();
       reader.onload = async (event) => {
         const b64 = event.target.result.split(',')[1];
-        const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+        const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
         const prompt = "Analyze this garment tag, maker stamp, or RN number. Return ONLY JSON:\n" +
           "{\n" +
