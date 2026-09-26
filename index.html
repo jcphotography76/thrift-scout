@@ -57,7 +57,13 @@
       font-weight: 700;
       padding: 4px 10px;
       border-radius: 999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: opacity 0.15s ease;
     }
+    .rank-pill:active { opacity: 0.7; }
     .scan-pill {
       background: var(--emerald-glow);
       border: 1px solid var(--emerald);
@@ -153,7 +159,6 @@
     .btn-blue { background: var(--blue); color: #fff; }
     .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-    /* Acquisition Cost Basis Input Component */
     .cost-input-wrapper {
       display: flex;
       flex-direction: column;
@@ -248,7 +253,7 @@
     .item-meta { font-size: 0.78rem; color: var(--text-muted); }
     .item-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 
-    /* Modern Stores / Radar Interface */
+    /* Radar Sourcing Component */
     .radar-header-card {
       background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
       border: 1px solid var(--border);
@@ -348,6 +353,44 @@
     .timeline-era { font-size: 0.8rem; font-weight: 700; color: var(--amber); }
     .timeline-desc { font-size: 0.82rem; color: var(--text-muted); }
 
+    /* Gamification Modal & Progress Bars */
+    .progress-bar-track {
+      width: 100%;
+      height: 10px;
+      background: #000;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--amber) 0%, var(--emerald) 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .badge-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #05070a;
+      border: 1px solid var(--border);
+    }
+    .badge-icon-box {
+      font-size: 1.4rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--surface);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .badge-card.unlocked { border-color: var(--amber); background: rgba(245, 158, 11, 0.05); }
+
     .bottom-dock {
       position: fixed;
       bottom: 0;
@@ -398,6 +441,8 @@
       padding: 18px;
       max-width: 480px;
       width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -431,7 +476,7 @@
       <span>THRIFT</span><span class="brand-accent">SCOUT</span>
     </div>
     <div class="header-pills">
-      <div class="rank-pill" id="rankPill">Rookie (0 XP)</div>
+      <div class="rank-pill" id="rankPill" title="Tap to view XP & badges">🥉 Rookie (0 XP)</div>
       <div class="scan-pill" id="scanPill">100 LEFT</div>
       <button class="settings-btn" id="configBtn">Config</button>
     </div>
@@ -489,7 +534,7 @@
           <img id="previewImg" style="max-height:180px; border-radius:8px; border:1px solid var(--border);" alt="Preview">
         </div>
 
-        <!-- Acquisition Cost Basis Component -->
+        <!-- Cost Basis Component -->
         <div style="display:flex; gap:10px; align-items:flex-end;">
           <div class="cost-input-wrapper">
             <label class="cost-explanation-label">Thrift Store Tag Price</label>
@@ -533,6 +578,15 @@
           <button class="btn btn-emerald" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
         </div>
       </div>
+
+      <!-- XP & Gameplay Handbook Quick Access -->
+      <div class="card" style="cursor:pointer;" id="openHandbookBtn">
+        <div class="card-title">
+          <span>📖 SCOUT HANDBOOK & BADGES</span>
+          <span class="badge-amber">How to Play</span>
+        </div>
+        <p style="font-size:0.82rem; color:var(--text-muted);">Tap to view your level progression, badge rewards, and XP scoring rules.</p>
+      </div>
     </section>
 
     <!-- TAB 2: TAG ID -->
@@ -542,7 +596,7 @@
           <span>VINTAGE TAG & MAKER MARK ID</span>
           <span class="badge-amber">Chronology</span>
         </div>
-        <p style="font-size:0.82rem; color:var(--text-muted);">Snap clothing labels, care stamps, union bugs, RN codes, or maker marks for era classification.</p>
+        <p style="font-size:0.82rem; color:var(--text-muted);">Fast-inference mode for clothing labels, union bugs, care stamps, RN codes, and pottery/hardware marks.</p>
         <input type="file" id="tagImageInput" accept="image/*" capture="environment" style="display:none;">
         <button class="btn btn-amber" id="snapTagBtn">SCAN TAG / MAKER MARK</button>
       </div>
@@ -574,18 +628,18 @@
       </div>
     </section>
 
-    <!-- TAB 4: STORES (MODERN RADAR LOCATOR) -->
+    <!-- TAB 4: STORES (RADAR LOCATOR) -->
     <section id="tab-stores" class="tab-view">
       <div class="radar-header-card">
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div style="font-weight:800; font-size:1rem; letter-spacing:-0.01em;">SOURCING RADAR</div>
           <div class="gps-status-pill" id="gpsStatusPill">GPS READY</div>
         </div>
-        <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">Instant 1-tap route search to all thrift stores centered on your live coordinates.</p>
+        <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">Direct GPS search across thrift stores in your current radius without defaulting to home.</p>
         <div class="nav-actions-grid">
           <a class="nav-app-btn" id="radarGoogleBtn" href="https://www.google.com/maps/search/thrift+stores/" target="_blank">Google Maps</a>
           <a class="nav-app-btn" id="radarAppleBtn" href="https://maps.apple.com/?q=thrift+stores" target="_blank">Apple Maps</a>
-          <a class="nav-app-btn" id="radarWazeBtn" href="https://waze.com/ul?q=thrift+stores&navigate=yes" target="_blank">Waze</a>
+          <a class="nav-app-btn" id="radarWazeBtn" href="https://waze.com/ul?q=thrift+store&navigate=yes" target="_blank">Waze</a>
         </div>
       </div>
 
@@ -605,6 +659,50 @@
     <button class="dock-btn" data-target="tab-vault">VAULT</button>
     <button class="dock-btn" data-target="tab-stores">STORES</button>
   </nav>
+
+  <!-- LEVEL & BADGES GAMIFICATION MODAL -->
+  <div class="modal-overlay" id="levelModal">
+    <div class="modal-content">
+      <div class="card-title">
+        <span id="modalRankTitle">Scout Level & Badges</span>
+        <button class="settings-btn" id="closeLevelBtn">X</button>
+      </div>
+
+      <div style="background:#000; border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center;">
+        <div style="font-size:2.4rem;" id="modalBadgeIcon">🥉</div>
+        <div style="font-size:1.15rem; font-weight:800; color:#fff; margin-top:4px;" id="modalRankName">Rookie</div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" id="modalXpSubtitle">0 XP Earned</div>
+        
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="modalProgressFill"></div>
+        </div>
+        <div style="font-size:0.75rem; color:var(--emerald); font-weight:700;" id="modalNextRankInfo">750 XP to Picker</div>
+      </div>
+
+      <div class="card-title" style="margin-top:6px; font-size:0.85rem;">EARNING REPUTATION (XP)</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div class="metric-box">
+          <span class="metric-label">AI Appraisal</span>
+          <span class="metric-val" style="font-size:0.95rem; color:var(--emerald);">+25 XP</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Tag Chronology</span>
+          <span class="metric-val" style="font-size:0.95rem; color:var(--emerald);">+35 XP</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Add to Vault</span>
+          <span class="metric-val" style="font-size:0.95rem; color:var(--emerald);">+50 XP</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Mark as Sold</span>
+          <span class="metric-val" style="font-size:0.95rem; color:var(--emerald);">+100 XP</span>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin-top:6px; font-size:0.85rem;">BADGE TIERS</div>
+      <div style="display:flex; flex-direction:column; gap:8px;" id="badgeTiersList"></div>
+    </div>
+  </div>
 
   <!-- WEBCAM MODAL -->
   <div class="modal-overlay" id="webcamModal">
@@ -656,6 +754,14 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    const TIERS = [
+      { name: "Rookie", icon: "🥉", minXp: 0, maxXp: 749, desc: "Novice hunter learning hallmarks & basic comps." },
+      { name: "Picker", icon: "🥈", minXp: 750, maxXp: 1999, desc: "Consistent eye for single stitch tags & flips." },
+      { name: "Pro Hunter", icon: "🥇", minXp: 2000, maxXp: 4999, desc: "High-volume precision scout with strong profit basis." },
+      { name: "Master Scout", icon: "💎", minXp: 5000, maxXp: 9999, desc: "Elite collector with encyclopedic era knowledge." },
+      { name: "Apex Reseller", icon: "👑", minXp: 10000, maxXp: Infinity, desc: "Top tier authority managing a commercial grade vault." }
+    ];
+
     const STATE = {
       geminiKey: localStorage.getItem('ts_gemini_key') || '',
       dailyScans: parseInt(localStorage.getItem('ts_scans_left') || '100', 10),
@@ -700,21 +806,77 @@
       }
     ];
 
-    function getRank(xp) {
-      if (xp >= 5000) return 'Master Scout';
-      if (xp >= 2000) return 'Pro Hunter';
-      if (xp >= 750)  return 'Picker';
-      return 'Rookie';
+    function getCurrentTier(xp) {
+      for (let i = TIERS.length - 1; i >= 0; i--) {
+        if (xp >= TIERS[i].minXp) return { tier: TIERS[i], index: i };
+      }
+      return { tier: TIERS[0], index: 0 };
     }
 
     function updatePills() {
-      const rank = getRank(STATE.xp);
-      document.getElementById('rankPill').textContent = rank + ' (' + STATE.xp.toLocaleString() + ' XP)';
+      const { tier, index } = getCurrentTier(STATE.xp);
+      const nextTier = TIERS[index + 1];
+      let remainingText = '';
+      if (nextTier) {
+        const needed = nextTier.minXp - STATE.xp;
+        remainingText = ' • ' + needed + ' XP to ' + nextTier.name;
+      }
+      document.getElementById('rankPill').textContent = tier.icon + ' ' + tier.name + ' (' + STATE.xp.toLocaleString() + ' XP)';
       document.getElementById('scanPill').textContent = STATE.dailyScans + ' LEFT';
       localStorage.setItem('ts_scans_left', STATE.dailyScans);
       localStorage.setItem('ts_xp', STATE.xp);
     }
     updatePills();
+
+    // Gamification Modal Renderer
+    function openLevelModal() {
+      const { tier, index } = getCurrentTier(STATE.xp);
+      const nextTier = TIERS[index + 1];
+
+      document.getElementById('modalBadgeIcon').textContent = tier.icon;
+      document.getElementById('modalRankName').textContent = tier.name;
+      document.getElementById('modalXpSubtitle').textContent = STATE.xp.toLocaleString() + ' Total XP Earned';
+
+      const fill = document.getElementById('modalProgressFill');
+      const nextInfo = document.getElementById('modalNextRankInfo');
+
+      if (nextTier) {
+        const range = nextTier.minXp - tier.minXp;
+        const currentProgress = STATE.xp - tier.minXp;
+        const pct = Math.min(100, Math.max(0, Math.round((currentProgress / range) * 100)));
+        fill.style.width = pct + '%';
+        const needed = nextTier.minXp - STATE.xp;
+        nextInfo.textContent = needed.toLocaleString() + ' XP needed to reach ' + nextTier.name + ' (' + pct + '%)';
+      } else {
+        fill.style.width = '100%';
+        nextInfo.textContent = 'Maximum Rank Achieved! You are at the top.';
+      }
+
+      const list = document.getElementById('badgeTiersList');
+      list.innerHTML = '';
+      TIERS.forEach(t => {
+        const isUnlocked = STATE.xp >= t.minXp;
+        const card = document.createElement('div');
+        card.className = 'badge-card' + (isUnlocked ? ' unlocked' : '');
+        card.innerHTML = 
+          '<div class="badge-icon-box">' + t.icon + '</div>' +
+          '<div style="flex:1;">' +
+            '<div style="font-weight:800; font-size:0.9rem; color:' + (isUnlocked ? 'var(--amber)' : '#fff') + ';">' + 
+              t.name + ' ' + (isUnlocked ? '✓' : '<span style="font-size:0.75rem; color:var(--text-muted);">(' + t.minXp.toLocaleString() + ' XP)</span>') +
+            '</div>' +
+            '<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">' + t.desc + '</div>' +
+          '</div>';
+        list.appendChild(card);
+      });
+
+      document.getElementById('levelModal').classList.add('active');
+    }
+
+    document.getElementById('rankPill').onclick = openLevelModal;
+    document.getElementById('openHandbookBtn').onclick = openLevelModal;
+    document.getElementById('closeLevelBtn').onclick = () => {
+      document.getElementById('levelModal').classList.remove('active');
+    };
 
     window.resetQuota = function() {
       STATE.dailyScans = 100;
@@ -799,7 +961,6 @@
           previewImg.src = canvas.toDataURL('image/jpeg', 0.70);
           previewBox.style.display = 'block';
 
-          // Ultra-compact 140px thumbnail for Firestore
           const thumbCanvas = document.createElement('canvas');
           let tw = img.width;
           let th = img.height;
@@ -928,7 +1089,8 @@
                 { text: promptText },
                 { inlineData: { mimeType: 'image/jpeg', data: selectedImageBase64 } }
               ]
-            }]
+            }],
+            generationConfig: { temperature: 0.15 }
           })
         });
 
@@ -1042,7 +1204,7 @@
         const row = document.createElement('div');
         row.className = 'vault-item';
         row.innerHTML = 
-          '<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23161b22%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%238b949e%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
+          '<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23161b22%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%238b949e%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
           '<div class="item-content">' +
             '<div class="item-title">' + displayBrand + ' - ' + displayItem + '</div>' +
             '<div class="item-meta">' + (item.platform || 'eBay') + ' • Buy: \(' + costBasis + ' • Target:\)' + estResale + '</div>' +
@@ -1098,7 +1260,7 @@
       }
     };
 
-    // Tag Chronology Scanner
+    // Ultra-Fast Tag Chronology Scanner (Resized & High-Speed Prompt)
     const snapTagBtn = document.getElementById('snapTagBtn');
     const tagInput = document.getElementById('tagImageInput');
 
@@ -1109,60 +1271,72 @@
         if (!STATE.geminiKey) alert('Set Gemini API Key in Config.');
         return;
       }
-      triggerAlert('Analyzing tag typography & RN codes...');
+      triggerAlert('⚡ Ultra-fast tag & hallmark dating...');
 
       const reader = new FileReader();
       reader.onload = async (event) => {
-        const b64 = event.target.result.split(',')[1];
-        const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+        const rawImg = new Image();
+        rawImg.onload = async () => {
+          // Pre-scale tag image to 640px for near-instant upload & inference
+          const canvas = document.createElement('canvas');
+          let w = rawImg.width;
+          let h = rawImg.height;
+          const maxDim = 640;
+          if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+          else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(rawImg, 0, 0, w, h);
+          const fastB64 = canvas.toDataURL('image/jpeg', 0.65).split(',')[1];
 
-        const prompt = "Analyze this garment tag, maker stamp, or RN number. Return ONLY JSON:\n" +
-          "{\n" +
-          '  "maker": "Brand / Manufacturer",\n' +
-          '  "era": "e.g. 1982-1988",\n' +
-          '  "clues": [\n' +
-          '    {"label": "Key Hallmark", "desc": "Single stitch details, made in USA, font design"},\n' +
-          '    {"label": "Dating Signal", "desc": "Why this confirms the chronological production window"}\n' +
-          '  ]\n' +
-          "}";
+          const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+          const prompt = "Identify clothing tag/maker mark/RN. Output JSON ONLY:\n" +
+            "{\n" +
+            '  "maker": "Brand",\n' +
+            '  "era": "Date Range",\n' +
+            '  "clues": [{"label": "Hallmark", "desc": "Reason"}]\n' +
+            "}";
 
-        try {
-          const res = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{
-                parts: [
-                  { text: prompt },
-                  { inlineData: { mimeType: 'image/jpeg', data: b64 } }
-                ]
-              }]
-            })
-          });
+          try {
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [
+                    { text: prompt },
+                    { inlineData: { mimeType: 'image/jpeg', data: fastB64 } }
+                  ]
+                }],
+                generationConfig: { temperature: 0.1, maxOutputTokens: 250 }
+              })
+            });
 
-          const data = await res.json();
-          const cleanText = data.candidates[0].content.parts[0].text.replace(/```json/gi, '').replace(/```/g, '').trim();
-          const parsed = JSON.parse(cleanText);
+            const data = await res.json();
+            const cleanText = data.candidates[0].content.parts[0].text.replace(/```json/gi, '').replace(/```/g, '').trim();
+            const parsed = JSON.parse(cleanText);
 
-          document.getElementById('tagEraTitle').textContent = parsed.maker + ' (' + parsed.era + ')';
-          const container = document.getElementById('tagTimelineContainer');
-          container.innerHTML = '';
+            document.getElementById('tagEraTitle').textContent = parsed.maker + ' (' + parsed.era + ')';
+            const container = document.getElementById('tagTimelineContainer');
+            container.innerHTML = '';
 
-          parsed.clues.forEach(c => {
-            const node = document.createElement('div');
-            node.className = 'timeline-node';
-            node.innerHTML = '<div class="timeline-era">' + c.label + '</div><div class="timeline-desc">' + c.desc + '</div>';
-            container.appendChild(node);
-          });
+            parsed.clues.forEach(c => {
+              const node = document.createElement('div');
+              node.className = 'timeline-node';
+              node.innerHTML = '<div class="timeline-era">' + c.label + '</div><div class="timeline-desc">' + c.desc + '</div>';
+              container.appendChild(node);
+            });
 
-          document.getElementById('tagResultCard').style.display = 'flex';
-          STATE.dailyScans--;
-          STATE.xp += 35;
-          updatePills();
-          dismissAlert();
-        } catch (err) {
-          triggerAlert('Tag scan failed: ' + err.message, true);
-        }
+            document.getElementById('tagResultCard').style.display = 'flex';
+            STATE.dailyScans--;
+            STATE.xp += 35;
+            updatePills();
+            dismissAlert();
+          } catch (err) {
+            triggerAlert('Tag scan failed: ' + err.message, true);
+          }
+        };
+        rawImg.src = event.target.result;
       };
       reader.readAsDataURL(file);
     };
@@ -1179,7 +1353,7 @@
       return (R * c).toFixed(1);
     }
 
-    // Modern Stores Radar Initialization
+    // Stores Radar & Fixed Waze GPS Routing
     function initStoresRadar() {
       const grid = document.getElementById('storeRadarGrid');
       const pill = document.getElementById('gpsStatusPill');
@@ -1202,7 +1376,8 @@
           const q = encodeURIComponent("thrift store");
           document.getElementById('radarGoogleBtn').href = "https://www.google.com/maps/search/" + q + "/@" + STATE.userLat + "," + STATE.userLon + ",13z";
           document.getElementById('radarAppleBtn').href = "https://maps.apple.com/?q=" + q + "&sll=" + STATE.userLat + "," + STATE.userLon + "&z=13";
-          document.getElementById('radarWazeBtn').href = "https://waze.com/ul?ll=" + STATE.userLat + "," + STATE.userLon + "&q=" + q + "&navigate=yes";
+          // FIXED WAZE URL: Explicit search query anchored to GPS coordinates so it never routes to 'Home'
+          document.getElementById('radarWazeBtn').href = "https://waze.com/ul?q=" + q + "&lat=" + STATE.userLat + "&lon=" + STATE.userLon + "&navigate=yes";
 
           const enriched = STORES.map(s => {
             const dist = calculateDistance(STATE.userLat, STATE.userLon, s.lat, s.lon);
@@ -1238,7 +1413,7 @@
           '<div class="nav-actions-grid">' +
             '<a class="nav-app-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=' + destQuery + '">Google</a>' +
             '<a class="nav-app-btn" target="_blank" href="https://maps.apple.com/?daddr=' + destQuery + '">Apple</a>' +
-            '<a class="nav-app-btn" target="_blank" href="https://waze.com/ul?q=' + destQuery + '&navigate=yes">Waze</a>' +
+            '<a class="nav-app-btn" target="_blank" href="https://waze.com/ul?q=' + destQuery + '&lat=' + s.lat + '&lon=' + s.lon + '&navigate=yes">Waze</a>' +
           '</div>';
         grid.appendChild(card);
       });
