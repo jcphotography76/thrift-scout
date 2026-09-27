@@ -180,53 +180,6 @@ user-select: none;
 .btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
 .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-.cost-input-wrapper {
-display: flex;
-flex-direction: column;
-gap: 4px;
-flex: 1;
-}
-.cost-explanation-label {
-font-size: 0.68rem;
-font-weight: 700;
-text-transform: uppercase;
-letter-spacing: 0.05em;
-color: var(--text-muted);
-}
-.cost-input-container {
-position: relative;
-display: flex;
-align-items: center;
-}
-.currency-symbol {
-position: absolute;
-left: 12px;
-font-size: 0.95rem;
-font-weight: 800;
-color: var(--accent);
-pointer-events: none;
-}
-.cost-input-field {
-width: 100%;
-background: var(--surface);
-border: 1px solid var(--border);
-border-radius: 8px;
-padding: 12px 12px 12px 28px;
-color: var(--text);
-font-size: 0.95rem;
-font-weight: 700;
-font-family: inherit;
-outline: none;
-}
-.cost-input-field:focus { border-color: var(--border-focus); }
-
-.eval-action-wrapper {
-display: flex;
-flex-direction: column;
-justify-content: flex-end;
-flex: 1.2;
-}
-
 .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .metric-box {
 background: var(--surface);
@@ -267,8 +220,42 @@ text-align: center;
 }
 .vault-subbtn.active { background: var(--card-bg); color: #fff; border: 1px solid var(--border); }
 .vault-list { display: flex; flex-direction: column; gap: 10px; }
-.vault-item { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; align-items: center; cursor: pointer; transition: border-color 0.2s; }
+
+/* Isolated item swipe wrapper to prevent whole-screen shifts */
+.vault-item-container {
+position: relative;
+overflow: hidden;
+border-radius: 10px;
+background: var(--surface);
+border: 1px solid var(--border);
+}
+.vault-item {
+display: flex;
+gap: 12px;
+background: var(--surface);
+padding: 12px;
+align-items: center;
+cursor: pointer;
+position: relative;
+z-index: 2;
+transition: transform 0.2s ease;
+touch-action: pan-y;
+}
 .vault-item:hover { border-color: var(--border-focus); }
+.swipe-actions-bg {
+position: absolute;
+inset: 0;
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0 16px;
+font-size: 0.75rem;
+font-weight: 800;
+z-index: 1;
+}
+.swipe-action-left { color: var(--accent); }
+.swipe-action-right { color: var(--coral); }
+
 .item-thumb { width: 78px; height: 78px; min-width: 78px; border-radius: 8px; object-fit: cover; background: #111827; border: 1px solid var(--border); cursor: pointer; }
 .item-content { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .item-title { font-weight: 700; font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
@@ -538,19 +525,7 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 </div>
 </div>
 
-<!-- Cost Basis Component -->
-<div style="display:flex; gap:10px; align-items:flex-end;">
-<div class="cost-input-wrapper">
-<label class="cost-explanation-label">Thrift Store Tag Price</label>
-<div class="cost-input-container">
-<span class="currency-symbol">$</span>
-<input type="number" id="purchaseCost" class="cost-input-field" placeholder="0.00" value="4.00" step="0.50">
-</div>
-</div>
-<div class="eval-action-wrapper">
-<button class="btn btn-outline" id="evaluateBtn">EVALUATE ITEM</button>
-</div>
-</div>
+<button class="btn btn-outline" id="evaluateBtn" style="margin-top: 4px;">EVALUATE ITEM</button>
 </div>
 
 <div class="card" id="appraisalCard" style="display:none;">
@@ -617,6 +592,7 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 <button id="vaultSubActive" class="vault-subbtn active">Active Inventory</button>
 <button id="vaultSubSold" class="vault-subbtn">Sold Archive</button>
 </div>
+<div style="font-size:0.75rem; color:var(--text-muted); text-align:center;">Swipe Right ➡️ Mark Sold | Swipe Left ⬅️ Delete</div>
 <div class="vault-summary">
 <div>
 <div class="metric-label">Vault Portfolio</div>
@@ -658,13 +634,13 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
 <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout Operations</div>
 <p style="font-size:0.84rem; color:var(--text-muted); line-height:1.4; margin-top:4px;">
-Welcome back, Specialist. Your tactical reconnaissance grid is fully operational. Scan items, verify vintage eras, and log assets into the secure Vault.
+Welcome back, Specialist. Your tactical reconnaissance grid is fully operational. Rapidly evaluate items, log acquisitions into the Vault, and set your cost basis post-acquisition.
 </p>
 <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
 <div style="font-size:0.78rem; font-weight:800; color:#fff;">⭐ FIELD RECON DIRECTIVE:</div>
-<div style="font-size:0.75rem; color:var(--text-muted);">• <b>Scout Unit:</b> Snap photos & evaluate resale margins with active progress tracking.</div>
-<div style="font-size:0.75rem; color:var(--text-muted);">• <b>Tag ID:</b> Instant dating via hallmarks and union tags.</div>
-<div style="font-size:0.75rem; color:var(--text-muted);">• <b>Vault Logistics:</b> Inspect item specs with a single tap.</div>
+<div style="font-size:0.75rem; color:var(--text-muted);">• <b>Rapid Scout:</b> Instant visual AI appraisal with loading progress bar.</div>
+<div style="font-size:0.75rem; color:var(--text-muted);">• <b>Vault Logistics:</b> Tap items for full specs or log acquisition cost.</div>
+<div style="font-size:0.75rem; color:var(--text-muted);">• <b>Gesture Swipe:</b> Swipe right/left on vault cards for quick actions.</div>
 </div>
 <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px;">REPORT FOR DUTY</button>
 </div>
@@ -725,7 +701,7 @@ Welcome back, Specialist. Your tactical reconnaissance grid is fully operational
 <div class="metric-grid">
 <div class="metric-box">
 <span class="metric-label">Buy Cost</span>
-<span class="metric-val" id="vDetailCost">$0.00</span>
+<span class="metric-val" id="vDetailCost" style="cursor:pointer; color:var(--amber);" title="Tap to update cost">$0.00 ✏️</span>
 </div>
 <div class="metric-box">
 <span class="metric-label">Target Resale</span>
@@ -782,7 +758,7 @@ Welcome back, Specialist. Your tactical reconnaissance grid is fully operational
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
 import {
-getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy
+getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy
 } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -851,6 +827,7 @@ let currentAppraisal = null;
 let selectedImageBase64 = null;
 let compressedThumbDataUrl = null;
 let webcamStream = null;
+let currentlyOpenedVaultItem = null;
 
 // Direct Regional Hubs (Northern Utah)
 const STORES = [
@@ -966,6 +943,31 @@ document.getElementById('closeVaultDetailBtn').onclick = () => {
 document.getElementById('vaultDetailModal').classList.remove('active');
 };
 
+// Allow editing cost directly from Vault Item Details view
+document.getElementById('vDetailCost').onclick = async () => {
+if (!currentlyOpenedVaultItem) return;
+const newCostInput = prompt('Enter acquired cost for this asset ($):', currentlyOpenedVaultItem.cost || 0);
+if (newCostInput === null) return;
+const newCost = parseFloat(newCostInput);
+if (isNaN(newCost)) return;
+
+const newProfit = Number(((currentlyOpenedVaultItem.resale || 0) - newCost - ((currentlyOpenedVaultItem.resale || 0) * 0.1325)).toFixed(2));
+
+try {
+const coll = currentlyOpenedVaultItem.status === 'sold' ? 'vault_sold' : 'vault_inventory';
+await updateDoc(doc(db, coll, currentlyOpenedVaultItem.id), {
+cost: newCost,
+profit: newProfit
+});
+currentlyOpenedVaultItem.cost = newCost;
+currentlyOpenedVaultItem.profit = newProfit;
+openVaultDetail(currentlyOpenedVaultItem);
+triggerAlert('Asset acquisition cost updated successfully.');
+} catch (err) {
+alert('Failed to update cost: ' + err.message);
+}
+};
+
 document.getElementById('resetQuotaBtn').onclick = function() {
 STATE.dailyScans = 100;
 updatePills();
@@ -977,7 +979,6 @@ const box = document.getElementById('statusAlert');
 box.style.display = 'block';
 box.style.borderLeftColor = isErr ? 'var(--coral)' : 'var(--accent)';
 box.textContent = msg;
-// Scroll to top so prominent error notifications are immediately visible
 window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 function dismissAlert() {
@@ -1049,15 +1050,6 @@ canvas.getContext('2d').drawImage(img, 0, 0, w, h);
 selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.70).split(',')[1];
 previewImg.src = canvas.toDataURL('image/jpeg', 0.70);
 previewBox.style.display = 'block';
-
-// Prompt user for thrift store tag price upon snapping/uploading
-const costInput = prompt('Enter thrift store tag price ($):', '4.00');
-if (costInput !== null) {
-const parsedCost = parseFloat(costInput);
-if (!isNaN(parsedCost)) {
-document.getElementById('purchaseCost').value = parsedCost.toFixed(2);
-}
-}
 
 const thumbCanvas = document.createElement('canvas');
 let tw = img.width;
@@ -1147,14 +1139,6 @@ selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
 previewImg.src = canvas.toDataURL('image/jpeg', 0.75);
 previewBox.style.display = 'block';
 
-const costInput = prompt('Enter thrift store tag price ($):', '4.00');
-if (costInput !== null) {
-const parsedCost = parseFloat(costInput);
-if (!isNaN(parsedCost)) {
-document.getElementById('purchaseCost').value = parsedCost.toFixed(2);
-}
-}
-
 const thumbCanvas = document.createElement('canvas');
 thumbCanvas.width = 140;
 thumbCanvas.height = Math.round((canvas.height * 140) / canvas.width);
@@ -1193,7 +1177,7 @@ progressText.textContent = 'Connecting to AI Recon Unit (20%)...';
 
 triggerAlert('Analyzing item resale value and tag hallmarks...');
 
-const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
+const cost = 0.00; // Default acquisition cost set to 0.00 until logged in vault
 const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
 const promptText = "Analyze this thrift store item for secondary market resale. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
@@ -1235,7 +1219,13 @@ evalBtn.disabled = false;
 
 if (!res.ok) {
 const errBody = await res.json().catch(() => ({}));
-throw new Error(errBody.error?.message || ('HTTP ' + res.status));
+const errMessage = errBody.error?.message || ('HTTP ' + res.status);
+if (res.status === 429 || errMessage.includes('quota') || errMessage.includes('RESOURCE_EXHAUSTED')) {
+triggerAlert('⚠️ RATE LIMIT REACHED (429): Free tier allows 20 requests per minute. Please wait ~45 seconds before your next rapid valuation scan.', true);
+} else {
+throw new Error(errMessage);
+}
+return;
 }
 
 const data = await res.json();
@@ -1352,11 +1342,19 @@ const estResale = Number(item.resale || item.estimatedValue || 0).toFixed(2);
 
 const thumbSrc = item.imageThumb || item.image || "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E";
 
+const wrapper = document.createElement('div');
+wrapper.className = 'vault-item-container';
+
+const bgActions = document.createElement('div');
+bgActions.className = 'swipe-actions-bg';
+bgActions.innerHTML = '<span class="swipe-action-left">➡️ Mark Sold</span><span class="swipe-action-right">Delete ⬅️</span>';
+wrapper.appendChild(bgActions);
+
 const row = document.createElement('div');
 row.className = 'vault-item';
 row.onclick = () => openVaultDetail(item);
 
-// Vault item touch/swipe logic
+// Isolated item-card swipe logic (prevents whole screen shifting)
 let vStartX = 0;
 let vCurrentX = 0;
 let vDragging = false;
@@ -1370,11 +1368,8 @@ row.addEventListener('touchmove', (e) => {
 if (!vDragging) return;
 vCurrentX = e.touches[0].clientX;
 const diff = vCurrentX - vStartX;
-if (Math.abs(diff) > 10) {
+if (Math.abs(diff) > 5) {
 row.style.transform = 'translateX(' + diff + 'px)';
-if (diff > 40) row.style.background = 'rgba(20, 184, 166, 0.2)';
-else if (diff < -40) row.style.background = 'rgba(244, 63, 94, 0.2)';
-else row.style.background = 'var(--surface)';
 }
 }, { passive: true });
 
@@ -1383,8 +1378,7 @@ if (!vDragging) return;
 vDragging = false;
 const diff = vCurrentX - vStartX;
 row.style.transform = 'translateX(0px)';
-row.style.background = 'var(--surface)';
-if (Math.abs(diff) > 70) {
+if (Math.abs(diff) > 75) {
 if (diff > 0 && STATE.vaultSub === 'active') {
 markSoldCloud(item.id);
 } else if (diff < 0) {
@@ -1409,7 +1403,9 @@ row.innerHTML =
 '<div style="color:var(--accent); font-weight:800; font-size:1rem;">+$' + val.toFixed(2) + '</div>' +
 '<div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">' + (STATE.vaultSub === 'active' ? 'EST. PROFIT' : 'REALIZED') + '</div>' +
 '</div>';
-container.appendChild(row);
+
+wrapper.appendChild(row);
+container.appendChild(wrapper);
 });
 
 document.getElementById('vaultTotal').textContent = '$' + totalValue.toFixed(2);
@@ -1417,9 +1413,10 @@ document.getElementById('vaultCount').textContent = list.length + ' items';
 }
 
 window.openVaultDetail = (item) => {
+currentlyOpenedVaultItem = item;
 document.getElementById('vDetailTitle').textContent = (item.brand || 'Asset') + ' - ' + (item.item || item.name || 'Item');
 document.getElementById('vDetailThumb').src = item.imageThumb || item.image || '';
-document.getElementById('vDetailCost').textContent = '$' + Number(item.cost || item.itemCost || 0).toFixed(2);
+document.getElementById('vDetailCost').textContent = '$' + Number(item.cost || item.itemCost || 0).toFixed(2) + ' ✏️';
 document.getElementById('vDetailResale').textContent = '$' + Number(item.resale || item.estimatedValue || 0).toFixed(2);
 document.getElementById('vDetailProfit').textContent = '$' + Number(item.profit || item.realizedProfit || 0).toFixed(2);
 document.getElementById('vDetailPlatform').textContent = item.platform || 'eBay';
@@ -1600,7 +1597,7 @@ card.innerHTML =
 '<div class="store-name-title">' + s.name + '</div>' +
 '<div class="store-address-text">' + s.address + '</div>' +
 '</div>' +
-(s.dist !== undersigned ? '<span class="store-dist-badge">' + s.dist + ' mi</span>' : '') +
+'<span class="store-dist-badge">' + s.dist + ' mi</span>' +
 '</div>' +
 '<div class="nav-actions-grid">' +
 '<a class="nav-app-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=' + destQuery + '">Google Maps</a>' +
