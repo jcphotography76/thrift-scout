@@ -250,10 +250,12 @@ text-align: center;
 }
 .vault-subbtn.active { background: var(--card-bg); color: #fff; border: 1px solid var(--border); }
 .vault-list { display: flex; flex-direction: column; gap: 10px; }
-.vault-item { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; align-items: flex-start; }
-.item-thumb { width: 78px; height: 78px; min-width: 78px; border-radius: 8px; object-fit: cover; background: #111827; border: 1px solid var(--border); }
+.vault-item { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; align-items: flex-start; cursor: pointer; transition: border-color 0.2s; }
+.vault-item:hover { border-color: var(--border-focus); }
+.item-thumb { width: 78px; height: 78px; min-width: 78px; border-radius: 8px; object-fit: cover; background: #111827; border: 1px solid var(--border); cursor: pointer; }
 .item-content { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.item-title { font-weight: 700; font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-title { font-weight: 700; font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.item-title:hover { color: var(--accent); }
 .item-meta { font-size: 0.78rem; color: var(--text-muted); }
 .item-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 
@@ -660,6 +662,39 @@ Scout any vintage cotton flannel or chamois shirt (Pendleton, Woolrich, L.L. Bea
 </div>
 </div>
 
+<!-- VAULT ITEM DETAILS MODAL -->
+<div class="modal-overlay" id="vaultDetailModal">
+<div class="modal-content">
+<div class="card-title">
+<span id="vDetailTitle">Vault Item Details</span>
+<button class="settings-btn" id="closeVaultDetailBtn">X</button>
+</div>
+<img id="vDetailThumb" style="width:100%; height:160px; object-fit:cover; border-radius:8px; border:1px solid var(--border);" alt="Asset Thumb">
+<div class="metric-grid">
+<div class="metric-box">
+<span class="metric-label">Buy Cost</span>
+<span class="metric-val" id="vDetailCost">$0.00</span>
+</div>
+<div class="metric-box">
+<span class="metric-label">Target Resale</span>
+<span class="metric-val" id="vDetailResale">$0.00</span>
+</div>
+<div class="metric-box">
+<span class="metric-label">Est. Net Profit</span>
+<span class="metric-val profit" id="vDetailProfit">$0.00</span>
+</div>
+<div class="metric-box">
+<span class="metric-label">Platform</span>
+<span class="metric-val" id="vDetailPlatform" style="font-size:0.9rem;">eBay</span>
+</div>
+</div>
+<div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="vDetailIntel"></div>
+<div style="display:flex; gap:8px; margin-top:4px;">
+<a id="vDetailEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW SOLD COMPS</a>
+</div>
+</div>
+</div>
+
 <!-- WEBCAM / DESKTOP CAPTURE MODAL -->
 <div class="modal-overlay" id="webcamModal">
 <div class="modal-content">
@@ -861,6 +896,11 @@ document.getElementById('rankPill').onclick = openLevelModal;
 document.getElementById('openHandbookBtn').onclick = openLevelModal;
 document.getElementById('closeLevelBtn').onclick = () => {
 document.getElementById('levelModal').classList.remove('active');
+};
+
+// Vault Detail Modal Controls
+document.getElementById('closeVaultDetailBtn').onclick = () => {
+document.getElementById('vaultDetailModal').classList.remove('active');
 };
 
 document.getElementById('resetQuotaBtn').onclick = function() {
@@ -1208,12 +1248,13 @@ const thumbSrc = item.imageThumb || item.image || "data:image/svg+xml;charset=UT
 
 const row = document.createElement('div');
 row.className = 'vault-item';
+row.onclick = () => openVaultDetail(item);
 row.innerHTML =
-'<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
+'<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onclick="event.stopPropagation(); openVaultDetailByName(\'' + item.id + '\')" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
 '<div class="item-content">' +
 '<div class="item-title">' + displayBrand + ' - ' + displayItem + '</div>' +
-'<div class="item-meta">' + (item.platform || 'eBay') + ' • Buy: $' + costBasis + ' • Target: $' + estResale + '</div>' +
-'<div class="item-actions">' +
+'<div class="item-meta">Buy: $' + costBasis + ' • Resale Target: $' + estResale + ' • ' + (item.platform || 'eBay') + '</div>' +
+'<div class="item-actions" onclick="event.stopPropagation();">' +
 (STATE.vaultSub === 'active'
 ? '<button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="markSoldCloud(\'' + item.id + '\')">MARK SOLD</button>'
 : '<span style="color:var(--accent); font-size:0.75rem; font-weight:700;">SOLD: +$' + val.toFixed(2) + '</span>') +
@@ -1222,6 +1263,7 @@ row.innerHTML =
 '</div>' +
 '<div style="text-align:right;">' +
 '<div style="color:var(--accent); font-weight:800; font-size:1rem;">+$' + val.toFixed(2) + '</div>' +
+'<div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">EST. PROFIT</div>' +
 '</div>';
 container.appendChild(row);
 });
@@ -1229,6 +1271,24 @@ container.appendChild(row);
 document.getElementById('vaultTotal').textContent = '$' + totalValue.toFixed(2);
 document.getElementById('vaultCount').textContent = list.length + ' items';
 }
+
+window.openVaultDetail = (item) => {
+document.getElementById('vDetailTitle').textContent = (item.brand || 'Asset') + ' - ' + (item.item || item.name || 'Item');
+document.getElementById('vDetailThumb').src = item.imageThumb || item.image || '';
+document.getElementById('vDetailCost').textContent = '$' + Number(item.cost || item.itemCost || 0).toFixed(2);
+document.getElementById('vDetailResale').textContent = '$' + Number(item.resale || item.estimatedValue || 0).toFixed(2);
+document.getElementById('vDetailProfit').textContent = '$' + Number(item.profit || item.realizedProfit || 0).toFixed(2);
+document.getElementById('vDetailPlatform').textContent = item.platform || 'eBay';
+document.getElementById('vDetailIntel').textContent = item.intel || item.shipping || 'No additional intelligence notes logged.';
+document.getElementById('vDetailEbayLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query || (item.brand + " " + item.item)) + "&LH_Sold=1&LH_Complete=1";
+document.getElementById('vaultDetailModal').classList.add('active');
+};
+
+window.openVaultDetailByName = (id) => {
+const all = [...STATE.activeItems, ...STATE.soldItems];
+const target = all.find(i => i.id === id);
+if (target) openVaultDetail(target);
+};
 
 window.markSoldCloud = async (id) => {
 const target = STATE.activeItems.find(i => i.id === id);
