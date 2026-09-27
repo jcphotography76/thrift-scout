@@ -98,6 +98,10 @@ display: flex;
 flex-direction: column;
 gap: 12px;
 box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+position: relative;
+overflow: hidden;
+touch-action: pan-y;
+transition: transform 0.2s ease, background 0.2s ease;
 }
 .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
 .badge-accent {
@@ -507,8 +511,8 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 </div>
 </div>
 
-<div class="card">
-<div class="card-title">RAPID VALUATION</div>
+<div class="card" id="valuationCardContainer">
+<div class="card-title">RAPID VALUATION <span style="font-size:0.7rem; color:var(--text-muted);">Swipe Right ➡️ Keep | Swipe Left ⬅️ Discard</span></div>
 
 <input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
 <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
@@ -580,12 +584,12 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 
 <!-- TAB 2: TAG ID -->
 <section id="tab-tags" class="tab-view">
-<div class="card">
+<div class="card" id="tagCardContainer">
 <div class="card-title">
 <span>VINTAGE TAG & MAKER MARK ID</span>
 <span class="badge-accent">Fast Dating</span>
 </div>
-<p style="font-size:0.82rem; color:var(--text-muted);">Fast-inference mode for clothing labels, union bugs, care stamps, RN codes, and pottery/hardware marks.</p>
+<p style="font-size:0.82rem; color:var(--text-muted);">Fast-inference mode for clothing labels, union bugs, care stamps, RN codes, and pottery/hardware marks. (Swipe Right to Keep, Swipe Left to Discard)</p>
 <input type="file" id="tagImageInput" accept="image/*" capture="environment" style="display:none;">
 <button class="btn btn-amber" id="snapTagBtn">SCAN TAG / MAKER MARK</button>
 </div>
@@ -1106,6 +1110,98 @@ compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
 if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
 webcamModal.classList.remove('active');
 };
+
+// SWIPE FUNCTIONALITY FOR CARDS (Swipe Right to Keep/Process, Swipe Left to Discard)
+function setupSwipeHandlers(cardId, onSwipeRight, onSwipeLeft) {
+const card = document.getElementById(cardId);
+if (!card) return;
+
+let startX = 0;
+let currentX = 0;
+let isDragging = false;
+
+card.addEventListener('touchstart', (e) => {
+startX = e.touches[0].clientX;
+isDragging = true;
+}, { passive: true });
+
+card.addEventListener('touchmove', (e) => {
+if (!isDragging) return;
+currentX = e.touches[0].clientX;
+const diff = currentX - startX;
+card.style.transform = 'translateX(' + diff + 'px)';
+if (diff > 50) {
+card.style.background = 'rgba(20, 184, 166, 0.15)';
+} else if (diff < -50) {
+card.style.background = 'rgba(244, 63, 94, 0.15)';
+} else {
+card.style.background = 'var(--card-bg)';
+}
+}, { passive: true });
+
+card.addEventListener('touchend', (e) => {
+if (!isDragging) return;
+isDragging = false;
+const diff = currentX - startX;
+card.style.transform = 'translateX(0px)';
+card.style.background = 'var(--card-bg)';
+if (diff > 100) {
+if (onSwipeRight) onSwipeRight();
+} else if (diff < -100) {
+if (onSwipeLeft) onSwipeLeft();
+}
+});
+
+// Mouse support for desktop testing
+card.addEventListener('mousedown', (e) => {
+startX = e.clientX;
+isDragging = true;
+});
+
+window.addEventListener('mousemove', (e) => {
+if (!isDragging) return;
+currentX = e.clientX;
+const diff = currentX - startX;
+card.style.transform = 'translateX(' + diff + 'px)';
+if (diff > 50) {
+card.style.background = 'rgba(20, 184, 166, 0.15)';
+} else if (diff < -50) {
+card.style.background = 'rgba(244, 63, 94, 0.15)';
+} else {
+card.style.background = 'var(--card-bg)';
+}
+});
+
+window.addEventListener('mouseup', () => {
+if (!isDragging) return;
+isDragging = false;
+const diff = currentX - startX;
+card.style.transform = 'translateX(0px)';
+card.style.background = 'var(--card-bg)';
+if (diff > 100) {
+if (onSwipeRight) onSwipeRight();
+} else if (diff < -100) {
+if (onSwipeLeft) onSwipeLeft();
+}
+});
+}
+
+// Apply swipe handlers to Valuation card and Tag ID card
+setupSwipeHandlers('valuationCardContainer',
+() => { triggerAlert('Item kept! Proceeding to evaluation.'); document.getElementById('evaluateBtn').click(); },
+() => {
+selectedImageBase64 = null;
+compressedThumbDataUrl = null;
+document.getElementById('imagePreviewContainer').style.display = 'none';
+document.getElementById('appraisalCard').style.display = 'none';
+triggerAlert('Item discarded.');
+}
+);
+
+setupSwipeHandlers('tagCardContainer',
+() => { triggerAlert('Tag kept! Opening scanner.'); document.getElementById('snapTagBtn').click(); },
+() => { document.getElementById('tagResultCard').style.display = 'none'; triggerAlert('Tag scan discarded.'); }
+);
 
 // AI Valuation Engine with Gemini 3.8 Flash
 document.getElementById('evaluateBtn').onclick = async () => {
