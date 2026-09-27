@@ -127,7 +127,21 @@ border-radius: 12px;
 padding: 14px;
 display: flex;
 flex-direction: column;
-gap: 8px;
+gap: 10px;
+}
+.challenge-inner {
+display: flex;
+gap: 12px;
+align-items: center;
+}
+.challenge-thumb {
+width: 72px;
+height: 72px;
+min-width: 72px;
+border-radius: 8px;
+object-fit: cover;
+background: #090d16;
+border: 1px solid var(--border);
 }
 .challenge-reward {
 display: inline-flex;
@@ -474,14 +488,19 @@ outline: none;
 <span class="badge-accent">Daily Mission</span>
 </div>
 <div class="challenge-banner">
+<div class="challenge-inner">
+<img id="dailyTargetThumb" class="challenge-thumb" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2272%22%20height%3D%2272%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2210%22%20font-family%3D%22sans-serif%22%3ETarget%3C%2Ftext%3E%3C%2Fsvg%3E" alt="Mission Target">
+<div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
 <div style="display:flex; justify-content:space-between; align-items:center;">
-<span style="font-weight:800; font-size:1rem; color:#fff;" id="dailyTargetName">Heavyweight Flannel Shirt</span>
+<span style="font-weight:800; font-size:0.95rem; color:#fff;" id="dailyTargetName">Heavyweight Flannel Shirt</span>
 <span class="challenge-reward" id="dailyRewardBadge">+150 XP BONUS</span>
 </div>
-<p style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="dailyTargetDesc">
-Scout any vintage cotton flannel or chamois shirt (Pendleton, Woolrich, L.L. Bean, or Five Brother). Check tags for Made in USA or 100% heavy cotton weave.
+<p style="font-size:0.78rem; color:var(--text-muted); line-height:1.3;" id="dailyTargetDesc">
+Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 </p>
-<div style="display:flex; gap:8px; margin-top:4px;">
+</div>
+</div>
+<div style="display:flex; gap:8px; margin-top:2px;">
 <a id="dailyCompsLink" target="_blank" class="btn btn-outline" style="font-size:0.75rem; padding:8px 12px; width:auto;" href="https://www.ebay.com/sch/i.html?_nkw=vintage+heavyweight+flannel+shirt+made+in+usa&LH_Sold=1&LH_Complete=1">View Target Comps</a>
 <button class="btn btn-accent" id="claimChallengeBtn" style="font-size:0.75rem; padding:8px 12px; width:auto;">Apply Target to Scan</button>
 </div>
@@ -757,22 +776,26 @@ const DAILY_MISSIONS = [
 {
 name: "Heavyweight Flannel Shirt",
 desc: "Find any vintage cotton flannel or chamois shirt (Woolrich, Pendleton, L.L. Bean, Five Brother). Check tags for Made in USA.",
-query: "vintage heavyweight flannel shirt made in usa"
+query: "vintage heavyweight flannel shirt made in usa",
+image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=300&q=80"
 },
 {
 name: "Vintage Graphic Band or Tour Tee",
 desc: "Hunt for single-stitch hems or 90s licensed band, concert, or festival shirts (Brockum, Giant, Winterland tags).",
-query: "vintage single stitch band tee"
+query: "vintage single stitch band tee",
+image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=300&q=80"
 },
 {
 name: "Graphing Calculator",
 desc: "Look in the bag walls or tech bins for Texas Instruments (TI-84, TI-83 Plus, TI-89) or Casio graphing models.",
-query: "ti-84 plus graphing calculator"
+query: "ti-84 plus graphing calculator",
+image: "https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=300&q=80"
 },
 {
 name: "Cast Iron Skillet (Griswold / Wagner)",
 desc: "Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.",
-query: "vintage cast iron skillet wagner griswold"
+query: "vintage cast iron skillet wagner griswold",
+image: "https://images.unsplash.com/photo-1584990392731-13172e27649f?auto=format&fit=crop&w=300&q=80"
 }
 ];
 
@@ -824,9 +847,10 @@ lon: -111.8872
 }
 ];
 
-// Populate Challenge of the Day
+// Populate Challenge of the Day with Image & Details
 document.getElementById('dailyTargetName').textContent = currentMission.name;
 document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
+document.getElementById('dailyTargetThumb').src = currentMission.image;
 document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
 document.getElementById('claimChallengeBtn').onclick = () => {
 triggerAlert('Target mission "' + currentMission.name + '" primed for scan!');
@@ -1236,7 +1260,6 @@ const list = (STATE.vaultSub === 'active') ? STATE.activeItems : STATE.soldItems
 let totalValue = 0;
 
 list.forEach(item => {
-// Correctly accumulate portfolio profit based on active vs sold archive state
 const val = STATE.vaultSub === 'active'
 ? Number(item.profit || 0)
 : Number(item.realizedProfit || item.profit || 0);
