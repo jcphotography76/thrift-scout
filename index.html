@@ -99,9 +99,6 @@ flex-direction: column;
 gap: 12px;
 box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
 position: relative;
-overflow: hidden;
-touch-action: pan-y;
-transition: transform 0.2s ease, background 0.2s ease;
 }
 .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
 .badge-accent {
@@ -268,7 +265,7 @@ text-align: center;
 }
 .vault-subbtn.active { background: var(--card-bg); color: #fff; border: 1px solid var(--border); }
 .vault-list { display: flex; flex-direction: column; gap: 10px; }
-.vault-item { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; align-items: center; cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease; touch-action: pan-y; }
+.vault-item { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; align-items: center; cursor: pointer; transition: border-color 0.2s; }
 .vault-item:hover { border-color: var(--border-focus); }
 .item-thumb { width: 78px; height: 78px; min-width: 78px; border-radius: 8px; object-fit: cover; background: #111827; border: 1px solid var(--border); cursor: pointer; }
 .item-content { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
@@ -512,7 +509,7 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 </div>
 
 <div class="card" id="valuationCardContainer">
-<div class="card-title">RAPID VALUATION <span style="font-size:0.7rem; color:var(--text-muted);">Swipe Right ➡️ Keep | Swipe Left ⬅️ Discard</span></div>
+<div class="card-title">RAPID VALUATION</div>
 
 <input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
 <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
@@ -528,14 +525,14 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 <img id="previewImg" style="max-height:180px; border-radius:8px; border:1px solid var(--border);" alt="Preview">
 </div>
 
-<!-- Progress bar for AI evaluation loading state -->
+<!-- Animated Progress bar for AI evaluation loading state -->
 <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px;">
 <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
-<span id="evalProgressText">Analyzing item with Gemini AI...</span>
-<span>AI Engine</span>
+<span id="evalProgressText">Analyzing item with Gemini AI (0%)...</span>
+<span>AI Recon Unit</span>
 </div>
 <div class="progress-bar-track">
-<div class="progress-bar-fill" id="evalProgressBarFill" style="width: 100%; animation: pulse 1.5s infinite;"></div>
+<div class="progress-bar-fill" id="evalProgressBarFill" style="width: 0%;"></div>
 </div>
 </div>
 
@@ -549,7 +546,7 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 </div>
 </div>
 <div class="eval-action-wrapper">
-<button class="btn btn-outline" id="evaluateBtn">EVALUATE ITEM</button>
+<button class="btn btn-outline" id="evaluateBtn" style="position:relative; overflow:hidden;">EVALUATE ITEM</button>
 </div>
 </div>
 </div>
@@ -600,7 +597,7 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 <span>VINTAGE TAG & MAKER MARK ID</span>
 <span class="badge-accent">Fast Dating</span>
 </div>
-<p style="font-size:0.82rem; color:var(--text-muted);">Fast-inference mode for clothing labels, union bugs, care stamps, RN codes, and pottery/hardware marks. (Swipe Right to Keep, Swipe Left to Discard)</p>
+<p style="font-size:0.82rem; color:var(--text-muted);">Fast-inference mode for clothing labels, union bugs, care stamps, RN codes, and pottery/hardware marks.</p>
 <input type="file" id="tagImageInput" accept="image/*" capture="environment" style="display:none;">
 <button class="btn btn-amber" id="snapTagBtn">SCAN TAG / MAKER MARK</button>
 </div>
@@ -618,7 +615,6 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 <button id="vaultSubActive" class="vault-subbtn active">Active Inventory</button>
 <button id="vaultSubSold" class="vault-subbtn">Sold Archive</button>
 </div>
-<div style="font-size:0.75rem; color:var(--text-muted); text-align:center;">Swipe Right on Vault items to Mark Sold / Archive | Swipe Left to Delete</div>
 <div class="vault-summary">
 <div>
 <div class="metric-label">Vault Portfolio</div>
@@ -652,6 +648,25 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 <button class="dock-btn" data-target="tab-vault">VAULT</button>
 <button class="dock-btn" data-target="tab-stores">STORES</button>
 </nav>
+
+<!-- WELCOME / ONBOARDING POP ART MILITARY THEME MODAL -->
+<div class="modal-overlay active" id="welcomeModal">
+<div class="modal-content" style="text-align:center; border:2px solid var(--accent); background: linear-gradient(135deg, #111827 0%, #0f172a 100%);">
+<div style="font-size:3.2rem;">🎖️</div>
+<div style="font-size:1.3rem; font-weight:900; color:#fff; letter-spacing:-0.02em;">THRIFT SCOUT • OPERATIONS</div>
+<div style="font-size:0.75rem; color:var(--accent); font-weight:800; text-transform:uppercase; letter-spacing:0.08em;">Specialist Field HQ</div>
+<p style="font-size:0.85rem; color:var(--text-muted); line-height:1.4; margin-top:4px;">
+Welcome to the line, Scout. Your mission is high-precision secondary market asset acquisition. Scan tags, appraise resale margins, and log your high-performance inventory into the Vault.
+</p>
+<div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
+<div style="font-size:0.78rem; font-weight:800; color:#fff;">⭐ FIELD MANUAL:</div>
+<div style="font-size:0.75rem; color:var(--text-muted);">• <b>Scout Unit:</b> Snap photos & evaluate profit margins instantly.</div>
+<div style="font-size:0.75rem; color:var(--text-muted);">• <b>Tag Recon:</b> Verify vintage eras, RN codes & hallmarks.</div>
+<div style="font-size:0.75rem; color:var(--text-muted);">• <b>Vault Logistics:</b> Track active portfolio and sold archives.</div>
+</div>
+<button class="btn btn-accent" id="enterHQBtn" style="margin-top:6px;">REPORT FOR DUTY</button>
+</div>
+</div>
 
 <!-- LEVEL & BADGES GAMIFICATION MODAL -->
 <div class="modal-overlay" id="levelModal">
@@ -863,6 +878,11 @@ lon: -111.8872
 }
 ];
 
+// Welcome Screen Dismiss
+document.getElementById('enterHQBtn').onclick = () => {
+document.getElementById('welcomeModal').classList.remove('active');
+};
+
 // Populate Challenge of the Day with Image & Details
 document.getElementById('dailyTargetName').textContent = currentMission.name;
 document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
@@ -1025,6 +1045,15 @@ selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.70).split(',')[1];
 previewImg.src = canvas.toDataURL('image/jpeg', 0.70);
 previewBox.style.display = 'block';
 
+// Prompt user for item cost upon snapping/uploading
+const costInput = prompt('Enter thrift store tag price ($):', '4.00');
+if (costInput !== null) {
+const parsedCost = parseFloat(costInput);
+if (!isNaN(parsedCost)) {
+document.getElementById('purchaseCost').value = parsedCost.toFixed(2);
+}
+}
+
 const thumbCanvas = document.createElement('canvas');
 let tw = img.width;
 let th = img.height;
@@ -1113,6 +1142,14 @@ selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
 previewImg.src = canvas.toDataURL('image/jpeg', 0.75);
 previewBox.style.display = 'block';
 
+const costInput = prompt('Enter thrift store tag price ($):', '4.00');
+if (costInput !== null) {
+const parsedCost = parseFloat(costInput);
+if (!isNaN(parsedCost)) {
+document.getElementById('purchaseCost').value = parsedCost.toFixed(2);
+}
+}
+
 const thumbCanvas = document.createElement('canvas');
 thumbCanvas.width = 140;
 thumbCanvas.height = Math.round((canvas.height * 140) / canvas.width);
@@ -1123,97 +1160,7 @@ if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
 webcamModal.classList.remove('active');
 };
 
-// SWIPE FUNCTIONALITY FOR CARDS
-function setupSwipeHandlers(cardId, onSwipeRight, onSwipeLeft) {
-const card = document.getElementById(cardId);
-if (!card) return;
-
-let startX = 0;
-let currentX = 0;
-let isDragging = false;
-
-card.addEventListener('touchstart', (e) => {
-startX = e.touches[0].clientX;
-isDragging = true;
-}, { passive: true });
-
-card.addEventListener('touchmove', (e) => {
-if (!isDragging) return;
-currentX = e.touches[0].clientX;
-const diff = currentX - startX;
-card.style.transform = 'translateX(' + diff + 'px)';
-if (diff > 50) {
-card.style.background = 'rgba(20, 184, 166, 0.15)';
-} else if (diff < -50) {
-card.style.background = 'rgba(244, 63, 94, 0.15)';
-} else {
-card.style.background = 'var(--card-bg)';
-}
-}, { passive: true });
-
-card.addEventListener('touchend', () => {
-if (!isDragging) return;
-isDragging = false;
-const diff = currentX - startX;
-card.style.transform = 'translateX(0px)';
-card.style.background = 'var(--card-bg)';
-if (diff > 100) {
-if (onSwipeRight) onSwipeRight();
-} else if (diff < -100) {
-if (onSwipeLeft) onSwipeLeft();
-}
-});
-
-card.addEventListener('mousedown', (e) => {
-startX = e.clientX;
-isDragging = true;
-});
-
-window.addEventListener('mousemove', (e) => {
-if (!isDragging) return;
-currentX = e.clientX;
-const diff = currentX - startX;
-card.style.transform = 'translateX(' + diff + 'px)';
-if (diff > 50) {
-card.style.background = 'rgba(20, 184, 166, 0.15)';
-} else if (diff < -50) {
-card.style.background = 'rgba(244, 63, 94, 0.15)';
-} else {
-card.style.background = 'var(--card-bg)';
-}
-});
-
-window.addEventListener('mouseup', () => {
-if (!isDragging) return;
-isDragging = false;
-const diff = currentX - startX;
-card.style.transform = 'translateX(0px)';
-card.style.background = 'var(--card-bg)';
-if (diff > 100) {
-if (onSwipeRight) onSwipeRight();
-} else if (diff < -100) {
-if (onSwipeLeft) onSwipeLeft();
-}
-});
-}
-
-setupSwipeHandlers('valuationCardContainer',
-() => { triggerAlert('Item kept! Evaluating...'); document.getElementById('evaluateBtn').click(); },
-() => {
-selectedImageBase64 = null;
-compressedThumbDataUrl = null;
-document.getElementById('imagePreviewContainer').style.display = 'none';
-document.getElementById('appraisalCard').style.display = 'none';
-triggerAlert('Item discarded.');
-}
-);
-
-setupSwipeHandlers('tagCardContainer',
-() => { triggerAlert('Tag kept! Opening scanner.'); document.getElementById('snapTagBtn').click(); },
-() => { document.getElementById('tagResultCard').style.display = 'none'; triggerAlert('Tag scan discarded.'); }
-);
-
-// AI Valuation Engine with Gemini 3.8 Flash & Progress Bar
+// AI Valuation Engine with Gemini 3.8 Flash & Robust Progress Bar
 document.getElementById('evaluateBtn').onclick = async () => {
 if (!selectedImageBase64) {
 alert('Snap or select an image first.');
@@ -1229,8 +1176,16 @@ alert('Daily scan limit reached.');
 return;
 }
 
+const evalBtn = document.getElementById('evaluateBtn');
+evalBtn.disabled = true;
+
 const progressBox = document.getElementById('evalProgressContainer');
+const progressBarFill = document.getElementById('evalProgressBarFill');
+const progressText = document.getElementById('evalProgressText');
 progressBox.style.display = 'flex';
+progressBarFill.style.width = '15%';
+progressText.textContent = 'Initializing AI Recon Unit (15%)...';
+
 triggerAlert('Analyzing item resale value and tag hallmarks...');
 
 const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
@@ -1248,6 +1203,9 @@ const promptText = "Analyze this thrift store item for secondary market resale. 
 ' "query": "clean keywords for ebay sold search"\n' +
 "}";
 
+setTimeout(() => { progressBarFill.style.width = '45%'; progressText.textContent = 'Scanning Hallmarks & Comps (45%)...'; }, 400);
+setTimeout(() => { progressBarFill.style.width = '80%'; progressText.textContent = 'Calculating Profit Margins (80%)...'; }, 900);
+
 try {
 const res = await fetch(endpoint, {
 method: 'POST',
@@ -1263,7 +1221,12 @@ generationConfig: { temperature: 0.15 }
 })
 });
 
+progressBarFill.style.width = '100%';
+progressText.textContent = 'Analysis Complete (100%)';
+setTimeout(() => {
 progressBox.style.display = 'none';
+evalBtn.disabled = false;
+}, 300);
 
 if (!res.ok) {
 const errBody = await res.json().catch(() => ({}));
@@ -1315,6 +1278,7 @@ alert('🎯 Daily Mission Target Identified! +150 XP Bonus Awarded!');
 
 } catch (err) {
 progressBox.style.display = 'none';
+evalBtn.disabled = false;
 triggerAlert('Evaluation error: ' + err.message, true);
 }
 };
@@ -1387,7 +1351,7 @@ const row = document.createElement('div');
 row.className = 'vault-item';
 row.onclick = () => openVaultDetail(item);
 
-// Add swipe support to individual vault items (Swipe Right to Mark Sold, Swipe Left to Delete)
+// Smooth Tap-Proof Swipe Logic for Vault Cards
 let vStartX = 0;
 let vCurrentX = 0;
 let vDragging = false;
@@ -1401,10 +1365,12 @@ row.addEventListener('touchmove', (e) => {
 if (!vDragging) return;
 vCurrentX = e.touches[0].clientX;
 const diff = vCurrentX - vStartX;
+if (Math.abs(diff) > 10) {
 row.style.transform = 'translateX(' + diff + 'px)';
 if (diff > 40) row.style.background = 'rgba(20, 184, 166, 0.2)';
 else if (diff < -40) row.style.background = 'rgba(244, 63, 94, 0.2)';
 else row.style.background = 'var(--surface)';
+}
 }, { passive: true });
 
 row.addEventListener('touchend', () => {
@@ -1413,10 +1379,12 @@ vDragging = false;
 const diff = vCurrentX - vStartX;
 row.style.transform = 'translateX(0px)';
 row.style.background = 'var(--surface)';
-if (diff > 80 && STATE.vaultSub === 'active') {
+if (Math.abs(diff) > 70) {
+if (diff > 0 && STATE.vaultSub === 'active') {
 markSoldCloud(item.id);
-} else if (diff < -80) {
+} else if (diff < 0) {
 deleteCloudItem(item.id);
+}
 }
 });
 
