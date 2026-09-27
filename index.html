@@ -268,7 +268,7 @@ text-align: center;
 }
 .vault-subbtn.active { background: var(--card-bg); color: #fff; border: 1px solid var(--border); }
 .vault-list { display: flex; flex-direction: column; gap: 10px; }
-.vault-item { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; align-items: center; cursor: pointer; transition: border-color 0.2s; }
+.vault-item { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; align-items: center; cursor: pointer; transition: transform 0.2s ease, border-color 0.2s ease; touch-action: pan-y; }
 .vault-item:hover { border-color: var(--border-focus); }
 .item-thumb { width: 78px; height: 78px; min-width: 78px; border-radius: 8px; object-fit: cover; background: #111827; border: 1px solid var(--border); cursor: pointer; }
 .item-content { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
@@ -528,6 +528,17 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 <img id="previewImg" style="max-height:180px; border-radius:8px; border:1px solid var(--border);" alt="Preview">
 </div>
 
+<!-- Progress bar for AI evaluation loading state -->
+<div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px;">
+<div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
+<span id="evalProgressText">Analyzing item with Gemini AI...</span>
+<span>AI Engine</span>
+</div>
+<div class="progress-bar-track">
+<div class="progress-bar-fill" id="evalProgressBarFill" style="width: 100%; animation: pulse 1.5s infinite;"></div>
+</div>
+</div>
+
 <!-- Cost Basis Component -->
 <div style="display:flex; gap:10px; align-items:flex-end;">
 <div class="cost-input-wrapper">
@@ -607,6 +618,7 @@ Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
 <button id="vaultSubActive" class="vault-subbtn active">Active Inventory</button>
 <button id="vaultSubSold" class="vault-subbtn">Sold Archive</button>
 </div>
+<div style="font-size:0.75rem; color:var(--text-muted); text-align:center;">Swipe Right on Vault items to Mark Sold / Archive | Swipe Left to Delete</div>
 <div class="vault-summary">
 <div>
 <div class="metric-label">Vault Portfolio</div>
@@ -1111,7 +1123,7 @@ if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
 webcamModal.classList.remove('active');
 };
 
-// SWIPE FUNCTIONALITY FOR CARDS (Swipe Right to Keep/Process, Swipe Left to Discard)
+// SWIPE FUNCTIONALITY FOR CARDS
 function setupSwipeHandlers(cardId, onSwipeRight, onSwipeLeft) {
 const card = document.getElementById(cardId);
 if (!card) return;
@@ -1139,7 +1151,7 @@ card.style.background = 'var(--card-bg)';
 }
 }, { passive: true });
 
-card.addEventListener('touchend', (e) => {
+card.addEventListener('touchend', () => {
 if (!isDragging) return;
 isDragging = false;
 const diff = currentX - startX;
@@ -1152,7 +1164,6 @@ if (onSwipeLeft) onSwipeLeft();
 }
 });
 
-// Mouse support for desktop testing
 card.addEventListener('mousedown', (e) => {
 startX = e.clientX;
 isDragging = true;
@@ -1186,9 +1197,8 @@ if (onSwipeLeft) onSwipeLeft();
 });
 }
 
-// Apply swipe handlers to Valuation card and Tag ID card
 setupSwipeHandlers('valuationCardContainer',
-() => { triggerAlert('Item kept! Proceeding to evaluation.'); document.getElementById('evaluateBtn').click(); },
+() => { triggerAlert('Item kept! Evaluating...'); document.getElementById('evaluateBtn').click(); },
 () => {
 selectedImageBase64 = null;
 compressedThumbDataUrl = null;
@@ -1203,7 +1213,7 @@ setupSwipeHandlers('tagCardContainer',
 () => { document.getElementById('tagResultCard').style.display = 'none'; triggerAlert('Tag scan discarded.'); }
 );
 
-// AI Valuation Engine with Gemini 3.8 Flash
+// AI Valuation Engine with Gemini 3.8 Flash & Progress Bar
 document.getElementById('evaluateBtn').onclick = async () => {
 if (!selectedImageBase64) {
 alert('Snap or select an image first.');
@@ -1219,7 +1229,10 @@ alert('Daily scan limit reached.');
 return;
 }
 
+const progressBox = document.getElementById('evalProgressContainer');
+progressBox.style.display = 'flex';
 triggerAlert('Analyzing item resale value and tag hallmarks...');
+
 const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
 const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
@@ -1250,6 +1263,8 @@ generationConfig: { temperature: 0.15 }
 })
 });
 
+progressBox.style.display = 'none';
+
 if (!res.ok) {
 const errBody = await res.json().catch(() => ({}));
 throw new Error(errBody.error?.message || ('HTTP ' + res.status));
@@ -1267,7 +1282,6 @@ const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim
 const estResale = parseFloat(parsed.resale) || 0;
 const estProfit = estResale - cost - (estResale * 0.1325);
 
-// Check if item fulfills Challenge of the Day
 const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).toLowerCase();
 const isMissionMatch = currentMission.name.toLowerCase().split(' ').some(w => w.length > 3 && fullDesc.includes(w));
 const bonusXp = isMissionMatch ? 150 : 25;
@@ -1300,6 +1314,7 @@ alert('🎯 Daily Mission Target Identified! +150 XP Bonus Awarded!');
 }
 
 } catch (err) {
+progressBox.style.display = 'none';
 triggerAlert('Evaluation error: ' + err.message, true);
 }
 };
@@ -1371,6 +1386,40 @@ const thumbSrc = item.imageThumb || item.image || "data:image/svg+xml;charset=UT
 const row = document.createElement('div');
 row.className = 'vault-item';
 row.onclick = () => openVaultDetail(item);
+
+// Add swipe support to individual vault items (Swipe Right to Mark Sold, Swipe Left to Delete)
+let vStartX = 0;
+let vCurrentX = 0;
+let vDragging = false;
+
+row.addEventListener('touchstart', (e) => {
+vStartX = e.touches[0].clientX;
+vDragging = true;
+}, { passive: true });
+
+row.addEventListener('touchmove', (e) => {
+if (!vDragging) return;
+vCurrentX = e.touches[0].clientX;
+const diff = vCurrentX - vStartX;
+row.style.transform = 'translateX(' + diff + 'px)';
+if (diff > 40) row.style.background = 'rgba(20, 184, 166, 0.2)';
+else if (diff < -40) row.style.background = 'rgba(244, 63, 94, 0.2)';
+else row.style.background = 'var(--surface)';
+}, { passive: true });
+
+row.addEventListener('touchend', () => {
+if (!vDragging) return;
+vDragging = false;
+const diff = vCurrentX - vStartX;
+row.style.transform = 'translateX(0px)';
+row.style.background = 'var(--surface)';
+if (diff > 80 && STATE.vaultSub === 'active') {
+markSoldCloud(item.id);
+} else if (diff < -80) {
+deleteCloudItem(item.id);
+}
+});
+
 row.innerHTML =
 '<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onclick="event.stopPropagation(); openVaultDetailByName(\'' + item.id + '\')" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
 '<div class="item-content">' +
