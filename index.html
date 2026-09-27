@@ -1,1425 +1,1413 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Thrift Scout • Vault</title>
-  <style>
-    :root {
-      --bg: #000000;
-      --card-bg: #0d1117;
-      --surface: #161b22;
-      --border: #21262d;
-      --border-focus: #388bfd;
-      --text: #f0f6fc;
-      --text-muted: #8b949e;
-      --emerald: #10b981;
-      --emerald-glow: rgba(16, 185, 129, 0.15);
-      --amber: #f59e0b;
-      --amber-glow: rgba(245, 158, 11, 0.15);
-      --red: #ef4444;
-      --red-glow: rgba(239, 68, 68, 0.15);
-      --blue: #2563eb;
-      --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: var(--font-stack);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding-bottom: calc(75px + env(safe-area-inset-bottom));
-      overflow-x: hidden;
-    }
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(0, 0, 0, 0.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .brand { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; }
-    .brand-accent { color: var(--emerald); }
-    .header-pills { display: flex; gap: 8px; align-items: center; }
-    .rank-pill {
-      background: var(--amber-glow);
-      border: 1px solid var(--amber);
-      color: var(--amber);
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 999px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: opacity 0.15s ease;
-    }
-    .rank-pill:active { opacity: 0.7; }
-    .scan-pill {
-      background: var(--emerald-glow);
-      border: 1px solid var(--emerald);
-      color: var(--emerald);
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 999px;
-    }
-    .settings-btn {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    main { flex: 1; width: 100%; max-width: 650px; margin: 0 auto; padding: 16px; }
-    .tab-view { display: none; flex-direction: column; gap: 14px; }
-    .tab-view.active { display: flex; }
-    .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
-    .badge-amber {
-      background: var(--amber-glow);
-      color: var(--amber);
-      border: 1px solid var(--amber);
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 6px;
-      text-transform: uppercase;
-    }
-    .status-alert {
-      display: none;
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-size: 0.88rem;
-      border-left: 4px solid var(--blue);
-      background: var(--card-bg);
-      line-height: 1.4;
-    }
-    .target-scroller { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
-    .target-scroller::-webkit-scrollbar { display: none; }
-    .target-card {
-      flex: 0 0 160px;
-      background: #05070a;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      text-decoration: none;
-      color: inherit;
-    }
-    .target-card-img {
-      width: 100%;
-      height: 95px;
-      object-fit: cover;
-      background: #000;
-      display: block;
-    }
-    .target-body { padding: 8px 10px; display: flex; flex-direction: column; gap: 4px; }
-    .target-name { font-size: 0.8rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .target-range { font-size: 0.72rem; color: var(--emerald); font-weight: 700; }
-    .btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      cursor: pointer;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      text-decoration: none;
-      user-select: none;
-    }
-    .btn-emerald { background: var(--emerald); color: #000; }
-    .btn-amber { background: var(--amber); color: #000; }
-    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .btn-blue { background: var(--blue); color: #fff; }
-    .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Thrift Scout • Vault</title>
+<style>
+:root {
+--bg: #090d16;
+--card-bg: #111827;
+--surface: #1f2937;
+--border: #374151;
+--border-focus: #6366f1;
+--text: #f9fafb;
+--text-muted: #9ca3af;
+--primary: #6366f1;
+--primary-glow: rgba(99, 102, 241, 0.2);
+--accent: #14b8a6;
+--accent-glow: rgba(20, 184, 166, 0.2);
+--coral: #f43f5e;
+--coral-glow: rgba(244, 63, 94, 0.2);
+--amber: #f59e0b;
+--amber-glow: rgba(245, 158, 11, 0.2);
+--font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+background-color: var(--bg);
+color: var(--text);
+font-family: var(--font-stack);
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+padding-bottom: calc(75px + env(safe-area-inset-bottom));
+overflow-x: hidden;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+}
+header {
+position: sticky;
+top: 0;
+z-index: 50;
+background: rgba(17, 24, 39, 0.88);
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
+border-bottom: 1px solid var(--border);
+padding: 12px 16px;
+display: flex;
+justify-content: space-between;
+align-items: center;
+}
+.brand { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; }
+.brand-accent { color: var(--accent); }
+.header-pills { display: flex; gap: 8px; align-items: center; }
+.rank-pill {
+background: var(--amber-glow);
+border: 1px solid var(--amber);
+color: var(--amber);
+font-size: 0.72rem;
+font-weight: 700;
+padding: 5px 12px;
+border-radius: 999px;
+cursor: pointer;
+display: flex;
+align-items: center;
+gap: 5px;
+user-select: none;
+}
+.rank-pill:active { opacity: 0.8; }
+.scan-pill {
+background: var(--primary-glow);
+border: 1px solid var(--primary);
+color: #818cf8;
+font-size: 0.72rem;
+font-weight: 700;
+padding: 5px 12px;
+border-radius: 999px;
+}
+.settings-btn {
+background: var(--surface);
+border: 1px solid var(--border);
+color: var(--text-muted);
+border-radius: 8px;
+padding: 6px 12px;
+font-size: 0.8rem;
+font-weight: 600;
+cursor: pointer;
+}
+main { flex: 1; width: 100%; max-width: 680px; margin: 0 auto; padding: 16px; }
+.tab-view { display: none; flex-direction: column; gap: 14px; }
+.tab-view.active { display: flex; }
+.card {
+background: var(--card-bg);
+border: 1px solid var(--border);
+border-radius: 14px;
+padding: 16px;
+display: flex;
+flex-direction: column;
+gap: 12px;
+box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+}
+.card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+.badge-accent {
+background: var(--accent-glow);
+color: var(--accent);
+border: 1px solid var(--accent);
+font-size: 0.7rem;
+font-weight: 700;
+padding: 3px 8px;
+border-radius: 6px;
+text-transform: uppercase;
+letter-spacing: 0.04em;
+}
+.status-alert {
+display: none;
+padding: 12px 14px;
+border-radius: 8px;
+font-size: 0.88rem;
+border-left: 4px solid var(--primary);
+background: var(--card-bg);
+line-height: 1.4;
+}
+.challenge-banner {
+background: linear-gradient(135deg, #1e1b4b 0%, #111827 100%);
+border: 1px solid #4338ca;
+border-radius: 12px;
+padding: 14px;
+display: flex;
+flex-direction: column;
+gap: 8px;
+}
+.challenge-reward {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+background: var(--amber-glow);
+border: 1px solid var(--amber);
+color: var(--amber);
+font-size: 0.75rem;
+font-weight: 800;
+padding: 3px 8px;
+border-radius: 6px;
+width: fit-content;
+}
+.btn {
+width: 100%;
+padding: 12px;
+border-radius: 10px;
+font-weight: 700;
+font-size: 0.9rem;
+cursor: pointer;
+border: none;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+text-decoration: none;
+user-select: none;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-accent { background: var(--accent); color: #090d16; }
+.btn-amber { background: var(--amber); color: #090d16; }
+.btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+.camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-    .cost-input-wrapper {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-    }
-    .cost-explanation-label {
-      font-size: 0.68rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--text-muted);
-    }
-    .cost-input-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-    .currency-symbol {
-      position: absolute;
-      left: 12px;
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: var(--emerald);
-      pointer-events: none;
-    }
-    .cost-input-field {
-      width: 100%;
-      background: #000;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 12px 12px 28px;
-      color: var(--text);
-      font-size: 0.95rem;
-      font-weight: 700;
-      font-family: inherit;
-      outline: none;
-    }
-    .cost-input-field:focus { border-color: var(--border-focus); }
+.cost-input-wrapper {
+display: flex;
+flex-direction: column;
+gap: 4px;
+flex: 1;
+}
+.cost-explanation-label {
+font-size: 0.68rem;
+font-weight: 700;
+text-transform: uppercase;
+letter-spacing: 0.05em;
+color: var(--text-muted);
+}
+.cost-input-container {
+position: relative;
+display: flex;
+align-items: center;
+}
+.currency-symbol {
+position: absolute;
+left: 12px;
+font-size: 0.95rem;
+font-weight: 800;
+color: var(--accent);
+pointer-events: none;
+}
+.cost-input-field {
+width: 100%;
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 8px;
+padding: 12px 12px 12px 28px;
+color: var(--text);
+font-size: 0.95rem;
+font-weight: 700;
+font-family: inherit;
+outline: none;
+}
+.cost-input-field:focus { border-color: var(--border-focus); }
 
-    .eval-action-wrapper {
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      flex: 1.2;
-    }
+.eval-action-wrapper {
+display: flex;
+flex-direction: column;
+justify-content: flex-end;
+flex: 1.2;
+}
 
-    .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .metric-box {
-      background: #000;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .metric-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-    .metric-val { font-size: 1.15rem; font-weight: 800; }
-    .metric-val.profit { color: var(--emerald); }
-    .disposition-pill {
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-weight: 800;
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .disp-flip { background: var(--emerald-glow); color: var(--emerald); border: 1px solid var(--emerald); }
-    .disp-monitor { background: var(--amber-glow); color: var(--amber); border: 1px solid var(--amber); }
-    .disp-pass { background: var(--red-glow); color: var(--red); border: 1px solid var(--red); }
-    
-    .vault-summary { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-    .vault-subtoggle { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #000; padding: 4px; border-radius: 8px; border: 1px solid var(--border); }
-    .vault-subbtn {
-      background: transparent;
-      color: var(--text-muted);
-      border: none;
-      padding: 8px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: center;
-    }
-    .vault-subbtn.active { background: var(--card-bg); color: #fff; border: 1px solid var(--border); }
-    .vault-list { display: flex; flex-direction: column; gap: 10px; }
-    .vault-item { display: flex; gap: 12px; background: #05070a; border: 1px solid var(--border); border-radius: 10px; padding: 12px; align-items: flex-start; }
-    .item-thumb { width: 78px; height: 78px; min-width: 78px; border-radius: 6px; object-fit: cover; background: #161b22; border: 1px solid var(--border); }
-    .item-content { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-    .item-title { font-weight: 700; font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-meta { font-size: 0.78rem; color: var(--text-muted); }
-    .item-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.metric-box {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 10px;
+padding: 12px;
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+.metric-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.metric-val { font-size: 1.2rem; font-weight: 800; }
+.metric-val.profit { color: var(--accent); }
+.disposition-pill {
+padding: 4px 10px;
+border-radius: 6px;
+font-weight: 800;
+font-size: 0.75rem;
+letter-spacing: 0.05em;
+text-transform: uppercase;
+}
+.disp-flip { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--accent); }
+.disp-monitor { background: var(--amber-glow); color: var(--amber); border: 1px solid var(--amber); }
+.disp-pass { background: var(--coral-glow); color: var(--coral); border: 1px solid var(--coral); }
 
-    /* Radar Sourcing Component */
-    .radar-header-card {
-      background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .gps-status-pill {
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: rgba(16, 185, 129, 0.1);
-      color: var(--emerald);
-      border: 1px solid var(--emerald);
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      width: fit-content;
-    }
-    .store-radar-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .store-card-modern {
-      background: #05070a;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .store-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    .store-name-title {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: #fff;
-    }
-    .store-dist-badge {
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: var(--emerald);
-      background: var(--emerald-glow);
-      border: 1px solid var(--emerald);
-      padding: 2px 8px;
-      border-radius: 6px;
-      white-space: nowrap;
-    }
-    .store-address-text {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-    .nav-actions-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-top: 4px;
-    }
-    .nav-app-btn {
-      text-align: center;
-      padding: 9px 4px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      color: var(--text);
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-    }
-    .nav-app-btn:active {
-      background: var(--border);
-    }
+.vault-summary { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.vault-subtoggle { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--surface); padding: 4px; border-radius: 8px; border: 1px solid var(--border); }
+.vault-subbtn {
+background: transparent;
+color: var(--text-muted);
+border: none;
+padding: 8px;
+font-size: 0.8rem;
+font-weight: 700;
+border-radius: 6px;
+cursor: pointer;
+text-align: center;
+}
+.vault-subbtn.active { background: var(--card-bg); color: #fff; border: 1px solid var(--border); }
+.vault-list { display: flex; flex-direction: column; gap: 10px; }
+.vault-item { display: flex; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px; align-items: flex-start; }
+.item-thumb { width: 78px; height: 78px; min-width: 78px; border-radius: 8px; object-fit: cover; background: #111827; border: 1px solid var(--border); }
+.item-content { flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.item-title { font-weight: 700; font-size: 0.92rem; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-meta { font-size: 0.78rem; color: var(--text-muted); }
+.item-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 
-    .timeline-node { border-left: 2px solid var(--amber); padding-left: 12px; margin-left: 4px; position: relative; margin-bottom: 12px; }
-    .timeline-node::before {
-      content: '';
-      position: absolute;
-      left: -5px;
-      top: 4px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--amber);
-    }
-    .timeline-era { font-size: 0.8rem; font-weight: 700; color: var(--amber); }
-    .timeline-desc { font-size: 0.82rem; color: var(--text-muted); }
+.store-radar-grid {
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+.store-card-modern {
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 12px;
+padding: 14px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+.store-card-top {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+}
+.store-name-title {
+font-size: 0.95rem;
+font-weight: 800;
+color: #fff;
+}
+.store-dist-badge {
+font-size: 0.75rem;
+font-weight: 800;
+color: var(--accent);
+background: var(--accent-glow);
+border: 1px solid var(--accent);
+padding: 2px 8px;
+border-radius: 6px;
+white-space: nowrap;
+}
+.store-address-text {
+font-size: 0.78rem;
+color: var(--text-muted);
+}
+.nav-actions-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 6px;
+margin-top: 4px;
+}
+.nav-app-btn {
+text-align: center;
+padding: 9px 4px;
+background: var(--card-bg);
+border: 1px solid var(--border);
+border-radius: 8px;
+color: var(--text);
+font-size: 0.75rem;
+font-weight: 700;
+text-decoration: none;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 4px;
+}
+.nav-app-btn:active { background: var(--border); }
 
-    /* Gamification Modal & Progress Bars */
-    .progress-bar-track {
-      width: 100%;
-      height: 10px;
-      background: #000;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      overflow: hidden;
-      margin: 8px 0;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--amber) 0%, var(--emerald) 100%);
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-    .badge-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px;
-      border-radius: 8px;
-      background: #05070a;
-      border: 1px solid var(--border);
-    }
-    .badge-icon-box {
-      font-size: 1.4rem;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--surface);
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-    .badge-card.unlocked { border-color: var(--amber); background: rgba(245, 158, 11, 0.05); }
+.timeline-node { border-left: 2px solid var(--amber); padding-left: 12px; margin-left: 4px; position: relative; margin-bottom: 12px; }
+.timeline-node::before {
+content: '';
+position: absolute;
+left: -5px;
+top: 4px;
+width: 8px;
+height: 8px;
+border-radius: 50%;
+background: var(--amber);
+}
+.timeline-era { font-size: 0.8rem; font-weight: 700; color: var(--amber); }
+.timeline-desc { font-size: 0.82rem; color: var(--text-muted); }
 
-    .bottom-dock {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: calc(60px + env(safe-area-inset-bottom));
-      padding-bottom: env(safe-area-inset-bottom);
-      background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 100;
-    }
-    .dock-btn {
-      flex: 1;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-    .dock-btn.active { color: var(--emerald); }
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 200;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal-content {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 18px;
-      max-width: 480px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    #webcamVideo {
-      width: 100%;
-      height: 240px;
-      background: #000;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      object-fit: cover;
-    }
-    .input-field {
-      width: 100%;
-      background: #000;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: var(--text);
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-    }
-    .input-field:focus { border-color: var(--border-focus); }
-  </style>
+.progress-bar-track {
+width: 100%;
+height: 10px;
+background: var(--surface);
+border-radius: 999px;
+border: 1px solid var(--border);
+overflow: hidden;
+margin: 8px 0;
+}
+.progress-bar-fill {
+height: 100%;
+background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+width: 0%;
+transition: width 0.3s ease;
+}
+.badge-card {
+display: flex;
+align-items: center;
+gap: 12px;
+padding: 10px;
+border-radius: 8px;
+background: var(--surface);
+border: 1px solid var(--border);
+}
+.badge-icon-box {
+font-size: 1.4rem;
+width: 40px;
+height: 40px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: var(--card-bg);
+border-radius: 8px;
+border: 1px solid var(--border);
+}
+.badge-card.unlocked { border-color: var(--amber); background: rgba(245, 158, 11, 0.08); }
+
+.bottom-dock {
+position: fixed;
+bottom: 0;
+left: 0;
+right: 0;
+height: calc(60px + env(safe-area-inset-bottom));
+padding-bottom: env(safe-area-inset-bottom);
+background: rgba(17, 24, 39, 0.95);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border-top: 1px solid var(--border);
+display: flex;
+justify-content: space-around;
+align-items: center;
+z-index: 100;
+}
+.dock-btn {
+flex: 1;
+height: 100%;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+gap: 4px;
+background: transparent;
+border: none;
+color: var(--text-muted);
+cursor: pointer;
+font-size: 0.75rem;
+font-weight: 700;
+}
+.dock-btn.active { color: var(--accent); }
+.modal-overlay {
+position: fixed;
+inset: 0;
+background: rgba(0, 0, 0, 0.85);
+display: none;
+align-items: center;
+justify-content: center;
+padding: 16px;
+z-index: 200;
+}
+.modal-overlay.active { display: flex; }
+.modal-content {
+background: var(--card-bg);
+border: 1px solid var(--border);
+border-radius: 14px;
+padding: 18px;
+max-width: 480px;
+width: 100%;
+max-height: 85vh;
+overflow-y: auto;
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+#webcamVideo {
+width: 100%;
+height: 240px;
+background: #000;
+border-radius: 8px;
+border: 1px solid var(--border);
+object-fit: cover;
+}
+.input-field {
+width: 100%;
+background: var(--surface);
+border: 1px solid var(--border);
+border-radius: 8px;
+padding: 10px 12px;
+color: var(--text);
+font-size: 0.9rem;
+font-family: inherit;
+outline: none;
+}
+.input-field:focus { border-color: var(--border-focus); }
+</style>
 </head>
 <body>
 
-  <header>
-    <div class="brand">
-      <span>THRIFT</span><span class="brand-accent">SCOUT</span>
-    </div>
-    <div class="header-pills">
-      <div class="rank-pill" id="rankPill" title="Tap to view XP & badges">🥉 Rookie (0 XP)</div>
-      <div class="scan-pill" id="scanPill">100 LEFT</div>
-      <button class="settings-btn" id="configBtn">Config</button>
-    </div>
-  </header>
-
-  <main>
-    <div id="statusAlert" class="status-alert"></div>
-
-    <!-- TAB 1: SCOUT -->
-    <section id="tab-scout" class="tab-view active">
-      <div class="card">
-        <div class="card-title">
-          <span>HIGH-DEMAND DIRECTIVES</span>
-          <span class="badge-amber">Live Comps</span>
-        </div>
-        <div class="target-scroller">
-          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+patagonia+snap+t+fleece+made+in+usa&LH_Sold=1&LH_Complete=1">
-            <img class="target-card-img" src="https://images.unsplash.com/photo-1544441893-675973e31985?w=360&auto=format&fit=crop&q=80" alt="Patagonia Fleece Pullover">
-            <div class="target-body">
-              <span class="target-name">USA Snap-T / Fleece</span>
-              <span class="target-range">$75 - $220</span>
-            </div>
-          </a>
-          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=vintage+single+stitch+band+tee&LH_Sold=1&LH_Complete=1">
-            <img class="target-card-img" src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=360&auto=format&fit=crop&q=80" alt="Vintage Band T-Shirt">
-            <div class="target-body">
-              <span class="target-name">90s Tour T-Shirts</span>
-              <span class="target-range">$45 - $350</span>
-            </div>
-          </a>
-          <a class="target-card" target="_blank" href="https://www.ebay.com/sch/i.html?_nkw=ti-84+plus+silver+edition+calculator&LH_Sold=1&LH_Complete=1">
-            <img class="target-card-img" src="https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=360&auto=format&fit=crop&q=80" alt="Texas Instruments Calculator">
-            <div class="target-body">
-              <span class="target-name">TI-84 Plus Silver</span>
-              <span class="target-range">$35 - $65</span>
-            </div>
-          </a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">RAPID VALUATION</div>
-        
-        <input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
-        <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
-
-        <div class="camera-row">
-          <button class="btn btn-emerald" id="snapMobileBtn">SNAP (MOBILE)</button>
-          <button class="btn btn-blue" id="openWebcamBtn">WEBCAM (DESKTOP)</button>
-        </div>
-
-        <button class="btn btn-outline" id="uploadFileBtn" style="padding: 10px;">UPLOAD FROM FILES / MULTI</button>
-
-        <div id="imagePreviewContainer" style="display:none; text-align:center;">
-          <img id="previewImg" style="max-height:180px; border-radius:8px; border:1px solid var(--border);" alt="Preview">
-        </div>
-
-        <!-- Cost Basis Component -->
-        <div style="display:flex; gap:10px; align-items:flex-end;">
-          <div class="cost-input-wrapper">
-            <label class="cost-explanation-label">Thrift Store Tag Price</label>
-            <div class="cost-input-container">
-              <span class="currency-symbol">$</span>
-              <input type="number" id="purchaseCost" class="cost-input-field" placeholder="0.00" value="4.00" step="0.50">
-            </div>
-          </div>
-          <div class="eval-action-wrapper">
-            <button class="btn btn-outline" id="evaluateBtn">EVALUATE ITEM</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" id="appraisalCard" style="display:none;">
-        <div class="card-title">
-          <span id="resItemTitle">Identified Item</span>
-          <span id="resDispPill" class="disposition-pill disp-flip">FLIP</span>
-        </div>
-        <div class="metric-grid">
-          <div class="metric-box">
-            <span class="metric-label">Estimated Resale</span>
-            <span class="metric-val" id="resEstResale">$0.00</span>
-          </div>
-          <div class="metric-box">
-            <span class="metric-label">Net Profit (Est)</span>
-            <span class="metric-val profit" id="resEstProfit">$0.00</span>
-          </div>
-          <div class="metric-box">
-            <span class="metric-label">Brand / Origin</span>
-            <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
-          </div>
-          <div class="metric-box">
-            <span class="metric-label">Shipping / Service</span>
-            <span class="metric-val" id="resShipping" style="font-size:0.85rem;">USPS Ground</span>
-          </div>
-        </div>
-        <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
-        <div style="display:flex; gap:8px; margin-top:4px;">
-          <a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW SOLD COMPS</a>
-          <button class="btn btn-emerald" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
-        </div>
-      </div>
-
-      <!-- XP & Gameplay Handbook Quick Access -->
-      <div class="card" style="cursor:pointer;" id="openHandbookBtn">
-        <div class="card-title">
-          <span>📖 SCOUT HANDBOOK & BADGES</span>
-          <span class="badge-amber">How to Play</span>
-        </div>
-        <p style="font-size:0.82rem; color:var(--text-muted);">Tap to view your level progression, badge rewards, and XP scoring rules.</p>
-      </div>
-    </section>
-
-    <!-- TAB 2: TAG ID -->
-    <section id="tab-tags" class="tab-view">
-      <div class="card">
-        <div class="card-title">
-          <span>VINTAGE TAG & MAKER MARK ID</span>
-          <span class="badge-amber">Chronology</span>
-        </div>
-        <p style="font-size:0.82rem; color:var(--text-muted);">Fast-inference mode for clothing labels, union bugs, care stamps, RN codes, and pottery/hardware marks.</p>
-        <input type="file" id="tagImageInput" accept="image/*" capture="environment" style="display:none;">
-        <button class="btn btn-amber" id="snapTagBtn">SCAN TAG / MAKER MARK</button>
-      </div>
-
-      <div class="card" id="tagResultCard" style="display:none;">
-        <div class="card-title" id="tagEraTitle">Era Analysis</div>
-        <div id="tagTimelineContainer"></div>
-      </div>
-    </section>
-
-    <!-- TAB 3: VAULT -->
-    <section id="tab-vault" class="tab-view">
-      <div class="card">
-        <div class="vault-subtoggle">
-          <button id="vaultSubActive" class="vault-subbtn active">Active Inventory</button>
-          <button id="vaultSubSold" class="vault-subbtn">Sold Archive</button>
-        </div>
-        <div class="vault-summary">
-          <div>
-            <div class="metric-label">Vault Portfolio</div>
-            <div class="metric-val profit" id="vaultTotal">$0.00</div>
-          </div>
-          <div style="text-align:right;">
-            <div class="metric-label">Tracked Items</div>
-            <div class="metric-val" id="vaultCount">0 items</div>
-          </div>
-        </div>
-        <div class="vault-list" id="vaultItemList"></div>
-      </div>
-    </section>
-
-    <!-- TAB 4: STORES (RADAR LOCATOR) -->
-    <section id="tab-stores" class="tab-view">
-      <div class="radar-header-card">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <div style="font-weight:800; font-size:1rem; letter-spacing:-0.01em;">SOURCING RADAR</div>
-          <div class="gps-status-pill" id="gpsStatusPill">GPS READY</div>
-        </div>
-        <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;">Direct GPS search across thrift stores in your current radius without defaulting to home.</p>
-        <div class="nav-actions-grid">
-          <a class="nav-app-btn" id="radarGoogleBtn" href="https://www.google.com/maps/search/thrift+stores/" target="_blank">Google Maps</a>
-          <a class="nav-app-btn" id="radarAppleBtn" href="https://maps.apple.com/?q=thrift+stores" target="_blank">Apple Maps</a>
-          <a class="nav-app-btn" id="radarWazeBtn" href="https://waze.com/ul?q=thrift+store&navigate=yes" target="_blank">Waze</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">
-          <span>AREA SOURCING HUBS</span>
-          <span class="badge-amber">Northern Utah</span>
-        </div>
-        <div class="store-radar-grid" id="storeRadarGrid"></div>
-      </div>
-    </section>
-  </main>
-
-  <nav class="bottom-dock">
-    <button class="dock-btn active" data-target="tab-scout">SCOUT</button>
-    <button class="dock-btn" data-target="tab-tags">TAG ID</button>
-    <button class="dock-btn" data-target="tab-vault">VAULT</button>
-    <button class="dock-btn" data-target="tab-stores">STORES</button>
-  </nav>
-
-  <!-- LEVEL & BADGES GAMIFICATION MODAL -->
-  <div class="modal-overlay" id="levelModal">
-    <div class="modal-content">
-      <div class="card-title">
-        <span id="modalRankTitle">Scout Level & Badges</span>
-        <button class="settings-btn" id="closeLevelBtn">X</button>
-      </div>
-
-      <div style="background:#000; border:1px solid var(--border); border-radius:10px; padding:14px; text-align:center;">
-        <div style="font-size:2.4rem;" id="modalBadgeIcon">🥉</div>
-        <div style="font-size:1.15rem; font-weight:800; color:#fff; margin-top:4px;" id="modalRankName">Rookie</div>
-        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" id="modalXpSubtitle">0 XP Earned</div>
-        
-        <div class="progress-bar-track">
-          <div class="progress-bar-fill" id="modalProgressFill"></div>
-        </div>
-        <div style="font-size:0.75rem; color:var(--emerald); font-weight:700;" id="modalNextRankInfo">750 XP to Picker</div>
-      </div>
-
-      <div class="card-title" style="margin-top:6px; font-size:0.85rem;">EARNING REPUTATION (XP)</div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-        <div class="metric-box">
-          <span class="metric-label">AI Appraisal</span>
-          <span class="metric-val" style="font-size:0.95rem; color:var(--emerald);">+25 XP</span>
-        </div>
-        <div class="metric-box">
-          <span class="metric-label">Tag Chronology</span>
-          <span class="metric-val" style="font-size:0.95rem; color:var(--emerald);">+35 XP</span>
-        </div>
-        <div class="metric-box">
-          <span class="metric-label">Add to Vault</span>
-          <span class="metric-val" style="font-size:0.95rem; color:var(--emerald);">+50 XP</span>
-        </div>
-        <div class="metric-box">
-          <span class="metric-label">Mark as Sold</span>
-          <span class="metric-val" style="font-size:0.95rem; color:var(--emerald);">+100 XP</span>
-        </div>
-      </div>
-
-      <div class="card-title" style="margin-top:6px; font-size:0.85rem;">BADGE TIERS</div>
-      <div style="display:flex; flex-direction:column; gap:8px;" id="badgeTiersList"></div>
-    </div>
-  </div>
-
-  <!-- WEBCAM MODAL -->
-  <div class="modal-overlay" id="webcamModal">
-    <div class="modal-content">
-      <div class="card-title">
-        <span>Desktop Camera Capture</span>
-        <button class="settings-btn" id="closeWebcamBtn">X</button>
-      </div>
-      <video id="webcamVideo" autoplay playsinline></video>
-      <select id="cameraSourceSelect" class="input-field" style="display:none;"></select>
-      <button class="btn btn-emerald" id="captureWebcamBtn">CAPTURE PHOTO</button>
-    </div>
-  </div>
-
-  <!-- CONFIG MODAL -->
-  <div class="modal-overlay" id="configModal">
-    <div class="modal-content">
-      <div class="card-title">System Settings</div>
-      <div>
-        <label class="metric-label">Gemini API Key</label>
-        <input type="password" id="geminiApiKey" class="input-field" placeholder="AIzaSy..." style="margin-top:4px;">
-      </div>
-      <div>
-        <label class="metric-label">Quota Reset</label>
-        <button class="btn btn-outline" style="margin-top:4px; padding:8px;" onclick="resetQuota()">Reset Daily Quota (100)</button>
-      </div>
-      <div style="display:flex; gap:8px;">
-        <button class="btn btn-outline" id="closeConfigBtn" style="flex:1;">Cancel</button>
-        <button class="btn btn-emerald" id="saveConfigBtn" style="flex:1;">Save</button>
-      </div>
-    </div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { 
-      getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy 
-    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAtDQnJuWvJOp__hVHO5fdNhjiRjZZkskI",
-      authDomain: "thrift-scout-1b937.firebaseapp.com",
-      projectId: "thrift-scout-1b937",
-      storageBucket: "thrift-scout-1b937.firebasestorage.app",
-      messagingSenderId: "559782240794",
-      appId: "1:559782240794:web:5ace10f3f027b4cd82e7a3"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const TIERS = [
-      { name: "Rookie", icon: "🥉", minXp: 0, maxXp: 749, desc: "Novice hunter learning hallmarks & basic comps." },
-      { name: "Picker", icon: "🥈", minXp: 750, maxXp: 1999, desc: "Consistent eye for single stitch tags & flips." },
-      { name: "Pro Hunter", icon: "🥇", minXp: 2000, maxXp: 4999, desc: "High-volume precision scout with strong profit basis." },
-      { name: "Master Scout", icon: "💎", minXp: 5000, maxXp: 9999, desc: "Elite collector with encyclopedic era knowledge." },
-      { name: "Apex Reseller", icon: "👑", minXp: 10000, maxXp: Infinity, desc: "Top tier authority managing a commercial grade vault." }
-    ];
-
-    const STATE = {
-      geminiKey: localStorage.getItem('ts_gemini_key') || '',
-      dailyScans: parseInt(localStorage.getItem('ts_scans_left') || '100', 10),
-      xp: parseInt(localStorage.getItem('ts_xp') || '0', 10),
-      activeTab: 'scout',
-      vaultSub: 'active',
-      activeItems: [],
-      soldItems: [],
-      userLat: null,
-      userLon: null
-    };
-
-    let currentAppraisal = null;
-    let selectedImageBase64 = null;
-    let compressedThumbDataUrl = null;
-    let webcamStream = null;
-
-    const STORES = [
-      {
-        name: "Goodwill - Riverdale",
-        address: "4123 Riverdale Rd, Riverdale, UT",
-        lat: 41.1764,
-        lon: -111.9961
-      },
-      {
-        name: "Deseret Industries - Harrisville",
-        address: "1111 N 2000 W, Harrisville, UT",
-        lat: 41.2825,
-        lon: -112.0125
-      },
-      {
-        name: "Savers - Ogden",
-        address: "150 36th St, Ogden, UT",
-        lat: 41.2052,
-        lon: -111.9723
-      },
-      {
-        name: "Deseret Industries - Centerville",
-        address: "351 N Marketplace Dr, Centerville, UT",
-        lat: 40.9238,
-        lon: -111.8872
-      }
-    ];
-
-    function getCurrentTier(xp) {
-      for (let i = TIERS.length - 1; i >= 0; i--) {
-        if (xp >= TIERS[i].minXp) return { tier: TIERS[i], index: i };
-      }
-      return { tier: TIERS[0], index: 0 };
-    }
-
-    function updatePills() {
-      const { tier, index } = getCurrentTier(STATE.xp);
-      const nextTier = TIERS[index + 1];
-      let remainingText = '';
-      if (nextTier) {
-        const needed = nextTier.minXp - STATE.xp;
-        remainingText = ' • ' + needed + ' XP to ' + nextTier.name;
-      }
-      document.getElementById('rankPill').textContent = tier.icon + ' ' + tier.name + ' (' + STATE.xp.toLocaleString() + ' XP)';
-      document.getElementById('scanPill').textContent = STATE.dailyScans + ' LEFT';
-      localStorage.setItem('ts_scans_left', STATE.dailyScans);
-      localStorage.setItem('ts_xp', STATE.xp);
-    }
-    updatePills();
-
-    // Gamification Modal Renderer
-    function openLevelModal() {
-      const { tier, index } = getCurrentTier(STATE.xp);
-      const nextTier = TIERS[index + 1];
-
-      document.getElementById('modalBadgeIcon').textContent = tier.icon;
-      document.getElementById('modalRankName').textContent = tier.name;
-      document.getElementById('modalXpSubtitle').textContent = STATE.xp.toLocaleString() + ' Total XP Earned';
-
-      const fill = document.getElementById('modalProgressFill');
-      const nextInfo = document.getElementById('modalNextRankInfo');
-
-      if (nextTier) {
-        const range = nextTier.minXp - tier.minXp;
-        const currentProgress = STATE.xp - tier.minXp;
-        const pct = Math.min(100, Math.max(0, Math.round((currentProgress / range) * 100)));
-        fill.style.width = pct + '%';
-        const needed = nextTier.minXp - STATE.xp;
-        nextInfo.textContent = needed.toLocaleString() + ' XP needed to reach ' + nextTier.name + ' (' + pct + '%)';
-      } else {
-        fill.style.width = '100%';
-        nextInfo.textContent = 'Maximum Rank Achieved! You are at the top.';
-      }
-
-      const list = document.getElementById('badgeTiersList');
-      list.innerHTML = '';
-      TIERS.forEach(t => {
-        const isUnlocked = STATE.xp >= t.minXp;
-        const card = document.createElement('div');
-        card.className = 'badge-card' + (isUnlocked ? ' unlocked' : '');
-        card.innerHTML = 
-          '<div class="badge-icon-box">' + t.icon + '</div>' +
-          '<div style="flex:1;">' +
-            '<div style="font-weight:800; font-size:0.9rem; color:' + (isUnlocked ? 'var(--amber)' : '#fff') + ';">' + 
-              t.name + ' ' + (isUnlocked ? '✓' : '<span style="font-size:0.75rem; color:var(--text-muted);">(' + t.minXp.toLocaleString() + ' XP)</span>') +
-            '</div>' +
-            '<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">' + t.desc + '</div>' +
-          '</div>';
-        list.appendChild(card);
-      });
-
-      document.getElementById('levelModal').classList.add('active');
-    }
-
-    document.getElementById('rankPill').onclick = openLevelModal;
-    document.getElementById('openHandbookBtn').onclick = openLevelModal;
-    document.getElementById('closeLevelBtn').onclick = () => {
-      document.getElementById('levelModal').classList.remove('active');
-    };
-
-    window.resetQuota = function() {
-      STATE.dailyScans = 100;
-      updatePills();
-      alert('Quota reset to 100.');
-    };
-
-    function triggerAlert(msg, isErr = false) {
-      const box = document.getElementById('statusAlert');
-      box.style.display = 'block';
-      box.style.borderLeftColor = isErr ? 'var(--red)' : 'var(--emerald)';
-      box.textContent = msg;
-    }
-    function dismissAlert() {
-      document.getElementById('statusAlert').style.display = 'none';
-    }
-
-    // Navigation Controls
-    document.querySelectorAll('.dock-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
-        btn.classList.add('active');
-        STATE.activeTab = btn.dataset.target.replace('tab-', '');
-        document.getElementById(btn.dataset.target).classList.add('active');
-        if (STATE.activeTab === 'stores') {
-          initStoresRadar();
-        }
-      });
-    });
-
-    document.getElementById('vaultSubActive').onclick = () => {
-      STATE.vaultSub = 'active';
-      document.getElementById('vaultSubActive').classList.add('active');
-      document.getElementById('vaultSubSold').classList.remove('active');
-      renderVault();
-    };
-    document.getElementById('vaultSubSold').onclick = () => {
-      STATE.vaultSub = 'sold';
-      document.getElementById('vaultSubSold').classList.add('active');
-      document.getElementById('vaultSubActive').classList.remove('active');
-      renderVault();
-    };
-
-    const configModal = document.getElementById('configModal');
-    document.getElementById('configBtn').onclick = () => {
-      document.getElementById('geminiApiKey').value = STATE.geminiKey;
-      configModal.classList.add('active');
-    };
-    document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
-    document.getElementById('saveConfigBtn').onclick = () => {
-      STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
-      localStorage.setItem('ts_gemini_key', STATE.geminiKey);
-      configModal.classList.remove('active');
-      triggerAlert('API Key verified and saved.');
-    };
-
-    const mobileCam = document.getElementById('mobileCameraInput');
-    const mobileGal = document.getElementById('mobileGalleryInput');
-    const previewImg = document.getElementById('previewImg');
-    const previewBox = document.getElementById('imagePreviewContainer');
-
-    document.getElementById('snapMobileBtn').onclick = () => mobileCam.click();
-    document.getElementById('uploadFileBtn').onclick = () => mobileGal.click();
-
-    function handleFileSelection(file) {
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let w = img.width;
-          let h = img.height;
-          const maxDim = 800;
-          if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
-          else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
-          canvas.width = w;
-          canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.70).split(',')[1];
-          previewImg.src = canvas.toDataURL('image/jpeg', 0.70);
-          previewBox.style.display = 'block';
-
-          const thumbCanvas = document.createElement('canvas');
-          let tw = img.width;
-          let th = img.height;
-          const thumbMax = 140;
-          if (tw > th && tw > thumbMax) { th = Math.round((th * thumbMax) / tw); tw = thumbMax; }
-          else if (th > thumbMax) { tw = Math.round((tw * thumbMax) / th); tw = thumbMax; }
-          thumbCanvas.width = tw;
-          thumbCanvas.height = th;
-          thumbCanvas.getContext('2d').drawImage(img, 0, 0, tw, th);
-          compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    mobileCam.onchange = (e) => handleFileSelection(e.target.files[0]);
-    mobileGal.onchange = (e) => handleFileSelection(e.target.files[0]);
-
-    const webcamModal = document.getElementById('webcamModal');
-    const webcamVideo = document.getElementById('webcamVideo');
-    const cameraSelect = document.getElementById('cameraSourceSelect');
-
-    document.getElementById('openWebcamBtn').onclick = async () => {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('Webcam stream not supported on this browser or requires HTTPS.');
-        return;
-      }
-      webcamModal.classList.add('active');
-      try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(d => d.kind === 'videoinput');
-        cameraSelect.innerHTML = '';
-        if (videoDevices.length > 1) {
-          videoDevices.forEach((dev, idx) => {
-            const opt = document.createElement('option');
-            opt.value = dev.deviceId;
-            opt.text = dev.label || ('Camera ' + (idx + 1));
-            cameraSelect.appendChild(opt);
-          });
-          cameraSelect.style.display = 'block';
-        }
-        startWebcamStream(videoDevices[0]?.deviceId);
-      } catch (err) {
-        alert('Could not access camera: ' + err.message);
-        webcamModal.classList.remove('active');
-      }
-    };
-
-    async function startWebcamStream(deviceId) {
-      if (webcamStream) {
-        webcamStream.getTracks().forEach(track => track.stop());
-      }
-      const constraints = {
-        video: deviceId ? { deviceId: { exact: deviceId } } : { facingMode: 'environment' }
-      };
-      webcamStream = await navigator.mediaDevices.getUserMedia(constraints);
-      webcamVideo.srcObject = webcamStream;
-    }
-
-    cameraSelect.onchange = () => startWebcamStream(cameraSelect.value);
-
-    document.getElementById('closeWebcamBtn').onclick = () => {
-      if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
-      webcamModal.classList.remove('active');
-    };
-
-    document.getElementById('captureWebcamBtn').onclick = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = webcamVideo.videoWidth || 640;
-      canvas.height = webcamVideo.videoHeight || 480;
-      canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
-      selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
-      previewImg.src = canvas.toDataURL('image/jpeg', 0.75);
-      previewBox.style.display = 'block';
-
-      const thumbCanvas = document.createElement('canvas');
-      thumbCanvas.width = 140;
-      thumbCanvas.height = Math.round((canvas.height * 140) / canvas.width);
-      thumbCanvas.getContext('2d').drawImage(webcamVideo, 0, 0, thumbCanvas.width, thumbCanvas.height);
-      compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
-
-      if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
-      webcamModal.classList.remove('active');
-    };
-
-    // AI Valuation Engine with Gemini 3.8 Flash
-    document.getElementById('evaluateBtn').onclick = async () => {
-      if (!selectedImageBase64) {
-        alert('Snap or select an image first.');
-        return;
-      }
-      if (!STATE.geminiKey) {
-        alert('Set Gemini API key in Config.');
-        configModal.classList.add('active');
-        return;
-      }
-      if (STATE.dailyScans <= 0) {
-        alert('Daily scan limit reached.');
-        return;
-      }
-
-      triggerAlert('Analyzing secondary market comps & tags...');
-      const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
-      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
-
-      const promptText = "Analyze this thrift item for secondary market resale. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
-        "{\n" +
-        '  "brand": "Manufacturer, brand, or publisher",\n' +
-        '  "item": "Model, title, or garment descriptor",\n' +
-        '  "resale": 35.00,\n' +
-        '  "disposition": "FLIP",\n' +
-        '  "platform": "eBay",\n' +
-        '  "shipping": "USPS Ground Advantage",\n' +
-        '  "intel": "Key tag hallmarks, single stitch status, RN codes, or flaws",\n' +
-        '  "query": "clean keywords for ebay sold search"\n' +
-        "}";
-
-      try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [
-                { text: promptText },
-                { inlineData: { mimeType: 'image/jpeg', data: selectedImageBase64 } }
-              ]
-            }],
-            generationConfig: { temperature: 0.15 }
-          })
-        });
-
-        if (!res.ok) {
-          const errBody = await res.json().catch(() => ({}));
-          throw new Error(errBody.error?.message || ('HTTP ' + res.status));
-        }
-
-        const data = await res.json();
-        const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!rawContent) throw new Error('Model produced an empty evaluation.');
-
-        const cleaned = rawContent.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleaned);
-
-        const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded / Unknown';
-        const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
-        const estResale = parseFloat(parsed.resale) || 0;
-        const estProfit = estResale - cost - (estResale * 0.1325);
-
-        currentAppraisal = {
-          brand: parsedBrand,
-          item: parsedItem,
-          name: parsedBrand + " - " + parsedItem,
-          cost: cost,
-          resale: estResale,
-          profit: Number(estProfit.toFixed(2)),
-          platform: parsed.platform || 'eBay',
-          shipping: parsed.shipping || 'USPS Ground Advantage',
-          disposition: parsed.disposition || 'MONITOR',
-          intel: parsed.intel || 'Standard secondary market asset.',
-          query: parsed.query || (parsedBrand + " " + parsedItem),
-          imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImageBase64),
-          status: 'prospect',
-          createdAt: Date.now()
-        };
-
-        renderAppraisal(currentAppraisal);
-        STATE.dailyScans--;
-        STATE.xp += 25;
-        updatePills();
-        dismissAlert();
-
-      } catch (err) {
-        triggerAlert('Evaluation error: ' + err.message, true);
-      }
-    };
-
-    function renderAppraisal(item) {
-      document.getElementById('resItemTitle').textContent = item.name;
-      document.getElementById('resEstResale').textContent = '$' + item.resale.toFixed(2);
-      document.getElementById('resEstProfit').textContent = '$' + item.profit.toFixed(2);
-      document.getElementById('resBrand').textContent = item.brand;
-      document.getElementById('resShipping').textContent = item.shipping;
-      document.getElementById('resIntel').textContent = item.intel;
-
-      const pill = document.getElementById('resDispPill');
-      pill.textContent = item.disposition;
-      pill.className = 'disposition-pill ' + (item.disposition === 'FLIP' ? 'disp-flip' : item.disposition === 'MONITOR' ? 'disp-monitor' : 'disp-pass');
-
-      const ebayUrl = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
-      document.getElementById('resEbayLink').href = ebayUrl;
-      document.getElementById('appraisalCard').style.display = 'flex';
-    }
-
-    document.getElementById('saveVaultBtn').onclick = async () => {
-      if (!currentAppraisal) return;
-      try {
-        triggerAlert('Syncing item to Cloud Vault...');
-        const docData = { ...currentAppraisal, status: 'owned', purchasedAt: Date.now() };
-        await addDoc(collection(db, 'vault_inventory'), docData);
-        STATE.xp += 50;
-        updatePills();
-        triggerAlert('Saved to Vault across all devices.');
-        alert('Item added to Cloud Vault!');
-      } catch (err) {
-        triggerAlert('Cloud sync failed: ' + err.message, true);
-      }
-    };
-
-    function attachFirestoreListeners() {
-      onSnapshot(query(collection(db, 'vault_inventory'), orderBy('purchasedAt', 'desc')), (snap) => {
-        STATE.activeItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        if (STATE.vaultSub === 'active') renderVault();
-      });
-
-      onSnapshot(query(collection(db, 'vault_sold'), orderBy('soldAt', 'desc')), (snap) => {
-        STATE.soldItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        if (STATE.vaultSub === 'sold') renderVault();
-      });
-    }
-    attachFirestoreListeners();
-
-    function renderVault() {
-      const container = document.getElementById('vaultItemList');
-      container.innerHTML = '';
-      const list = (STATE.vaultSub === 'active') ? STATE.activeItems : STATE.soldItems;
-      let totalValue = 0;
-
-      list.forEach(item => {
-        const val = Number(item.profit || item.realizedProfit || 0);
-        totalValue += val;
-
-        const displayBrand = item.brand || 'Unbranded';
-        const displayItem = item.item || item.name || 'Thrift Asset';
-        const costBasis = Number(item.cost || item.itemCost || 0).toFixed(2);
-        const estResale = Number(item.resale || item.estimatedValue || 0).toFixed(2);
-
-        const thumbSrc = item.imageThumb || item.image || "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23161b22%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%238b949e%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E";
-
-        const row = document.createElement('div');
-        row.className = 'vault-item';
-        row.innerHTML = 
-          '<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23161b22%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%238b949e%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3ENo%20Image%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
-          '<div class="item-content">' +
-            '<div class="item-title">' + displayBrand + ' - ' + displayItem + '</div>' +
-            '<div class="item-meta">' + (item.platform || 'eBay') + ' • Buy: \(' + costBasis + ' • Target:\)' + estResale + '</div>' +
-            '<div class="item-actions">' +
-              (STATE.vaultSub === 'active' 
-                ? '<button class="btn btn-emerald" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="markSoldCloud(\'' + item.id + '\')">MARK SOLD</button>' 
-                : '<span style="color:var(--emerald); font-size:0.75rem; font-weight:700;">SOLD: +$' + val.toFixed(2) + '</span>') +
-              '<button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; width:auto; color:var(--red);" onclick="deleteCloudItem(\'' + item.id + '\')">DELETE</button>' +
-            '</div>' +
-          '</div>' +
-          '<div style="text-align:right;">' +
-            '<div style="color:var(--emerald); font-weight:800; font-size:1rem;">+$' + val.toFixed(2) + '</div>' +
-          '</div>';
-        container.appendChild(row);
-      });
-
-      document.getElementById('vaultTotal').textContent = '$' + totalValue.toFixed(2);
-      document.getElementById('vaultCount').textContent = list.length + ' items';
-    }
-
-    window.markSoldCloud = async (id) => {
-      const target = STATE.activeItems.find(i => i.id === id);
-      if (!target) return;
-      const defaultPrice = target.resale || target.estimatedValue || 0;
-      const soldInput = prompt('Enter final sold price ($):', defaultPrice);
-      if (soldInput === null) return;
-      const finalPrice = parseFloat(soldInput) || defaultPrice;
-      const costBasis = target.cost || target.itemCost || 0;
-      const realized = finalPrice - costBasis - (finalPrice * 0.1325);
-
-      try {
-        await addDoc(collection(db, 'vault_sold'), {
-          ...target,
-          finalSoldPrice: finalPrice,
-          realizedProfit: Number(realized.toFixed(2)),
-          soldAt: Date.now()
-        });
-        await deleteDoc(doc(db, 'vault_inventory', id));
-        STATE.xp += 100;
-        updatePills();
-      } catch (err) {
-        alert('Action failed: ' + err.message);
-      }
-    };
-
-    window.deleteCloudItem = async (id) => {
-      if (!confirm('Remove this item from the cloud?')) return;
-      const coll = (STATE.vaultSub === 'active') ? 'vault_inventory' : 'vault_sold';
-      try {
-        await deleteDoc(doc(db, coll, id));
-      } catch (err) {
-        alert('Delete failed: ' + err.message);
-      }
-    };
-
-    // Ultra-Fast Tag Chronology Scanner (Resized & High-Speed Prompt)
-    const snapTagBtn = document.getElementById('snapTagBtn');
-    const tagInput = document.getElementById('tagImageInput');
-
-    snapTagBtn.onclick = () => tagInput.click();
-    tagInput.onchange = async (e) => {
-      const file = e.target.files[0];
-      if (!file || !STATE.geminiKey) {
-        if (!STATE.geminiKey) alert('Set Gemini API Key in Config.');
-        return;
-      }
-      triggerAlert('⚡ Ultra-fast tag & hallmark dating...');
-
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const rawImg = new Image();
-        rawImg.onload = async () => {
-          // Pre-scale tag image to 640px for near-instant upload & inference
-          const canvas = document.createElement('canvas');
-          let w = rawImg.width;
-          let h = rawImg.height;
-          const maxDim = 640;
-          if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
-          else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
-          canvas.width = w;
-          canvas.height = h;
-          canvas.getContext('2d').drawImage(rawImg, 0, 0, w, h);
-          const fastB64 = canvas.toDataURL('image/jpeg', 0.65).split(',')[1];
-
-          const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
-          const prompt = "Identify clothing tag/maker mark/RN. Output JSON ONLY:\n" +
-            "{\n" +
-            '  "maker": "Brand",\n' +
-            '  "era": "Date Range",\n' +
-            '  "clues": [{"label": "Hallmark", "desc": "Reason"}]\n' +
-            "}";
-
-          try {
-            const res = await fetch(endpoint, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{
-                  parts: [
-                    { text: prompt },
-                    { inlineData: { mimeType: 'image/jpeg', data: fastB64 } }
-                  ]
-                }],
-                generationConfig: { temperature: 0.1, maxOutputTokens: 250 }
-              })
-            });
-
-            const data = await res.json();
-            const cleanText = data.candidates[0].content.parts[0].text.replace(/```json/gi, '').replace(/```/g, '').trim();
-            const parsed = JSON.parse(cleanText);
-
-            document.getElementById('tagEraTitle').textContent = parsed.maker + ' (' + parsed.era + ')';
-            const container = document.getElementById('tagTimelineContainer');
-            container.innerHTML = '';
-
-            parsed.clues.forEach(c => {
-              const node = document.createElement('div');
-              node.className = 'timeline-node';
-              node.innerHTML = '<div class="timeline-era">' + c.label + '</div><div class="timeline-desc">' + c.desc + '</div>';
-              container.appendChild(node);
-            });
-
-            document.getElementById('tagResultCard').style.display = 'flex';
-            STATE.dailyScans--;
-            STATE.xp += 35;
-            updatePills();
-            dismissAlert();
-          } catch (err) {
-            triggerAlert('Tag scan failed: ' + err.message, true);
-          }
-        };
-        rawImg.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
-    };
-
-    // Haversine Distance Formula in Miles
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-      const R = 3958.8;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-      return (R * c).toFixed(1);
-    }
-
-    // Stores Radar & Fixed Waze GPS Routing
-    function initStoresRadar() {
-      const grid = document.getElementById('storeRadarGrid');
-      const pill = document.getElementById('gpsStatusPill');
-
-      if (!navigator.geolocation) {
-        pill.textContent = "GPS UNAVAILABLE";
-        pill.style.borderColor = "var(--red)";
-        pill.style.color = "var(--red)";
-        renderStoreCards(STORES);
-        return;
-      }
-
-      pill.textContent = "ACQUIRING FIX...";
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          STATE.userLat = pos.coords.latitude;
-          STATE.userLon = pos.coords.longitude;
-          pill.textContent = "GPS LOCKED (" + STATE.userLat.toFixed(2) + ", " + STATE.userLon.toFixed(2) + ")";
-
-          const q = encodeURIComponent("thrift store");
-          document.getElementById('radarGoogleBtn').href = "https://www.google.com/maps/search/" + q + "/@" + STATE.userLat + "," + STATE.userLon + ",13z";
-          document.getElementById('radarAppleBtn').href = "https://maps.apple.com/?q=" + q + "&sll=" + STATE.userLat + "," + STATE.userLon + "&z=13";
-          // FIXED WAZE URL: Explicit search query anchored to GPS coordinates so it never routes to 'Home'
-          document.getElementById('radarWazeBtn').href = "https://waze.com/ul?q=" + q + "&lat=" + STATE.userLat + "&lon=" + STATE.userLon + "&navigate=yes";
-
-          const enriched = STORES.map(s => {
-            const dist = calculateDistance(STATE.userLat, STATE.userLon, s.lat, s.lon);
-            return { ...s, dist: parseFloat(dist) };
-          }).sort((a, b) => a.dist - b.dist);
-
-          renderStoreCards(enriched);
-        },
-        (err) => {
-          pill.textContent = "LOCAL MODE";
-          renderStoreCards(STORES);
-        },
-        { enableHighAccuracy: true, timeout: 6000, maximumAge: 60000 }
-      );
-    }
-
-    function renderStoreCards(storeList) {
-      const grid = document.getElementById('storeRadarGrid');
-      grid.innerHTML = '';
-
-      storeList.forEach(s => {
-        const destQuery = encodeURIComponent(s.address);
-        const card = document.createElement('div');
-        card.className = 'store-card-modern';
-        card.innerHTML = 
-          '<div class="store-card-top">' +
-            '<div>' +
-              '<div class="store-name-title">' + s.name + '</div>' +
-              '<div class="store-address-text">' + s.address + '</div>' +
-            '</div>' +
-            (s.dist !== undefined ? '<span class="store-dist-badge">' + s.dist + ' mi</span>' : '') +
-          '</div>' +
-          '<div class="nav-actions-grid">' +
-            '<a class="nav-app-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=' + destQuery + '">Google</a>' +
-            '<a class="nav-app-btn" target="_blank" href="https://maps.apple.com/?daddr=' + destQuery + '">Apple</a>' +
-            '<a class="nav-app-btn" target="_blank" href="https://waze.com/ul?q=' + destQuery + '&lat=' + s.lat + '&lon=' + s.lon + '&navigate=yes">Waze</a>' +
-          '</div>';
-        grid.appendChild(card);
-      });
-    }
-
-    initStoresRadar();
-  </script>
+<header>
+<div class="brand">
+<span>THRIFT</span><span class="brand-accent">SCOUT</span>
+</div>
+<div class="header-pills">
+<div class="rank-pill" id="rankPill" title="Tap to view Level & Badges">🥉 Rookie (0 XP)</div>
+<div class="scan-pill" id="scanPill">100 LEFT</div>
+<button class="settings-btn" id="configBtn">Config</button>
+</div>
+</header>
+
+<main>
+<div id="statusAlert" class="status-alert"></div>
+
+<!-- TAB 1: SCOUT -->
+<section id="tab-scout" class="tab-view active">
+<!-- CHALLENGE OF THE DAY -->
+<div class="card">
+<div class="card-title">
+<span>🎯 CHALLENGE OF THE DAY</span>
+<span class="badge-accent">Daily Mission</span>
+</div>
+<div class="challenge-banner">
+<div style="display:flex; justify-content:space-between; align-items:center;">
+<span style="font-weight:800; font-size:1rem; color:#fff;" id="dailyTargetName">Heavyweight Flannel Shirt</span>
+<span class="challenge-reward" id="dailyRewardBadge">+150 XP BONUS</span>
+</div>
+<p style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="dailyTargetDesc">
+Scout any vintage cotton flannel or chamois shirt (Pendleton, Woolrich, L.L. Bean, or Five Brother). Check tags for Made in USA or 100% heavy cotton weave.
+</p>
+<div style="display:flex; gap:8px; margin-top:4px;">
+<a id="dailyCompsLink" target="_blank" class="btn btn-outline" style="font-size:0.75rem; padding:8px 12px; width:auto;" href="https://www.ebay.com/sch/i.html?_nkw=vintage+heavyweight+flannel+shirt+made+in+usa&LH_Sold=1&LH_Complete=1">View Target Comps</a>
+<button class="btn btn-accent" id="claimChallengeBtn" style="font-size:0.75rem; padding:8px 12px; width:auto;">Apply Target to Scan</button>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-title">RAPID VALUATION</div>
+
+<input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
+<input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
+
+<div class="camera-row">
+<button class="btn btn-accent" id="snapMobileBtn">📸 SNAP (MOBILE)</button>
+<button class="btn btn-primary" id="openWebcamBtn">💻 CAMERA (DESKTOP/MAC)</button>
+</div>
+
+<button class="btn btn-outline" id="uploadFileBtn" style="padding: 10px;">UPLOAD FROM FILES / MULTI</button>
+
+<div id="imagePreviewContainer" style="display:none; text-align:center;">
+<img id="previewImg" style="max-height:180px; border-radius:8px; border:1px solid var(--border);" alt="Preview">
+</div>
+
+<!-- Cost Basis Component -->
+<div style="display:flex; gap:10px; align-items:flex-end;">
+<div class="cost-input-wrapper">
+<label class="cost-explanation-label">Thrift Store Tag Price</label>
+<div class="cost-input-container">
+<span class="currency-symbol">$</span>
+<input type="number" id="purchaseCost" class="cost-input-field" placeholder="0.00" value="4.00" step="0.50">
+</div>
+</div>
+<div class="eval-action-wrapper">
+<button class="btn btn-outline" id="evaluateBtn">EVALUATE ITEM</button>
+</div>
+</div>
+</div>
+
+<div class="card" id="appraisalCard" style="display:none;">
+<div class="card-title">
+<span id="resItemTitle">Identified Item</span>
+<span id="resDispPill" class="disposition-pill disp-flip">FLIP</span>
+</div>
+<div class="metric-grid">
+<div class="metric-box">
+<span class="metric-label">Estimated Resale</span>
+<span class="metric-val" id="resEstResale">$0.00</span>
+</div>
+<div class="metric-box">
+<span class="metric-label">Net Profit (Est)</span>
+<span class="metric-val profit" id="resEstProfit">$0.00</span>
+</div>
+<div class="metric-box">
+<span class="metric-label">Brand / Origin</span>
+<span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
+</div>
+<div class="metric-box">
+<span class="metric-label">Shipping / Service</span>
+<span class="metric-val" id="resShipping" style="font-size:0.85rem;">USPS Ground</span>
+</div>
+</div>
+<div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
+<div style="display:flex; gap:8px; margin-top:4px;">
+<a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW SOLD COMPS</a>
+<button class="btn btn-accent" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
+</div>
+</div>
+
+<div class="card" style="cursor:pointer;" id="openHandbookBtn">
+<div class="card-title">
+<span>📖 SCOUT HANDBOOK & BADGES</span>
+<span class="badge-accent">Level Perks</span>
+</div>
+<p style="font-size:0.82rem; color:var(--text-muted);">Tap to view your level progression, badge rewards, and XP scoring rules.</p>
+</div>
+</section>
+
+<!-- TAB 2: TAG ID -->
+<section id="tab-tags" class="tab-view">
+<div class="card">
+<div class="card-title">
+<span>VINTAGE TAG & MAKER MARK ID</span>
+<span class="badge-accent">Fast Dating</span>
+</div>
+<p style="font-size:0.82rem; color:var(--text-muted);">Fast-inference mode for clothing labels, union bugs, care stamps, RN codes, and pottery/hardware marks.</p>
+<input type="file" id="tagImageInput" accept="image/*" capture="environment" style="display:none;">
+<button class="btn btn-amber" id="snapTagBtn">SCAN TAG / MAKER MARK</button>
+</div>
+
+<div class="card" id="tagResultCard" style="display:none;">
+<div class="card-title" id="tagEraTitle">Era Analysis</div>
+<div id="tagTimelineContainer"></div>
+</div>
+</section>
+
+<!-- TAB 3: VAULT -->
+<section id="tab-vault" class="tab-view">
+<div class="card">
+<div class="vault-subtoggle">
+<button id="vaultSubActive" class="vault-subbtn active">Active Inventory</button>
+<button id="vaultSubSold" class="vault-subbtn">Sold Archive</button>
+</div>
+<div class="vault-summary">
+<div>
+<div class="metric-label">Vault Portfolio</div>
+<div class="metric-val profit" id="vaultTotal">$0.00</div>
+</div>
+<div style="text-align:right;">
+<div class="metric-label">Tracked Items</div>
+<div class="metric-val" id="vaultCount">0 items</div>
+</div>
+</div>
+<div class="vault-list" id="vaultItemList"></div>
+</div>
+</section>
+
+<!-- TAB 4: STORES (DIRECT REGIONAL HUBS) -->
+<section id="tab-stores" class="tab-view">
+<div class="card">
+<div class="card-title">
+<span>LOCAL THRIFT HUBS</span>
+<span class="badge-accent" id="gpsPill">Proximity Active</span>
+</div>
+<p style="font-size:0.82rem; color:var(--text-muted);">Direct routes to verified area hubs with distance sorted automatically from your current position.</p>
+<div class="store-radar-grid" id="storeRadarGrid"></div>
+</div>
+</section>
+</main>
+
+<nav class="bottom-dock">
+<button class="dock-btn active" data-target="tab-scout">SCOUT</button>
+<button class="dock-btn" data-target="tab-tags">TAG ID</button>
+<button class="dock-btn" data-target="tab-vault">VAULT</button>
+<button class="dock-btn" data-target="tab-stores">STORES</button>
+</nav>
+
+<!-- LEVEL & BADGES GAMIFICATION MODAL -->
+<div class="modal-overlay" id="levelModal">
+<div class="modal-content">
+<div class="card-title">
+<span id="modalRankTitle">Scout Level & Badges</span>
+<button class="settings-btn" id="closeLevelBtn">X</button>
+</div>
+
+<div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center;">
+<div style="font-size:2.5rem;" id="modalBadgeIcon">🥉</div>
+<div style="font-size:1.2rem; font-weight:800; color:#fff; margin-top:4px;" id="modalRankName">Rookie</div>
+<div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" id="modalXpSubtitle">0 XP Earned</div>
+
+<div class="progress-bar-track">
+<div class="progress-bar-fill" id="modalProgressFill"></div>
+</div>
+<div style="font-size:0.75rem; color:var(--accent); font-weight:700;" id="modalNextRankInfo">750 XP to Picker</div>
+</div>
+
+<div class="card-title" style="margin-top:6px; font-size:0.85rem;">EARNING REPUTATION (XP)</div>
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+<div class="metric-box">
+<span class="metric-label">AI Appraisal</span>
+<span class="metric-val" style="font-size:0.95rem; color:var(--accent);">+25 XP</span>
+</div>
+<div class="metric-box">
+<span class="metric-label">Tag Chronology</span>
+<span class="metric-val" style="font-size:0.95rem; color:var(--accent);">+35 XP</span>
+</div>
+<div class="metric-box">
+<span class="metric-label">Add to Vault</span>
+<span class="metric-val" style="font-size:0.95rem; color:var(--accent);">+50 XP</span>
+</div>
+<div class="metric-box">
+<span class="metric-label">Daily Mission</span>
+<span class="metric-val" style="font-size:0.95rem; color:var(--amber);">+150 XP</span>
+</div>
+</div>
+
+<div class="card-title" style="margin-top:6px; font-size:0.85rem;">BADGE TIERS</div>
+<div style="display:flex; flex-direction:column; gap:8px;" id="badgeTiersList"></div>
+</div>
+</div>
+
+<!-- WEBCAM / DESKTOP CAPTURE MODAL -->
+<div class="modal-overlay" id="webcamModal">
+<div class="modal-content">
+<div class="card-title">
+<span>Camera Capture (Mac / Desktop)</span>
+<button class="settings-btn" id="closeWebcamBtn">X</button>
+</div>
+<video id="webcamVideo" autoplay playsinline muted></video>
+<select id="cameraSourceSelect" class="input-field" style="display:none;"></select>
+<button class="btn btn-accent" id="captureWebcamBtn">CAPTURE PHOTO</button>
+</div>
+</div>
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="configModal">
+<div class="modal-content">
+<div class="card-title">System Settings</div>
+<div>
+<label class="metric-label">Gemini API Key</label>
+<input type="password" id="geminiApiKey" class="input-field" placeholder="AIzaSy..." style="margin-top:4px;">
+</div>
+<div>
+<label class="metric-label">Quota Reset</label>
+<button class="btn btn-outline" style="margin-top:4px; padding:8px;" id="resetQuotaBtn">Reset Daily Quota (100)</button>
+</div>
+<div style="display:flex; gap:8px;">
+<button class="btn btn-outline" id="closeConfigBtn" style="flex:1;">Cancel</button>
+<button class="btn btn-accent" id="saveConfigBtn" style="flex:1;">Save</button>
+</div>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+import {
+getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyAtDQnJuWvJOp__hVHO5fdNhjiRjZZkskI",
+authDomain: "thrift-scout-1b937.firebaseapp.com",
+projectId: "thrift-scout-1b937",
+storageBucket: "thrift-scout-1b937.firebasestorage.app",
+messagingSenderId: "559782240794",
+appId: "1:559782240794:web:5ace10f3f027b4cd82e7a3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const TIERS = [
+{ name: "Rookie", icon: "🥉", minXp: 0, maxXp: 749, desc: "Novice hunter learning hallmarks & basic comps." },
+{ name: "Picker", icon: "🥈", minXp: 750, maxXp: 1999, desc: "Consistent eye for vintage tags, wool, and electronics." },
+{ name: "Pro Hunter", icon: "🥇", minXp: 2000, maxXp: 4999, desc: "High-volume precision scout with solid margins." },
+{ name: "Master Scout", icon: "💎", minXp: 5000, maxXp: 9999, desc: "Elite collector with deep manufacturing era knowledge." },
+{ name: "Apex Reseller", icon: "👑", minXp: 10000, maxXp: Infinity, desc: "Top tier authority commanding a high-performance vault." }
+];
+
+const DAILY_MISSIONS = [
+{
+name: "Heavyweight Flannel Shirt",
+desc: "Find any vintage cotton flannel or chamois shirt (Woolrich, Pendleton, L.L. Bean, Five Brother). Check tags for Made in USA.",
+query: "vintage heavyweight flannel shirt made in usa"
+},
+{
+name: "Vintage Graphic Band or Tour Tee",
+desc: "Hunt for single-stitch hems or 90s licensed band, concert, or festival shirts (Brockum, Giant, Winterland tags).",
+query: "vintage single stitch band tee"
+},
+{
+name: "Graphing Calculator",
+desc: "Look in the bag walls or tech bins for Texas Instruments (TI-84, TI-83 Plus, TI-89) or Casio graphing models.",
+query: "ti-84 plus graphing calculator"
+},
+{
+name: "Cast Iron Skillet (Griswold / Wagner)",
+desc: "Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.",
+query: "vintage cast iron skillet wagner griswold"
+}
+];
+
+const todayIndex = new Date().getDate() % DAILY_MISSIONS.length;
+const currentMission = DAILY_MISSIONS[todayIndex];
+
+const STATE = {
+geminiKey: localStorage.getItem('ts_gemini_key') || '',
+dailyScans: parseInt(localStorage.getItem('ts_scans_left') || '100', 10),
+xp: parseInt(localStorage.getItem('ts_xp') || '0', 10),
+activeTab: 'scout',
+vaultSub: 'active',
+activeItems: [],
+soldItems: [],
+userLat: null,
+userLon: null
+};
+
+let currentAppraisal = null;
+let selectedImageBase64 = null;
+let compressedThumbDataUrl = null;
+let webcamStream = null;
+
+// Direct Regional Hubs (Northern Utah)
+const STORES = [
+{
+name: "Goodwill - Riverdale",
+address: "4123 Riverdale Rd, Riverdale, UT",
+lat: 41.1764,
+lon: -111.9961
+},
+{
+name: "Deseret Industries - Harrisville",
+address: "1111 N 2000 W, Harrisville, UT",
+lat: 41.2825,
+lon: -112.0125
+},
+{
+name: "Savers - Ogden",
+address: "150 36th St, Ogden, UT",
+lat: 41.2052,
+lon: -111.9723
+},
+{
+name: "Deseret Industries - Centerville",
+address: "351 N Marketplace Dr, Centerville, UT",
+lat: 40.9238,
+lon: -111.8872
+}
+];
+
+// Populate Challenge of the Day
+document.getElementById('dailyTargetName').textContent = currentMission.name;
+document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
+document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
+document.getElementById('claimChallengeBtn').onclick = () => {
+triggerAlert('Target mission "' + currentMission.name + '" primed for scan!');
+document.getElementById('snapMobileBtn').scrollIntoView({ behavior: 'smooth' });
+};
+
+function getCurrentTier(xp) {
+for (let i = TIERS.length - 1; i >= 0; i--) {
+if (xp >= TIERS[i].minXp) return { tier: TIERS[i], index: i };
+}
+return { tier: TIERS[0], index: 0 };
+}
+
+function updatePills() {
+const { tier, index } = getCurrentTier(STATE.xp);
+document.getElementById('rankPill').textContent = tier.icon + ' ' + tier.name + ' (' + STATE.xp.toLocaleString() + ' XP)';
+document.getElementById('scanPill').textContent = STATE.dailyScans + ' LEFT';
+localStorage.setItem('ts_scans_left', STATE.dailyScans);
+localStorage.setItem('ts_xp', STATE.xp);
+}
+updatePills();
+
+function openLevelModal() {
+const { tier, index } = getCurrentTier(STATE.xp);
+const nextTier = TIERS[index + 1];
+
+document.getElementById('modalBadgeIcon').textContent = tier.icon;
+document.getElementById('modalRankName').textContent = tier.name;
+document.getElementById('modalXpSubtitle').textContent = STATE.xp.toLocaleString() + ' Total XP Earned';
+
+const fill = document.getElementById('modalProgressFill');
+const nextInfo = document.getElementById('modalNextRankInfo');
+
+if (nextTier) {
+const range = nextTier.minXp - tier.minXp;
+const currentProgress = STATE.xp - tier.minXp;
+const pct = Math.min(100, Math.max(0, Math.round((currentProgress / range) * 100)));
+fill.style.width = pct + '%';
+const needed = nextTier.minXp - STATE.xp;
+nextInfo.textContent = needed.toLocaleString() + ' XP needed to reach ' + nextTier.name + ' (' + pct + '%)';
+} else {
+fill.style.width = '100%';
+nextInfo.textContent = 'Maximum Rank Achieved! Top Tier Scout.';
+}
+
+const list = document.getElementById('badgeTiersList');
+list.innerHTML = '';
+TIERS.forEach(t => {
+const isUnlocked = STATE.xp >= t.minXp;
+const card = document.createElement('div');
+card.className = 'badge-card' + (isUnlocked ? ' unlocked' : '');
+card.innerHTML =
+'<div class="badge-icon-box">' + t.icon + '</div>' +
+'<div style="flex:1;">' +
+'<div style="font-weight:800; font-size:0.9rem; color:' + (isUnlocked ? 'var(--amber)' : '#fff') + ';">' +
+t.name + ' ' + (isUnlocked ? '✓' : '<span style="font-size:0.75rem; color:var(--text-muted);">(' + t.minXp.toLocaleString() + ' XP)</span>') +
+'</div>' +
+'<div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">' + t.desc + '</div>' +
+'</div>';
+list.appendChild(card);
+});
+
+document.getElementById('levelModal').classList.add('active');
+}
+
+document.getElementById('rankPill').onclick = openLevelModal;
+document.getElementById('openHandbookBtn').onclick = openLevelModal;
+document.getElementById('closeLevelBtn').onclick = () => {
+document.getElementById('levelModal').classList.remove('active');
+};
+
+document.getElementById('resetQuotaBtn').onclick = function() {
+STATE.dailyScans = 100;
+updatePills();
+alert('Daily scans reset to 100.');
+};
+
+function triggerAlert(msg, isErr = false) {
+const box = document.getElementById('statusAlert');
+box.style.display = 'block';
+box.style.borderLeftColor = isErr ? 'var(--coral)' : 'var(--accent)';
+box.textContent = msg;
+}
+function dismissAlert() {
+document.getElementById('statusAlert').style.display = 'none';
+}
+
+document.querySelectorAll('.dock-btn').forEach(btn => {
+btn.addEventListener('click', () => {
+document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
+btn.classList.add('active');
+STATE.activeTab = btn.dataset.target.replace('tab-', '');
+document.getElementById(btn.dataset.target).classList.add('active');
+if (STATE.activeTab === 'stores') {
+initStoresList();
+}
+});
+});
+
+document.getElementById('vaultSubActive').onclick = () => {
+STATE.vaultSub = 'active';
+document.getElementById('vaultSubActive').classList.add('active');
+document.getElementById('vaultSubSold').classList.remove('active');
+renderVault();
+};
+document.getElementById('vaultSubSold').onclick = () => {
+STATE.vaultSub = 'sold';
+document.getElementById('vaultSubSold').classList.add('active');
+document.getElementById('vaultSubActive').classList.remove('active');
+renderVault();
+};
+
+const configModal = document.getElementById('configModal');
+document.getElementById('configBtn').onclick = () => {
+document.getElementById('geminiApiKey').value = STATE.geminiKey;
+configModal.classList.add('active');
+};
+document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
+document.getElementById('saveConfigBtn').onclick = () => {
+STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
+localStorage.setItem('ts_gemini_key', STATE.geminiKey);
+configModal.classList.remove('active');
+triggerAlert('API Key verified and saved.');
+};
+
+const mobileCam = document.getElementById('mobileCameraInput');
+const mobileGal = document.getElementById('mobileGalleryInput');
+const previewImg = document.getElementById('previewImg');
+const previewBox = document.getElementById('imagePreviewContainer');
+
+document.getElementById('snapMobileBtn').onclick = () => mobileCam.click();
+document.getElementById('uploadFileBtn').onclick = () => mobileGal.click();
+
+function handleFileSelection(file) {
+if (!file) return;
+const reader = new FileReader();
+reader.onload = (e) => {
+const img = new Image();
+img.onload = () => {
+const canvas = document.createElement('canvas');
+let w = img.width;
+let h = img.height;
+const maxDim = 800;
+if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+canvas.width = w;
+canvas.height = h;
+canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.70).split(',')[1];
+previewImg.src = canvas.toDataURL('image/jpeg', 0.70);
+previewBox.style.display = 'block';
+
+const thumbCanvas = document.createElement('canvas');
+let tw = img.width;
+let th = img.height;
+const thumbMax = 140;
+if (tw > th && tw > thumbMax) { th = Math.round((th * thumbMax) / tw); tw = thumbMax; }
+else if (th > thumbMax) { tw = Math.round((tw * thumbMax) / th); th = thumbMax; }
+thumbCanvas.width = tw;
+thumbCanvas.height = th;
+thumbCanvas.getContext('2d').drawImage(img, 0, 0, tw, th);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
+};
+img.src = e.target.result;
+};
+reader.readAsDataURL(file);
+}
+
+mobileCam.onchange = (e) => handleFileSelection(e.target.files[0]);
+mobileGal.onchange = (e) => handleFileSelection(e.target.files[0]);
+
+// Cross-platform Camera Support (Windows, macOS Safari/Chrome, iOS, Android)
+const webcamModal = document.getElementById('webcamModal');
+const webcamVideo = document.getElementById('webcamVideo');
+const cameraSelect = document.getElementById('cameraSourceSelect');
+
+document.getElementById('openWebcamBtn').onclick = async () => {
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+alert('Webcam stream not supported on this browser context. HTTPS required.');
+return;
+}
+webcamModal.classList.add('active');
+try {
+const devices = await navigator.mediaDevices.enumerateDevices();
+const videoDevices = devices.filter(d => d.kind === 'videoinput');
+cameraSelect.innerHTML = '';
+if (videoDevices.length > 1) {
+videoDevices.forEach((dev, idx) => {
+const opt = document.createElement('option');
+opt.value = dev.deviceId;
+opt.text = dev.label || ('Camera ' + (idx + 1));
+cameraSelect.appendChild(opt);
+});
+cameraSelect.style.display = 'block';
+} else {
+cameraSelect.style.display = 'none';
+}
+await startWebcamStream(videoDevices[0]?.deviceId);
+} catch (err) {
+alert('Could not access camera: ' + err.message);
+webcamModal.classList.remove('active');
+}
+};
+
+async function startWebcamStream(deviceId) {
+if (webcamStream) {
+webcamStream.getTracks().forEach(track => track.stop());
+}
+const constraints = {
+video: deviceId
+? { deviceId: { exact: deviceId } }
+: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "environment" }
+};
+try {
+webcamStream = await navigator.mediaDevices.getUserMedia(constraints);
+webcamVideo.srcObject = webcamStream;
+await webcamVideo.play();
+} catch (e) {
+webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
+webcamVideo.srcObject = webcamStream;
+await webcamVideo.play();
+}
+}
+
+cameraSelect.onchange = () => startWebcamStream(cameraSelect.value);
+
+document.getElementById('closeWebcamBtn').onclick = () => {
+if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+webcamModal.classList.remove('active');
+};
+
+document.getElementById('captureWebcamBtn').onclick = () => {
+const canvas = document.createElement('canvas');
+canvas.width = webcamVideo.videoWidth || 640;
+canvas.height = webcamVideo.videoHeight || 480;
+canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
+selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
+previewImg.src = canvas.toDataURL('image/jpeg', 0.75);
+previewBox.style.display = 'block';
+
+const thumbCanvas = document.createElement('canvas');
+thumbCanvas.width = 140;
+thumbCanvas.height = Math.round((canvas.height * 140) / canvas.width);
+thumbCanvas.getContext('2d').drawImage(webcamVideo, 0, 0, thumbCanvas.width, thumbCanvas.height);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
+
+if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+webcamModal.classList.remove('active');
+};
+
+// AI Valuation Engine with Gemini 3.8 Flash
+document.getElementById('evaluateBtn').onclick = async () => {
+if (!selectedImageBase64) {
+alert('Snap or select an image first.');
+return;
+}
+if (!STATE.geminiKey) {
+alert('Set Gemini API key in Config.');
+configModal.classList.add('active');
+return;
+}
+if (STATE.dailyScans <= 0) {
+alert('Daily scan limit reached.');
+return;
+}
+
+triggerAlert('Analyzing item resale value and tag hallmarks...');
+const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
+const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+
+const promptText = "Analyze this thrift store item for secondary market resale. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
+"{\n" +
+' "brand": "Manufacturer, brand, or publisher",\n' +
+' "item": "Model, title, or garment descriptor",\n' +
+' "resale": 35.00,\n' +
+' "disposition": "FLIP",\n' +
+' "platform": "eBay",\n' +
+' "shipping": "USPS Ground Advantage",\n' +
+' "intel": "Key tag hallmarks, single stitch status, RN codes, or flaws",\n' +
+' "query": "clean keywords for ebay sold search"\n' +
+"}";
+
+try {
+const res = await fetch(endpoint, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+contents: [{
+parts: [
+{ text: promptText },
+{ inlineData: { mimeType: 'image/jpeg', data: selectedImageBase64 } }
+]
+}],
+generationConfig: { temperature: 0.15 }
+})
+});
+
+if (!res.ok) {
+const errBody = await res.json().catch(() => ({}));
+throw new Error(errBody.error?.message || ('HTTP ' + res.status));
+}
+
+const data = await res.json();
+const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+if (!rawContent) throw new Error('Model produced an empty evaluation.');
+
+const cleaned = rawContent.replace(/```json/gi, '').replace(/```/g, '').trim();
+const parsed = JSON.parse(cleaned);
+
+const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded / Unknown';
+const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
+const estResale = parseFloat(parsed.resale) || 0;
+const estProfit = estResale - cost - (estResale * 0.1325);
+
+// Check if item fulfills Challenge of the Day
+const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).toLowerCase();
+const isMissionMatch = currentMission.name.toLowerCase().split(' ').some(w => w.length > 3 && fullDesc.includes(w));
+const bonusXp = isMissionMatch ? 150 : 25;
+
+currentAppraisal = {
+brand: parsedBrand,
+item: parsedItem,
+name: parsedBrand + " - " + parsedItem,
+cost: cost,
+resale: estResale,
+profit: Number(estProfit.toFixed(2)),
+platform: parsed.platform || 'eBay',
+shipping: parsed.shipping || 'USPS Ground Advantage',
+disposition: parsed.disposition || 'MONITOR',
+intel: parsed.intel || 'Standard secondary market asset.',
+query: parsed.query || (parsedBrand + " " + parsedItem),
+imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImageBase64),
+status: 'prospect',
+createdAt: Date.now()
+};
+
+renderAppraisal(currentAppraisal);
+STATE.dailyScans--;
+STATE.xp += bonusXp;
+updatePills();
+dismissAlert();
+
+if (isMissionMatch) {
+alert('🎯 Daily Mission Target Identified! +150 XP Bonus Awarded!');
+}
+
+} catch (err) {
+triggerAlert('Evaluation error: ' + err.message, true);
+}
+};
+
+function renderAppraisal(item) {
+document.getElementById('resItemTitle').textContent = item.name;
+document.getElementById('resEstResale').textContent = '$' + item.resale.toFixed(2);
+document.getElementById('resEstProfit').textContent = '$' + item.profit.toFixed(2);
+document.getElementById('resBrand').textContent = item.brand;
+document.getElementById('resShipping').textContent = item.shipping;
+document.getElementById('resIntel').textContent = item.intel;
+
+const pill = document.getElementById('resDispPill');
+pill.textContent = item.disposition;
+pill.className = 'disposition-pill ' + (item.disposition === 'FLIP' ? 'disp-flip' : item.disposition === 'MONITOR' ? 'disp-monitor' : 'disp-pass');
+
+const ebayUrl = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
+document.getElementById('resEbayLink').href = ebayUrl;
+document.getElementById('appraisalCard').style.display = 'flex';
+}
+
+document.getElementById('saveVaultBtn').onclick = async () => {
+if (!currentAppraisal) return;
+try {
+triggerAlert('Syncing item to Cloud Vault...');
+const docData = { ...currentAppraisal, status: 'owned', purchasedAt: Date.now() };
+await addDoc(collection(db, 'vault_inventory'), docData);
+STATE.xp += 50;
+updatePills();
+triggerAlert('Saved to Vault across all devices.');
+alert('Item added to Cloud Vault!');
+} catch (err) {
+triggerAlert('Cloud sync failed: ' + err.message, true);
+}
+};
+
+function attachFirestoreListeners() {
+onSnapshot(query(collection(db, 'vault_inventory'), orderBy('purchasedAt', 'desc')), (snap) => {
+STATE.activeItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+if (STATE.vaultSub === 'active') renderVault();
+});
+
+onSnapshot(query(collection(db, 'vault_sold'), orderBy('soldAt', 'desc')), (snap) => {
+STATE.soldItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+if (STATE.vaultSub === 'sold') renderVault();
+});
+}
+attachFirestoreListeners();
+
+function renderVault() {
+const container = document.getElementById('vaultItemList');
+container.innerHTML = '';
+const list = (STATE.vaultSub === 'active') ? STATE.activeItems : STATE.soldItems;
+let totalValue = 0;
+
+list.forEach(item => {
+const val = Number(item.profit || item.realizedProfit || 0);
+totalValue += val;
+
+const displayBrand = item.brand || 'Unbranded';
+const displayItem = item.item || item.name || 'Thrift Asset';
+const costBasis = Number(item.cost || item.itemCost || 0).toFixed(2);
+const estResale = Number(item.resale || item.estimatedValue || 0).toFixed(2);
+
+const thumbSrc = item.imageThumb || item.image || "data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E";
+
+const row = document.createElement('div');
+row.className = 'vault-item';
+row.innerHTML =
+'<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
+'<div class="item-content">' +
+'<div class="item-title">' + displayBrand + ' - ' + displayItem + '</div>' +
+'<div class="item-meta">' + (item.platform || 'eBay') + ' • Buy: $' + costBasis + ' • Target: $' + estResale + '</div>' +
+'<div class="item-actions">' +
+(STATE.vaultSub === 'active'
+? '<button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="markSoldCloud(\'' + item.id + '\')">MARK SOLD</button>'
+: '<span style="color:var(--accent); font-size:0.75rem; font-weight:700;">SOLD: +$' + val.toFixed(2) + '</span>') +
+'<button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; width:auto; color:var(--coral);" onclick="deleteCloudItem(\'' + item.id + '\')">DELETE</button>' +
+'</div>' +
+'</div>' +
+'<div style="text-align:right;">' +
+'<div style="color:var(--accent); font-weight:800; font-size:1rem;">+$' + val.toFixed(2) + '</div>' +
+'</div>';
+container.appendChild(row);
+});
+
+document.getElementById('vaultTotal').textContent = '$' + totalValue.toFixed(2);
+document.getElementById('vaultCount').textContent = list.length + ' items';
+}
+
+window.markSoldCloud = async (id) => {
+const target = STATE.activeItems.find(i => i.id === id);
+if (!target) return;
+const defaultPrice = target.resale || target.estimatedValue || 0;
+const soldInput = prompt('Enter final sold price ($):', defaultPrice);
+if (soldInput === null) return;
+const finalPrice = parseFloat(soldInput) || defaultPrice;
+const costBasis = target.cost || target.itemCost || 0;
+const realized = finalPrice - costBasis - (finalPrice * 0.1325);
+
+try {
+await addDoc(collection(db, 'vault_sold'), {
+...target,
+finalSoldPrice: finalPrice,
+realizedProfit: Number(realized.toFixed(2)),
+soldAt: Date.now()
+});
+await deleteDoc(doc(db, 'vault_inventory', id));
+STATE.xp += 100;
+updatePills();
+} catch (err) {
+alert('Action failed: ' + err.message);
+}
+};
+
+window.deleteCloudItem = async (id) => {
+if (!confirm('Remove this item from the cloud?')) return;
+const coll = (STATE.vaultSub === 'active') ? 'vault_inventory' : 'vault_sold';
+try {
+await deleteDoc(doc(db, coll, id));
+} catch (err) {
+alert('Delete failed: ' + err.message);
+}
+};
+
+// Ultra-Fast Tag Chronology Scanner
+const snapTagBtn = document.getElementById('snapTagBtn');
+const tagInput = document.getElementById('tagImageInput');
+
+snapTagBtn.onclick = () => tagInput.click();
+tagInput.onchange = async (e) => {
+const file = e.target.files[0];
+if (!file || !STATE.geminiKey) {
+if (!STATE.geminiKey) alert('Set Gemini API Key in Config.');
+return;
+}
+triggerAlert('⚡ Fast tag & hallmark analysis...');
+
+const reader = new FileReader();
+reader.onload = async (event) => {
+const rawImg = new Image();
+rawImg.onload = async () => {
+const canvas = document.createElement('canvas');
+let w = rawImg.width;
+let h = rawImg.height;
+const maxDim = 640;
+if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+canvas.width = w;
+canvas.height = h;
+canvas.getContext('2d').drawImage(rawImg, 0, 0, w, h);
+const fastB64 = canvas.toDataURL('image/jpeg', 0.65).split(',')[1];
+
+const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+const prompt = "Identify clothing tag/maker mark/RN. Output JSON ONLY:\n" +
+"{\n" +
+' "maker": "Brand",\n' +
+' "era": "Date Range",\n' +
+' "clues": [{"label": "Hallmark", "desc": "Reason"}]\n' +
+"}";
+
+try {
+const res = await fetch(endpoint, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+contents: [{
+parts: [
+{ text: prompt },
+{ inlineData: { mimeType: 'image/jpeg', data: fastB64 } }
+]
+}],
+generationConfig: { temperature: 0.1, maxOutputTokens: 250 }
+})
+});
+
+const data = await res.json();
+const cleanText = data.candidates[0].content.parts[0].text.replace(/```json/gi, '').replace(/```/g, '').trim();
+const parsed = JSON.parse(cleanText);
+
+document.getElementById('tagEraTitle').textContent = parsed.maker + ' (' + parsed.era + ')';
+const container = document.getElementById('tagTimelineContainer');
+container.innerHTML = '';
+
+parsed.clues.forEach(c => {
+const node = document.createElement('div');
+node.className = 'timeline-node';
+node.innerHTML = '<div class="timeline-era">' + c.label + '</div><div class="timeline-desc">' + c.desc + '</div>';
+container.appendChild(node);
+});
+
+document.getElementById('tagResultCard').style.display = 'flex';
+STATE.dailyScans--;
+STATE.xp += 35;
+updatePills();
+dismissAlert();
+} catch (err) {
+triggerAlert('Tag scan failed: ' + err.message, true);
+}
+};
+rawImg.src = event.target.result;
+};
+reader.readAsDataURL(file);
+};
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+const R = 3958.8;
+const dLat = (lat2 - lat1) * Math.PI / 180;
+const dLon = (lon2 - lon1) * Math.PI / 180;
+const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+Math.sin(dLon/2) * Math.sin(dLon/2);
+const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+return (R * c).toFixed(1);
+}
+
+// Direct Local Stores List
+function initStoresList() {
+const grid = document.getElementById('storeRadarGrid');
+
+if (!navigator.geolocation) {
+renderStoreCards(STORES);
+return;
+}
+
+navigator.geolocation.getCurrentPosition(
+(pos) => {
+STATE.userLat = pos.coords.latitude;
+STATE.userLon = pos.coords.longitude;
+const enriched = STORES.map(s => {
+const dist = calculateDistance(STATE.userLat, STATE.userLon, s.lat, s.lon);
+return { ...s, dist: parseFloat(dist) };
+}).sort((a, b) => a.dist - b.dist);
+renderStoreCards(enriched);
+},
+() => {
+renderStoreCards(STORES);
+},
+{ enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+);
+}
+
+function renderStoreCards(storeList) {
+const grid = document.getElementById('storeRadarGrid');
+grid.innerHTML = '';
+
+storeList.forEach(s => {
+const destQuery = encodeURIComponent(s.address);
+const card = document.createElement('div');
+card.className = 'store-card-modern';
+card.innerHTML =
+'<div class="store-card-top">' +
+'<div>' +
+'<div class="store-name-title">' + s.name + '</div>' +
+'<div class="store-address-text">' + s.address + '</div>' +
+'</div>' +
+(s.dist !== undefined ? '<span class="store-dist-badge">' + s.dist + ' mi</span>' : '') +
+'</div>' +
+'<div class="nav-actions-grid">' +
+'<a class="nav-app-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=' + destQuery + '">Google Maps</a>' +
+'<a class="nav-app-btn" target="_blank" href="https://maps.apple.com/?daddr=' + destQuery + '">Apple Maps</a>' +
+'<a class="nav-app-btn" target="_blank" href="https://waze.com/ul?q=' + destQuery + '&lat=' + s.lat + '&lon=' + s.lon + '&navigate=yes">Waze</a>' +
+'</div>';
+grid.appendChild(card);
+});
+}
+
+initStoresList();
+</script>
 </body>
 </html>
