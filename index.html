@@ -147,17 +147,21 @@ font-weight: 600;
 cursor: pointer;
 }
 
+/* Perfect Desktop & Mobile Centered Layout */
 main {
 flex: 1;
 width: 100%;
-max-width: 1200px;
+max-width: 680px;
 margin: 0 auto;
-padding: 20px;
+padding: 20px 16px;
 display: flex;
 flex-direction: column;
 gap: 16px;
 }
 @media (min-width: 768px) {
+main {
+max-width: 900px;
+}
 .tab-view.active {
 display: grid;
 grid-template-columns: 1fr 1fr;
@@ -224,16 +228,6 @@ background: linear-gradient(135deg, #312e81 100%, #1e1b4b 0%);
 display: flex;
 gap: 12px;
 align-items: center;
-}
-.challenge-thumb {
-width: 72px;
-height: 72px;
-min-width: 72px;
-border-radius: 8px;
-object-fit: cover;
-background: #090d16;
-border: 1px solid var(--border);
-cursor: pointer;
 }
 .challenge-reward {
 display: inline-flex;
@@ -576,7 +570,6 @@ outline: none;
 </div>
 <div class="challenge-banner">
 <div class="challenge-inner">
-<img id="dailyTargetThumb" class="challenge-thumb" src="" alt="Mission Target" onerror="this.src='https://images.unsplash.com/photo-1584990392731-13172e27649f?auto=format&fit=crop&w=400&q=85'">
 <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
 <div style="display:flex; justify-content:space-between; align-items:center;">
 <span style="font-weight:800; font-size:0.95rem; color:#fff;" id="dailyTargetName">Cast Iron Skillet (Griswold / Wagner)</span>
@@ -940,26 +933,22 @@ const DAILY_MISSIONS = [
 {
 name: "Cast Iron Skillet (Griswold / Wagner)",
 desc: "Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.",
-query: "vintage cast iron skillet wagner griswold",
-image: "https://images.unsplash.com/photo-1584990392731-13172e27649f?auto=format&fit=crop&w=400&q=85"
+query: "vintage cast iron skillet wagner griswold"
 },
 {
 name: "Heavyweight Flannel Shirt",
 desc: "Find any vintage cotton flannel or chamois shirt (Woolrich, Pendleton, L.L. Bean, Five Brother). Check tags for Made in USA.",
-query: "vintage heavyweight flannel shirt made in usa",
-image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=400&q=85"
+query: "vintage heavyweight flannel shirt made in usa"
 },
 {
 name: "Vintage Graphic Band or Tour Tee",
 desc: "Hunt for single-stitch hems or 90s licensed band, concert, or festival shirts (Brockum, Giant, Winterland tags).",
-query: "vintage single stitch band tee",
-image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=85"
+query: "vintage single stitch band tee"
 },
 {
 name: "Graphing Calculator",
 desc: "Look in the bag walls or tech bins for Texas Instruments (TI-84, TI-83 Plus, TI-89) or Casio graphing models.",
-query: "ti-84 plus graphing calculator",
-image: "https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=400&q=85"
+query: "ti-84 plus graphing calculator"
 }
 ];
 
@@ -1057,19 +1046,9 @@ alert('🪙 TOKEN COUNTER EXPLAINED:\nTokens represent your daily remaining API 
 }
 };
 
-// Populate Challenge of the Day with correct Skillet mission match
+// Populate Challenge of the Day with text-only mission layout (removed broken image entirely)
 document.getElementById('dailyTargetName').textContent = currentMission.name;
 document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
-const dailyThumb = document.getElementById('dailyTargetThumb');
-dailyThumb.src = currentMission.image;
-dailyThumb.onerror = () => {
-dailyThumb.src = "https://images.unsplash.com/photo-1584990392731-13172e27649f?auto=format&fit=crop&w=400&q=85";
-};
-
-dailyThumb.onclick = () => {
-window.open(dailyThumb.src, '_blank');
-};
-
 document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
 document.getElementById('claimChallengeBtn').onclick = () => {
 triggerAlert('Target mission "' + currentMission.name + '" primed for scan!');
@@ -1256,13 +1235,13 @@ previewBox.style.display = 'block';
 const thumbCanvas = document.createElement('canvas');
 let tw = img.width;
 let th = img.height;
-const thumbMax = 140;
+const thumbMax = 300;
 if (tw > th && tw > thumbMax) { th = Math.round((th * thumbMax) / tw); tw = thumbMax; }
 else if (th > thumbMax) { tw = Math.round((tw * thumbMax) / th); th = thumbMax; }
 thumbCanvas.width = tw;
 thumbCanvas.height = th;
 thumbCanvas.getContext('2d').drawImage(img, 0, 0, tw, th);
-compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
 };
 img.src = e.target.result;
 };
@@ -1337,15 +1316,15 @@ const canvas = document.createElement('canvas');
 canvas.width = webcamVideo.videoWidth || 640;
 canvas.height = webcamVideo.videoHeight || 480;
 canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
-selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
-previewImg.src = canvas.toDataURL('image/jpeg', 0.75);
+selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+previewImg.src = canvas.toDataURL('image/jpeg', 0.85);
 previewBox.style.display = 'block';
 
 const thumbCanvas = document.createElement('canvas');
-thumbCanvas.width = 140;
-thumbCanvas.height = Math.round((canvas.height * 140) / canvas.width);
+thumbCanvas.width = 300;
+thumbCanvas.height = Math.round((canvas.height * 300) / canvas.width);
 thumbCanvas.getContext('2d').drawImage(webcamVideo, 0, 0, thumbCanvas.width, thumbCanvas.height);
-compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
 
 if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
 webcamModal.classList.remove('active');
@@ -1614,7 +1593,6 @@ const list = (STATE.vaultSub === 'active') ? STATE.activeItems : STATE.soldItems
 let totalValue = 0;
 
 list.forEach(item => {
-// Correctly calculate and accumulate portfolio profit
 const val = STATE.vaultSub === 'active'
 ? Number(item.profit || 0)
 : Number(item.realizedProfit || item.profit || 0);
@@ -1640,7 +1618,7 @@ row.className = 'vault-item';
 
 row.onclick = () => openVaultDetail(item);
 
-// Isolated item-card swipe logic (prevents whole screen shifting)
+// Isolated item-card swipe logic (prevents whole screen shifting & image tap triggers)
 let vStartX = 0;
 let vCurrentX = 0;
 let vDragging = false;
@@ -1659,12 +1637,13 @@ row.style.transform = 'translateX(' + diff + 'px)';
 }
 }, { passive: true });
 
-row.addEventListener('touchend', () => {
+row.addEventListener('touchend', (e) => {
 if (!vDragging) return;
 vDragging = false;
 const diff = vCurrentX - vStartX;
 row.style.transform = 'translateX(0px)';
 if (Math.abs(diff) > 75) {
+e.stopPropagation();
 if (diff > 0 && STATE.vaultSub === 'active') {
 markSoldCloud(item.id);
 } else if (diff < 0) {
