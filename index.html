@@ -545,7 +545,7 @@ outline: none;
 <main>
 <div id="statusAlert" class="status-alert"></div>
 
-<!-- TAB 1: SCOUT -->
+<!-- TAB 1: SCOUT (RAPID VALUATION & MISSIONS) -->
 <section id="tab-scout" class="tab-view active">
 <!-- CHALLENGE OF THE DAY -->
 <div class="card">
@@ -871,10 +871,15 @@ appId: "1:559782240794:web:5ace10f3f027b4cd82e7a3"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Audio & Haptic Feedback Synthesizer
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+// FIX: Lazy-load audio context so it doesn't crash iOS/Safari on startup
+let audioCtx = null;
 function playBeep(freq = 587.33, type = 'sine', duration = 0.08) {
 try {
+if (!audioCtx) {
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+if (AudioContext) audioCtx = new AudioContext();
+}
+if (!audioCtx) return;
 if (audioCtx.state === 'suspended') audioCtx.resume();
 const osc = audioCtx.createOscillator();
 const gain = audioCtx.createGain();
@@ -887,7 +892,7 @@ gain.connect(audioCtx.destination);
 osc.start();
 osc.stop(audioCtx.currentTime + duration);
 } catch (e) {
-// Audio fallback
+// Audio fallback safely ignored
 }
 if (navigator.vibrate) {
 navigator.vibrate(30);
@@ -964,6 +969,8 @@ document.body.style.fontSize = STATE.fontScale;
 document.getElementById('scanPill').style.display = STATE.showTokens ? 'flex' : 'none';
 
 document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
+
+// FIX: Moving Audio init to user gesture properly allows modal to close
 document.getElementById('enterHQBtn').onclick = () => {
 playBeep(880);
 document.getElementById('welcomeModal').classList.remove('active');
@@ -994,6 +1001,8 @@ const newTheme = document.getElementById('themeSelect').value;
 const newScale = document.getElementById('fontScaleSelect').value;
 const willShowTokens = document.getElementById('tokenCounterToggle').checked;
 
+const tokenToggledOn = !STATE.showTokens && willShowTokens;
+
 STATE.currentTheme = newTheme;
 STATE.fontScale = newScale;
 STATE.showTokens = willShowTokens;
@@ -1011,6 +1020,10 @@ document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.us
 
 profileModal.classList.remove('active');
 triggerAlert('Specialist profile & preferences updated successfully.');
+
+if (tokenToggledOn) {
+alert('🪙 TOKEN COUNTER EXPLAINED:\nTokens represent your daily remaining API rate-limit queries (100 per day reset). They protect against rapid-fire request blocks!');
+}
 };
 
 document.getElementById('dailyTargetName').textContent = currentMission.name;
@@ -1315,7 +1328,6 @@ webcamModal.classList.remove('active');
 runAutomaticEvaluation();
 };
 
-// FIXED: Strict JSON extraction regex to prevent "Unterminated string in JSON" parsing crashes caused by markdown wrapping or model formatting chatter
 async function runAutomaticEvaluation() {
 if (!selectedImageBase64) return;
 if (!STATE.geminiKey) {
@@ -1398,7 +1410,6 @@ return;
 }
 
 try {
-// Robust JSON extraction using regex to strip markdown and stray text
 const jsonMatch = successData.match(/\{[\s\S]*\}/);
 if (!jsonMatch) throw new Error('No valid JSON object found in response.');
 const parsed = JSON.parse(jsonMatch[0]);
@@ -1455,7 +1466,7 @@ alert('🎯 Daily Mission Target Identified! +150 XP Bonus Awarded!');
 } catch (err) {
 triggerAlert('Parsing error: ' + err.message, true);
 }
-};
+}
 
 function renderAppraisal(item) {
 document.getElementById('resItemTitle').textContent = item.name;
@@ -1672,7 +1683,7 @@ deleteCloudItemDirect(item.id);
 });
 
 row.innerHTML =
-'<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onclick="event.stopPropagation(); openVaultDetailByName(\'' + item.id + \')" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
+'<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onclick="event.stopPropagation(); openVaultDetailByName(\'' + item.id + '\')" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
 '<div class="item-content">' +
 '<div class="item-title">' + displayBrand + ' - ' + displayItem + '</div>' +
 '<div class="item-meta">Buy: $' + costBasis + ' • Target: $' + estResale + ' • ' + (item.platform || 'eBay') + '</div>' +
@@ -1814,7 +1825,6 @@ card.innerHTML =
 '<a class="nav-app-btn" target="_blank" href="https://maps.apple.com/?daddr=' + destQuery + '">Apple Maps</a>' +
 '<a class="nav-app-btn" target="_blank" href="https://waze.com/ul?q=' + destQuery + '&lat=' + s.lat + '&lon=' + s.lon + '&navigate=yes">Waze</a>' +
 '</div>';
-grid.eqref ? '' : '';
 grid.appendChild(card);
 });
 }
