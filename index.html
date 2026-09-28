@@ -147,7 +147,6 @@ font-weight: 600;
 cursor: pointer;
 }
 
-/* Full Desktop Width Mode */
 main {
 flex: 1;
 width: 100%;
@@ -577,19 +576,19 @@ outline: none;
 </div>
 <div class="challenge-banner">
 <div class="challenge-inner">
-<img id="dailyTargetThumb" class="challenge-thumb" src="" alt="Mission Target" onerror="this.src='https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=300&q=80'">
+<img id="dailyTargetThumb" class="challenge-thumb" src="" alt="Mission Target" onerror="this.src='https://images.unsplash.com/photo-1584990392731-13172e27649f?auto=format&fit=crop&w=300&q=80'">
 <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
 <div style="display:flex; justify-content:space-between; align-items:center;">
-<span style="font-weight:800; font-size:0.95rem; color:#fff;" id="dailyTargetName">Heavyweight Flannel Shirt</span>
+<span style="font-weight:800; font-size:0.95rem; color:#fff;" id="dailyTargetName">Cast Iron Skillet (Griswold / Wagner)</span>
 <span class="challenge-reward" id="dailyRewardBadge">+150 XP BONUS</span>
 </div>
 <p style="font-size:0.78rem; color:#cbd5e1; line-height:1.3;" id="dailyTargetDesc">
-Scout any vintage cotton flannel or chamois shirt. Check tags for Made in USA.
+Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.
 </p>
 </div>
 </div>
 <div style="display:flex; gap:8px; margin-top:2px;">
-<a id="dailyCompsLink" target="_blank" class="btn btn-outline" style="font-size:0.75rem; padding:8px 12px; width:auto;" href="https://www.ebay.com/sch/i.html?_nkw=vintage+heavyweight+flannel+shirt+made+in+usa&LH_Sold=1&LH_Complete=1">View Target Comps</a>
+<a id="dailyCompsLink" target="_blank" class="btn btn-outline" style="font-size:0.75rem; padding:8px 12px; width:auto;" href="https://www.ebay.com/sch/i.html?_nkw=vintage+cast+iron+skillet+wagner+griswold&LH_Sold=1&LH_Complete=1">View Target Comps</a>
 <button class="btn btn-accent" id="claimChallengeBtn" style="font-size:0.75rem; padding:8px 12px; width:auto;">Apply Target to Scan</button>
 </div>
 </div>
@@ -939,28 +938,28 @@ const TIERS = [
 
 const DAILY_MISSIONS = [
 {
+name: "Cast Iron Skillet (Griswold / Wagner)",
+desc: "Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.",
+query: "vintage cast iron skillet wagner griswold",
+image: "https://images.unsplash.com/photo-1584990392731-13172e27649f?auto=format&fit=crop&w=400&q=85"
+},
+{
 name: "Heavyweight Flannel Shirt",
 desc: "Find any vintage cotton flannel or chamois shirt (Woolrich, Pendleton, L.L. Bean, Five Brother). Check tags for Made in USA.",
 query: "vintage heavyweight flannel shirt made in usa",
-image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=300&q=80"
+image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=400&q=85"
 },
 {
 name: "Vintage Graphic Band or Tour Tee",
 desc: "Hunt for single-stitch hems or 90s licensed band, concert, or festival shirts (Brockum, Giant, Winterland tags).",
 query: "vintage single stitch band tee",
-image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=300&q=80"
+image: "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=400&q=85"
 },
 {
 name: "Graphing Calculator",
 desc: "Look in the bag walls or tech bins for Texas Instruments (TI-84, TI-83 Plus, TI-89) or Casio graphing models.",
 query: "ti-84 plus graphing calculator",
-image: "https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=300&q=80"
-},
-{
-name: "Cast Iron Skillet (Griswold / Wagner)",
-desc: "Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.",
-query: "vintage cast iron skillet wagner griswold",
-image: "https://images.unsplash.com/photo-1584990392731-13172e27649f?auto=format&fit=crop&w=300&q=80"
+image: "https://images.unsplash.com/photo-1580910051074-3eb694886505?auto=format&fit=crop&w=400&q=85"
 }
 ];
 
@@ -1064,7 +1063,7 @@ document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
 const dailyThumb = document.getElementById('dailyTargetThumb');
 dailyThumb.src = currentMission.image;
 dailyThumb.onerror = () => {
-dailyThumb.src = "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=300&q=80";
+dailyThumb.src = "https://images.unsplash.com/photo-1584990392731-13172e27649f?auto=format&fit=crop&w=400&q=85";
 };
 
 dailyThumb.onclick = () => {
@@ -1257,13 +1256,13 @@ previewBox.style.display = 'block';
 const thumbCanvas = document.createElement('canvas');
 let tw = img.width;
 let th = img.height;
-const thumbMax = 140;
+const thumbMax = 300; // Increased resolution for crisp sharing
 if (tw > th && tw > thumbMax) { th = Math.round((th * thumbMax) / tw); tw = thumbMax; }
 else if (th > thumbMax) { tw = Math.round((tw * thumbMax) / th); th = thumbMax; }
 thumbCanvas.width = tw;
 thumbCanvas.height = th;
 thumbCanvas.getContext('2d').drawImage(img, 0, 0, tw, th);
-compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
 };
 img.src = e.target.result;
 };
@@ -1338,15 +1337,15 @@ const canvas = document.createElement('canvas');
 canvas.width = webcamVideo.videoWidth || 640;
 canvas.height = webcamVideo.videoHeight || 480;
 canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
-selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
-previewImg.src = canvas.toDataURL('image/jpeg', 0.75);
+selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+previewImg.src = canvas.toDataURL('image/jpeg', 0.85);
 previewBox.style.display = 'block';
 
 const thumbCanvas = document.createElement('canvas');
-thumbCanvas.width = 140;
-thumbCanvas.height = Math.round((canvas.height * 140) / canvas.width);
+thumbCanvas.width = 300;
+thumbCanvas.height = Math.round((canvas.height * 300) / canvas.width);
 thumbCanvas.getContext('2d').drawImage(webcamVideo, 0, 0, thumbCanvas.width, thumbCanvas.height);
-compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
 
 if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
 webcamModal.classList.remove('active');
@@ -1498,25 +1497,87 @@ document.getElementById('resEbayLink').href = ebayUrl;
 document.getElementById('appraisalCard').style.display = 'flex';
 }
 
-// Share Evaluation Feature via Web Share API
+// High-Resolution Share Evaluation Feature generating a clean Canvas Card Box
 document.getElementById('shareEvaluationBtn').onclick = async () => {
 if (!currentAppraisal) return;
+
+const canvas = document.createElement('canvas');
+canvas.width = 600;
+canvas.height = 400;
+const ctx = canvas.getContext('2d');
+
+ctx.fillStyle = '#111827';
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+ctx.strokeStyle = '#14b8a6';
+ctx.lineWidth = 4;
+ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+
+ctx.fillStyle = '#14b8a6';
+ctx.font = 'bold 16px sans-serif';
+ctx.fillText('THRIFT SCOUT • FIELD RECON', 30, 45);
+
+ctx.fillStyle = '#f9fafb';
+ctx.font = 'bold 22px sans-serif';
+ctx.fillText(currentAppraisal.name, 30, 80);
+
+const img = new Image();
+img.crossOrigin = 'anonymous';
+img.onload = () => {
+ctx.drawImage(img, 30, 105, 150, 150);
+drawTextAndShare(canvas);
+};
+img.onerror = () => {
+drawTextAndShare(canvas);
+};
+img.src = currentAppraisal.imageThumb;
+};
+
+async function drawTextAndShare(canvas) {
+const ctx = canvas.getContext('2d');
+ctx.fillStyle = '#9ca3af';
+ctx.font = '14px sans-serif';
+ctx.fillText('Target Resale:', 200, 125);
+ctx.fillStyle = '#f9fafb';
+ctx.font = 'bold 22px sans-serif';
+ctx.fillText('$' + currentAppraisal.resale.toFixed(2), 200, 155);
+
+ctx.fillStyle = '#9ca3af';
+ctx.font = '14px sans-serif';
+ctx.fillText('Est. Net Profit:', 200, 195);
+ctx.fillStyle = '#14b8a6';
+ctx.font = 'bold 24px sans-serif';
+ctx.fillText('$' + currentAppraisal.profit.toFixed(2), 200, 225);
+
+ctx.fillStyle = '#f59e0b';
+ctx.font = 'bold 16px sans-serif';
+ctx.fillText('DISPOSITION: ' + currentAppraisal.disposition, 30, 290);
+
+ctx.fillStyle = '#64748b';
+ctx.font = '12px sans-serif';
+ctx.fillText('Platform: ' + currentAppraisal.platform + ' • ' + currentAppraisal.shipping, 30, 325);
+
+canvas.toBlob(async (blob) => {
+const file = new File([blob], 'thrift-scout-eval.jpg', { type: 'image/jpeg' });
 const shareData = {
-title: 'Thrift Scout Evaluation: ' + currentAppraisal.name,
-text: `Check out this find!\nItem: ${currentAppraisal.name}\nTarget Resale: $${currentAppraisal.resale.toFixed(2)}\nEst. Profit: $${currentAppraisal.profit.toFixed(2)}\nRecommendation: ${currentAppraisal.disposition}`,
-url: window.location.href
+title: 'Thrift Scout: ' + currentAppraisal.name,
+text: `Check out this find!\nItem: ${currentAppraisal.name}\nTarget Resale: $${currentAppraisal.resale.toFixed(2)}\nEst. Profit: $${currentAppraisal.profit.toFixed(2)}`,
+files: [file]
 };
 try {
-if (navigator.share) {
+if (navigator.canShare && navigator.canShare(shareData)) {
 await navigator.share(shareData);
+} else if (navigator.share) {
+await navigator.share({ title: shareData.title, text: shareData.text, url: window.location.href });
 } else {
 await navigator.clipboard.writeText(shareData.text);
-alert('Evaluation details copied to clipboard to share!');
+alert('Evaluation details copied to clipboard!');
 }
 } catch (err) {
 // user cancelled share
 }
-};
+}, 'image/jpeg', 0.90);
+}
 
 document.getElementById('saveVaultBtn').onclick = async () => {
 if (!currentAppraisal) return;
