@@ -1315,7 +1315,7 @@ webcamModal.classList.remove('active');
 runAutomaticEvaluation();
 };
 
-// AI Valuation Engine with Multi-Model Fallbacks (gemini-2.5-flash as primary stable field tier)
+// FIXED: Strict JSON extraction regex to prevent "Unterminated string in JSON" parsing crashes caused by markdown wrapping or model formatting chatter
 async function runAutomaticEvaluation() {
 if (!selectedImageBase64) return;
 if (!STATE.geminiKey) {
@@ -1398,8 +1398,10 @@ return;
 }
 
 try {
-const cleaned = successData.replace(/```json/gi, '').replace(/```/g, '').trim();
-const parsed = JSON.parse(cleaned);
+// Robust JSON extraction using regex to strip markdown and stray text
+const jsonMatch = successData.match(/\{[\s\S]*\}/);
+if (!jsonMatch) throw new Error('No valid JSON object found in response.');
+const parsed = JSON.parse(jsonMatch[0]);
 
 const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded / Unknown';
 const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
@@ -1670,7 +1672,7 @@ deleteCloudItemDirect(item.id);
 });
 
 row.innerHTML =
-'<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onclick="event.stopPropagation(); openVaultDetailByName(\'' + item.id + '\')" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
+'<img class="item-thumb" src="' + thumbSrc + '" alt="Thumb" onclick="event.stopPropagation(); openVaultDetailByName(\'' + item.id + \')" onerror="this.src=\'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2280%22%20height%3D%2280%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%231b2336%22%2F%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22%2394a3b8%22%20dominant-baseline%3D%22middle%22%20text-anchor%3D%22middle%22%20font-size%3D%2211%22%20font-family%3D%22sans-serif%22%3EAsset%3C%2Ftext%3E%3C%2Fsvg%3E\'">' +
 '<div class="item-content">' +
 '<div class="item-title">' + displayBrand + ' - ' + displayItem + '</div>' +
 '<div class="item-meta">Buy: $' + costBasis + ' • Target: $' + estResale + ' • ' + (item.platform || 'eBay') + '</div>' +
@@ -1812,6 +1814,7 @@ card.innerHTML =
 '<a class="nav-app-btn" target="_blank" href="https://maps.apple.com/?daddr=' + destQuery + '">Apple Maps</a>' +
 '<a class="nav-app-btn" target="_blank" href="https://waze.com/ul?q=' + destQuery + '&lat=' + s.lat + '&lon=' + s.lon + '&navigate=yes">Waze</a>' +
 '</div>';
+grid.eqref ? '' : '';
 grid.appendChild(card);
 });
 }
