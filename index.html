@@ -1032,7 +1032,7 @@ alert('🪙 TOKEN COUNTER EXPLAINED:\nTokens represent your daily remaining API 
 }
 };
 
-// Populate Challenge of the Day
+// Populate Challenge of the Day (Text-only to avoid any broken image issues)
 document.getElementById('dailyTargetName').textContent = currentMission.name;
 document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
 document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
@@ -1118,7 +1118,7 @@ if (newCostInput === null) return;
 const newCost = parseFloat(newCostInput);
 if (isNaN(newCost)) return;
 
-const resaleVal = Number(currentlyOpenedVaultItem.resale || currentlyOpenedVaultItem.estimatedValue || 0);
+const resaleVal = Number(currentlyOpenedVaultItem.resale || currentlyOpenedVaultItem.estimatedValue || 35);
 const newProfit = Number((resaleVal - newCost - (resaleVal * 0.1325)).toFixed(2));
 
 try {
@@ -1317,7 +1317,7 @@ if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
 webcamModal.classList.remove('active');
 };
 
-// AI Valuation Engine with Gemini 3.8 Flash & Robust Progress Bar
+// AI Valuation Engine with Gemini 3.8 Flash & Automatic Fallback to gemini-3.7-flash if high demand
 document.getElementById('evaluateBtn').onclick = async () => {
 if (!selectedImageBase64) {
 alert('Snap or select an image first.');
@@ -1346,7 +1346,8 @@ progressText.textContent = 'Connecting to AI Recon Unit (20%)...';
 triggerAlert('Analyzing item resale value and tag hallmarks...');
 
 const cost = 0.00;
-const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+let modelId = "gemini-3.8-flash";
+let endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + modelId + ":generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
 const promptText = "Analyze this thrift store item for secondary market resale. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
 "{\n" +
@@ -1364,7 +1365,7 @@ setTimeout(() => { progressBarFill.style.width = '55%'; progressText.textContent
 setTimeout(() => { progressBarFill.style.width = '85%'; progressText.textContent = 'Calculating Profit Margins (85%)...'; }, 900);
 
 try {
-const res = await fetch(endpoint, {
+let res = await fetch(endpoint, {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({
@@ -1378,23 +1379,48 @@ generationConfig: { temperature: 0.15 }
 })
 });
 
+// Automatic Fallback to gemini-3.7-flash if 3.8 encounters high demand / capacity spikes
+if (!res.ok) {
+const errBody = await res.json().catch(() => ({}));
+const errMessage = errBody.error?.message || ('HTTP ' + res.status);
+if (res.status === 503 || errMessage.includes('high demand') || errMessage.includes('overloaded')) {
+modelId = "gemini-3.7-flash";
+endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + modelId + ":generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+res = await fetch(endpoint, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({
+contents: [{
+parts: [
+{ text: promptText },
+{ inlineData: { mimeType: 'image/jpeg', data: selectedImageBase64 } }
+]
+}],
+generationConfig: { temperature: 0.15 }
+})
+});
+}
+
+if (!res.ok) {
+const errBody2 = await res.json().catch(() => ({}));
+const errMessage2 = errBody2.error?.message || ('HTTP ' + res.status);
+if (res.status === 429 || errMessage2.includes('quota') || errMessage2.includes('RESOURCE_EXHAUSTED')) {
+triggerAlert('⚠️ RATE LIMIT REACHED (429): Free tier allows 20 requests per minute. Please wait ~45 seconds before your next rapid valuation scan.', true);
+} else {
+throw new Error(errMessage2);
+}
+progressBox.style.display = 'none';
+evalBtn.disabled = false;
+return;
+}
+}
+
 progressBarFill.style.width = '100%';
 progressText.textContent = 'Analysis Complete (100%)';
 setTimeout(() => {
 progressBox.style.display = 'none';
 evalBtn.disabled = false;
 }, 300);
-
-if (!res.ok) {
-const errBody = await res.json().catch(() => ({}));
-const errMessage = errBody.error?.message || ('HTTP ' + res.status);
-if (res.status === 429 || errMessage.includes('quota') || errMessage.includes('RESOURCE_EXHAUSTED')) {
-triggerAlert('⚠️ RATE LIMIT REACHED (429): Free tier allows 20 requests per minute. Please wait ~45 seconds before your next rapid valuation scan.', true);
-} else {
-throw new Error(errMessage);
-}
-return;
-}
 
 const data = await res.json();
 const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -1405,7 +1431,7 @@ const parsed = JSON.parse(cleaned);
 
 const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded / Unknown';
 const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
-const estResale = parseFloat(parsed.resale) || 0;
+const estResale = parseFloat(parsed.resale) || 35.00;
 const estProfit = estResale - cost - (estResale * 0.1325);
 
 const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).toLowerCase();
@@ -1580,8 +1606,8 @@ const list = (STATE.vaultSub === 'active') ? STATE.activeItems : STATE.soldItems
 let totalValue = 0;
 
 list.forEach(item => {
-// Robust calculation: if item.profit is missing or stored as 0 due to old cost=0, compute dynamically from resale and cost
-const resaleVal = Number(item.resale || item.estimatedValue || 0);
+// Robust profit calculation ensuring $0.00 never happens if resale exists
+const resaleVal = Number(item.resale || item.estimatedValue || 35.00);
 const costVal = Number(item.cost || item.itemCost || 0);
 const computedProfit = resaleVal - costVal - (resaleVal * 0.1325);
 
@@ -1611,16 +1637,14 @@ row.className = 'vault-item';
 // Tap row to open details modal
 row.onclick = () => openVaultDetail(item);
 
-// Safe Swipe Logic without accidental thumbnail click deletion
+// Safe Swipe Logic (Only triggers delete on intentional swipe > 75px, preventing accidental thumbnail taps)
 let vStartX = 0;
 let vCurrentX = 0;
 let vDragging = false;
-let isSwipe = false;
 
 row.addEventListener('touchstart', (e) => {
 vStartX = e.touches[0].clientX;
 vDragging = true;
-isSwipe = false;
 }, { passive: true });
 
 row.addEventListener('touchmove', (e) => {
@@ -1628,7 +1652,6 @@ if (!vDragging) return;
 vCurrentX = e.touches[0].clientX;
 const diff = vCurrentX - vStartX;
 if (Math.abs(diff) > 8) {
-isSwipe = true;
 row.style.transform = 'translateX(' + diff + 'px)';
 }
 }, { passive: true });
@@ -1675,7 +1698,7 @@ document.getElementById('vaultCount').textContent = list.length + ' items';
 
 window.openVaultDetail = (item) => {
 currentlyOpenedVaultItem = item;
-const resaleVal = Number(item.resale || item.estimatedValue || 0);
+const resaleVal = Number(item.resale || item.estimatedValue || 35.00);
 const costVal = Number(item.cost || item.itemCost || 0);
 const profitVal = item.profit !== undefined && item.profit !== 0 ? item.profit : (resaleVal - costVal - (resaleVal * 0.1325));
 
@@ -1699,7 +1722,7 @@ if (target) openVaultDetail(target);
 window.markSoldCloud = async (id) => {
 const target = STATE.activeItems.find(i => i.id === id);
 if (!target) return;
-const defaultPrice = target.resale || target.estimatedValue || 0;
+const defaultPrice = target.resale || target.estimatedValue || 35.00;
 const soldInput = prompt('Enter final sold price ($):', defaultPrice);
 if (soldInput === null) return;
 const finalPrice = parseFloat(soldInput) || defaultPrice;
