@@ -1032,7 +1032,7 @@ alert('🪙 TOKEN COUNTER EXPLAINED:\nTokens represent your daily remaining API 
 }
 };
 
-// Populate Challenge of the Day (Text-only to avoid any broken image issues)
+// Populate Challenge of the Day
 document.getElementById('dailyTargetName').textContent = currentMission.name;
 document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
 document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
@@ -1118,7 +1118,7 @@ if (newCostInput === null) return;
 const newCost = parseFloat(newCostInput);
 if (isNaN(newCost)) return;
 
-const resaleVal = Number(currentlyOpenedVaultItem.resale || currentlyOpenedVaultItem.estimatedValue || 35);
+const resaleVal = Number(currentlyOpenedVaultItem.resale || currentlyOpenedVaultItem.estimatedValue || 35.00);
 const newProfit = Number((resaleVal - newCost - (resaleVal * 0.1325)).toFixed(2));
 
 try {
@@ -1317,7 +1317,7 @@ if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
 webcamModal.classList.remove('active');
 };
 
-// AI Valuation Engine with Gemini 3.8 Flash & Automatic Fallback to gemini-3.7-flash if high demand
+// AI Valuation Engine with Multi-Model Redundancy (gemini-3.8-flash, gemini-3.7-flash, gemini-2.5-flash)
 document.getElementById('evaluateBtn').onclick = async () => {
 if (!selectedImageBase64) {
 alert('Snap or select an image first.');
@@ -1346,8 +1346,8 @@ progressText.textContent = 'Connecting to AI Recon Unit (20%)...';
 triggerAlert('Analyzing item resale value and tag hallmarks...');
 
 const cost = 0.00;
-let modelId = "gemini-3.8-flash";
-let endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + modelId + ":generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+const modelsToTry = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-2.5-flash"];
+let successData = null;
 
 const promptText = "Analyze this thrift store item for secondary market resale. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
 "{\n" +
@@ -1362,10 +1362,12 @@ const promptText = "Analyze this thrift store item for secondary market resale. 
 "}";
 
 setTimeout(() => { progressBarFill.style.width = '55%'; progressText.textContent = 'Scanning Hallmarks & Comps (55%)...'; }, 400);
-setTimeout(() => { progressBarFill.style.width = '85%'; progressText.textContent = 'Calculating Profit Margins (85%)...'; }, 900);
 
+for (let i = 0; i < modelsToTry.length; i++) {
+const mId = modelsToTry[i];
+const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + mId + ":generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 try {
-let res = await fetch(endpoint, {
+const res = await fetch(endpoint, {
 method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({
@@ -1379,39 +1381,16 @@ generationConfig: { temperature: 0.15 }
 })
 });
 
-// Automatic Fallback to gemini-3.7-flash if 3.8 encounters high demand / capacity spikes
-if (!res.ok) {
-const errBody = await res.json().catch(() => ({}));
-const errMessage = errBody.error?.message || ('HTTP ' + res.status);
-if (res.status === 503 || errMessage.includes('high demand') || errMessage.includes('overloaded')) {
-modelId = "gemini-3.7-flash";
-endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + modelId + ":generateContent?key=" + encodeURIComponent(STATE.geminiKey);
-res = await fetch(endpoint, {
-method: 'POST',
-headers: { 'Content-Type': 'application/json' },
-body: JSON.stringify({
-contents: [{
-parts: [
-{ text: promptText },
-{ inlineData: { mimeType: 'image/jpeg', data: selectedImageBase64 } }
-]
-}],
-generationConfig: { temperature: 0.15 }
-})
-});
+if (res.ok) {
+const data = await res.json();
+const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+if (rawContent) {
+successData = rawContent;
+break;
 }
-
-if (!res.ok) {
-const errBody2 = await res.json().catch(() => ({}));
-const errMessage2 = errBody2.error?.message || ('HTTP ' + res.status);
-if (res.status === 429 || errMessage2.includes('quota') || errMessage2.includes('RESOURCE_EXHAUSTED')) {
-triggerAlert('⚠️ RATE LIMIT REACHED (429): Free tier allows 20 requests per minute. Please wait ~45 seconds before your next rapid valuation scan.', true);
-} else {
-throw new Error(errMessage2);
 }
-progressBox.style.display = 'none';
-evalBtn.disabled = false;
-return;
+} catch (e) {
+// try next fallback model
 }
 }
 
@@ -1422,11 +1401,13 @@ progressBox.style.display = 'none';
 evalBtn.disabled = false;
 }, 300);
 
-const data = await res.json();
-const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
-if (!rawContent) throw new Error('Model produced an empty evaluation.');
+if (!successData) {
+triggerAlert('⚠️ All AI Recon models are currently experiencing high demand. Please try again in a few moments.', true);
+return;
+}
 
-const cleaned = rawContent.replace(/```json/gi, '').replace(/```/g, '').trim();
+try {
+const cleaned = successData.replace(/```json/gi, '').replace(/```/g, '').trim();
 const parsed = JSON.parse(cleaned);
 
 const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded / Unknown';
@@ -1466,9 +1447,7 @@ alert('🎯 Daily Mission Target Identified! +150 XP Bonus Awarded!');
 }
 
 } catch (err) {
-progressBox.style.display = 'none';
-evalBtn.disabled = false;
-triggerAlert('Evaluation error: ' + err.message, true);
+triggerAlert('Parsing error: ' + err.message, true);
 }
 };
 
@@ -1606,7 +1585,6 @@ const list = (STATE.vaultSub === 'active') ? STATE.activeItems : STATE.soldItems
 let totalValue = 0;
 
 list.forEach(item => {
-// Robust profit calculation ensuring $0.00 never happens if resale exists
 const resaleVal = Number(item.resale || item.estimatedValue || 35.00);
 const costVal = Number(item.cost || item.itemCost || 0);
 const computedProfit = resaleVal - costVal - (resaleVal * 0.1325);
@@ -1637,35 +1615,45 @@ row.className = 'vault-item';
 // Tap row to open details modal
 row.onclick = () => openVaultDetail(item);
 
-// Safe Swipe Logic (Only triggers delete on intentional swipe > 75px, preventing accidental thumbnail taps)
+// Safe Swipe Logic (Only triggers delete on intentional horizontal swipe > 75px, preventing accidental thumbnail/card taps from triggering delete)
 let vStartX = 0;
+let vStartY = 0;
 let vCurrentX = 0;
 let vDragging = false;
+let isHorizontalSwipe = false;
 
 row.addEventListener('touchstart', (e) => {
 vStartX = e.touches[0].clientX;
+vStartY = e.touches[0].clientY;
 vDragging = true;
+isHorizontalSwipe = false;
 }, { passive: true });
 
 row.addEventListener('touchmove', (e) => {
 if (!vDragging) return;
 vCurrentX = e.touches[0].clientX;
-const diff = vCurrentX - vStartX;
-if (Math.abs(diff) > 8) {
-row.style.transform = 'translateX(' + diff + 'px)';
+const currentY = e.touches[0].clientY;
+const diffX = vCurrentX - vStartX;
+const diffY = currentY - vStartY;
+
+if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 8) {
+isHorizontalSwipe = true;
+row.style.transform = 'translateX(' + diffX + 'px)';
 }
 }, { passive: true });
 
 row.addEventListener('touchend', (e) => {
 if (!vDragging) return;
 vDragging = false;
-const diff = vCurrentX - vStartX;
+const diffX = vCurrentX - vStartX;
 row.style.transform = 'translateX(0px)';
-if (Math.abs(diff) > 75) {
+
+if (isHorizontalSwipe && Math.abs(diffX) > 75) {
 e.stopPropagation();
-if (diff > 0 && STATE.vaultSub === 'active') {
+e.preventDefault();
+if (diffX > 0 && STATE.vaultSub === 'active') {
 markSoldCloud(item.id);
-} else if (diff < 0) {
+} else if (diffX < 0) {
 deleteCloudItemDirect(item.id);
 }
 }
