@@ -1224,7 +1224,7 @@ let tw = img.width;
 let th = img.height;
 const thumbMax = 300;
 if (tw > th && tw > thumbMax) { th = Math.round((th * thumbMax) / tw); tw = thumbMax; }
-else if (th > thumbMax) { tw = Math.round((tw * thumbMax) / th); th = thumbMax; }
+else if (th > thumbMax) { tw = Math.round((th * thumbMax) / th); th = thumbMax; }
 thumbCanvas.width = tw;
 thumbCanvas.height = th;
 thumbCanvas.getContext('2d').drawImage(img, 0, 0, tw, th);
