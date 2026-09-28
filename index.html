@@ -576,7 +576,7 @@ outline: none;
 </div>
 <div class="challenge-banner">
 <div class="challenge-inner">
-<img id="dailyTargetThumb" class="challenge-thumb" src="" alt="Mission Target" onerror="this.src='https://images.unsplash.com/photo-1584990392731-13172e27649f?auto=format&fit=crop&w=300&q=80'">
+<img id="dailyTargetThumb" class="challenge-thumb" src="" alt="Mission Target" onerror="this.src='https://images.unsplash.com/photo-1584990392731-13172e27649f?auto=format&fit=crop&w=400&q=85'">
 <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
 <div style="display:flex; justify-content:space-between; align-items:center;">
 <span style="font-weight:800; font-size:0.95rem; color:#fff;" id="dailyTargetName">Cast Iron Skillet (Griswold / Wagner)</span>
@@ -1057,7 +1057,7 @@ alert('🪙 TOKEN COUNTER EXPLAINED:\nTokens represent your daily remaining API 
 }
 };
 
-// Populate Challenge of the Day with Image & Details securely with fallback
+// Populate Challenge of the Day with correct Skillet mission match
 document.getElementById('dailyTargetName').textContent = currentMission.name;
 document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
 const dailyThumb = document.getElementById('dailyTargetThumb');
@@ -1256,13 +1256,13 @@ previewBox.style.display = 'block';
 const thumbCanvas = document.createElement('canvas');
 let tw = img.width;
 let th = img.height;
-const thumbMax = 300; // Increased resolution for crisp sharing
+const thumbMax = 140;
 if (tw > th && tw > thumbMax) { th = Math.round((th * thumbMax) / tw); tw = thumbMax; }
 else if (th > thumbMax) { tw = Math.round((tw * thumbMax) / th); th = thumbMax; }
 thumbCanvas.width = tw;
 thumbCanvas.height = th;
 thumbCanvas.getContext('2d').drawImage(img, 0, 0, tw, th);
-compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
 };
 img.src = e.target.result;
 };
@@ -1337,15 +1337,15 @@ const canvas = document.createElement('canvas');
 canvas.width = webcamVideo.videoWidth || 640;
 canvas.height = webcamVideo.videoHeight || 480;
 canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
-selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
-previewImg.src = canvas.toDataURL('image/jpeg', 0.85);
+selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.75).split(',')[1];
+previewImg.src = canvas.toDataURL('image/jpeg', 0.75);
 previewBox.style.display = 'block';
 
 const thumbCanvas = document.createElement('canvas');
-thumbCanvas.width = 300;
-thumbCanvas.height = Math.round((canvas.height * 300) / canvas.width);
+thumbCanvas.width = 140;
+thumbCanvas.height = Math.round((canvas.height * 140) / canvas.width);
 thumbCanvas.getContext('2d').drawImage(webcamVideo, 0, 0, thumbCanvas.width, thumbCanvas.height);
-compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
 
 if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
 webcamModal.classList.remove('active');
@@ -1614,6 +1614,7 @@ const list = (STATE.vaultSub === 'active') ? STATE.activeItems : STATE.soldItems
 let totalValue = 0;
 
 list.forEach(item => {
+// Correctly calculate and accumulate portfolio profit
 const val = STATE.vaultSub === 'active'
 ? Number(item.profit || 0)
 : Number(item.realizedProfit || item.profit || 0);
