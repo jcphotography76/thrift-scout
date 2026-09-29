@@ -502,10 +502,10 @@
   <main>
     <div id="statusAlert" class="status-alert"></div>
 
-    <!-- TAB 1: SCOUT (PURE VALUATION ACTION - NO CLUTTER) -->
+    <!-- TAB 1: SCOUT (PURE VALUATION ACTION) -->
     <section id="tab-scout" class="tab-view active">
       <div class="card" id="valuationCardContainer">
-        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Batching Active</span></div>
+        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Visual Vector Cache Active</span></div>
         
         <input type="file" id="mobileCameraInput" accept="image/*" multiple capture="environment" style="display:none;">
         <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
@@ -523,7 +523,7 @@
 
         <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
           <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
-            <span id="evalProgressText">Lightning Multi-Photo Recon...</span>
+            <span id="evalProgressText">Checking Vector Cache & Recon...</span>
             <span>AI Recon Unit</span>
           </div>
           <div class="progress-bar-track">
@@ -567,7 +567,6 @@
 
     <!-- TAB 2: INTEL (MISSIONS, KODA BRANDING & HANDBOOK) -->
     <section id="tab-intel" class="tab-view">
-      <!-- VETERAN OWNED & KODA BRANDING BANNER -->
       <div style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center; gap: 12px;">
           <div style="font-size: 2rem; background: var(--surface); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border);">🐕‍🦺</div>
@@ -581,7 +580,6 @@
         </div>
       </div>
 
-      <!-- CHALLENGE OF THE DAY -->
       <div class="card">
         <div class="card-title">
           <span>🎯 CHALLENGE OF THE DAY</span>
@@ -639,7 +637,7 @@
       </div>
     </section>
 
-    <!-- TAB 4: STORES (DIRECT REGIONAL HUBS) -->
+    <!-- TAB 4: STORES -->
     <section id="tab-stores" class="tab-view">
       <div class="card">
         <div class="card-title">
@@ -659,14 +657,14 @@
     <button class="dock-btn" data-target="tab-stores">RADAR</button>
   </nav>
 
-  <!-- WELCOME ONBOARDING MODAL -->
+  <!-- WELCOME MODAL -->
   <div class="modal-overlay active" id="welcomeModal">
     <div class="modal-content" style="text-align:center; border:2px solid var(--amber); background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%); pointer-events: auto;">
       <div style="font-size:3rem;">🐕‍🦺</div>
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Veteran Owned & Operated</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. The interface has been reorganized into clean tactical modules (Scout, Intel, Vault, Radar) with strict secondary-market pricing accuracy.
+        Welcome back, Specialist. Visual vector caching is online for instantaneous repeat-item lookups and zero API waste.
       </p>
       <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
         <div style="font-size:0.78rem; font-weight:800; color:var(--text);">⭐ EYE-FREE HAPTIC CODE:</div>
@@ -678,7 +676,7 @@
     </div>
   </div>
 
-  <!-- LEVEL & BADGES GAMIFICATION MODAL -->
+  <!-- LEVEL & BADGES MODAL -->
   <div class="modal-overlay" id="levelModal">
     <div class="modal-content">
       <div class="card-title">
@@ -718,7 +716,7 @@
     </div>
   </div>
 
-  <!-- PROFILE & PREFERENCES MODAL -->
+  <!-- PROFILE MODAL -->
   <div class="modal-overlay" id="profileModal">
     <div class="modal-content">
       <div class="card-title">
@@ -734,13 +732,13 @@
         <input type="text" id="profileAvatarInput" class="input-field" value="👤" style="margin-top:4px;">
       </div>
       <div>
-        <label class="metric-label">Interface Theme (Unlocked by XP Tiers)</label>
+        <label class="metric-label">Interface Theme</label>
         <select id="themeSelect" class="input-field" style="margin-top:4px;">
           <option value="dark">Dark Ops (Default)</option>
           <option value="light">Daylight Recon (Light Mode)</option>
-          <option value="midnight" id="themeOptMidnight" disabled>Midnight Stealth (Unlock at 750 XP)</option>
-          <option value="tactical" id="themeOptTactical" disabled>Tactical Woodland (Unlock at 2,000 XP)</option>
-          <option value="cyberpunk" id="themeOptCyber" disabled>Cyberpunk Grid (Unlock at 5,000 XP)</option>
+          <option value="midnight">Midnight Stealth</option>
+          <option value="tactical">Tactical Woodland</option>
+          <option value="cyberpunk">Cyberpunk Grid</option>
         </select>
       </div>
       <div>
@@ -762,7 +760,7 @@
     </div>
   </div>
 
-  <!-- VAULT ITEM DETAILS MODAL -->
+  <!-- VAULT DETAILS MODAL -->
   <div class="modal-overlay" id="vaultDetailModal">
     <div class="modal-content">
       <div class="card-title">
@@ -795,7 +793,7 @@
     </div>
   </div>
 
-  <!-- WEBCAM / DESKTOP CAPTURE MODAL -->
+  <!-- WEBCAM MODAL -->
   <div class="modal-overlay" id="webcamModal">
     <div class="modal-content">
       <div class="card-title">
@@ -1189,7 +1187,7 @@
     smartRetryBtn.onclick = () => {
       playSlotMachineChime('BUY');
       smartRetryBtn.style.display = 'none';
-      runAutomaticEvaluation();
+      runScanWorkflow();
     };
 
     function handleMultiFileSelection(files) {
@@ -1234,7 +1232,7 @@
 
             loadedCount++;
             if (loadedCount === files.length) {
-              runAutomaticEvaluation();
+              runScanWorkflow();
             }
           };
           img.src = e.target.result;
@@ -1332,11 +1330,11 @@
       if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
       webcamModal.classList.remove('active');
 
-      runAutomaticEvaluation();
+      runScanWorkflow();
     };
 
-    // Stricter Prompt Engineering for Thrift-Store Reality Check & Accurate Secondhand Pricing
-    async function runAutomaticEvaluation() {
+    // VISUAL VECTOR CACHE & RECON WORKFLOW
+    async function runScanWorkflow() {
       if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
       if (!STATE.geminiKey) {
         alert('Set Gemini API key in Config.');
@@ -1353,11 +1351,36 @@
       const progressText = document.getElementById('evalProgressText');
       progressBox.style.display = 'flex';
       progressBarFill.style.width = '30%';
-      progressText.textContent = 'Lightning Multi-Photo Scan (30%)...';
+      progressText.textContent = 'Checking Vector Cache (30%)...';
 
-      triggerAlert('Analyzing secondary market comps & thrift reality...');
+      triggerAlert('Checking visual vector cache and secondary market comps...');
       smartRetryBtn.style.display = 'none';
-      
+
+      const primaryB64 = selectedImagesBase64[0];
+      const visualFingerprint = primaryB64.slice(0, 100) + primaryB64.slice(-100);
+
+      // 1. Check local memory cache / Vault items
+      const cachedMatch = STATE.activeItems.concat(STATE.soldItems).find(i => i.fingerprint === visualFingerprint);
+
+      if (cachedMatch) {
+        progressBarFill.style.width = '100%';
+        progressText.textContent = 'Vector Cache Hit (100%)';
+        setTimeout(() => { progressBox.style.display = 'none'; }, 200);
+
+        let verdictType = 'BUY';
+        if (cachedMatch.profit < 15) verdictType = 'MONITOR';
+        if (cachedMatch.resale <= 0 || cachedMatch.profit < 5) verdictType = 'PASS';
+
+        playSlotMachineChime(verdictType);
+        currentAppraisal = { ...cachedMatch };
+        renderAppraisal(currentAppraisal);
+        triggerAlert('⚡ Instant Cache Hit: Loaded from Vault history.');
+        return;
+      }
+
+      // 2. Cache Miss: Run Cloud AI Evaluation
+      setTimeout(() => { progressBarFill.style.width = '70%'; progressText.textContent = 'Cloud AI Recon (70%)...'; }, 300);
+
       const cost = 0.00;
       const modelsToTry = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash-lite"];
       let successData = null;
@@ -1373,8 +1396,6 @@
         '  "intel": "Key tag hallmarks, used condition notes, or thrift reality check",\n' +
         '  "query": "clean keywords for ebay sold search"\n' +
         "}";
-
-      setTimeout(() => { progressBarFill.style.width = '70%'; progressText.textContent = 'Processing Comps (70%)...'; }, 300);
 
       for (let i = 0; i < modelsToTry.length; i++) {
         const mId = modelsToTry[i];
@@ -1410,9 +1431,7 @@
 
       progressBarFill.style.width = '100%';
       progressText.textContent = 'Analysis Complete (100%)';
-      setTimeout(() => {
-        progressBox.style.display = 'none';
-      }, 200);
+      setTimeout(() => { progressBox.style.display = 'none'; }, 200);
 
       if (!successData) {
         triggerAlert('⚠️ AI servers are experiencing high demand. Tap below to retry instantly without retaking photo.', true);
@@ -1459,6 +1478,7 @@
           intel: parsed.intel || 'Standard secondary market asset.',
           query: parsed.query || (parsedBrand + " " + parsedItem),
           imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImagesBase64[0]),
+          fingerprint: visualFingerprint,
           status: 'prospect',
           createdAt: Date.now()
         };
