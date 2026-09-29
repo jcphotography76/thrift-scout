@@ -404,57 +404,6 @@
     }
     .nav-app-btn:active { background: var(--border); }
 
-    .timeline-node { border-left: 2px solid var(--amber); padding-left: 12px; margin-left: 4px; position: relative; margin-bottom: 12px; }
-    .timeline-node::before {
-      content: '';
-      position: absolute;
-      left: -5px;
-      top: 4px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--amber);
-    }
-    .timeline-era { font-size: 0.8rem; font-weight: 700; color: var(--amber); }
-    .timeline-desc { font-size: 0.82rem; color: var(--text-muted); }
-
-    .progress-bar-track {
-      width: 100%;
-      height: 10px;
-      background: var(--surface);
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      overflow: hidden;
-      margin: 8px 0;
-    }
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-    .badge-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px;
-      border-radius: 8px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-    .badge-icon-box {
-      font-size: 1.4rem;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--card-bg);
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-    .badge-card.unlocked { border-color: var(--amber); background: rgba(245, 158, 11, 0.08); }
-
     .bottom-dock {
       position: fixed;
       bottom: 0;
@@ -553,49 +502,10 @@
   <main>
     <div id="statusAlert" class="status-alert"></div>
 
-    <!-- TAB 1: SCOUT -->
+    <!-- TAB 1: SCOUT (PURE VALUATION ACTION - NO CLUTTER) -->
     <section id="tab-scout" class="tab-view active">
-      <!-- VETERAN OWNED & KODA BRANDING BANNER -->
-      <div style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-          <div style="font-size: 1.8rem; background: var(--surface); width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border);">🐕‍🦺</div>
-          <div>
-            <div style="font-weight: 800; font-size: 0.88rem; color: var(--text);">KODA THE SCOUT</div>
-            <div style="font-size: 0.72rem; color: var(--text-muted);">Tactical Recon • Sniff Out the Profit</div>
-          </div>
-        </div>
-        <div style="background: var(--amber-glow); border: 1px solid var(--amber); color: var(--amber); font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
-          🇺🇸 Veteran Owned
-        </div>
-      </div>
-
-      <!-- CHALLENGE OF THE DAY -->
-      <div class="card">
-        <div class="card-title">
-          <span>🎯 CHALLENGE OF THE DAY</span>
-          <span class="badge-accent">Daily Mission</span>
-        </div>
-        <div class="challenge-banner">
-          <div class="challenge-inner">
-            <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:800; font-size:0.95rem; color:#fff;" id="dailyTargetName">Cast Iron Skillet (Griswold / Wagner)</span>
-                <span class="challenge-reward" id="dailyRewardBadge">+150 XP BONUS</span>
-              </div>
-              <p style="font-size:0.78rem; color:#cbd5e1; line-height:1.3;" id="dailyTargetDesc">
-                Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.
-              </p>
-            </div>
-          </div>
-          <div style="display:flex; gap:8px; margin-top:2px;">
-            <a id="dailyCompsLink" target="_blank" class="btn btn-outline" style="font-size:0.75rem; padding:8px 12px; width:auto;" href="https://www.ebay.com/sch/i.html?_nkw=vintage+cast+iron+skillet+wagner+griswold&LH_Sold=1&LH_Complete=1">View Target Comps</a>
-            <button class="btn btn-accent" id="claimChallengeBtn" style="font-size:0.75rem; padding:8px 12px; width:auto;">Apply Target to Scan</button>
-          </div>
-        </div>
-      </div>
-
       <div class="card" id="valuationCardContainer">
-        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Elite Batching Active</span></div>
+        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Batching Active</span></div>
         
         <input type="file" id="mobileCameraInput" accept="image/*" multiple capture="environment" style="display:none;">
         <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
@@ -611,7 +521,6 @@
 
         <div id="imagePreviewContainer" style="display:none; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap:8px; margin-top:8px;"></div>
 
-        <!-- Progress bar for automatic AI evaluation loading state -->
         <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
           <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
             <span id="evalProgressText">Lightning Multi-Photo Recon...</span>
@@ -623,7 +532,7 @@
         </div>
       </div>
 
-      <!-- APPRAISAL RESULT CARD WITH GOLD GLOW FOR HIGH FLIPS ($50+ PROFIT) -->
+      <!-- APPRAISAL RESULT CARD -->
       <div class="card" id="appraisalCard" style="display:none;">
         <div class="card-title">
           <span id="resItemTitle">Identified Item</span>
@@ -654,6 +563,48 @@
           <button class="btn btn-accent" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
         </div>
       </div>
+    </section>
+
+    <!-- TAB 2: INTEL (MISSIONS, KODA BRANDING & HANDBOOK) -->
+    <section id="tab-intel" class="tab-view">
+      <!-- VETERAN OWNED & KODA BRANDING BANNER -->
+      <div style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 2rem; background: var(--surface); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border);">🐕‍🦺</div>
+          <div>
+            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text);">KODA THE SCOUT</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Tactical Recon • Sniff Out the Profit</div>
+          </div>
+        </div>
+        <div style="background: var(--amber-glow); border: 1px solid var(--amber); color: var(--amber); font-size: 0.72rem; font-weight: 800; padding: 5px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
+          🇺🇸 Veteran Owned
+        </div>
+      </div>
+
+      <!-- CHALLENGE OF THE DAY -->
+      <div class="card">
+        <div class="card-title">
+          <span>🎯 CHALLENGE OF THE DAY</span>
+          <span class="badge-accent">Daily Mission</span>
+        </div>
+        <div class="challenge-banner">
+          <div class="challenge-inner">
+            <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:800; font-size:0.95rem; color:#fff;" id="dailyTargetName">Cast Iron Skillet (Griswold / Wagner)</span>
+                <span class="challenge-reward" id="dailyRewardBadge">+150 XP BONUS</span>
+              </div>
+              <p style="font-size:0.78rem; color:#cbd5e1; line-height:1.3;" id="dailyTargetDesc">
+                Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.
+              </p>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:2px;">
+            <a id="dailyCompsLink" target="_blank" class="btn btn-outline" style="font-size:0.75rem; padding:8px 12px; width:auto;" href="https://www.ebay.com/sch/i.html?_nkw=vintage+cast+iron+skillet+wagner+griswold&LH_Sold=1&LH_Complete=1">View Target Comps</a>
+            <button class="btn btn-accent" id="claimChallengeBtn" style="font-size:0.75rem; padding:8px 12px; width:auto;">Apply Target to Scan</button>
+          </div>
+        </div>
+      </div>
 
       <div class="card" style="cursor:pointer;" id="openHandbookBtn">
         <div class="card-title">
@@ -664,7 +615,7 @@
       </div>
     </section>
 
-    <!-- TAB 2: VAULT -->
+    <!-- TAB 3: VAULT -->
     <section id="tab-vault" class="tab-view">
       <div class="card">
         <div class="vault-subtoggle">
@@ -688,7 +639,7 @@
       </div>
     </section>
 
-    <!-- TAB 3: STORES (DIRECT REGIONAL HUBS) -->
+    <!-- TAB 4: STORES (DIRECT REGIONAL HUBS) -->
     <section id="tab-stores" class="tab-view">
       <div class="card">
         <div class="card-title">
@@ -703,8 +654,9 @@
 
   <nav class="bottom-dock">
     <button class="dock-btn active" data-target="tab-scout">SCOUT</button>
+    <button class="dock-btn" data-target="tab-intel">INTEL</button>
     <button class="dock-btn" data-target="tab-vault">VAULT</button>
-    <button class="dock-btn" data-target="tab-stores">STORES</button>
+    <button class="dock-btn" data-target="tab-stores">RADAR</button>
   </nav>
 
   <!-- WELCOME ONBOARDING MODAL -->
@@ -714,7 +666,7 @@
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Veteran Owned & Operated</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Koda the Scout is locked in with tactical multi-photo batching, smart retries, gold-glow elite flips, and eye-free haptics.
+        Welcome back, Specialist. The interface has been reorganized into clean tactical modules (Scout, Intel, Vault, Radar).
       </p>
       <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
         <div style="font-size:0.78rem; font-weight:800; color:var(--text);">⭐ EYE-FREE HAPTIC CODE:</div>
@@ -893,7 +845,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Slot-Machine Arcade Chimes & Eye-Free Haptic Codes (3=Buy, 2=Monitor, 1=Pass)
     let audioCtx = null;
     function playSlotMachineChime(verdict = 'BUY') {
       try {
@@ -1061,6 +1012,8 @@
     document.getElementById('claimChallengeBtn').onclick = () => {
       playSlotMachineChime('BUY');
       triggerAlert('Target mission "' + currentMission.name + '" primed for scan!');
+      // Automatically switch to scout tab to scan
+      document.querySelectorAll('.dock-btn')[0].click();
       document.getElementById('snapMobileBtn').scrollIntoView({ behavior: 'smooth' });
     };
 
