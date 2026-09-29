@@ -505,7 +505,7 @@ outline: none;
 <!-- TAB 1: SCOUT (PURE VALUATION ACTION) -->
 <section id="tab-scout" class="tab-view active">
 <div class="card" id="valuationCardContainer">
-<div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Market Velocity Active</span></div>
+<div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Prominent Haptics Active</span></div>
 
 <input type="file" id="mobileCameraInput" accept="image/*" multiple capture="environment" style="display:none;">
 <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
@@ -667,13 +667,13 @@ Check housewares for smooth-bottom vintage cast iron skillets with heat rings or
 <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
 <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Veteran Owned & Operated</div>
 <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-Welcome back, Specialist. Market velocity and sell-through liquidity checks are now integrated into every appraisal card.
+Welcome back, Specialist. Auto-clearing scan inputs and prominent haptic feedback patterns are now fully armed.
 </p>
 <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
 <div style="font-size:0.78rem; font-weight:800; color:var(--text);">⭐ EYE-FREE HAPTIC CODE:</div>
-<div style="font-size:0.75rem; color:var(--text-muted);">• 🟢 <b>BUY (3 Vibrations):</b> High-profit goldmine!</div>
-<div style="font-size:0.75rem; color:var(--text-muted);">• 🟡 <b>MONITOR (2 Vibrations):</b> Moderate margin/comps vary.</div>
-<div style="font-size:0.75rem; color:var(--text-muted);">• 🔴 <b>PASS (1 Vibration):</b> Low margin / skip it.</div>
+<div style="font-size:0.75rem; color:var(--text-muted);">• 🟢 <b>BUY (Heavy Multi-Pulse):</b> High-profit goldmine!</div>
+<div style="font-size:0.75rem; color:var(--text-muted);">• 🟡 <b>MONITOR (Double Pulse):</b> Moderate margin/comps vary.</div>
+<div style="font-size:0.75rem; color:var(--text-muted);">• 🔴 <b>PASS (Long Deep Buzz):</b> Low margin / skip it.</div>
 </div>
 <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
 </div>
@@ -875,29 +875,30 @@ osc.type = waveType;
 osc.frequency.value = freq;
 
 const startTime = now + (idx * 0.08);
-gain.gain.setValueAtTime(0.2, startTime);
-gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.18);
+gain.gain.setValueAtTime(0.25, startTime);
+gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
 
 osc.connect(gain);
 gain.connect(audioCtx.destination);
 osc.start(startTime);
-osc.stop(startTime + 0.18);
+osc.stop(startTime + 0.2);
 });
 } catch (e) {
 // Audio fallback safely ignored
 }
 
+// Prominent, heavy haptic feedback patterns
 if (typeof window !== 'undefined' && window.navigator && typeof window.navigator.vibrate === 'function') {
 try {
 if (verdict === 'BUY') {
-window.navigator.vibrate([70, 40, 70, 40, 120]);
+window.navigator.vibrate([120, 60, 120, 60, 250]);
 } else if (verdict === 'MONITOR') {
-window.navigator.vibrate([80, 50, 80]);
+window.navigator.vibrate([150, 80, 150]);
 } else {
-window.navigator.vibrate([220]);
+window.navigator.vibrate([350]);
 }
 } catch (err) {
-// Vibration API blocked or unsupported by browser context
+// Vibration API blocked or unsupported
 }
 }
 }
@@ -1197,6 +1198,15 @@ smartRetryBtn.style.display = 'none';
 runScanWorkflow();
 };
 
+function resetScanInputs() {
+selectedImagesBase64 = [];
+compressedThumbDataUrl = null;
+previewContainer.innerHTML = '';
+previewContainer.style.display = 'none';
+mobileCam.value = '';
+mobileGal.value = '';
+}
+
 function handleMultiFileSelection(files) {
 if (!files || files.length === 0) return;
 playSlotMachineChime('BUY');
@@ -1381,6 +1391,7 @@ if (cachedMatch.resale <= 0 || cachedMatch.profit < 5) verdictType = 'PASS';
 playSlotMachineChime(verdictType);
 currentAppraisal = { ...cachedMatch };
 renderAppraisal(currentAppraisal);
+resetScanInputs();
 triggerAlert('⚡ Instant Cache Hit: Loaded from Vault history.');
 return;
 }
@@ -1491,6 +1502,7 @@ createdAt: Date.now()
 };
 
 renderAppraisal(currentAppraisal);
+resetScanInputs();
 STATE.dailyScans--;
 STATE.xp += bonusXp;
 updatePills();
