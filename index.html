@@ -666,7 +666,7 @@
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Veteran Owned & Operated</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. The interface has been reorganized into clean tactical modules (Scout, Intel, Vault, Radar).
+        Welcome back, Specialist. The interface has been reorganized into clean tactical modules (Scout, Intel, Vault, Radar) with strict secondary-market pricing accuracy.
       </p>
       <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
         <div style="font-size:0.78rem; font-weight:800; color:var(--text);">⭐ EYE-FREE HAPTIC CODE:</div>
@@ -1012,7 +1012,6 @@
     document.getElementById('claimChallengeBtn').onclick = () => {
       playSlotMachineChime('BUY');
       triggerAlert('Target mission "' + currentMission.name + '" primed for scan!');
-      // Automatically switch to scout tab to scan
       document.querySelectorAll('.dock-btn')[0].click();
       document.getElementById('snapMobileBtn').scrollIntoView({ behavior: 'smooth' });
     };
@@ -1336,6 +1335,7 @@
       runAutomaticEvaluation();
     };
 
+    // Stricter Prompt Engineering for Thrift-Store Reality Check & Accurate Secondhand Pricing
     async function runAutomaticEvaluation() {
       if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
       if (!STATE.geminiKey) {
@@ -1355,22 +1355,22 @@
       progressBarFill.style.width = '30%';
       progressText.textContent = 'Lightning Multi-Photo Scan (30%)...';
 
-      triggerAlert('Analyzing item resale value and tag hallmarks...');
+      triggerAlert('Analyzing secondary market comps & thrift reality...');
       smartRetryBtn.style.display = 'none';
       
       const cost = 0.00;
       const modelsToTry = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash-lite"];
       let successData = null;
 
-      const promptText = "Analyze these thrift store item photos for secondary market resale. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
+      const promptText = "Analyze these thrift store item photos for secondary market resale. CRITICAL PRICING RULE: You are evaluating items found in a secondhand thrift store. Provide realistic USED / SECONDHAND market value (what similar used items actually sell for on eBay/Poshmark), NOT brand-new retail MSRP. If an item is common household trash, a partial/used consumable product, or has zero secondary market value, set resale to 0.00 and disposition to PASS. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
         "{\n" +
         '  "brand": "Manufacturer, brand, or publisher",\n' +
         '  "item": "Model, title, or garment descriptor",\n' +
-        '  "resale": 35.00,\n' +
+        '  "resale": 12.00,\n' +
         '  "disposition": "BUY",\n' +
         '  "platform": "eBay",\n' +
         '  "shipping": "USPS Ground Advantage",\n' +
-        '  "intel": "Key tag hallmarks, single stitch status, RN codes, or flaws",\n' +
+        '  "intel": "Key tag hallmarks, used condition notes, or thrift reality check",\n' +
         '  "query": "clean keywords for ebay sold search"\n' +
         "}";
 
@@ -1391,7 +1391,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               contents: [{ parts: parts }],
-              generationConfig: { temperature: 0.15, maxOutputTokens: 350 }
+              generationConfig: { temperature: 0.1, maxOutputTokens: 350 }
             })
           });
 
@@ -1427,18 +1427,17 @@
 
         const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded / Unknown';
         const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
-        const estResale = parseFloat(parsed.resale) || 35.00;
+        const estResale = parseFloat(parsed.resale) || 0.00;
         const estProfit = estResale - cost - (estResale * 0.1325);
 
         let dispText = "BUY (INSTANT FLIP)";
         let verdictType = 'BUY';
-        if (estProfit < 15) {
+        if (estResale <= 0 || estProfit < 5) {
+          dispText = "PASS (LOW MARGIN / ZERO VALUE)";
+          verdictType = 'PASS';
+        } else if (estProfit < 15) {
           dispText = "MONITOR (COMP VARIANCES)";
           verdictType = 'MONITOR';
-        }
-        if (estProfit < 5) {
-          dispText = "PASS (LOW MARGIN)";
-          verdictType = 'PASS';
         }
 
         playSlotMachineChime(verdictType);
