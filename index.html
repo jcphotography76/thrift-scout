@@ -505,7 +505,7 @@ outline: none;
 <!-- TAB 1: SCOUT (PURE VALUATION ACTION) -->
 <section id="tab-scout" class="tab-view active">
 <div class="card" id="valuationCardContainer">
-<div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Haptic Feedback Active</span></div>
+<div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Market Velocity Active</span></div>
 
 <input type="file" id="mobileCameraInput" accept="image/*" multiple capture="environment" style="display:none;">
 <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
@@ -557,8 +557,11 @@ outline: none;
 </div>
 </div>
 <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
-<div style="display:flex; gap:8px; margin-top:4px;">
-<a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW SOLD COMPS</a>
+<div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+<a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px;">VIEW SOLD COMPS</a>
+<a id="resVelocityLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px; border-color: var(--amber); color: var(--amber);">📊 MARKET VELOCITY</a>
+</div>
+<div style="display:flex; gap:8px;">
 <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:0.8rem; background:#3b82f6;">SHARE EVAL</button>
 <button class="btn btn-accent" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
 </div>
@@ -664,7 +667,7 @@ Check housewares for smooth-bottom vintage cast iron skillets with heat rings or
 <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
 <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Veteran Owned & Operated</div>
 <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-Welcome back, Specialist. Haptic feedback trigger logic is fully reinforced and primed for active field scouting.
+Welcome back, Specialist. Market velocity and sell-through liquidity checks are now integrated into every appraisal card.
 </p>
 <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
 <div style="font-size:0.78rem; font-weight:800; color:var(--text);">⭐ EYE-FREE HAPTIC CODE:</div>
@@ -884,7 +887,6 @@ osc.stop(startTime + 0.18);
 // Audio fallback safely ignored
 }
 
-// Explicit and robust haptic trigger wrapper
 if (typeof window !== 'undefined' && window.navigator && typeof window.navigator.vibrate === 'function') {
 try {
 if (verdict === 'BUY') {
@@ -1531,7 +1533,9 @@ appraisalCard.classList.remove('high-flip-gold');
 }
 
 const ebayUrl = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
+const velocityUrl = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query) + "&LH_Complete=1";
 document.getElementById('resEbayLink').href = ebayUrl;
+document.getElementById('resVelocityLink').href = velocityUrl;
 appraisalCard.style.display = 'flex';
 appraisalCard.scrollIntoView({ behavior: 'smooth' });
 }
