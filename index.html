@@ -539,6 +539,7 @@
 
   <header>
     <div class="brand">
+      <span style="font-size: 1.2rem;" title="Koda the Scout • Veteran Owned">🐕‍🦺</span>
       <span>THRIFT</span><span class="brand-accent">SCOUT</span>
     </div>
     <div class="header-pills">
@@ -554,6 +555,20 @@
 
     <!-- TAB 1: SCOUT -->
     <section id="tab-scout" class="tab-view active">
+      <!-- VETERAN OWNED & KODA BRANDING BANNER -->
+      <div style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="font-size: 1.8rem; background: var(--surface); width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border);">🐕‍🦺</div>
+          <div>
+            <div style="font-weight: 800; font-size: 0.88rem; color: var(--text);">KODA THE SCOUT</div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">Tactical Recon • Sniff Out the Profit</div>
+          </div>
+        </div>
+        <div style="background: var(--amber-glow); border: 1px solid var(--amber); color: var(--amber); font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
+          🇺🇸 Veteran Owned
+        </div>
+      </div>
+
       <!-- CHALLENGE OF THE DAY -->
       <div class="card">
         <div class="card-title">
@@ -580,7 +595,7 @@
       </div>
 
       <div class="card" id="valuationCardContainer">
-        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Batching Active</span></div>
+        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Elite Batching Active</span></div>
         
         <input type="file" id="mobileCameraInput" accept="image/*" multiple capture="environment" style="display:none;">
         <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
@@ -592,7 +607,6 @@
 
         <button class="btn btn-outline" id="uploadFileBtn" style="padding: 10px;">📁 UPLOAD MULTIPLE PHOTOS (TAGS + ITEM)</button>
 
-        <!-- SMART RETRY BUTTON (Only visible when an error occurs; lets you retry instantly without retaking photo) -->
         <button class="btn btn-amber" id="smartRetryBtn" style="display:none; margin-top:4px;">⚡ RETRY INSTANTLY (NO RETAKE)</button>
 
         <div id="imagePreviewContainer" style="display:none; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap:8px; margin-top:8px;"></div>
@@ -696,11 +710,11 @@
   <!-- WELCOME ONBOARDING MODAL -->
   <div class="modal-overlay active" id="welcomeModal">
     <div class="modal-content" style="text-align:center; border:2px solid var(--amber); background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%); pointer-events: auto;">
-      <div style="font-size:3rem;">🎖️</div>
+      <div style="font-size:3rem;">🐕‍🦺</div>
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
-      <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout Operations</div>
+      <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Veteran Owned & Operated</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Smart retry buttons, gold-glow elite flips, slot-machine arcade chimes, and eye-free haptics are active.
+        Welcome back, Specialist. Koda the Scout is locked in with tactical multi-photo batching, smart retries, gold-glow elite flips, and eye-free haptics.
       </p>
       <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
         <div style="font-size:0.78rem; font-weight:800; color:var(--text);">⭐ EYE-FREE HAPTIC CODE:</div>
@@ -1220,7 +1234,6 @@
       mobileGal.click();
     };
 
-    // Smart Retry Button Event: Re-runs valuation using cached images without requiring a new photo
     smartRetryBtn.onclick = () => {
       playSlotMachineChime('BUY');
       smartRetryBtn.style.display = 'none';
@@ -1370,7 +1383,6 @@
       runAutomaticEvaluation();
     };
 
-    // Lightning-Fast Multi-Photo AI Evaluation with Model Cascade & Smart Retry Toggle
     async function runAutomaticEvaluation() {
       if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
       if (!STATE.geminiKey) {
@@ -1451,7 +1463,7 @@
 
       if (!successData) {
         triggerAlert('⚠️ AI servers are experiencing high demand. Tap below to retry instantly without retaking photo.', true);
-        smartRetryBtn.style.display = 'block'; // Reveal smart retry button
+        smartRetryBtn.style.display = 'block';
         return;
       }
 
@@ -1511,7 +1523,7 @@
 
       } catch (err) {
         triggerAlert('Parsing error: ' + err.message, true);
-        smartRetryBtn.style.display = 'block'; // Reveal smart retry button on parse error
+        smartRetryBtn.style.display = 'block';
       }
     }
 
@@ -1535,7 +1547,6 @@
       }
 
       const appraisalCard = document.getElementById('appraisalCard');
-      // Apply High-Value Gold Glow outline for elite flips ($50+ net profit)
       if (item.profit >= 50) {
         appraisalCard.classList.add('high-flip-gold');
       } else {
