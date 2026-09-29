@@ -573,17 +573,18 @@
       </div>
 
       <div class="card" id="valuationCardContainer">
-        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Auto-Scan & Haptics Active</span></div>
+        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Multi-Photo & Haptics Active</span></div>
         
-        <input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
+        <!-- FIX: Added 'multiple' to mobile camera input so users can snap multiple photos in sequence without library uploads -->
+        <input type="file" id="mobileCameraInput" accept="image/*" multiple capture="environment" style="display:none;">
         <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
 
         <div class="camera-row">
-          <button class="btn btn-accent" id="snapMobileBtn">📸 SNAP & SCAN (MOBILE)</button>
+          <button class="btn btn-accent" id="snapMobileBtn">📸 SNAP MULTI & SCAN</button>
           <button class="btn btn-primary" id="openWebcamBtn">💻 CAMERA (DESKTOP/MAC)</button>
         </div>
 
-        <button class="btn btn-outline" id="uploadFileBtn" style="padding: 10px;">UPLOAD FROM FILES / MULTI</button>
+        <button class="btn btn-outline" id="uploadFileBtn" style="padding: 10px;">UPLOAD FROM FILES / BATCH</button>
 
         <div id="imagePreviewContainer" style="display:none; text-align:center;">
           <img id="previewImg" style="max-height:180px; border-radius:8px; border:1px solid var(--border);" alt="Preview">
@@ -592,7 +593,7 @@
         <!-- Progress bar for automatic AI evaluation loading state -->
         <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px;">
           <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
-            <span id="evalProgressText">Auto-analyzing item with Gemini AI...</span>
+            <span id="evalProgressText">Auto-analyzing batch photos with Gemini AI...</span>
             <span>AI Recon Unit</span>
           </div>
           <div class="progress-bar-track">
@@ -692,13 +693,13 @@
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout Operations</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Audio chimes, haptic feedback, and traffic-light buy verdicts are active for maximum thrift efficiency.
+        Welcome back, Specialist. Arcade jackpot chimes and traffic-light haptic vibration patterns (3=Buy, 2=Monitor, 1=Pass) are locked in.
       </p>
       <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
-        <div style="font-size:0.78rem; font-weight:800; color:var(--text);">⭐ COMPETITIVE EDGE:</div>
-        <div style="font-size:0.75rem; color:var(--text-muted);">• <b>Audio & Haptics:</b> Instant sensory confirmation on scans & vaults.</div>
-        <div style="font-size:0.75rem; color:var(--text-muted);">• <b>Traffic-Light Verdict:</b> Bold BUY / MONITOR / PASS decision pills.</div>
-        <div style="font-size:0.75rem; color:var(--text-muted);">• <b>Instant Auto-Scan:</b> Snap photo → evaluates instantly with zero delays.</div>
+        <div style="font-size:0.78rem; font-weight:800; color:var(--text);">⭐ FIELD RECON DIRECTIVE:</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">• <b>Multi-Photo Batching:</b> Snap multiple camera shots in sequence.</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">• <b>Arcade Audio Chimes:</b> Exciting multi-tone jackpot audio cues.</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">• <b>Tactile Haptics:</b> Distinct vibration counts let you scout eyes-free.</div>
       </div>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -871,9 +872,53 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Audio & Haptic Feedback Synthesizer (Tiered Chimes + Success Haptics)
+    // Arcade Slot-Machine Audio & Traffic-Light Haptics Engine
     let audioCtx = null;
-    function playBeep(freq = 587.33, type = 'sine', duration = 0.08) {
+    function playJackpotChime(verdictType) {
+      try {
+        if (!audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) audioCtx = new AudioContext();
+        }
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const now = audioCtx.currentTime;
+        const notes = verdictType === 'BUY' 
+          ? [523.25, 659.25, 783.99, 1046.50] // Triumphant major arcade arpeggio
+          : verdictType === 'MONITOR' 
+          ? [440, 554.37, 659.25] // Suspenseful chime
+          : [300, 220]; // Low rejection tone
+
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = verdictType === 'BUY' ? 'triangle' : 'sine';
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.2, now + (idx * 0.08));
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.08) + 0.15);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now + (idx * 0.08));
+          osc.stop(now + (idx * 0.08) + 0.15);
+        });
+      } catch (e) {
+        // Audio fallback safely ignored
+      }
+
+      // Traffic-Light Haptic Pattern: Buy=3 pulses, Monitor=2 pulses, Pass=1 long pulse
+      if (navigator.vibrate) {
+        if (verdictType === 'BUY') {
+          navigator.vibrate([60, 40, 60, 40, 100]);
+        } else if (verdictType === 'MONITOR') {
+          navigator.vibrate([80, 50, 80]);
+        } else {
+          navigator.vibrate([200]);
+        }
+      }
+    }
+
+    function playStandardBeep(freq = 440) {
       try {
         if (!audioCtx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -883,19 +928,927 @@
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.type = type;
         osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
+        gain.gain.setValueAtTime```html
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Thrift Scout • Vault</title>
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --surface: #1f2937;
+      --border: #374151;
+      --border-focus: #6366f1;
+      --text: #f9fafb;
+      --text-muted: #9ca3af;
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.2);
+      --accent: #14b8a6;
+      --accent-glow: rgba(20, 184, 166, 0.2);
+      --coral: #f43f5e;
+      --coral-glow: rgba(244, 63, 94, 0.2);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.2);
+      --font-scale: 1rem;
+      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    
+    [data-theme="light"] {
+      --bg: #f3f4f6;
+      --card-bg: #ffffff;
+      --surface: #e5e7eb;
+      --border: #cbd5e1;
+      --border-focus: #4f46e5;
+      --text: #0f172a;
+      --text-muted: #475569;
+    }
+    [data-theme="midnight"] {
+      --bg: #030712;
+      --card-bg: #0b0f19;
+      --surface: #111827;
+      --border: #1f2937;
+      --border-focus: #38bdf8;
+      --text: #f0f9ff;
+      --text-muted: #64748b;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.2);
+    }
+    [data-theme="tactical"] {
+      --bg: #0f1711;
+      --card-bg: #142217;
+      --surface: #1e3323;
+      --border: #2e4d36;
+      --border-focus: #22c55e;
+      --text: #f0fdf4;
+      --text-muted: #86efac;
+      --accent: #22c55e;
+      --accent-glow: rgba(34, 197, 94, 0.2);
+    }
+    [data-theme="cyberpunk"] {
+      --bg: #0f051d;
+      --card-bg: #18082e;
+      --surface: #271147;
+      --border: #4a1d8a;
+      --border-focus: #ec4899;
+      --text: #fdf4ff;
+      --text-muted: #d8b4fe;
+      --accent: #ec4899;
+      --accent-glow: rgba(236, 72, 153, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-stack);
+      font-size: var(--font-scale);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: calc(75px + env(safe-area-inset-bottom));
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(17, 24, 39, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    [data-theme="light"] header { background: rgba(255, 255, 255, 0.88); }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; color: var(--text); }
+    .brand-accent { color: var(--accent); }
+    .header-pills { display: flex; gap: 8px; align-items: center; }
+    .rank-pill {
+      background: var(--amber-glow);
+      border: 1px solid var(--amber);
+      color: var(--amber);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      user-select: none;
+    }
+    .scan-pill {
+      background: var(--primary-glow);
+      border: 1px solid var(--primary);
+      color: #818cf8;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+    .profile-avatar-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
+    .settings-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    
+    main { 
+      flex: 1; 
+      width: 100%; 
+      max-width: 680px; 
+      margin: 0 auto; 
+      padding: 20px 16px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 16px; 
+    }
+
+    .tab-view { display: none; flex-direction: column; gap: 14px; }
+    .tab-view.active { display: flex; }
+    
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.15);
+      position: relative;
+    }
+    .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+    .badge-accent {
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .status-alert {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border-left: 5px solid var(--primary);
+      background: var(--card-bg);
+      color: var(--text);
+      line-height: 1.4;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    }
+    .challenge-banner {
+      background: linear-gradient(135deg, #1e1b4b 0%, #111827 100%);
+      border: 1px solid #4338ca;
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      color: #f9fafb;
+    }
+    [data-theme="light"] .challenge-banner {
+      background: linear-gradient(135deg, #312e81 100%, #1e1b4b 0%);
+    }
+    .challenge-inner {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .challenge-reward {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--amber-glow);
+      border: 1px solid var(--amber);
+      color: var(--amber);
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      width: fit-content;
+    }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      user-select: none;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-accent { background: var(--accent); color: #090d16; }
+    .btn-amber { background: var(--amber); color: #090d16; }
+    .btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
+    .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .metric-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .metric-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .metric-val { font-size: 1.2rem; font-weight: 800; color: var(--text); }
+    .metric-val.profit { color: var(--accent); }
+    .disposition-pill {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .disp-flip { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--accent); }
+    .disp-monitor { background: var(--amber-glow); color: var(--amber); border: 1px solid var(--amber); }
+    .disp-pass { background: var(--coral-glow); color: var(--coral); border: 1px solid var(--coral); }
+    
+    .vault-summary { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+    
+    .vault-subtoggle { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--surface); padding: 4px; border-radius: 8px; border: 1px solid var(--border); }
+    .vault-subbtn {
+      background: transparent;
+      color: var(--text);
+      border: none;
+      padding: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .vault-subbtn.active { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    
+    .vault-toolbar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); }
+    .vault-list { display: flex; flex-direction: column; gap: 10px; }
+    
+    .vault-item-container {
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .vault-item {
+      display: flex;
+      gap: 12px;
+      background: var(--surface);
+      padding: 12px;
+      align-items: center;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+      transition: transform 0.2s ease;
+      touch-action: pan-y;
+    }
+    .vault-item:hover { border-color: var(--border-focus); }
+    .swipe-actions-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      z-index: 1;
+    }
+    .swipe-action-left { color: var(--accent); }
+    .swipe-action-right { color: var(--coral); }
+
+    .item-thumb { width: 78px; height: 78px; min-width: 78px; border-radius: 8px; object-fit: cover; background: #111827; border: 1px solid var(--border); cursor: pointer; }
+    .item-content { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+    
+    .item-title { font-weight: 700; font-size: 0.92rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+    .item-title:hover { color: var(--accent); }
+    .item-meta { font-size: 0.78rem; color: var(--text-muted); }
+    .item-actions { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+
+    .store-radar-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .store-card-modern {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .store-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    
+    .store-name-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .store-dist-badge {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      padding: 2px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .store-address-text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .nav-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .nav-app-btn {
+      text-align: center;
+      padding: 9px 4px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .nav-app-btn:active { background: var(--border); }
+
+    .timeline-node { border-left: 2px solid var(--amber); padding-left: 12px; margin-left: 4px; position: relative; margin-bottom: 12px; }
+    .timeline-node::before {
+      content: '';
+      position: absolute;
+      left: -5px;
+      top: 4px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--amber);
+    }
+    .timeline-era { font-size: 0.8rem; font-weight: 700; color: var(--amber); }
+    .timeline-desc { font-size: 0.82rem; color: var(--text-muted); }
+
+    .progress-bar-track {
+      width: 100%;
+      height: 10px;
+      background: var(--surface);
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .badge-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+    .badge-icon-box {
+      font-size: 1.4rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card-bg);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .badge-card.unlocked { border-color: var(--amber); background: rgba(245, 158, 11, 0.08); }
+
+    .bottom-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(60px + env(safe-area-inset-bottom));
+      padding-bottom: env(safe-area-inset-bottom);
+      background: rgba(17, 24, 39, 0.95);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+    }
+    [data-theme="light"] .bottom-dock { background: rgba(255, 255, 255, 0.95); }
+    .dock-btn {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+    .dock-btn.active { color: var(--accent); }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 200;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      max-width: 480px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 201;
+    }
+    #webcamVideo {
+      width: 100%;
+      height: 240px;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      object-fit: cover;
+    }
+    .input-field {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .input-field:focus { border-color: var(--border-focus); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span>THRIFT</span><span class="brand-accent">SCOUT</span>
+    </div>
+    <div class="header-pills">
+      <div class="rank-pill" id="rankPill" title="Tap to view Level & Badges">🥉 Rookie (0 XP)</div>
+      <div class="scan-pill" id="scanPill" style="display: flex;">100 LEFT</div>
+      <div class="profile-avatar-btn" id="profileAvatarBtn" title="Profile Settings">👤</div>
+      <button class="settings-btn" id="configBtn">Config</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="statusAlert" class="status-alert"></div>
+
+    <!-- TAB 1: SCOUT -->
+    <section id="tab-scout" class="tab-view active">
+      <!-- CHALLENGE OF THE DAY -->
+      <div class="card">
+        <div class="card-title">
+          <span>🎯 CHALLENGE OF THE DAY</span>
+          <span class="badge-accent">Daily Mission</span>
+        </div>
+        <div class="challenge-banner">
+          <div class="challenge-inner">
+            <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:800; font-size:0.95rem; color:#fff;" id="dailyTargetName">Cast Iron Skillet (Griswold / Wagner)</span>
+                <span class="challenge-reward" id="dailyRewardBadge">+150 XP BONUS</span>
+              </div>
+              <p style="font-size:0.78rem; color:#cbd5e1; line-height:1.3;" id="dailyTargetDesc">
+                Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.
+              </p>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:2px;">
+            <a id="dailyCompsLink" target="_blank" class="btn btn-outline" style="font-size:0.75rem; padding:8px 12px; width:auto;" href="[https://www.ebay.com/sch/i.html?_nkw=vintage+cast+iron+skillet+wagner+griswold&LH_Sold=1&LH_Complete=1](https://www.ebay.com/sch/i.html?_nkw=vintage+cast+iron+skillet+wagner+griswold&LH_Sold=1&LH_Complete=1)">View Target Comps</a>
+            <button class="btn btn-accent" id="claimChallengeBtn" style="font-size:0.75rem; padding:8px 12px; width:auto;">Apply Target to Scan</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="valuationCardContainer">
+        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Multi-Photo & Auto-Scan Active</span></div>
+        
+        <!-- Multi-photo support: user can select multiple images simultaneously -->
+        <input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
+        <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
+
+        <div class="camera-row">
+          <button class="btn btn-accent" id="snapMobileBtn">📸 SNAP PHOTO</button>
+          <button class="btn btn-primary" id="openWebcamBtn">💻 CAMERA (DESKTOP)</button>
+        </div>
+
+        <button class="btn btn-outline" id="uploadFileBtn" style="padding: 10px;">📁 UPLOAD MULTIPLE PHOTOS (TAGS + ITEM)</button>
+
+        <!-- Preview grid for multi-photo batching -->
+        <div id="imagePreviewContainer" style="display:none; display:grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap:8px; margin-top:8px;"></div>
+
+        <!-- Progress bar for automatic AI evaluation loading state -->
+        <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
+            <span id="evalProgressText">Analyzing multi-angle recon with Gemini...</span>
+            <span>AI Recon Unit</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" id="evalProgressBarFill" style="width: 100%; animation: pulse 1.5s infinite;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- APPRAISAL RESULT CARD WITH TRAFFIC LIGHT VERDICT -->
+      <div class="card" id="appraisalCard" style="display:none;">
+        <div class="card-title">
+          <span id="resItemTitle">Identified Item</span>
+          <span id="resDispPill" class="disposition-pill disp-flip">BUY (INSTANT FLIP)</span>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-box">
+            <span class="metric-label">Estimated Resale</span>
+            <span class="metric-val" id="resEstResale">$0.00</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Net Profit (Est)</span>
+            <span class="metric-val profit" id="resEstProfit">$0.00</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Brand / Origin</span>
+            <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
+          </div>
+          <div class="metric-box">
+            <span class="metric-label">Shipping / Service</span>
+            <span class="metric-val" id="resShipping" style="font-size:0.85rem;">USPS Ground</span>
+          </div>
+        </div>
+        <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW SOLD COMPS</a>
+          <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:0.8rem; background:#3b82f6;">SHARE EVAL</button>
+          <button class="btn btn-accent" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
+        </div>
+      </div>
+
+      <div class="card" style="cursor:pointer;" id="openHandbookBtn">
+        <div class="card-title">
+          <span>📖 SCOUT HANDBOOK & BADGES</span>
+          <span class="badge-accent">Level Perks</span>
+        </div>
+        <p style="font-size:0.82rem; color:var(--text-muted);">Tap to view your level progression, badge rewards, and XP scoring rules.</p>
+      </div>
+    </section>
+
+    <!-- TAB 2: VAULT -->
+    <section id="tab-vault" class="tab-view">
+      <div class="card">
+        <div class="vault-subtoggle">
+          <button id="vaultSubActive" class="vault-subbtn active">Active Inventory</button>
+          <button id="vaultSubSold" class="vault-subbtn">Sold Archive</button>
+        </div>
+        <div class="vault-toolbar">
+          <span>Swipe Right ➡️ Mark Sold | Swipe Left ⬅️ Delete</span>
+        </div>
+        <div class="vault-summary">
+          <div>
+            <div class="metric-label">Vault Portfolio</div>
+            <div class="metric-val profit" id="vaultTotal">$0.00</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="metric-label">Tracked Items</div>
+            <div class="metric-val" id="vaultCount">0 items</div>
+          </div>
+        </div>
+        <div class="vault-list" id="vaultItemList"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: STORES (DIRECT REGIONAL HUBS) -->
+    <section id="tab-stores" class="tab-view">
+      <div class="card">
+        <div class="card-title">
+          <span>LOCAL THRIFT HUBS</span>
+          <span class="badge-accent" id="gpsPill">Proximity Active</span>
+        </div>
+        <p style="font-size:0.82rem; color:var(--text-muted);">Direct routes to verified area hubs with distance sorted automatically from your current position.</p>
+        <div class="store-radar-grid" id="storeRadarGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="bottom-dock">
+    <button class="dock-btn active" data-target="tab-scout">SCOUT</button>
+    <button class="dock-btn" data-target="tab-vault">VAULT</button>
+    <button class="dock-btn" data-target="tab-stores">STORES</button>
+  </nav>
+
+  <!-- WELCOME ONBOARDING MODAL -->
+  <div class="modal-overlay active" id="welcomeModal">
+    <div class="modal-content" style="text-align:center; border:2px solid var(--amber); background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%); pointer-events: auto;">
+      <div style="font-size:3rem;">🎖️</div>
+      <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
+      <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout Operations</div>
+      <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
+        Welcome back, Specialist. Multi-photo batching, arcade slot-machine chimes, and precise eye-free haptic patterns are active!
+      </p>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
+        <div style="font-size:0.78rem; font-weight:800; color:var(--text);">⭐ EYE-FREE HAPTIC CODE:</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">• 🟢 <b>BUY (3 Vibrations):</b> High-profit goldmine!</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">• 🟡 <b>MONITOR (2 Vibrations):</b> Moderate margin/comps vary.</div>
+        <div style="font-size:0.75rem; color:var(--text-muted);">• 🔴 <b>PASS (1 Vibration):</b> Low margin / skip it.</div>
+      </div>
+      <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
+    </div>
+  </div>
+
+  <!-- LEVEL & BADGES GAMIFICATION MODAL -->
+  <div class="modal-overlay" id="levelModal">
+    <div class="modal-content">
+      <div class="card-title">
+        <span id="modalRankTitle">Scout Level & Badges</span>
+        <button class="settings-btn" id="closeLevelBtn">X</button>
+      </div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center;">
+        <div style="font-size:2.5rem;" id="modalBadgeIcon">🥉</div>
+        <div style="font-size:1.2rem; font-weight:800; color:var(--text); margin-top:4px;" id="modalRankName">Rookie</div>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" id="modalXpSubtitle">0 XP Earned</div>
+        
+        <div class="progress-bar-track">
+          <div class="progress-bar-fill" id="modalProgressFill"></div>
+        </div>
+        <div style="font-size:0.75rem; color:var(--accent); font-weight:700;" id="modalNextRankInfo">750 XP to Picker</div>
+      </div>
+
+      <div class="card-title" style="margin-top:6px; font-size:0.85rem;">EARNING REPUTATION (XP)</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <div class="metric-box">
+          <span class="metric-label">AI Appraisal</span>
+          <span class="metric-val" style="font-size:0.95rem; color:var(--accent);">+25 XP</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Add to Vault</span>
+          <span class="metric-val" style="font-size:0.95rem; color:var(--accent);">+50 XP</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Daily Mission</span>
+          <span class="metric-val" style="font-size:0.95rem; color:var(--amber);">+150 XP</span>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin-top:6px; font-size:0.85rem;">BADGE TIERS</div>
+      <div style="display:flex; flex-direction:column; gap:8px;" id="badgeTiersList"></div>
+    </div>
+  </div>
+
+  <!-- PROFILE & PREFERENCES MODAL -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal-content">
+      <div class="card-title">
+        <span>Specialist Profile & Settings</span>
+        <button class="settings-btn" id="closeProfileBtn">X</button>
+      </div>
+      <div>
+        <label class="metric-label">Specialist Last Name</label>
+        <input type="text" id="profileNameInput" class="input-field" value="Claypool" style="margin-top:4px;">
+      </div>
+      <div>
+        <label class="metric-label">Profile Avatar URL or Emoji</label>
+        <input type="text" id="profileAvatarInput" class="input-field" value="👤" style="margin-top:4px;">
+      </div>
+      <div>
+        <label class="metric-label">Interface Theme (Unlocked by XP Tiers)</label>
+        <select id="themeSelect" class="input-field" style="margin-top:4px;">
+          <option value="dark">Dark Ops (Default)</option>
+          <option value="light">Daylight Recon (Light Mode)</option>
+          <option value="midnight" id="themeOptMidnight" disabled>Midnight Stealth (Unlock at 750 XP)</option>
+          <option value="tactical" id="themeOptTactical" disabled>Tactical Woodland (Unlock at 2,000 XP)</option>
+          <option value="cyberpunk" id="themeOptCyber" disabled>Cyberpunk Grid (Unlock at 5,000 XP)</option>
+        </select>
+      </div>
+      <div>
+        <label class="metric-label">Text Scale / Font Size</label>
+        <select id="fontScaleSelect" class="input-field" style="margin-top:4px;">
+          <option value="0.9rem">Compact</option>
+          <option value="1rem" selected>Standard</option>
+          <option value="1.1rem">Enlarged (Accessibility)</option>
+        </select>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
+        <div>
+          <div style="font-weight:700; font-size:0.85rem;">Display Token Counter</div>
+          <div style="font-size:0.72rem; color:var(--text-muted);">Show daily remaining API rate-limit tokens in header.</div>
+        </div>
+        <input type="checkbox" id="tokenCounterToggle" checked style="width:18px; height:18px; cursor:pointer;">
+      </div>
+      <button class="btn btn-accent" id="saveProfileBtn">Save Preferences</button>
+    </div>
+  </div>
+
+  <!-- VAULT ITEM DETAILS MODAL -->
+  <div class="modal-overlay" id="vaultDetailModal">
+    <div class="modal-content">
+      <div class="card-title">
+        <span id="vDetailTitle">Vault Item Details</span>
+        <button class="settings-btn" id="closeVaultDetailBtn">X</button>
+      </div>
+      <img id="vDetailThumb" style="width:100%; height:160px; object-fit:cover; border-radius:8px; border:1px solid var(--border);" alt="Asset Thumb">
+      <div class="metric-grid">
+        <div class="metric-box">
+          <span class="metric-label">Acquired Cost (Tap to edit)</span>
+          <span class="metric-val" id="vDetailCost" style="cursor:pointer; color:var(--amber);" title="Tap to update cost">$0.00 ✏️</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Target Resale</span>
+          <span class="metric-val" id="vDetailResale">$0.00</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Est. Net Profit</span>
+          <span class="metric-val profit" id="vDetailProfit">$0.00</span>
+        </div>
+        <div class="metric-box">
+          <span class="metric-label">Platform</span>
+          <span class="metric-val" id="vDetailPlatform" style="font-size:0.9rem;">eBay</span>
+        </div>
+      </div>
+      <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="vDetailIntel"></div>
+      <div style="display:flex; gap:8px; margin-top:4px;">
+        <a id="vDetailEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW SOLD COMPS</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEBCAM / DESKTOP CAPTURE MODAL -->
+  <div class="modal-overlay" id="webcamModal">
+    <div class="modal-content">
+      <div class="card-title">
+        <span>Camera Capture (Mac / Desktop)</span>
+        <button class="settings-btn" id="closeWebcamBtn">X</button>
+      </div>
+      <video id="webcamVideo" autoplay playsinline muted></video>
+      <select id="cameraSourceSelect" class="input-field" style="display:none;"></select>
+      <button class="btn btn-accent" id="captureWebcamBtn">CAPTURE PHOTO</button>
+    </div>
+  </div>
+
+  <!-- CONFIG MODAL -->
+  <div class="modal-overlay" id="configModal">
+    <div class="modal-content">
+      <div class="card-title">System Settings</div>
+      <div>
+        <label class="metric-label">Gemini API Key</label>
+        <input type="password" id="geminiApiKey" class="input-field" placeholder="AIzaSy..." style="margin-top:4px;">
+      </div>
+      <div>
+        <label class="metric-label">Quota Reset</label>
+        <button class="btn btn-outline" style="margin-top:4px; padding:8px;" id="resetQuotaBtn">Reset Daily Quota (100)</button>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline" id="closeConfigBtn" style="flex:1;">Cancel</button>
+        <button class="btn btn-accent" id="saveConfigBtn" style="flex:1;">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js](https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js)";
+    import { 
+      getFirestore, collection, addDoc, deleteDoc, doc, updateDoc, onSnapshot, query, orderBy 
+    } from "[https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js)";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtDQnJuWvJOp__hVHO5fdNhjiRjZZkskI",
+      authDomain: "thrift-scout-1b937.firebaseapp.com",
+      projectId: "thrift-scout-1b937",
+      storageBucket: "thrift-scout-1b937.firebasestorage.app",
+      messagingSenderId: "559782240794",
+      appId: "1:559782240794:web:5ace10f3f027b4cd82e7a3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Exciting Slot-Machine Chimes & Eye-Free Haptic Patterns
+    let audioCtx = null;
+    function playSlotMachineChime(verdict = 'BUY') {
+      try {
+        if (!audioCtx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) audioCtx = new AudioContext();
+        }
+        if (!audioCtx) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        const now = audioCtx.currentTime;
+        const notes = verdict === 'BUY' 
+          ? [523.25, 659.25, 783.99, 1046.50] // Triumphant ascending jackpot arpeggio
+          : verdict === 'MONITOR' 
+          ? [440, 554.37, 659.25] // Upbeat neutral chime
+          : [300, 250]; // Low disappointing thud for pass
+
+        notes.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = verdict === 'BUY' ? 'triangle' : 'sine';
+          osc.frequency.value = freq;
+          
+          const startTime = now + (idx * 0.08);
+          gain.gain.setValueAtTime(0.25, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
+          
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.2);
+        });
       } catch (e) {
         // Audio fallback safely ignored
       }
+
+      // Eye-Free Haptic Code: BUY = 3 vibrations, MONITOR = 2 vibrations, PASS = 1 vibration
       if (navigator.vibrate) {
-        navigator.vibrate([40, 30, 40]);
+        if (verdict === 'BUY') {
+          navigator.vibrate([60, 40, 60, 40, 100]);
+        } else if (verdict === 'MONITOR') {
+          navigator.vibrate([60, 50, 60]);
+        } else {
+          navigator.vibrate([150]);
+        }
       }
     }
 
@@ -951,12 +1904,11 @@
     };
 
     let currentAppraisal = null;
-    let selectedImageBase64 = null;
+    let selectedImagesBase64 = []; // Multi-photo batching array
     let compressedThumbDataUrl = null;
     let webcamStream = null;
     let currentlyOpenedVaultItem = null;
 
-    // Direct Regional Hubs (Northern Utah)
     const STORES = [
       { name: "Goodwill - Riverdale", address: "4123 Riverdale Rd, Riverdale, UT", lat: 41.1764, lon: -111.9961 },
       { name: "Deseret Industries - Harrisville", address: "1111 N 2000 W, Harrisville, UT", lat: 41.2825, lon: -112.0125 },
@@ -970,40 +1922,29 @@
 
     document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
     document.getElementById('enterHQBtn').onclick = () => {
-      playBeep(880);
+      playSlotMachineChime('BUY');
       document.getElementById('welcomeModal').classList.remove('active');
     };
 
     const profileModal = document.getElementById('profileModal');
     document.getElementById('profileAvatarBtn').onclick = () => {
-      playBeep(440);
+      playSlotMachineChime('MONITOR');
       document.getElementById('profileNameInput').value = STATE.userLastName;
       document.getElementById('profileAvatarInput').value = STATE.userAvatar;
       document.getElementById('themeSelect').value = STATE.currentTheme;
       document.getElementById('fontScaleSelect').value = STATE.fontScale;
       document.getElementById('tokenCounterToggle').checked = STATE.showTokens;
-
-      if (STATE.xp >= 750) document.getElementById('themeOptMidnight').disabled = false;
-      if (STATE.xp >= 2000) document.getElementById('themeOptTactical').disabled = false;
-      if (STATE.xp >= 5000) document.getElementById('themeOptCyber').disabled = false;
-
       profileModal.classList.add('active');
     };
     document.getElementById('closeProfileBtn').onclick = () => profileModal.classList.remove('active');
 
     document.getElementById('saveProfileBtn').onclick = () => {
-      playBeep(659.25);
+      playSlotMachineChime('BUY');
       STATE.userLastName = document.getElementById('profileNameInput').value.trim() || 'Claypool';
       STATE.userAvatar = document.getElementById('profileAvatarInput').value.trim() || '👤';
-      const newTheme = document.getElementById('themeSelect').value;
-      const newScale = document.getElementById('fontScaleSelect').value;
-      const willShowTokens = document.getElementById('tokenCounterToggle').checked;
-
-      const tokenToggledOn = !STATE.showTokens && willShowTokens;
-
-      STATE.currentTheme = newTheme;
-      STATE.fontScale = newScale;
-      STATE.showTokens = willShowTokens;
+      STATE.currentTheme = document.getElementById('themeSelect').value;
+      STATE.fontScale = document.getElementById('fontScaleSelect').value;
+      STATE.showTokens = document.getElementById('tokenCounterToggle').checked;
 
       localStorage.setItem('ts_last_name', STATE.userLastName);
       localStorage.setItem('ts_avatar', STATE.userAvatar);
@@ -1018,17 +1959,13 @@
 
       profileModal.classList.remove('active');
       triggerAlert('Specialist profile & preferences updated successfully.');
-
-      if (tokenToggledOn) {
-        alert('🪙 TOKEN COUNTER EXPLAINED:\nTokens represent your daily remaining API rate-limit queries (100 per day reset). They protect against rapid-fire request blocks!');
-      }
     };
 
     document.getElementById('dailyTargetName').textContent = currentMission.name;
     document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
-    document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
+    document.getElementById('dailyCompsLink').href = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
     document.getElementById('claimChallengeBtn').onclick = () => {
-      playBeep(523.25);
+      playSlotMachineChime('BUY');
       triggerAlert('Target mission "' + currentMission.name + '" primed for scan!');
       document.getElementById('snapMobileBtn').scrollIntoView({ behavior: 'smooth' });
     };
@@ -1050,7 +1987,7 @@
     updatePills();
 
     function openLevelModal() {
-      playBeep(493.88);
+      playSlotMachineChime('MONITOR');
       const { tier, index } = getCurrentTier(STATE.xp);
       const nextTier = TIERS[index + 1];
 
@@ -1147,7 +2084,7 @@
 
     document.querySelectorAll('.dock-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        playBeep(330);
+        playSlotMachineChime('MONITOR');
         document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
@@ -1160,14 +2097,14 @@
     });
 
     document.getElementById('vaultSubActive').onclick = () => {
-      playBeep(392);
+      playSlotMachineChime('MONITOR');
       STATE.vaultSub = 'active';
       document.getElementById('vaultSubActive').classList.add('active');
       document.getElementById('vaultSubSold').classList.remove('active');
       renderVault();
     };
     document.getElementById('vaultSubSold').onclick = () => {
-      playBeep(392);
+      playSlotMachineChime('MONITOR');
       STATE.vaultSub = 'sold';
       document.getElementById('vaultSubSold').classList.add('active');
       document.getElementById('vaultSubActive').classList.remove('active');
@@ -1176,13 +2113,13 @@
 
     const configModal = document.getElementById('configModal');
     document.getElementById('configBtn').onclick = () => {
-      playBeep(440);
+      playSlotMachineChime('MONITOR');
       document.getElementById('geminiApiKey').value = STATE.geminiKey;
       configModal.classList.add('active');
     };
     document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
     document.getElementById('saveConfigBtn').onclick = () => {
-      playBeep(587.33);
+      playSlotMachineChime('BUY');
       STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
       localStorage.setItem('ts_gemini_key', STATE.geminiKey);
       configModal.classList.remove('active');
@@ -1191,65 +2128,77 @@
 
     const mobileCam = document.getElementById('mobileCameraInput');
     const mobileGal = document.getElementById('mobileGalleryInput');
-    const previewImg = document.getElementById('previewImg');
-    const previewBox = document.getElementById('imagePreviewContainer');
+    const previewContainer = document.getElementById('imagePreviewContainer');
 
     document.getElementById('snapMobileBtn').onclick = () => {
-      playBeep(523.25);
+      playSlotMachineChime('BUY');
       mobileCam.click();
     };
     document.getElementById('uploadFileBtn').onclick = () => {
-      playBeep(523.25);
+      playSlotMachineChime('BUY');
       mobileGal.click();
     };
 
-    function handleFileSelection(file) {
-      if (!file) return;
-      playBeep(659.25);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let w = img.width;
-          let h = img.height;
-          const maxDim = 800;
-          if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
-          else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
-          canvas.width = w;
-          canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.70).split(',')[1];
-          previewImg.src = canvas.toDataURL('image/jpeg', 0.70);
-          previewBox.style.display = 'block';
+    // Multi-Photo Batching Support (Item + Tag + Maker Mark in one eval)
+    function handleMultiFileSelection(files) {
+      if (!files || files.length === 0) return;
+      playSlotMachineChime('BUY');
+      selectedImagesBase64 = [];
+      previewContainer.innerHTML = '';
+      previewContainer.style.display = 'grid';
 
-          const thumbCanvas = document.createElement('canvas');
-          let tw = img.width;
-          let th = img.height;
-          const thumbMax = 300;
-          if (tw > th && tw > thumbMax) { th = Math.round((th * thumbMax) / tw); tw = thumbMax; }
-          else if (th > thumbMax) { tw = Math.round((th * thumbMax) / th); th = thumbMax; }
-          thumbCanvas.width = tw;
-          thumbCanvas.height = th;
-          thumbCanvas.getContext('2d').drawImage(img, 0, 0, tw, th);
-          compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
+      let loadedCount = 0;
+      Array.from(files).forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = img.width;
+            let h = img.height;
+            const maxDim = 800;
+            if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+            else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+            canvas.width = w;
+            canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            
+            const b64 = canvas.toDataURL('image/jpeg', 0.70).split(',')[1];
+            selectedImagesBase64.push(b64);
 
-          runAutomaticEvaluation();
+            if (index === 0) {
+              const thumbCanvas = document.createElement('canvas');
+              thumbCanvas.width = 300;
+              thumbCanvas.height = Math.round((canvas.height * 300) / canvas.width);
+              thumbCanvas.getContext('2d').drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
+              compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
+            }
+
+            const thumbPreview = document.createElement('img');
+            thumbPreview.src = canvas.toDataURL('image/jpeg', 0.70);
+            thumbPreview.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
+            previewContainer.appendChild(thumbPreview);
+
+            loadedCount++;
+            if (loadedCount === files.length) {
+              runAutomaticEvaluation();
+            }
+          };
+          img.src = e.target.result;
         };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      });
     }
 
-    mobileCam.onchange = (e) => handleFileSelection(e.target.files[0]);
-    mobileGal.onchange = (e) => handleFileSelection(e.target.files[0]);
+    mobileCam.onchange = (e) => handleMultiFileSelection(e.target.files);
+    mobileGal.onchange = (e) => handleMultiFileSelection(e.target.files);
 
     const webcamModal = document.getElementById('webcamModal');
     const webcamVideo = document.getElementById('webcamVideo');
     const cameraSelect = document.getElementById('cameraSourceSelect');
 
     document.getElementById('openWebcamBtn').onclick = async () => {
-      playBeep(523.25);
+      playSlotMachineChime('BUY');
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         alert('Webcam stream not supported on this browser context. HTTPS required.');
         return;
@@ -1305,14 +2254,20 @@
     };
 
     document.getElementById('captureWebcamBtn').onclick = () => {
-      playBeep(659.25);
+      playSlotMachineChime('BUY');
       const canvas = document.createElement('canvas');
       canvas.width = webcamVideo.videoWidth || 640;
       canvas.height = webcamVideo.videoHeight || 480;
       canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
-      selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
-      previewImg.src = canvas.toDataURL('image/jpeg', 0.85);
-      previewBox.style.display = 'block';
+      const b64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+      selectedImagesBase64 = [b64];
+
+      previewContainer.innerHTML = '';
+      previewContainer.style.display = 'grid';
+      const thumbPreview = document.createElement('img');
+      thumbPreview.src = canvas.toDataURL('image/jpeg', 0.85);
+      thumbPreview.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
+      previewContainer.appendChild(thumbPreview);
 
       const thumbCanvas = document.createElement('canvas');
       thumbCanvas.width = 300;
@@ -1326,9 +2281,9 @@
       runAutomaticEvaluation();
     };
 
-    // AI Valuation Engine with Multi-Model Fallbacks (gemini-2.5-flash as primary stable field tier)
+    // Multi-Photo AI Evaluation Function with Robust Fallbacks
     async function runAutomaticEvaluation() {
-      if (!selectedImageBase64) return;
+      if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
       if (!STATE.geminiKey) {
         alert('Set Gemini API key in Config.');
         configModal.classList.add('active');
@@ -1344,7 +2299,7 @@
       const progressText = document.getElementById('evalProgressText');
       progressBox.style.display = 'flex';
       progressBarFill.style.width = '25%';
-      progressText.textContent = 'Auto-Scanning Item (25%)...';
+      progressText.textContent = 'Auto-Scanning Multi-Photo Recon (25%)...';
 
       triggerAlert('Analyzing item resale value and tag hallmarks...');
       
@@ -1352,7 +2307,7 @@
       const modelsToTry = ["gemini-2.5-flash", "gemini-3.7-flash", "gemini-3.8-flash"];
       let successData = null;
 
-      const promptText = "Analyze this thrift store item for secondary market resale. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
+      const promptText = "Analyze these thrift store item photos for secondary market resale. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
         "{\n" +
         '  "brand": "Manufacturer, brand, or publisher",\n' +
         '  "item": "Model, title, or garment descriptor",\n' +
@@ -1368,18 +2323,20 @@
 
       for (let i = 0; i < modelsToTry.length; i++) {
         const mId = modelsToTry[i];
-        const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + mId + ":generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+        const endpoint = "[https://generativelanguage.googleapis.com/v1beta/models/](https://generativelanguage.googleapis.com/v1beta/models/)" + mId + ":generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+        
+        // Build parts array containing prompt + all attached images
+        const parts = [{ text: promptText }];
+        selectedImagesBase64.forEach(b64 => {
+          parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } });
+        });
+
         try {
           const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              contents: [{
-                parts: [
-                  { text: promptText },
-                  { inlineData: { mimeType: 'image/jpeg', data: selectedImageBase64 } }
-                ]
-              }],
+              contents: [{ parts: parts }],
               generationConfig: { temperature: 0.15 }
             })
           });
@@ -1404,7 +2361,7 @@
       }, 300);
 
       if (!successData) {
-        triggerAlert('⚠️ AI servers are experiencing high demand. Please tap snap/upload again to retry instantly.', true);
+        triggerAlert('⚠️ AI servers are experiencing high demand. Please try again to retry instantly.', true);
         return;
       }
 
@@ -1419,17 +2376,17 @@
         const estProfit = estResale - cost - (estResale * 0.1325);
 
         let dispText = "BUY (INSTANT FLIP)";
-        let chimeFreq = 880; // Cheerful high chime for BUY
+        let verdictType = 'BUY';
         if (estProfit < 15) {
           dispText = "MONITOR (COMP VARIANCES)";
-          chimeFreq = 587.33;
+          verdictType = 'MONITOR';
         }
         if (estProfit < 5) {
           dispText = "PASS (LOW MARGIN)";
-          chimeFreq = 220.00;
+          verdictType = 'PASS';
         }
 
-        playBeep(chimeFreq, 'sine', 0.3);
+        playSlotMachineChime(verdictType);
 
         const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).toLowerCase();
         const isMissionMatch = currentMission.name.toLowerCase().split(' ').some(w => w.length > 3 && fullDesc.includes(w));
@@ -1447,7 +2404,7 @@
           disposition: dispText,
           intel: parsed.intel || 'Standard secondary market asset.',
           query: parsed.query || (parsedBrand + " " + parsedItem),
-          imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImageBase64),
+          imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImagesBase64[0]),
           status: 'prospect',
           createdAt: Date.now()
         };
@@ -1486,14 +2443,14 @@
         pill.className = 'disposition-pill disp-pass';
       }
 
-      const ebayUrl = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
+      const ebayUrl = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
       document.getElementById('resEbayLink').href = ebayUrl;
       document.getElementById('appraisalCard').style.display = 'flex';
       document.getElementById('appraisalCard').scrollIntoView({ behavior: 'smooth' });
     }
 
     document.getElementById('shareEvaluationBtn').onclick = async () => {
-      playBeep(440);
+      playSlotMachineChime('MONITOR');
       if (!currentAppraisal) return;
 
       const canvas = document.createElement('canvas');
@@ -1575,7 +2532,7 @@
     }
 
     document.getElementById('saveVaultBtn').onclick = async () => {
-      playBeep(880, 'sine', 0.15);
+      playSlotMachineChime('BUY');
       if (!currentAppraisal) return;
       try {
         const docData = { ...currentAppraisal, status: 'owned', purchasedAt: Date.now() };
@@ -1672,7 +2629,7 @@
           if (isHorizontalSwipe && Math.abs(diffX) > 75) {
             e.stopPropagation();
             e.preventDefault();
-            playBeep(440);
+            playSlotMachineChime('BUY');
             if (diffX > 0 && STATE.vaultSub === 'active') {
               markSoldCloud(item.id);
             } else if (diffX < 0) {
@@ -1707,7 +2664,7 @@
     }
 
     window.openVaultDetail = (item) => {
-      playBeep(440);
+      playSlotMachineChime('MONITOR');
       currentlyOpenedVaultItem = item;
       const resaleVal = Number(item.resale || item.estimatedValue || 35.00);
       const costVal = Number(item.cost || item.itemCost || 0);
@@ -1720,7 +2677,7 @@
       document.getElementById('vDetailProfit').textContent = '$' + profitVal.toFixed(2);
       document.getElementById('vDetailPlatform').textContent = item.platform || 'eBay';
       document.getElementById('vDetailIntel').textContent = item.intel || item.shipping || 'No additional intelligence notes logged.';
-      document.getElementById('vDetailEbayLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query || (item.brand + " " + item.item)) + "&LH_Sold=1&LH_Complete=1";
+      document.getElementById('vDetailEbayLink').href = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query || (item.brand + " " + item.item)) + "&LH_Sold=1&LH_Complete=1";
       document.getElementById('vaultDetailModal').classList.add('active');
     };
 
@@ -1750,18 +2707,19 @@
         await deleteDoc(doc(db, 'vault_inventory', id));
         STATE.xp += 100;
         updatePills();
-        playBeep(783.99);
+        playSlotMachineChime('BUY');
       } catch (err) {
         alert('Action failed: ' + err.message);
       }
     };
 
+    // FIXED: Properly target vault_sold or vault_inventory collection when deleting
     window.deleteCloudItemDirect = async (id) => {
       const coll = (STATE.vaultSub === 'active') ? 'vault_inventory' : 'vault_sold';
       try {
         await deleteDoc(doc(db, coll, id));
         triggerAlert('Asset purged from archive.');
-        playBeep(220);
+        playSlotMachineChime('PASS');
       } catch (err) {
         alert('Delete failed: ' + err.message);
       }
@@ -1820,9 +2778,7 @@
             '<span class="store-dist-badge">' + s.dist + ' mi</span>' +
           '</div>' +
           '<div class="nav-actions-grid">' +
-            '<a class="nav-app-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=' + destQuery + '">Google Maps</a>' +
-            '<a class="nav-app-btn" target="_blank" href="https://maps.apple.com/?daddr=' + destQuery + '">Apple Maps</a>' +
-            '<a class="nav-app-btn" target="_blank" href="https://waze.com/ul?q=' + destQuery + '&lat=' + s.lat + '&lon=' + s.lon + '&navigate=yes">Waze</a>' +
+            '<a class="nav-app-btn" target="_blank" href="[https://www.google.com/maps/dir/?api=1&destination=](https://www.google.com/maps/dir/?api=1&destination=)' + destQuery + '">Google Maps + Waze</a>' +
           '</div>';
         grid.appendChild(card);
       });
