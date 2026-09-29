@@ -502,10 +502,10 @@ outline: none;
 <main>
 <div id="statusAlert" class="status-alert"></div>
 
-<!-- TAB 1: SCOUT (PURE VALUATION ACTION) -->
+<!-- TAB 1: SCOUT -->
 <section id="tab-scout" class="tab-view active">
 <div class="card" id="valuationCardContainer">
-<div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Prominent Haptics Active</span></div>
+<div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Turbo Flash Mode</span></div>
 
 <input type="file" id="mobileCameraInput" accept="image/*" multiple capture="environment" style="display:none;">
 <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
@@ -523,7 +523,7 @@ outline: none;
 
 <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
 <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
-<span id="evalProgressText">Checking Vector Cache & Recon...</span>
+<span id="evalProgressText">Turbo Flash Recon...</span>
 <span>AI Recon Unit</span>
 </div>
 <div class="progress-bar-track">
@@ -667,14 +667,8 @@ Check housewares for smooth-bottom vintage cast iron skillets with heat rings or
 <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
 <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Veteran Owned & Operated</div>
 <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-Welcome back, Specialist. Auto-clearing scan inputs and prominent haptic feedback patterns are now fully armed.
+Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector matching and rapid cloud reconnaissance.
 </p>
-<div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:left; display:flex; flex-direction:column; gap:6px;">
-<div style="font-size:0.78rem; font-weight:800; color:var(--text);">⭐ EYE-FREE HAPTIC CODE:</div>
-<div style="font-size:0.75rem; color:var(--text-muted);">• 🟢 <b>BUY (Heavy Multi-Pulse):</b> High-profit goldmine!</div>
-<div style="font-size:0.75rem; color:var(--text-muted);">• 🟡 <b>MONITOR (Double Pulse):</b> Moderate margin/comps vary.</div>
-<div style="font-size:0.75rem; color:var(--text-muted);">• 🔴 <b>PASS (Long Deep Buzz):</b> Low margin / skip it.</div>
-</div>
 <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
 </div>
 </div>
@@ -885,21 +879,6 @@ osc.stop(startTime + 0.2);
 });
 } catch (e) {
 // Audio fallback safely ignored
-}
-
-// Prominent, heavy haptic feedback patterns
-if (typeof window !== 'undefined' && window.navigator && typeof window.navigator.vibrate === 'function') {
-try {
-if (verdict === 'BUY') {
-window.navigator.vibrate([120, 60, 120, 60, 250]);
-} else if (verdict === 'MONITOR') {
-window.navigator.vibrate([150, 80, 150]);
-} else {
-window.navigator.vibrate([350]);
-}
-} catch (err) {
-// Vibration API blocked or unsupported
-}
 }
 }
 
@@ -1224,26 +1203,26 @@ img.onload = () => {
 const canvas = document.createElement('canvas');
 let w = img.width;
 let h = img.height;
-const maxDim = 640;
+const maxDim = 512; // Optimized for maximum speed
 if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
 else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
 canvas.width = w;
 canvas.height = h;
 canvas.getContext('2d').drawImage(img, 0, 0, w, h);
 
-const b64 = canvas.toDataURL('image/jpeg', 0.60).split(',')[1];
+const b64 = canvas.toDataURL('image/jpeg', 0.50).split(',')[1];
 selectedImagesBase64.push(b64);
 
 if (index === 0) {
 const thumbCanvas = document.createElement('canvas');
-thumbCanvas.width = 300;
-thumbCanvas.height = Math.round((canvas.height * 300) / canvas.width);
+thumbCanvas.width = 200;
+thumbCanvas.height = Math.round((canvas.height * 200) / canvas.width);
 thumbCanvas.getContext('2d').drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
-compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.80);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.70);
 }
 
 const thumbPreview = document.createElement('img');
-thumbPreview.src = canvas.toDataURL('image/jpeg', 0.60);
+thumbPreview.src = canvas.toDataURL('image/jpeg', 0.50);
 thumbPreview.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
 previewContainer.appendChild(thumbPreview);
 
@@ -1327,22 +1306,22 @@ const canvas = document.createElement('canvas');
 canvas.width = webcamVideo.videoWidth || 640;
 canvas.height = webcamVideo.videoHeight || 480;
 canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
-const b64 = canvas.toDataURL('image/jpeg', 0.60).split(',')[1];
+const b64 = canvas.toDataURL('image/jpeg', 0.50).split(',')[1];
 selectedImagesBase64 = [b64];
 smartRetryBtn.style.display = 'none';
 
 previewContainer.innerHTML = '';
 previewContainer.style.display = 'grid';
 const thumbPreview = document.createElement('img');
-thumbPreview.src = canvas.toDataURL('image/jpeg', 0.60);
+thumbPreview.src = canvas.toDataURL('image/jpeg', 0.50);
 thumbPreview.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
 previewContainer.appendChild(thumbPreview);
 
 const thumbCanvas = document.createElement('canvas');
-thumbCanvas.width = 300;
-thumbCanvas.height = Math.round((canvas.height * 300) / canvas.width);
+thumbCanvas.width = 200;
+thumbCanvas.height = Math.round((canvas.height * 200) / canvas.width);
 thumbCanvas.getContext('2d').drawImage(webcamVideo, 0, 0, thumbCanvas.width, thumbCanvas.height);
-compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.80);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.70);
 
 if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
 webcamModal.classList.remove('active');
@@ -1350,7 +1329,7 @@ webcamModal.classList.remove('active');
 runScanWorkflow();
 };
 
-// VISUAL VECTOR CACHE & RECON WORKFLOW
+// TURBO FLASH VECTOR CACHE & RECON WORKFLOW
 async function runScanWorkflow() {
 if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
 if (!STATE.geminiKey) {
@@ -1367,10 +1346,9 @@ const progressBox = document.getElementById('evalProgressContainer');
 const progressBarFill = document.getElementById('evalProgressBarFill');
 const progressText = document.getElementById('evalProgressText');
 progressBox.style.display = 'flex';
-progressBarFill.style.width = '30%';
-progressText.textContent = 'Checking Vector Cache (30%)...';
+progressBarFill.style.width = '40%';
+progressText.textContent = 'Turbo Cache Check...';
 
-triggerAlert('Checking visual vector cache and secondary market comps...');
 smartRetryBtn.style.display = 'none';
 
 const primaryB64 = selectedImagesBase64[0];
@@ -1381,8 +1359,8 @@ const cachedMatch = STATE.activeItems.concat(STATE.soldItems).find(i => i.finger
 
 if (cachedMatch) {
 progressBarFill.style.width = '100%';
-progressText.textContent = 'Vector Cache Hit (100%)';
-setTimeout(() => { progressBox.style.display = 'none'; }, 200);
+progressText.textContent = 'Cache Hit!';
+setTimeout(() => { progressBox.style.display = 'none'; }, 150);
 
 let verdictType = 'BUY';
 if (cachedMatch.profit < 15) verdictType = 'MONITOR';
@@ -1396,28 +1374,25 @@ triggerAlert('⚡ Instant Cache Hit: Loaded from Vault history.');
 return;
 }
 
-// 2. Cache Miss: Run Cloud AI Evaluation
-setTimeout(() => { progressBarFill.style.width = '70%'; progressText.textContent = 'Cloud AI Recon (70%)...'; }, 300);
+// 2. Cache Miss: Run Ultra-Fast Flash Model Only (gemini-3.5-flash-lite)
+setTimeout(() => { progressBarFill.style.width = '80%'; progressText.textContent = 'Cloud Flash Recon...'; }, 200);
 
 const cost = 0.00;
-const modelsToTry = ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.5-flash-lite"];
 let successData = null;
 
-const promptText = "Analyze these thrift store item photos for secondary market resale. CRITICAL PRICING RULE: You are evaluating items found in a secondhand thrift store. Provide realistic USED / SECONDHAND market value (what similar used items actually sell for on eBay/Poshmark), NOT brand-new retail MSRP. If an item is common household trash, a partial/used consumable product, or has zero secondary market value, set resale to 0.00 and disposition to PASS. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
+const promptText = "Analyze these thrift store item photos for secondary market resale. Provide realistic USED / SECONDHAND market value, NOT brand-new retail MSRP. If zero resale value, set resale to 0.00 and disposition to PASS. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
 "{\n" +
-' "brand": "Manufacturer, brand, or publisher",\n' +
-' "item": "Model, title, or garment descriptor",\n' +
+' "brand": "Manufacturer",\n' +
+' "item": "Model descriptor",\n' +
 ' "resale": 12.00,\n' +
 ' "disposition": "BUY",\n' +
 ' "platform": "eBay",\n' +
 ' "shipping": "USPS Ground Advantage",\n' +
-' "intel": "Key tag hallmarks, used condition notes, or thrift reality check",\n' +
+' "intel": "Key tag hallmarks or thrift reality check",\n' +
 ' "query": "clean keywords for ebay sold search"\n' +
 "}";
 
-for (let i = 0; i < modelsToTry.length; i++) {
-const mId = modelsToTry[i];
-const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + mId + ":generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
 const parts = [{ text: promptText }];
 selectedImagesBase64.forEach(b64 => {
@@ -1430,39 +1405,33 @@ method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({
 contents: [{ parts: parts }],
-generationConfig: { temperature: 0.1, maxOutputTokens: 350 }
+generationConfig: { temperature: 0.1, maxOutputTokens: 250 }
 })
 });
 
 if (res.ok) {
 const data = await res.json();
-const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
-if (rawContent) {
-successData = rawContent;
-break;
-}
+successData = data.candidates?.[0]?.content?.parts?.[0]?.text;
 }
 } catch (e) {
-// Try next fallback model in sequence
-}
+// Network error caught
 }
 
 progressBarFill.style.width = '100%';
-progressText.textContent = 'Analysis Complete (100%)';
-setTimeout(() => { progressBox.style.display = 'none'; }, 200);
+setTimeout(() => { progressBox.style.display = 'none'; }, 150);
 
 if (!successData) {
-triggerAlert('⚠️ AI servers are experiencing high demand. Tap below to retry instantly without retaking photo.', true);
+triggerAlert('⚠️ High server demand. Tap below to retry instantly.', true);
 smartRetryBtn.style.display = 'block';
 return;
 }
 
 try {
 const jsonMatch = successData.match(/\{[\s\S]*\}/);
-if (!jsonMatch) throw new Error('No valid JSON object found in response.');
+if (!jsonMatch) throw new Error('Invalid JSON format.');
 const parsed = JSON.parse(jsonMatch[0]);
 
-const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded / Unknown';
+const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded';
 const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
 const estResale = parseFloat(parsed.resale) || 0.00;
 const estProfit = estResale - cost - (estResale * 0.1325);
