@@ -573,7 +573,7 @@
       </div>
 
       <div class="card" id="valuationCardContainer">
-        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Multi-Photo & Haptics Active</span></div>
+        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Ultra-Fast Batching</span></div>
         
         <input type="file" id="mobileCameraInput" accept="image/*" multiple capture="environment" style="display:none;">
         <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
@@ -869,7 +869,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Exciting Slot-Machine Arcade Chimes & Precise Eye-Free Haptics
+    // Exciting Slot-Machine Arcade Chimes & Precise Eye-Free Haptic Codes (3=Buy, 2=Monitor, 1=Pass)
     let audioCtx = null;
     function playSlotMachineChime(verdict = 'BUY') {
       try {
@@ -911,7 +911,7 @@
         // Audio fallback safely ignored
       }
 
-      // Eye-Free Haptic Code: 1 = Pass, 2 = Monitor, 3 = Buy
+      // Eye-Free Haptic Code: BUY = 3 vibrations, MONITOR = 2 vibrations, PASS = 1 vibration
       if (navigator.vibrate) {
         if (verdict === 'BUY') {
           navigator.vibrate([70, 40, 70, 40, 120]);
@@ -1210,7 +1210,7 @@
       mobileGal.click();
     };
 
-    // Multi-Photo Batching Support (Item + Tag + Maker Mark in one eval)
+    // Multi-Photo Batching Support (Allows selecting multiple photos in quick succession)
     function handleMultiFileSelection(files) {
       if (!files || files.length === 0) return;
       playSlotMachineChime('BUY');
@@ -1227,14 +1227,14 @@
             const canvas = document.createElement('canvas');
             let w = img.width;
             let h = img.height;
-            const maxDim = 800;
+            const maxDim = 640; // Optimized for lightning-fast upload
             if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
             else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
             canvas.width = w;
             canvas.height = h;
             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
             
-            const b64 = canvas.toDataURL('image/jpeg', 0.70).split(',')[1];
+            const b64 = canvas.toDataURL('image/jpeg', 0.60).split(',')[1];
             selectedImagesBase64.push(b64);
 
             if (index === 0) {
@@ -1242,11 +1242,11 @@
               thumbCanvas.width = 300;
               thumbCanvas.height = Math.round((canvas.height * 300) / canvas.width);
               thumbCanvas.getContext('2d').drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
-              compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
+              compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.80);
             }
 
             const thumbPreview = document.createElement('img');
-            thumbPreview.src = canvas.toDataURL('image/jpeg', 0.70);
+            thumbPreview.src = canvas.toDataURL('image/jpeg', 0.60);
             thumbPreview.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
             previewContainer.appendChild(thumbPreview);
 
@@ -1330,13 +1330,13 @@
       canvas.width = webcamVideo.videoWidth || 640;
       canvas.height = webcamVideo.videoHeight || 480;
       canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
-      const b64 = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+      const b64 = canvas.toDataURL('image/jpeg', 0.60).split(',')[1];
       selectedImagesBase64 = [b64];
 
       previewContainer.innerHTML = '';
       previewContainer.style.display = 'grid';
       const thumbPreview = document.createElement('img');
-      thumbPreview.src = canvas.toDataURL('image/jpeg', 0.85);
+      thumbPreview.src = canvas.toDataURL('image/jpeg', 0.60);
       thumbPreview.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
       previewContainer.appendChild(thumbPreview);
 
@@ -1344,7 +1344,7 @@
       thumbCanvas.width = 300;
       thumbCanvas.height = Math.round((canvas.height * 300) / canvas.width);
       thumbCanvas.getContext('2d').drawImage(webcamVideo, 0, 0, thumbCanvas.width, thumbCanvas.height);
-      compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.85);
+      compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.80);
 
       if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
       webcamModal.classList.remove('active');
@@ -1352,7 +1352,7 @@
       runAutomaticEvaluation();
     };
 
-    // Multi-Photo AI Evaluation Function with Robust Fallbacks
+    // Lightning-Fast Multi-Photo AI Evaluation with Max Output Tokens restriction
     async function runAutomaticEvaluation() {
       if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
       if (!STATE.geminiKey) {
@@ -1369,8 +1369,8 @@
       const progressBarFill = document.getElementById('evalProgressBarFill');
       const progressText = document.getElementById('evalProgressText');
       progressBox.style.display = 'flex';
-      progressBarFill.style.width = '25%';
-      progressText.textContent = 'Auto-Scanning Multi-Photo Recon (25%)...';
+      progressBarFill.style.width = '30%';
+      progressText.textContent = 'Rapid AI Scan (30%)...';
 
       triggerAlert('Analyzing item resale value and tag hallmarks...');
       
@@ -1390,7 +1390,7 @@
         '  "query": "clean keywords for ebay sold search"\n' +
         "}";
 
-      setTimeout(() => { progressBarFill.style.width = '60%'; progressText.textContent = 'Matching Comps & Hallmarks (60%)...'; }, 400);
+      setTimeout(() => { progressBarFill.style.width = '70%'; progressText.textContent = 'Processing Comps (70%)...'; }, 300);
 
       for (let i = 0; i < modelsToTry.length; i++) {
         const mId = modelsToTry[i];
@@ -1407,7 +1407,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               contents: [{ parts: parts }],
-              generationConfig: { temperature: 0.15 }
+              generationConfig: { temperature: 0.15, maxOutputTokens: 350 }
             })
           });
 
@@ -1428,10 +1428,10 @@
       progressText.textContent = 'Analysis Complete (100%)';
       setTimeout(() => {
         progressBox.style.display = 'none';
-      }, 300);
+      }, 200);
 
       if (!successData) {
-        triggerAlert('⚠️ AI servers are experiencing high demand. Please tap snap/upload again to retry instantly.', true);
+        triggerAlert('⚠️ AI servers are experiencing high demand. Please try again to retry instantly.', true);
         return;
       }
 
