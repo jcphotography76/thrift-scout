@@ -488,7 +488,7 @@ outline: none;
 
 <header>
 <div class="brand">
-<span style="font-size: 1.2rem;" title="Koda the Scout • Veteran Owned">🐕‍🦺</span>
+<span style="font-size: 1.2rem;" title="Koda the Scout • Veteran Owned">🐕‍‍🦺</span>
 <span>THRIFT</span><span class="brand-accent">SCOUT</span>
 </div>
 <div class="header-pills">
@@ -506,6 +506,11 @@ outline: none;
 <section id="tab-scout" class="tab-view active">
 <div class="card" id="valuationCardContainer">
 <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Turbo Flash Mode</span></div>
+
+<div>
+<label class="metric-label" style="margin-bottom: 4px; display: block;">Thrift Store Asking Price / Cost ($)</label>
+<input type="number" id="itemCostInput" class="input-field" placeholder="0.00" value="0.00" step="0.50" min="0">
+</div>
 
 <input type="file" id="mobileCameraInput" accept="image/*" multiple capture="environment" style="display:none;">
 <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
@@ -552,8 +557,8 @@ outline: none;
 <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
 </div>
 <div class="metric-box">
-<span class="metric-label">Shipping / Service</span>
-<span class="metric-val" id="resShipping" style="font-size:0.85rem;">USPS Ground</span>
+<span class="metric-label">Acquisition Cost</span>
+<span class="metric-val" id="resCostBasis" style="font-size:0.85rem; color:var(--amber);">$0.00</span>
 </div>
 </div>
 <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
@@ -841,7 +846,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let audioCtx = null;
-function playSlotMachineChime(verdict = 'BUY') {
+function playPacmanSound(verdict = 'BUY') {
 try {
 if (!audioCtx) {
 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -851,32 +856,50 @@ if (!audioCtx) return;
 if (audioCtx.state === 'suspended') audioCtx.resume();
 
 const now = audioCtx.currentTime;
-let notes = [523.25, 659.25, 783.99, 1046.50];
-let waveType = 'triangle';
 
-if (verdict === 'MONITOR') {
-notes = [440, 554.37, 659.25];
-waveType = 'sine';
-} else if (verdict === 'PASS') {
-notes = [220, 185];
-waveType = 'sawtooth';
-}
-
+if (verdict === 'BUY') {
+// Pac-Man Fruit Catch Arpeggio (Happy High-Pitch Chime)
+const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
 notes.forEach((freq, idx) => {
 const osc = audioCtx.createOscillator();
 const gain = audioCtx.createGain();
-osc.type = waveType;
+osc.type = 'triangle';
 osc.frequency.value = freq;
-
-const startTime = now + (idx * 0.08);
-gain.gain.setValueAtTime(0.25, startTime);
-gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
-
+const startTime = now + (idx * 0.06);
+gain.gain.setValueAtTime(0.2, startTime);
+gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
 osc.connect(gain);
 gain.connect(audioCtx.destination);
 osc.start(startTime);
-osc.stop(startTime + 0.2);
+osc.stop(startTime + 0.15);
 });
+} else if (verdict === 'MONITOR') {
+// Standard Middle Bloop
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.type = 'sine';
+osc.frequency.setValueAtTime(440, now);
+osc.frequency.exponentialRampToValueAtTime(330, now + 0.15);
+gain.gain.setValueAtTime(0.2, now);
+gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+osc.start(now);
+osc.stop(now + 0.18);
+} else {
+// Pac-Man Death Sound (Descending Sawtooth Buzz)
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.type = 'sawtooth';
+osc.frequency.setValueAtTime(350, now);
+osc.frequency.exponentialRampToValueAtTime(60, now + 0.45);
+gain.gain.setValueAtTime(0.25, now);
+gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+osc.start(now);
+osc.stop(now + 0.48);
+}
 } catch (e) {
 // Audio fallback safely ignored
 }
@@ -952,13 +975,13 @@ document.getElementById('scanPill').style.display = STATE.showTokens ? 'flex' : 
 
 document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
 document.getElementById('enterHQBtn').onclick = () => {
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 document.getElementById('welcomeModal').classList.remove('active');
 };
 
 const profileModal = document.getElementById('profileModal');
 document.getElementById('profileAvatarBtn').onclick = () => {
-playSlotMachineChime('MONITOR');
+playPacmanSound('MONITOR');
 document.getElementById('profileNameInput').value = STATE.userLastName;
 document.getElementById('profileAvatarInput').value = STATE.userAvatar;
 document.getElementById('themeSelect').value = STATE.currentTheme;
@@ -969,7 +992,7 @@ profileModal.classList.add('active');
 document.getElementById('closeProfileBtn').onclick = () => profileModal.classList.remove('active');
 
 document.getElementById('saveProfileBtn').onclick = () => {
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 STATE.userLastName = document.getElementById('profileNameInput').value.trim() || 'Claypool';
 STATE.userAvatar = document.getElementById('profileAvatarInput').value.trim() || '👤';
 STATE.currentTheme = document.getElementById('themeSelect').value;
@@ -995,7 +1018,7 @@ document.getElementById('dailyTargetName').textContent = currentMission.name;
 document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
 document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
 document.getElementById('claimChallengeBtn').onclick = () => {
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 triggerAlert('Target mission "' + currentMission.name + '" primed for scan!');
 document.querySelectorAll('.dock-btn')[0].click();
 document.getElementById('snapMobileBtn').scrollIntoView({ behavior: 'smooth' });
@@ -1018,7 +1041,7 @@ localStorage.setItem('ts_xp', STATE.xp);
 updatePills();
 
 function openLevelModal() {
-playSlotMachineChime('MONITOR');
+playPacmanSound('MONITOR');
 const { tier, index } = getCurrentTier(STATE.xp);
 const nextTier = TIERS[index + 1];
 
@@ -1115,7 +1138,7 @@ document.getElementById('statusAlert').style.display = 'none';
 
 document.querySelectorAll('.dock-btn').forEach(btn => {
 btn.addEventListener('click', () => {
-playSlotMachineChime('MONITOR');
+playPacmanSound('MONITOR');
 document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
 document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
 btn.classList.add('active');
@@ -1128,14 +1151,14 @@ initStoresList();
 });
 
 document.getElementById('vaultSubActive').onclick = () => {
-playSlotMachineChime('MONITOR');
+playPacmanSound('MONITOR');
 STATE.vaultSub = 'active';
 document.getElementById('vaultSubActive').classList.add('active');
 document.getElementById('vaultSubSold').classList.remove('active');
 renderVault();
 };
 document.getElementById('vaultSubSold').onclick = () => {
-playSlotMachineChime('MONITOR');
+playPacmanSound('MONITOR');
 STATE.vaultSub = 'sold';
 document.getElementById('vaultSubSold').classList.add('active');
 document.getElementById('vaultSubActive').classList.remove('active');
@@ -1144,13 +1167,13 @@ renderVault();
 
 const configModal = document.getElementById('configModal');
 document.getElementById('configBtn').onclick = () => {
-playSlotMachineChime('MONITOR');
+playPacmanSound('MONITOR');
 document.getElementById('geminiApiKey').value = STATE.geminiKey;
 configModal.classList.add('active');
 };
 document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
 document.getElementById('saveConfigBtn').onclick = () => {
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
 localStorage.setItem('ts_gemini_key', STATE.geminiKey);
 configModal.classList.remove('active');
@@ -1163,16 +1186,16 @@ const previewContainer = document.getElementById('imagePreviewContainer');
 const smartRetryBtn = document.getElementById('smartRetryBtn');
 
 document.getElementById('snapMobileBtn').onclick = () => {
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 mobileCam.click();
 };
 document.getElementById('uploadFileBtn').onclick = () => {
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 mobileGal.click();
 };
 
 smartRetryBtn.onclick = () => {
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 smartRetryBtn.style.display = 'none';
 runScanWorkflow();
 };
@@ -1184,11 +1207,12 @@ previewContainer.innerHTML = '';
 previewContainer.style.display = 'none';
 mobileCam.value = '';
 mobileGal.value = '';
+document.getElementById('itemCostInput').value = '0.00';
 }
 
 function handleMultiFileSelection(files) {
 if (!files || files.length === 0) return;
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 selectedImagesBase64 = [];
 previewContainer.innerHTML = '';
 previewContainer.style.display = 'grid';
@@ -1203,7 +1227,7 @@ img.onload = () => {
 const canvas = document.createElement('canvas');
 let w = img.width;
 let h = img.height;
-const maxDim = 512; // Optimized for maximum speed
+const maxDim = 512;
 if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
 else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
 canvas.width = w;
@@ -1245,7 +1269,7 @@ const webcamVideo = document.getElementById('webcamVideo');
 const cameraSelect = document.getElementById('cameraSourceSelect');
 
 document.getElementById('openWebcamBtn').onclick = async () => {
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
 alert('Webcam stream not supported on this browser context. HTTPS required.');
 return;
@@ -1301,7 +1325,7 @@ webcamModal.classList.remove('active');
 };
 
 document.getElementById('captureWebcamBtn').onclick = () => {
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 const canvas = document.createElement('canvas');
 canvas.width = webcamVideo.videoWidth || 640;
 canvas.height = webcamVideo.videoHeight || 480;
@@ -1342,6 +1366,8 @@ alert('Daily scan limit reached.');
 return;
 }
 
+const itemCost = parseFloat(document.getElementById('itemCostInput').value) || 0.00;
+
 const progressBox = document.getElementById('evalProgressContainer');
 const progressBarFill = document.getElementById('evalProgressBarFill');
 const progressText = document.getElementById('evalProgressText');
@@ -1354,7 +1380,6 @@ smartRetryBtn.style.display = 'none';
 const primaryB64 = selectedImagesBase64[0];
 const visualFingerprint = primaryB64.slice(0, 100) + primaryB64.slice(-100);
 
-// 1. Check local memory cache / Vault items
 const cachedMatch = STATE.activeItems.concat(STATE.soldItems).find(i => i.fingerprint === visualFingerprint);
 
 if (cachedMatch) {
@@ -1366,26 +1391,23 @@ let verdictType = 'BUY';
 if (cachedMatch.profit < 15) verdictType = 'MONITOR';
 if (cachedMatch.resale <= 0 || cachedMatch.profit < 5) verdictType = 'PASS';
 
-playSlotMachineChime(verdictType);
-currentAppraisal = { ...cachedMatch };
+playPacmanSound(verdictType);
+currentAppraisal = { ...cachedMatch, cost: itemCost };
 renderAppraisal(currentAppraisal);
 resetScanInputs();
 triggerAlert('⚡ Instant Cache Hit: Loaded from Vault history.');
 return;
 }
 
-// 2. Cache Miss: Run Ultra-Fast Flash Model Only (gemini-3.5-flash-lite)
 setTimeout(() => { progressBarFill.style.width = '80%'; progressText.textContent = 'Cloud Flash Recon...'; }, 200);
 
-const cost = 0.00;
 let successData = null;
 
-const promptText = "Analyze these thrift store item photos for secondary market resale. Provide realistic USED / SECONDHAND market value, NOT brand-new retail MSRP. If zero resale value, set resale to 0.00 and disposition to PASS. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
+const promptText = "Examine these item and tag photos with high precision. Avoid misidentification: inspect brand logos, model numbers, and hallmarks carefully before concluding. Provide realistic USED / SECONDHAND market resale value on eBay, NOT brand-new retail MSRP. If zero resale value, set resale to 0.00 and disposition to PASS. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
 "{\n" +
 ' "brand": "Manufacturer",\n' +
 ' "item": "Model descriptor",\n' +
 ' "resale": 12.00,\n' +
-' "disposition": "BUY",\n' +
 ' "platform": "eBay",\n' +
 ' "shipping": "USPS Ground Advantage",\n' +
 ' "intel": "Key tag hallmarks or thrift reality check",\n' +
@@ -1434,19 +1456,19 @@ const parsed = JSON.parse(jsonMatch[0]);
 const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded';
 const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
 const estResale = parseFloat(parsed.resale) || 0.00;
-const estProfit = estResale - cost - (estResale * 0.1325);
+const estProfit = estResale - itemCost - (estResale * 0.1325);
 
 let dispText = "BUY (INSTANT FLIP)";
 let verdictType = 'BUY';
-if (estResale <= 0 || estProfit < 5) {
-dispText = "PASS (LOW MARGIN / ZERO VALUE)";
+if (estResale <= 0 || estProfit < 5.00) {
+dispText = "PASS (INSUFFICIENT MARGIN)";
 verdictType = 'PASS';
-} else if (estProfit < 15) {
-dispText = "MONITOR (COMP VARIANCES)";
+} else if (estProfit < 15.00) {
+dispText = "MONITOR (SLIM MARGIN)";
 verdictType = 'MONITOR';
 }
 
-playSlotMachineChime(verdictType);
+playPacmanSound(verdictType);
 
 const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).toLowerCase();
 const isMissionMatch = currentMission.name.toLowerCase().split(' ').some(w => w.length > 3 && fullDesc.includes(w));
@@ -1456,7 +1478,7 @@ currentAppraisal = {
 brand: parsedBrand,
 item: parsedItem,
 name: parsedBrand + " - " + parsedItem,
-cost: cost,
+cost: itemCost,
 resale: estResale,
 profit: Number(estProfit.toFixed(2)),
 platform: parsed.platform || 'eBay',
@@ -1492,7 +1514,7 @@ document.getElementById('resItemTitle').textContent = item.name;
 document.getElementById('resEstResale').textContent = '$' + item.resale.toFixed(2);
 document.getElementById('resEstProfit').textContent = '$' + item.profit.toFixed(2);
 document.getElementById('resBrand').textContent = item.brand;
-document.getElementById('resShipping').textContent = item.shipping;
+document.getElementById('resCostBasis').textContent = '$' + (item.cost || 0).toFixed(2);
 document.getElementById('resIntel').textContent = item.intel;
 
 const pill = document.getElementById('resDispPill');
@@ -1522,7 +1544,7 @@ appraisalCard.scrollIntoView({ behavior: 'smooth' });
 }
 
 document.getElementById('shareEvaluationBtn').onclick = async () => {
-playSlotMachineChime('MONITOR');
+playPacmanSound('MONITOR');
 if (!currentAppraisal) return;
 
 const canvas = document.createElement('canvas');
@@ -1579,7 +1601,7 @@ ctx.fillText('VERDICT: ' + currentAppraisal.disposition, 30, 290);
 
 ctx.fillStyle = '#64748b';
 ctx.font = '12px sans-serif';
-ctx.fillText('Platform: ' + currentAppraisal.platform + ' • ' + currentAppraisal.shipping, 30, 325);
+ctx.fillText('Platform: ' + currentAppraisal.platform + ' • Cost: $' + (currentAppraisal.cost || 0).toFixed(2), 30, 325);
 
 canvas.toBlob(async (blob) => {
 const file = new File([blob], 'thrift-scout-eval.jpg', { type: 'image/jpeg' });
@@ -1604,7 +1626,7 @@ alert('Evaluation details copied to clipboard!');
 }
 
 document.getElementById('saveVaultBtn').onclick = async () => {
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 if (!currentAppraisal) return;
 try {
 const docData = { ...currentAppraisal, status: 'owned', purchasedAt: Date.now() };
@@ -1701,7 +1723,7 @@ row.style.transform = 'translateX(0px)';
 if (isHorizontalSwipe && Math.abs(diffX) > 75) {
 e.stopPropagation();
 e.preventDefault();
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 if (diffX > 0 && STATE.vaultSub === 'active') {
 markSoldCloud(item.id);
 } else if (diffX < 0) {
@@ -1736,7 +1758,7 @@ document.getElementById('vaultCount').textContent = list.length + ' items';
 }
 
 window.openVaultDetail = (item) => {
-playSlotMachineChime('MONITOR');
+playPacmanSound('MONITOR');
 currentlyOpenedVaultItem = item;
 const resaleVal = Number(item.resale || item.estimatedValue || 35.00);
 const costVal = Number(item.cost || item.itemCost || 0);
@@ -1779,7 +1801,7 @@ soldAt: Date.now()
 await deleteDoc(doc(db, 'vault_inventory', id));
 STATE.xp += 100;
 updatePills();
-playSlotMachineChime('BUY');
+playPacmanSound('BUY');
 } catch (err) {
 alert('Action failed: ' + err.message);
 }
@@ -1790,7 +1812,7 @@ const coll = (STATE.vaultSub === 'active') ? 'vault_inventory' : 'vault_sold';
 try {
 await deleteDoc(doc(db, coll, id));
 triggerAlert('Asset purged from archive.');
-playSlotMachineChime('PASS');
+playPacmanSound('PASS');
 } catch (err) {
 alert('Delete failed: ' + err.message);
 }
