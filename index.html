@@ -88,6 +88,15 @@ touch-action: pan-y;
 -moz-osx-font-smoothing: grayscale;
 transition: background-color 0.3s, color 0.3s;
 }
+
+@keyframes screenFlash {
+0% { background-color: var(--accent); }
+100% { background-color: var(--bg); }
+}
+body.flash-active {
+animation: screenFlash 0.35s ease-out;
+}
+
 header {
 position: sticky;
 top: 0;
@@ -496,7 +505,7 @@ outline: none;
 
 <div id="imagePreviewContainer" style="display:none; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap:8px; margin-top:8px;"></div>
 
-<!-- RESTORED EVALUATION PROGRESS BAR -->
+<!-- EVALUATION PROGRESS BAR -->
 <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
 <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
 <span id="evalProgressText">Turbo Flash Recon...</span>
@@ -515,7 +524,7 @@ outline: none;
 <span id="resDispPill" class="disposition-pill disp-flip">BUY (INSTANT FLIP)</span>
 </div>
 
-<!-- NEW RARITY SCALE RATING -->
+<!-- RARITY SCALE RATING -->
 <div style="background:var(--surface); padding:8px 12px; border-radius:8px; display:flex; justify-content:between; align-items:center; border:1px solid var(--border);">
 <span class="metric-label">Item Rarity Grade</span>
 <span id="resRarityBadge" style="font-weight:900; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em;">--</span>
@@ -548,7 +557,7 @@ outline: none;
 <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:0.8rem; background:#3b82f6;">SHARE EVAL</button>
 <button class="btn btn-accent" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
 </div>
-<!-- NEW CLEAR EVALUATION BUTTON -->
+<!-- CLEAR EVALUATION BUTTON -->
 <button class="btn btn-outline" id="clearEvalBtn" style="font-size:0.75rem; color:var(--text-muted); border-style:dashed; margin-top:4px;">🗑️ CLEAR EVALUATION & SCAN NEXT</button>
 </div>
 </section>
@@ -822,8 +831,36 @@ appId: "1:559782240794:web:5ace10f3f027b4cd82e7a3"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+// NOTICEABLE HAPTIC FEEDBACK & SCREEN FLASH ON EVALUATION COMPLETION
+function triggerHapticAndFlash(verdict = 'BUY', isJackpot = false) {
+if ('vibrate' in navigator) {
+if (isJackpot) {
+// Heavy pulsing pattern for jackpot finds
+navigator.vibrate([150, 60, 150, 60, 300, 100, 400]);
+} else if (verdict === 'BUY') {
+// Distinct double-buzz for a good buy
+navigator.vibrate([120, 80, 120]);
+} else if (verdict === 'MONITOR') {
+// Single medium buzz
+navigator.vibrate(180);
+} else {
+// Three quick sharp pulses for pass
+navigator.vibrate([60, 40, 60, 40, 60]);
+}
+}
+
+// Screen Flash Effect
+document.body.classList.remove('flash-active');
+void document.body.offsetWidth; // trigger reflow
+document.body.classList.add('flash-active');
+setTimeout(() => {
+document.body.classList.remove('flash-active');
+}, 350);
+}
+
 let audioCtx = null;
 function playAudioFeedback(verdict = 'BUY', isJackpot = false) {
+triggerHapticAndFlash(verdict, isJackpot);
 try {
 if (!audioCtx) {
 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -1042,7 +1079,6 @@ profileModal.classList.remove('active');
 triggerAlert('Specialist profile & preferences updated successfully.');
 };
 
-// CLEAR EVALUATION BUTTON LOGIC
 document.getElementById('clearEvalBtn').onclick = () => {
 playAudioFeedback('MONITOR');
 currentAppraisal = null;
@@ -1498,7 +1534,7 @@ progressBarFill.style.width = '100%';
 setTimeout(() => { progressBox.style.display = 'none'; }, 150);
 
 if (!successData) {
-triggerAlert('⚠️️ High server demand. Tap below to retry instantly.', true);
+triggerAlert('⚠ High server demand. Tap below to retry instantly.', true);
 smartRetryBtn.style.display = 'block';
 return;
 }
@@ -1533,21 +1569,20 @@ const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).t
 const isMissionMatch = currentMission.name.toLowerCase().split(' ').some(w => w.length > 3 && fullDesc.includes(w));
 const bonusXp = isMissionMatch ? 150 : 25;
 
-// Determine Rarity Scale based on Resale Value & Demand
 let rarity = "Common";
-let rarityColor = "#9ca3af"; // Muted Gray
+let rarityColor = "#9ca3af";
 if (estResale >= 200) {
 rarity = "👑 Grail (Ultra Rare)";
-rarityColor = "#fbbf24"; // Gold
+rarityColor = "#fbbf24";
 } else if (estResale >= 100) {
 rarity = "💎 Ultra Rare";
-rarityColor = "#ec4899"; // Pink / Purple
+rarityColor = "#ec4899";
 } else if (estResale >= 50) {
 rarity = "🔥 Rare Find";
-rarityColor = "#f97316"; // Orange
+rarityColor = "#f97316";
 } else if (estResale >= 25) {
 rarity = "✨ Uncommon";
-rarityColor = "#14b8a6"; // Teal
+rarityColor = "#14b8a6";
 }
 
 currentAppraisal = {
