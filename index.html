@@ -496,13 +496,14 @@ outline: none;
 
 <div id="imagePreviewContainer" style="display:none; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap:8px; margin-top:8px;"></div>
 
+<!-- RESTORED EVALUATION PROGRESS BAR -->
 <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
 <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
 <span id="evalProgressText">Turbo Flash Recon...</span>
 <span>AI Recon Unit</span>
 </div>
-<div class="progress-bar-track">
-<div class="progress-bar-fill" id="evalProgressBarFill" style="width: 100%; animation: pulse 1.5s infinite;"></div>
+<div style="background:var(--border); height:6px; border-radius:3px; overflow:hidden;">
+<div id="evalProgressBarFill" style="background:var(--accent); width:100%; height:100%;"></div>
 </div>
 </div>
 </div>
@@ -513,6 +514,13 @@ outline: none;
 <span id="resItemTitle">Identified Item</span>
 <span id="resDispPill" class="disposition-pill disp-flip">BUY (INSTANT FLIP)</span>
 </div>
+
+<!-- NEW RARITY SCALE RATING -->
+<div style="background:var(--surface); padding:8px 12px; border-radius:8px; display:flex; justify-content:between; align-items:center; border:1px solid var(--border);">
+<span class="metric-label">Item Rarity Grade</span>
+<span id="resRarityBadge" style="font-weight:900; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em;">--</span>
+</div>
+
 <div class="metric-grid">
 <div class="metric-box">
 <span class="metric-label">Estimated Resale</span>
@@ -540,6 +548,8 @@ outline: none;
 <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:0.8rem; background:#3b82f6;">SHARE EVAL</button>
 <button class="btn btn-accent" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
 </div>
+<!-- NEW CLEAR EVALUATION BUTTON -->
+<button class="btn btn-outline" id="clearEvalBtn" style="font-size:0.75rem; color:var(--text-muted); border-style:dashed; margin-top:4px;">🗑️ CLEAR EVALUATION & SCAN NEXT</button>
 </div>
 </section>
 
@@ -661,7 +671,7 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 <div style="font-size:1.2rem; font-weight:800; color:var(--text); margin-top:4px;" id="modalRankName">Rookie</div>
 <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" id="modalXpSubtitle">0 XP Earned</div>
 
-<div class="progress-bar-track" style="background:var(--border); height:6px; border-radius:3px; margin:10px 0; overflow:hidden;">
+<div style="background:var(--border); height:6px; border-radius:3px; margin:10px 0; overflow:hidden;">
 <div class="progress-bar-fill" id="modalProgressFill" style="background:var(--accent); width:0%; height:100%;"></div>
 </div>
 <div style="font-size:0.75rem; color:var(--accent); font-weight:700;" id="modalNextRankInfo">750 XP to Picker</div>
@@ -1030,6 +1040,15 @@ document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.us
 
 profileModal.classList.remove('active');
 triggerAlert('Specialist profile & preferences updated successfully.');
+};
+
+// CLEAR EVALUATION BUTTON LOGIC
+document.getElementById('clearEvalBtn').onclick = () => {
+playAudioFeedback('MONITOR');
+currentAppraisal = null;
+document.getElementById('appraisalCard').style.display = 'none';
+resetScanInputs();
+triggerAlert('Evaluation cleared. Ready for next aisle scan.');
 };
 
 document.getElementById('dailyTargetName').textContent = currentMission.name;
@@ -1514,6 +1533,23 @@ const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).t
 const isMissionMatch = currentMission.name.toLowerCase().split(' ').some(w => w.length > 3 && fullDesc.includes(w));
 const bonusXp = isMissionMatch ? 150 : 25;
 
+// Determine Rarity Scale based on Resale Value & Demand
+let rarity = "Common";
+let rarityColor = "#9ca3af"; // Muted Gray
+if (estResale >= 200) {
+rarity = "👑 Grail (Ultra Rare)";
+rarityColor = "#fbbf24"; // Gold
+} else if (estResale >= 100) {
+rarity = "💎 Ultra Rare";
+rarityColor = "#ec4899"; // Pink / Purple
+} else if (estResale >= 50) {
+rarity = "🔥 Rare Find";
+rarityColor = "#f97316"; // Orange
+} else if (estResale >= 25) {
+rarity = "✨ Uncommon";
+rarityColor = "#14b8a6"; // Teal
+}
+
 currentAppraisal = {
 brand: parsedBrand,
 item: parsedItem,
@@ -1526,6 +1562,8 @@ shipping: parsed.shipping || 'USPS Ground Advantage',
 disposition: dispText,
 intel: parsed.intel || 'Standard secondary market asset.',
 query: parsed.query || (parsedBrand + " " + parsedItem),
+rarity: rarity,
+rarityColor: rarityColor,
 imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImagesBase64[0]),
 fingerprint: visualFingerprint,
 status: 'prospect',
@@ -1556,6 +1594,10 @@ document.getElementById('resEstProfit').textContent = '$' + item.profit.toFixed(
 document.getElementById('resBrand').textContent = item.brand;
 document.getElementById('resCostBasis').textContent = '$' + (item.cost || 0).toFixed(2);
 document.getElementById('resIntel').textContent = item.intel;
+
+const rarityBadge = document.getElementById('resRarityBadge');
+rarityBadge.textContent = item.rarity || 'Common';
+rarityBadge.style.color = item.rarityColor || '#9ca3af';
 
 const pill = document.getElementById('resDispPill');
 pill.textContent = item.disposition;
