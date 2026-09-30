@@ -105,32 +105,10 @@ align-items: center;
 .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; color: var(--text); }
 .brand-accent { color: var(--accent); }
 .header-pills { display: flex; gap: 8px; align-items: center; }
-.rank-pill {
-background: var(--amber-glow);
-border: 1px solid var(--amber);
-color: var(--amber);
-font-size: 0.72rem;
-font-weight: 700;
-padding: 5px 12px;
-border-radius: 999px;
-cursor: pointer;
-display: flex;
-align-items: center;
-gap: 5px;
-user-select: none;
-}
-.scan-pill {
-background: var(--primary-glow);
-border: 1px solid var(--primary);
-color: #818cf8;
-font-size: 0.72rem;
-font-weight: 700;
-padding: 5px 12px;
-border-radius: 999px;
-}
+
 .profile-avatar-btn {
-width: 32px;
-height: 32px;
+width: 36px;
+height: 36px;
 border-radius: 50%;
 background: var(--surface);
 border: 1px solid var(--border);
@@ -139,17 +117,7 @@ cursor: pointer;
 display: flex;
 align-items: center;
 justify-content: center;
-font-size: 0.85rem;
-}
-.settings-btn {
-background: var(--surface);
-border: 1px solid var(--border);
-color: var(--text);
-border-radius: 8px;
-padding: 6px 12px;
-font-size: 0.8rem;
-font-weight: 600;
-cursor: pointer;
+font-size: 0.95rem;
 }
 
 main {
@@ -256,7 +224,7 @@ user-select: none;
 .btn-accent { background: var(--accent); color: #090d16; }
 .btn-amber { background: var(--amber); color: #090d16; }
 .btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
-.camera-row { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
 .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .metric-box {
@@ -467,7 +435,7 @@ z-index: 201;
 }
 #webcamVideo {
 width: 100%;
-height: 300px;
+height: 280px;
 background: #000;
 border-radius: 8px;
 border: 1px solid var(--border);
@@ -495,10 +463,7 @@ outline: none;
 <span>THRIFT</span><span class="brand-accent">SCOUT</span>
 </div>
 <div class="header-pills">
-<div class="rank-pill" id="rankPill" title="Tap to view Level & Badges">🥉 Rookie (0 XP)</div>
-<div class="scan-pill" id="scanPill" style="display: flex;">100 LEFT</div>
-<div class="profile-avatar-btn" id="profileAvatarBtn" title="Profile Settings">👤</div>
-<button class="settings-btn" id="configBtn">Config</button>
+<div class="profile-avatar-btn" id="profileAvatarBtn" title="Profile Settings & Stats">👤</div>
 </div>
 </header>
 
@@ -515,8 +480,11 @@ outline: none;
 <input type="number" id="itemCostInput" class="input-field" placeholder="0.00" value="0.00" step="0.01" min="0">
 </div>
 
+<input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
+
 <div class="camera-row">
 <button class="btn btn-accent" id="openWebcamBtn">📸 SNAP MULTI-SHOTS IN-APP</button>
+<button class="btn btn-outline" id="uploadFileBtn">📁 UPLOAD FROM PHOTOS</button>
 </div>
 
 <button class="btn btn-amber" id="smartRetryBtn" style="display:none; margin-top:4px;">⚡ RETRY INSTANTLY (NO RETAKE)</button>
@@ -675,7 +643,7 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 </div>
 </div>
 
-<!-- LEVEL & BADGES MODAL -->
+<!-- LEVEL & BADGES / PROFILE DRAWER MODAL -->
 <div class="modal-overlay" id="levelModal">
 <div class="modal-content">
 <div class="card-title">
@@ -694,28 +662,17 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 <div style="font-size:0.75rem; color:var(--accent); font-weight:700;" id="modalNextRankInfo">750 XP to Picker</div>
 </div>
 
-<div class="card-title" style="margin-top:6px; font-size:0.85rem;">EARNING REPUTATION (XP)</div>
-<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-<div class="metric-box">
-<span class="metric-label">AI Appraisal</span>
-<span class="metric-val" style="font-size:0.95rem; color:var(--accent);">+25 XP</span>
-</div>
-<div class="metric-box">
-<span class="metric-label">Add to Vault</span>
-<span class="metric-val" style="font-size:0.95rem; color:var(--accent);">+50 XP</span>
-</div>
-<div class="metric-box">
-<span class="metric-label">Daily Mission</span>
-<span class="metric-val" style="font-size:0.95rem; color:var(--amber);">+150 XP</span>
-</div>
+<div style="display: flex; gap: 8px; margin-top: 4px;">
+<button class="btn btn-outline" id="openConfigFromDrawerBtn" style="flex:1; font-size:0.8rem;">⚙️ Config API Key</button>
+<button class="btn btn-outline" id="openSettingsFromDrawerBtn" style="flex:1; font-size:0.8rem;">👤 Edit Profile</button>
 </div>
 
-<div class="card-title" style="margin-top:6px; font-size:0.85rem;">BADGE TIERS</div>
+<div class="card-title" style="margin-top:4px; font-size:0.85rem;">BADGE TIERS</div>
 <div style="display:flex; flex-direction:column; gap:8px;" id="badgeTiersList"></div>
 </div>
 </div>
 
-<!-- PROFILE MODAL -->
+<!-- PROFILE SETTINGS MODAL -->
 <div class="modal-overlay" id="profileModal">
 <div class="modal-content">
 <div class="card-title">
@@ -751,7 +708,7 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
 <div>
 <div style="font-weight:700; font-size:0.85rem;">Display Token Counter</div>
-<div style="font-size:0.72rem; color:var(--text-muted);">Show daily remaining API rate-limit tokens in header.</div>
+<div style="font-size:0.72rem; color:var(--text-muted);">Show daily remaining API rate-limit tokens.</div>
 </div>
 <input type="checkbox" id="tokenCounterToggle" checked style="width:18px; height:18px; cursor:pointer;">
 </div>
@@ -792,9 +749,9 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 </div>
 </div>
 
-<!-- IN-APP MULTI-SHOT CAMERA MODAL -->
+<!-- IN-APP MULTI-SHOT CAMERA MODAL (VERTICAL THUMB ERGONOMICS) -->
 <div class="modal-overlay" id="webcamModal">
-<div class="modal-content" style="max-width: 520px;">
+<div class="modal-content" style="max-width: 480px;">
 <div class="card-title">
 <span id="camHeaderTitle">In-App Multi-Shot Stacking (0 Shots)</span>
 <button class="settings-btn" id="closeWebcamBtn">X</button>
@@ -802,14 +759,14 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 <video id="webcamVideo" autoplay playsinline muted></video>
 <select id="cameraSourceSelect" class="input-field" style="display:none;"></select>
 
-<!-- Live Thumbnail Tray for Staged Shots -->
 <div id="stagedShotsTray" style="display:flex; gap:8px; overflow-x:auto; padding:4px 0; min-height:64px; align-items:center;">
 <span style="font-size:0.75rem; color:var(--text-muted);">Snap item, tag, & hallmark photos in sequence...</span>
 </div>
 
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:4px;">
-<button class="btn btn-outline" id="captureWebcamBtn">📸 SNAP SHOT</button>
-<button class="btn btn-accent" id="finishWebcamScanBtn">⚡ RUN RECON (0)</button>
+<!-- Vertical Stacked Thumb-Friendly Buttons -->
+<div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+<button class="btn btn-outline" id="captureWebcamBtn" style="padding: 14px;">📸 SNAP SHOT</button>
+<button class="btn btn-accent" id="finishWebcamScanBtn" style="padding: 14px;">⚡ RUN RECON (0)</button>
 </div>
 </div>
 </div>
@@ -852,7 +809,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let audioCtx = null;
-function playPacmanSound(verdict = 'BUY') {
+function playAudioFeedback(verdict = 'BUY', isJackpot = false) {
 try {
 if (!audioCtx) {
 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -863,7 +820,22 @@ if (audioCtx.state === 'suspended') audioCtx.resume();
 
 const now = audioCtx.currentTime;
 
-if (verdict === 'BUY') {
+if (isJackpot) {
+const jackpotFreqs = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00];
+jackpotFreqs.forEach((freq, idx) => {
+const osc = audioCtx.createOscillator();
+const gain = audioCtx.createGain();
+osc.type = idx % 2 === 0 ? 'triangle' : 'sine';
+osc.frequency.value = freq;
+const startTime = now + (idx * 0.08);
+gain.gain.setValueAtTime(0.25, startTime);
+gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
+osc.connect(gain);
+gain.connect(audioCtx.destination);
+osc.start(startTime);
+osc.stop(startTime + 0.3);
+});
+} else if (verdict === 'BUY') {
 const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51];
 notes.forEach((freq, idx) => {
 const osc = audioCtx.createOscillator();
@@ -974,11 +946,10 @@ const STORES = [
 
 document.documentElement.setAttribute('data-theme', STATE.currentTheme);
 document.body.style.fontSize = STATE.fontScale;
-document.getElementById('scanPill').style.display = STATE.showTokens ? 'flex' : 'none';
 
 document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
 document.getElementById('enterHQBtn').onclick = () => {
-playPacmanSound('BUY');
+playAudioFeedback('BUY');
 document.getElementById('welcomeModal').classList.remove('active');
 };
 
@@ -994,9 +965,17 @@ this.value = '0.00';
 }
 });
 
-const profileModal = document.getElementById('profileModal');
+// Profile Drawer (Option A: Collapsible Tactical Drawer)
+const levelModal = document.getElementById('levelModal');
 document.getElementById('profileAvatarBtn').onclick = () => {
-playPacmanSound('MONITOR');
+playAudioFeedback('MONITOR');
+openLevelModal();
+};
+document.getElementById('closeLevelBtn').onclick = () => levelModal.classList.remove('active');
+
+const profileModal = document.getElementById('profileModal');
+document.getElementById('openSettingsFromDrawerBtn').onclick = () => {
+levelModal.classList.remove('active');
 document.getElementById('profileNameInput').value = STATE.userLastName;
 document.getElementById('profileAvatarInput').value = STATE.userAvatar;
 document.getElementById('themeSelect').value = STATE.currentTheme;
@@ -1006,8 +985,30 @@ profileModal.classList.add('active');
 };
 document.getElementById('closeProfileBtn').onclick = () => profileModal.classList.remove('active');
 
+const configModal = document.getElementById('configModal');
+document.getElementById('openConfigFromDrawerBtn').onclick = () => {
+levelModal.classList.remove('active');
+document.getElementById('geminiApiKey').value = STATE.geminiKey;
+configModal.classList.add('active');
+};
+document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
+
+document.getElementById('configBtn').onclick = () => {
+playAudioFeedback('MONITOR');
+document.getElementById('geminiApiKey').value = STATE.geminiKey;
+configModal.classList.add('active');
+};
+
+document.getElementById('saveConfigBtn').onclick = () => {
+playAudioFeedback('BUY');
+STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
+localStorage.setItem('ts_gemini_key', STATE.geminiKey);
+configModal.classList.remove('active');
+triggerAlert('API Key verified and saved.');
+};
+
 document.getElementById('saveProfileBtn').onclick = () => {
-playPacmanSound('BUY');
+playAudioFeedback('BUY');
 STATE.userLastName = document.getElementById('profileNameInput').value.trim() || 'Claypool';
 STATE.userAvatar = document.getElementById('profileAvatarInput').value.trim() || '👤';
 STATE.currentTheme = document.getElementById('themeSelect').value;
@@ -1022,7 +1023,6 @@ localStorage.setItem('ts_show_tokens', STATE.showTokens);
 
 document.documentElement.setAttribute('data-theme', STATE.currentTheme);
 document.body.style.fontSize = STATE.fontScale;
-document.getElementById('scanPill').style.display = STATE.showTokens ? 'flex' : 'none';
 document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
 
 profileModal.classList.remove('active');
@@ -1033,7 +1033,7 @@ document.getElementById('dailyTargetName').textContent = currentMission.name;
 document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
 document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
 document.getElementById('claimChallengeBtn').onclick = () => {
-playPacmanSound('BUY');
+playAudioFeedback('BUY');
 triggerAlert('Target mission "' + currentMission.name + '" primed for scan!');
 document.querySelectorAll('.dock-btn')[0].click();
 document.getElementById('openWebcamBtn').scrollIntoView({ behavior: 'smooth' });
@@ -1048,21 +1048,18 @@ return { tier: TIERS[0], index: 0 };
 
 function updatePills() {
 const { tier, index } = getCurrentTier(STATE.xp);
-document.getElementById('rankPill').textContent = tier.icon + ' ' + tier.name + ' (' + STATE.xp.toLocaleString() + ' XP)';
-document.getElementById('scanPill').textContent = STATE.dailyScans + ' LEFT';
 localStorage.setItem('ts_scans_left', STATE.dailyScans);
 localStorage.setItem('ts_xp', STATE.xp);
 }
 updatePills();
 
 function openLevelModal() {
-playPacmanSound('MONITOR');
 const { tier, index } = getCurrentTier(STATE.xp);
 const nextTier = TIERS[index + 1];
 
 document.getElementById('modalBadgeIcon').textContent = tier.icon;
 document.getElementById('modalRankName').textContent = tier.name;
-document.getElementById('modalXpSubtitle').textContent = STATE.xp.toLocaleString() + ' Total XP Earned';
+document.getElementById('modalXpSubtitle').textContent = STATE.xp.toLocaleString() + ' Total XP Earned • ' + STATE.dailyScans + ' Scans Left';
 
 const fill = document.getElementById('modalProgressFill');
 const nextInfo = document.getElementById('modalNextRankInfo');
@@ -1096,15 +1093,10 @@ t.name + ' ' + (isUnlocked ? '✓' : '<span style="font-size:0.75rem; color:var(
 list.appendChild(card);
 });
 
-document.getElementById('levelModal').classList.add('active');
+levelModal.classList.add('active');
 }
 
-document.getElementById('rankPill').onclick = openLevelModal;
 document.getElementById('openHandbookBtn').onclick = openLevelModal;
-document.getElementById('closeLevelBtn').onclick = () => {
-document.getElementById('levelModal').classList.remove('active');
-};
-
 document.getElementById('closeVaultDetailBtn').onclick = () => {
 document.getElementById('vaultDetailModal').classList.remove('active');
 };
@@ -1153,7 +1145,7 @@ document.getElementById('statusAlert').style.display = 'none';
 
 document.querySelectorAll('.dock-btn').forEach(btn => {
 btn.addEventListener('click', () => {
-playPacmanSound('MONITOR');
+playAudioFeedback('MONITOR');
 document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
 document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
 btn.classList.add('active');
@@ -1166,36 +1158,83 @@ initStoresList();
 });
 
 document.getElementById('vaultSubActive').onclick = () => {
-playPacmanSound('MONITOR');
+playAudioFeedback('MONITOR');
 STATE.vaultSub = 'active';
 document.getElementById('vaultSubActive').classList.add('active');
 document.getElementById('vaultSubSold').classList.remove('active');
 renderVault();
 };
 document.getElementById('vaultSubSold').onclick = () => {
-playPacmanSound('MONITOR');
+playAudioFeedback('MONITOR');
 STATE.vaultSub = 'sold';
 document.getElementById('vaultSubSold').classList.add('active');
 document.getElementById('vaultSubActive').classList.remove('active');
 renderVault();
 };
 
-const configModal = document.getElementById('configModal');
-document.getElementById('configBtn').onclick = () => {
-playPacmanSound('MONITOR');
-document.getElementById('geminiApiKey').value = STATE.geminiKey;
-configModal.classList.add('active');
+// LIBRARY UPLOAD LOGIC
+const mobileGalleryInput = document.getElementById('mobileGalleryInput');
+document.getElementById('uploadFileBtn').onclick = () => {
+playAudioFeedback('BUY');
+mobileGalleryInput.click();
 };
-document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
-document.getElementById('saveConfigBtn').onclick = () => {
-playPacmanSound('BUY');
-STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
-localStorage.setItem('ts_gemini_key', STATE.geminiKey);
-configModal.classList.remove('active');
-triggerAlert('API Key verified and saved.');
+mobileGalleryInput.onchange = (e) => {
+handleFileSelection(e.target.files);
 };
 
-// IN-APP MULTI-SHOT CAMERA LOGIC
+function handleFileSelection(files) {
+if (!files || files.length === 0) return;
+playAudioFeedback('BUY');
+selectedImagesBase64 = [];
+const previewContainer = document.getElementById('imagePreviewContainer');
+previewContainer.innerHTML = '';
+previewContainer.style.display = 'grid';
+document.getElementById('smartRetryBtn').style.display = 'none';
+
+let loadedCount = 0;
+Array.from(files).forEach((file, index) => {
+const reader = new FileReader();
+reader.onload = (ev) => {
+const img = new Image();
+img.onload = () => {
+const canvas = document.createElement('canvas');
+let w = img.width;
+let h = img.height;
+const maxDim = 512;
+if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+canvas.width = w;
+canvas.height = h;
+canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+const b64 = canvas.toDataURL('image/jpeg', 0.50).split(',')[1];
+selectedImagesBase64.push(b64);
+
+if (index === 0) {
+const thumbCanvas = document.createElement('canvas');
+thumbCanvas.width = 200;
+thumbCanvas.height = Math.round((canvas.height * 200) / canvas.width);
+thumbCanvas.getContext('2d').drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
+compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.70);
+}
+
+const thumbPreview = document.createElement('img');
+thumbPreview.src = canvas.toDataURL('image/jpeg', 0.50);
+thumbPreview.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
+previewContainer.appendChild(thumbPreview);
+
+loadedCount++;
+if (loadedCount === files.length) {
+runScanWorkflow();
+}
+};
+img.src = ev.target.result;
+};
+reader.readAsDataURL(file);
+});
+}
+
+// IN-APP REAR CAMERA STACKING LOGIC
 const webcamModal = document.getElementById('webcamModal');
 const webcamVideo = document.getElementById('webcamVideo');
 const cameraSelect = document.getElementById('cameraSourceSelect');
@@ -1206,7 +1245,7 @@ let stagedImagesB64 = [];
 let stagedThumbUrl = null;
 
 document.getElementById('openWebcamBtn').onclick = async () => {
-playPacmanSound('BUY');
+playAudioFeedback('BUY');
 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
 alert('Webcam stream not supported on this browser context. HTTPS required.');
 return;
@@ -1230,7 +1269,7 @@ cameraSelect.style.display = 'block';
 } else {
 cameraSelect.style.display = 'none';
 }
-await startWebcamStream(videoDevices[0]?.deviceId);
+await startWebcamStream();
 } catch (err) {
 alert('Could not access camera: ' + err.message);
 webcamModal.classList.remove('active');
@@ -1244,16 +1283,22 @@ webcamStream.getTracks().forEach(track => track.stop());
 const constraints = {
 video: deviceId
 ? { deviceId: { exact: deviceId } }
-: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: "environment" }
+: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: { exact: "environment" } }
 };
 try {
 webcamStream = await navigator.mediaDevices.getUserMedia(constraints);
 webcamVideo.srcObject = webcamStream;
 await webcamVideo.play();
 } catch (e) {
+try {
+webcamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+webcamVideo.srcObject = webcamStream;
+await webcamVideo.play();
+} catch (err2) {
 webcamStream = await navigator.mediaDevices.getUserMedia({ video: true });
 webcamVideo.srcObject = webcamStream;
 await webcamVideo.play();
+}
 }
 }
 
@@ -1265,7 +1310,7 @@ webcamModal.classList.remove('active');
 };
 
 document.getElementById('captureWebcamBtn').onclick = () => {
-playPacmanSound('BUY');
+playAudioFeedback('BUY');
 const canvas = document.createElement('canvas');
 canvas.width = webcamVideo.videoWidth || 640;
 canvas.height = webcamVideo.videoHeight || 480;
@@ -1286,7 +1331,7 @@ updateStagedTray();
 };
 
 function updateStagedTray() {
-camHeaderTitle.textContent = `In-App Multi-Shot Stacking (${stagedImagesB64.length} Shots)`;
+camHeaderTitle.textContent = `In-App Stacking (${stagedImagesB64.length} Shots)`;
 finishWebcamScanBtn.textContent = `⚡ RUN RECON (${stagedImagesB64.length})`;
 stagedShotsTray.innerHTML = '';
 
@@ -1308,7 +1353,7 @@ if (stagedImagesB64.length === 0) {
 alert('Please snap at least one photo before running recon.');
 return;
 }
-playPacmanSound('BUY');
+playAudioFeedback('BUY');
 selectedImagesBase64 = [...stagedImagesB64];
 compressedThumbDataUrl = stagedThumbUrl;
 
@@ -1330,7 +1375,7 @@ runScanWorkflow();
 
 const smartRetryBtn = document.getElementById('smartRetryBtn');
 smartRetryBtn.onclick = () => {
-playPacmanSound('BUY');
+playAudioFeedback('BUY');
 smartRetryBtn.style.display = 'none';
 runScanWorkflow();
 };
@@ -1341,6 +1386,7 @@ compressedThumbDataUrl = null;
 document.getElementById('imagePreviewContainer').innerHTML = '';
 document.getElementById('imagePreviewContainer').style.display = 'none';
 document.getElementById('itemCostInput').value = '0.00';
+mobileGalleryInput.value = '';
 }
 
 async function runScanWorkflow() {
@@ -1377,10 +1423,11 @@ progressText.textContent = 'Cache Hit!';
 setTimeout(() => { progressBox.style.display = 'none'; }, 150);
 
 let verdictType = 'BUY';
+let isJackpot = cachedMatch.profit >= 50.00;
 if (cachedMatch.profit < 15) verdictType = 'MONITOR';
 if (cachedMatch.resale <= 0 || cachedMatch.profit < 5) verdictType = 'PASS';
 
-playPacmanSound(verdictType);
+playAudioFeedback(verdictType, isJackpot);
 currentAppraisal = { ...cachedMatch, cost: itemCost };
 renderAppraisal(currentAppraisal);
 resetScanInputs();
@@ -1449,15 +1496,19 @@ const estProfit = estResale - itemCost - (estResale * 0.1325);
 
 let dispText = "BUY (INSTANT FLIP)";
 let verdictType = 'BUY';
+let isJackpot = estProfit >= 50.00;
+
 if (estResale <= 0 || estProfit < 5.00) {
 dispText = "PASS (INSUFFICIENT MARGIN)";
 verdictType = 'PASS';
+isJackpot = false;
 } else if (estProfit < 15.00) {
 dispText = "MONITOR (SLIM MARGIN)";
 verdictType = 'MONITOR';
+isJackpot = false;
 }
 
-playPacmanSound(verdictType);
+playAudioFeedback(verdictType, isJackpot);
 
 const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).toLowerCase();
 const isMissionMatch = currentMission.name.toLowerCase().split(' ').some(w => w.length > 3 && fullDesc.includes(w));
@@ -1533,7 +1584,7 @@ appraisalCard.scrollIntoView({ behavior: 'smooth' });
 }
 
 document.getElementById('shareEvaluationBtn').onclick = async () => {
-playPacmanSound('MONITOR');
+playAudioFeedback('MONITOR');
 if (!currentAppraisal) return;
 
 const canvas = document.createElement('canvas');
@@ -1615,7 +1666,7 @@ alert('Evaluation details copied to clipboard!');
 }
 
 document.getElementById('saveVaultBtn').onclick = async () => {
-playPacmanSound('BUY');
+playAudioFeedback('BUY', currentAppraisal && currentAppraisal.profit >= 50);
 if (!currentAppraisal) return;
 try {
 const docData = { ...currentAppraisal, status: 'owned', purchasedAt: Date.now() };
@@ -1712,7 +1763,7 @@ row.style.transform = 'translateX(0px)';
 if (isHorizontalSwipe && Math.abs(diffX) > 75) {
 e.stopPropagation();
 e.preventDefault();
-playPacmanSound('BUY');
+playAudioFeedback('BUY');
 if (diffX > 0 && STATE.vaultSub === 'active') {
 markSoldCloud(item.id);
 } else if (diffX < 0) {
@@ -1747,7 +1798,7 @@ document.getElementById('vaultCount').textContent = list.length + ' items';
 }
 
 window.openVaultDetail = (item) => {
-playPacmanSound('MONITOR');
+playAudioFeedback('MONITOR');
 currentlyOpenedVaultItem = item;
 const resaleVal = Number(item.resale || item.estimatedValue || 35.00);
 const costVal = Number(item.cost || item.itemCost || 0);
@@ -1790,7 +1841,7 @@ soldAt: Date.now()
 await deleteDoc(doc(db, 'vault_inventory', id));
 STATE.xp += 100;
 updatePills();
-playPacmanSound('BUY');
+playAudioFeedback('BUY', realized >= 50);
 } catch (err) {
 alert('Action failed: ' + err.message);
 }
@@ -1801,7 +1852,7 @@ const coll = (STATE.vaultSub === 'active') ? 'vault_inventory' : 'vault_sold';
 try {
 await deleteDoc(doc(db, coll, id));
 triggerAlert('Asset purged from archive.');
-playPacmanSound('PASS');
+playAudioFeedback('PASS');
 } catch (err) {
 alert('Delete failed: ' + err.message);
 }
