@@ -543,9 +543,10 @@ outline: none;
 <span class="metric-label">Brand / Origin</span>
 <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
 </div>
-<div class="metric-box">
-<span class="metric-label">Acquisition Cost</span>
-<span class="metric-val" id="resCostBasis" style="font-size:0.85rem; color:var(--amber);">$0.00</span>
+<!-- EDITABLE ACQUISITION COST BOX AFTER SCAN -->
+<div class="metric-box" style="cursor:pointer;" id="editableCostBox" title="Tap to update acquisition cost">
+<span class="metric-label">Acquisition Cost ✏️</span>
+<span class="metric-val" id="resCostBasis" style="font-size:1.1rem; color:var(--amber);">$0.00</span>
 </div>
 </div>
 <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
@@ -831,27 +832,22 @@ appId: "1:559782240794:web:5ace10f3f027b4cd82e7a3"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// NOTICEABLE HAPTIC FEEDBACK & SCREEN FLASH ON EVALUATION COMPLETION
+// NOTICEABLE HAPTIC FEEDBACK & SCREEN FLASH ONLY UPON COMPLETION
 function triggerHapticAndFlash(verdict = 'BUY', isJackpot = false) {
 if ('vibrate' in navigator) {
 if (isJackpot) {
-// Heavy pulsing pattern for jackpot finds
 navigator.vibrate([150, 60, 150, 60, 300, 100, 400]);
 } else if (verdict === 'BUY') {
-// Distinct double-buzz for a good buy
 navigator.vibrate([120, 80, 120]);
 } else if (verdict === 'MONITOR') {
-// Single medium buzz
 navigator.vibrate(180);
 } else {
-// Three quick sharp pulses for pass
 navigator.vibrate([60, 40, 60, 40, 60]);
 }
 }
 
-// Screen Flash Effect
 document.body.classList.remove('flash-active');
-void document.body.offsetWidth; // trigger reflow
+void document.body.offsetWidth;
 document.body.classList.add('flash-active');
 setTimeout(() => {
 document.body.classList.remove('flash-active');
@@ -859,8 +855,10 @@ document.body.classList.remove('flash-active');
 }
 
 let audioCtx = null;
-function playAudioFeedback(verdict = 'BUY', isJackpot = false) {
+function playAudioFeedback(verdict = 'BUY', isJackpot = false, shouldTriggerEffects = false) {
+if (shouldTriggerEffects) {
 triggerHapticAndFlash(verdict, isJackpot);
+}
 try {
 if (!audioCtx) {
 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -1000,7 +998,7 @@ document.body.style.fontSize = STATE.fontScale;
 
 document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
 document.getElementById('enterHQBtn').onclick = () => {
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 document.getElementById('welcomeModal').classList.remove('active');
 };
 
@@ -1018,7 +1016,7 @@ this.value = '0.00';
 
 const levelModal = document.getElementById('levelModal');
 document.getElementById('profileAvatarBtn').onclick = () => {
-playAudioFeedback('MONITOR');
+playAudioFeedback('MONITOR', false, false);
 openLevelModal();
 };
 document.getElementById('closeLevelBtn').onclick = () => levelModal.classList.remove('active');
@@ -1044,13 +1042,13 @@ configModal.classList.add('active');
 document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
 
 document.getElementById('configBtn')?.addEventListener('click', () => {
-playAudioFeedback('MONITOR');
+playAudioFeedback('MONITOR', false, false);
 document.getElementById('geminiApiKey').value = STATE.geminiKey;
 configModal.classList.add('active');
 });
 
 document.getElementById('saveConfigBtn').onclick = () => {
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
 localStorage.setItem('ts_gemini_key', STATE.geminiKey);
 configModal.classList.remove('active');
@@ -1058,7 +1056,7 @@ triggerAlert('API Key verified and saved.');
 };
 
 document.getElementById('saveProfileBtn').onclick = () => {
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 STATE.userLastName = document.getElementById('profileNameInput').value.trim() || 'Claypool';
 STATE.userAvatar = document.getElementById('profileAvatarInput').value.trim() || '👤';
 STATE.currentTheme = document.getElementById('themeSelect').value;
@@ -1079,8 +1077,48 @@ profileModal.classList.remove('active');
 triggerAlert('Specialist profile & preferences updated successfully.');
 };
 
+// EDITABLE ACQUISITION COST AFTER SCAN
+document.getElementById('editableCostBox').onclick = () => {
+if (!currentAppraisal) return;
+const newCostInput = prompt('Update acquisition cost for this scanned item ($):', currentAppraisal.cost || 0);
+if (newCostInput === null) return;
+const newCost = parseFloat(newCostInput);
+if (isNaN(newCost)) return;
+
+currentAppraisal.cost = newCost;
+const resaleVal = currentAppraisal.resale;
+const newProfit = resaleVal - newCost - (resaleVal * 0.1325);
+currentAppraisal.profit = Number(newProfit.toFixed(2));
+
+document.getElementById('resCostBasis').textContent = '$' + newCost.toFixed(2);
+document.getElementById('resEstProfit').textContent = '$' + currentAppraisal.profit.toFixed(2);
+
+let dispText = "BUY (INSTANT FLIP)";
+let verdictType = 'BUY';
+let isJackpot = currentAppraisal.profit >= 50.00;
+
+if (resaleVal <= 0 || currentAppraisal.profit < 5.00) {
+dispText = "PASS (INSUFFICIENT MARGIN)";
+verdictType = 'PASS';
+isJackpot = false;
+} else if (currentAppraisal.profit < 15.00) {
+dispText = "MONITOR (SLIM MARGIN)";
+verdictType = 'MONITOR';
+isJackpot = false;
+}
+
+currentAppraisal.disposition = dispText;
+const pill = document.getElementById('resDispPill');
+pill.textContent = dispText;
+if (dispText.includes('BUY')) pill.className = 'disposition-pill disp-flip';
+else if (dispText.includes('MONITOR')) pill.className = 'disposition-pill disp-monitor';
+else pill.className = 'disposition-pill disp-pass';
+
+triggerAlert('Acquisition cost updated. Recalculated net profit.');
+};
+
 document.getElementById('clearEvalBtn').onclick = () => {
-playAudioFeedback('MONITOR');
+playAudioFeedback('MONITOR', false, false);
 currentAppraisal = null;
 document.getElementById('appraisalCard').style.display = 'none';
 resetScanInputs();
@@ -1091,7 +1129,7 @@ document.getElementById('dailyTargetName').textContent = currentMission.name;
 document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
 document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
 document.getElementById('claimChallengeBtn').onclick = () => {
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 triggerAlert('Target mission "' + currentMission.name + '" primed for scan!');
 document.querySelectorAll('.dock-btn')[0].click();
 document.getElementById('openWebcamBtn').scrollIntoView({ behavior: 'smooth' });
@@ -1202,7 +1240,7 @@ document.getElementById('statusAlert').style.display = 'none';
 
 document.querySelectorAll('.dock-btn').forEach(btn => {
 btn.addEventListener('click', () => {
-playAudioFeedback('MONITOR');
+playAudioFeedback('MONITOR', false, false);
 document.querySelectorAll('.dock-btn').forEach(b => b.classList.remove('active'));
 document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
 btn.classList.add('active');
@@ -1215,14 +1253,14 @@ initStoresList();
 });
 
 document.getElementById('vaultSubActive').onclick = () => {
-playAudioFeedback('MONITOR');
+playAudioFeedback('MONITOR', false, false);
 STATE.vaultSub = 'active';
 document.getElementById('vaultSubActive').classList.add('active');
 document.getElementById('vaultSubSold').classList.remove('active');
 renderVault();
 };
 document.getElementById('vaultSubSold').onclick = () => {
-playAudioFeedback('MONITOR');
+playAudioFeedback('MONITOR', false, false);
 STATE.vaultSub = 'sold';
 document.getElementById('vaultSubSold').classList.add('active');
 document.getElementById('vaultSubActive').classList.remove('active');
@@ -1231,7 +1269,7 @@ renderVault();
 
 const mobileGalleryInput = document.getElementById('mobileGalleryInput');
 document.getElementById('uploadFileBtn').onclick = () => {
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 mobileGalleryInput.click();
 };
 mobileGalleryInput.onchange = (e) => {
@@ -1240,7 +1278,7 @@ handleFileSelection(e.target.files);
 
 function handleFileSelection(files) {
 if (!files || files.length === 0) return;
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 selectedImagesBase64 = [];
 const previewContainer = document.getElementById('imagePreviewContainer');
 previewContainer.innerHTML = '';
@@ -1300,7 +1338,7 @@ let stagedImagesB64 = [];
 let stagedThumbUrl = null;
 
 document.getElementById('openWebcamBtn').onclick = async () => {
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
 alert('Webcam stream not supported on this browser context. HTTPS required.');
 return;
@@ -1365,7 +1403,7 @@ webcamModal.classList.remove('active');
 };
 
 document.getElementById('captureWebcamBtn').onclick = () => {
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 const canvas = document.createElement('canvas');
 canvas.width = webcamVideo.videoWidth || 640;
 canvas.height = webcamVideo.videoHeight || 480;
@@ -1408,7 +1446,7 @@ if (stagedImagesB64.length === 0) {
 alert('Please snap at least one photo before running recon.');
 return;
 }
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 selectedImagesBase64 = [...stagedImagesB64];
 compressedThumbDataUrl = stagedThumbUrl;
 
@@ -1430,7 +1468,7 @@ runScanWorkflow();
 
 const smartRetryBtn = document.getElementById('smartRetryBtn');
 smartRetryBtn.onclick = () => {
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 smartRetryBtn.style.display = 'none';
 runScanWorkflow();
 };
@@ -1482,7 +1520,9 @@ let isJackpot = cachedMatch.profit >= 50.00;
 if (cachedMatch.profit < 15) verdictType = 'MONITOR';
 if (cachedMatch.resale <= 0 || cachedMatch.profit < 5) verdictType = 'PASS';
 
-playAudioFeedback(verdictType, isJackpot);
+// EVALUATION COMPLETE: Trigger haptic, flash, and audio feedback here
+playAudioFeedback(verdictType, isJackpot, true);
+
 currentAppraisal = { ...cachedMatch, cost: itemCost };
 renderAppraisal(currentAppraisal);
 resetScanInputs();
@@ -1534,7 +1574,7 @@ progressBarFill.style.width = '100%';
 setTimeout(() => { progressBox.style.display = 'none'; }, 150);
 
 if (!successData) {
-triggerAlert('⚠ High server demand. Tap below to retry instantly.', true);
+triggerAlert('⚠️ High server demand. Tap below to retry instantly.', true);
 smartRetryBtn.style.display = 'block';
 return;
 }
@@ -1563,7 +1603,8 @@ verdictType = 'MONITOR';
 isJackpot = false;
 }
 
-playAudioFeedback(verdictType, isJackpot);
+// EVALUATION COMPLETE: Trigger haptic, flash, and audio feedback here
+playAudioFeedback(verdictType, isJackpot, true);
 
 const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).toLowerCase();
 const isMissionMatch = currentMission.name.toLowerCase().split(' ').some(w => w.length > 3 && fullDesc.includes(w));
@@ -1661,7 +1702,7 @@ appraisalCard.scrollIntoView({ behavior: 'smooth' });
 }
 
 document.getElementById('shareEvaluationBtn').onclick = async () => {
-playAudioFeedback('MONITOR');
+playAudioFeedback('MONITOR', false, false);
 if (!currentAppraisal) return;
 
 const canvas = document.createElement('canvas');
@@ -1743,7 +1784,7 @@ alert('Evaluation details copied to clipboard!');
 }
 
 document.getElementById('saveVaultBtn').onclick = async () => {
-playAudioFeedback('BUY', currentAppraisal && currentAppraisal.profit >= 50);
+playAudioFeedback('BUY', currentAppraisal && currentAppraisal.profit >= 50, false);
 if (!currentAppraisal) return;
 try {
 const docData = { ...currentAppraisal, status: 'owned', purchasedAt: Date.now() };
@@ -1840,7 +1881,7 @@ row.style.transform = 'translateX(0px)';
 if (isHorizontalSwipe && Math.abs(diffX) > 75) {
 e.stopPropagation();
 e.preventDefault();
-playAudioFeedback('BUY');
+playAudioFeedback('BUY', false, false);
 if (diffX > 0 && STATE.vaultSub === 'active') {
 markSoldCloud(item.id);
 } else if (diffX < 0) {
@@ -1875,7 +1916,7 @@ document.getElementById('vaultCount').textContent = list.length + ' items';
 }
 
 window.openVaultDetail = (item) => {
-playAudioFeedback('MONITOR');
+playAudioFeedback('MONITOR', false, false);
 currentlyOpenedVaultItem = item;
 const resaleVal = Number(item.resale || item.estimatedValue || 35.00);
 const costVal = Number(item.cost || item.itemCost || 0);
@@ -1918,7 +1959,7 @@ soldAt: Date.now()
 await deleteDoc(doc(db, 'vault_inventory', id));
 STATE.xp += 100;
 updatePills();
-playAudioFeedback('BUY', realized >= 50);
+playAudioFeedback('BUY', realized >= 50, false);
 } catch (err) {
 alert('Action failed: ' + err.message);
 }
@@ -1929,7 +1970,7 @@ const coll = (STATE.vaultSub === 'active') ? 'vault_inventory' : 'vault_sold';
 try {
 await deleteDoc(doc(db, coll, id));
 triggerAlert('Asset purged from archive.');
-playAudioFeedback('PASS');
+playAudioFeedback('PASS', false, false);
 } catch (err) {
 alert('Delete failed: ' + err.message);
 }
