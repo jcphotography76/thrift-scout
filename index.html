@@ -505,7 +505,6 @@ outline: none;
 
 <div id="imagePreviewContainer" style="display:none; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap:8px; margin-top:8px;"></div>
 
-<!-- EVALUATION PROGRESS BAR -->
 <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
 <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
 <span id="evalProgressText">Turbo Flash Recon...</span>
@@ -524,9 +523,9 @@ outline: none;
 <span id="resDispPill" class="disposition-pill disp-flip">BUY (INSTANT FLIP)</span>
 </div>
 
-<!-- RARITY SCALE RATING -->
-<div style="background:var(--surface); padding:8px 12px; border-radius:8px; display:flex; justify-content:between; align-items:center; border:1px solid var(--border);">
-<span class="metric-label">Item Rarity Grade</span>
+<!-- RENAMED TO MARKET TIER -->
+<div style="background:var(--surface); padding:8px 12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border);">
+<span class="metric-label">Market Value Tier</span>
 <span id="resRarityBadge" style="font-weight:900; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em;">--</span>
 </div>
 
@@ -543,7 +542,6 @@ outline: none;
 <span class="metric-label">Brand / Origin</span>
 <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
 </div>
-<!-- EDITABLE ACQUISITION COST BOX AFTER SCAN -->
 <div class="metric-box" style="cursor:pointer;" id="editableCostBox" title="Tap to update acquisition cost">
 <span class="metric-label">Acquisition Cost ✏️</span>
 <span class="metric-val" id="resCostBasis" style="font-size:1.1rem; color:var(--amber);">$0.00</span>
@@ -558,7 +556,6 @@ outline: none;
 <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:0.8rem; background:#3b82f6;">SHARE EVAL</button>
 <button class="btn btn-accent" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
 </div>
-<!-- CLEAR EVALUATION BUTTON -->
 <button class="btn btn-outline" id="clearEvalBtn" style="font-size:0.75rem; color:var(--text-muted); border-style:dashed; margin-top:4px;">🗑️ CLEAR EVALUATION & SCAN NEXT</button>
 </div>
 </section>
@@ -832,7 +829,6 @@ appId: "1:559782240794:web:5ace10f3f027b4cd82e7a3"
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// NOTICEABLE HAPTIC FEEDBACK & SCREEN FLASH ONLY UPON COMPLETION
 function triggerHapticAndFlash(verdict = 'BUY', isJackpot = false) {
 if ('vibrate' in navigator) {
 if (isJackpot) {
@@ -1610,20 +1606,20 @@ const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).t
 const isMissionMatch = currentMission.name.toLowerCase().split(' ').some(w => w.length > 3 && fullDesc.includes(w));
 const bonusXp = isMissionMatch ? 150 : 25;
 
-let rarity = "Common";
-let rarityColor = "#9ca3af";
+let marketTier = "Standard Tier";
+let tierColor = "#9ca3af";
 if (estResale >= 200) {
-rarity = "👑 Grail (Ultra Rare)";
-rarityColor = "#fbbf24";
+marketTier = "👑 Grail Tier ($200+)";
+tierColor = "#fbbf24";
 } else if (estResale >= 100) {
-rarity = "💎 Ultra Rare";
-rarityColor = "#ec4899";
+marketTier = "💎 Premium Tier ($100+)";
+tierColor = "#ec4899";
 } else if (estResale >= 50) {
-rarity = "🔥 Rare Find";
-rarityColor = "#f97316";
+marketTier = "🔥 Mid-High Tier ($50+)";
+tierColor = "#f97316";
 } else if (estResale >= 25) {
-rarity = "✨ Uncommon";
-rarityColor = "#14b8a6";
+marketTier = "✨ Mid Tier ($25+)";
+tierColor = "#14b8a6";
 }
 
 currentAppraisal = {
@@ -1638,8 +1634,8 @@ shipping: parsed.shipping || 'USPS Ground Advantage',
 disposition: dispText,
 intel: parsed.intel || 'Standard secondary market asset.',
 query: parsed.query || (parsedBrand + " " + parsedItem),
-rarity: rarity,
-rarityColor: rarityColor,
+rarity: marketTier,
+rarityColor: tierColor,
 imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImagesBase64[0]),
 fingerprint: visualFingerprint,
 status: 'prospect',
@@ -1672,7 +1668,7 @@ document.getElementById('resCostBasis').textContent = '$' + (item.cost || 0).toF
 document.getElementById('resIntel').textContent = item.intel;
 
 const rarityBadge = document.getElementById('resRarityBadge');
-rarityBadge.textContent = item.rarity || 'Common';
+rarityBadge.textContent = item.rarity || 'Standard Tier';
 rarityBadge.style.color = item.rarityColor || '#9ca3af';
 
 const pill = document.getElementById('resDispPill');
