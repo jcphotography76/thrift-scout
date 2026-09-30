@@ -675,7 +675,7 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center;">
 <div style="font-size:2.5rem;" id="modalBadgeIcon">🥉</div>
 <div style="font-size:1.2rem; font-weight:800; color:var(--text); margin-top:4px;" id="modalRankName">Rookie</div>
-<div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" id="modalXpSubtitle">0 XP Earned</div>
+<div style="font-size:0.80rem; color:var(--text-muted); margin-top:2px;" id="modalXpSubtitle">0 XP Earned</div>
 
 <div style="background:var(--border); height:6px; border-radius:3px; margin:10px 0; overflow:hidden;">
 <div class="progress-bar-fill" id="modalProgressFill" style="background:var(--accent); width:0%; height:100%;"></div>
@@ -860,7 +860,7 @@ navigator.vibrate([150, 60, 150, 60, 300, 100, 400]);
 } else if (verdict === 'BUY') {
 navigator.vibrate([120, 80, 120]);
 } else if (verdict === 'MONITOR') {
-navigator.vibrate(180);
+navigator.vibrate([100, 50, 100]);
 } else {
 navigator.vibrate([60, 40, 60, 40, 60]);
 }
@@ -920,17 +920,21 @@ osc.start(startTime);
 osc.stop(startTime + 0.15);
 });
 } else if (verdict === 'MONITOR') {
+// Distinct two-tone alert for Monitor / Slim Margin so you know it finished successfully
+const monitorNotes = [440, 554.37];
+monitorNotes.forEach((freq, idx) => {
 const osc = audioCtx.createOscillator();
 const gain = audioCtx.createGain();
 osc.type = 'sine';
-osc.frequency.setValueAtTime(440, now);
-osc.frequency.exponentialRampToValueAtTime(330, now + 0.15);
-gain.gain.setValueAtTime(0.2, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+osc.frequency.value = freq;
+const startTime = now + (idx * 0.1);
+gain.gain.setValueAtTime(0.2, startTime);
+gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
 osc.connect(gain);
 gain.connect(audioCtx.destination);
-osc.start(now);
-osc.stop(now + 0.18);
+osc.start(startTime);
+osc.stop(startTime + 0.2);
+});
 } else {
 const osc = audioCtx.createOscillator();
 const gain = audioCtx.createGain();
@@ -2021,7 +2025,7 @@ const enriched = STORES.map(s => {
 const dist = calculateDistance(STATE.userLat, STATE.userLon, s.lat, s.lon);
 return { ...s, dist: parseFloat(dist) };
 }).sort((a, b) => a.dist - b.dist);
-renderStoreCards(studded = enriched);
+renderStoreCards(enriched);
 },
 () => {
 renderStoreCards(STORES);
