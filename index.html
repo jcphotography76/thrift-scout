@@ -219,6 +219,7 @@ justify-content: center;
 gap: 8px;
 text-decoration: none;
 user-select: none;
+pointer-events: auto;
 }
 .btn-primary { background: var(--primary); color: #fff; }
 .btn-accent { background: var(--accent); color: #090d16; }
@@ -406,8 +407,10 @@ color: var(--text-muted);
 cursor: pointer;
 font-size: 0.75rem;
 font-weight: 700;
+pointer-events: auto;
 }
 .dock-btn.active { color: var(--accent); }
+
 .modal-overlay {
 position: fixed;
 inset: 0;
@@ -417,6 +420,7 @@ align-items: center;
 justify-content: center;
 padding: 16px;
 z-index: 200;
+pointer-events: auto;
 }
 .modal-overlay.active { display: flex; }
 .modal-content {
@@ -432,6 +436,7 @@ display: flex;
 flex-direction: column;
 gap: 12px;
 z-index: 201;
+pointer-events: auto;
 }
 #webcamVideo {
 width: 100%;
@@ -632,7 +637,7 @@ Check housewares for smooth-bottom vintage cast iron skillets with heat rings or
 
 <!-- WELCOME MODAL -->
 <div class="modal-overlay active" id="welcomeModal">
-<div class="modal-content" style="text-align:center; border:2px solid var(--amber); background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%); pointer-events: auto;">
+<div class="modal-content" style="text-align:center; border:2px solid var(--amber); background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%);">
 <div style="font-size:3rem;">🐕‍🦺</div>
 <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
 <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Veteran Owned & Operated</div>
@@ -656,8 +661,8 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 <div style="font-size:1.2rem; font-weight:800; color:var(--text); margin-top:4px;" id="modalRankName">Rookie</div>
 <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" id="modalXpSubtitle">0 XP Earned</div>
 
-<div class="progress-bar-track">
-<div class="progress-bar-fill" id="modalProgressFill"></div>
+<div class="progress-bar-track" style="background:var(--border); height:6px; border-radius:3px; margin:10px 0; overflow:hidden;">
+<div class="progress-bar-fill" id="modalProgressFill" style="background:var(--accent); width:0%; height:100%;"></div>
 </div>
 <div style="font-size:0.75rem; color:var(--accent); font-weight:700;" id="modalNextRankInfo">750 XP to Picker</div>
 </div>
@@ -749,7 +754,7 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 </div>
 </div>
 
-<!-- IN-APP MULTI-SHOT CAMERA MODAL (VERTICAL THUMB ERGONOMICS) -->
+<!-- IN-APP MULTI-SHOT CAMERA MODAL -->
 <div class="modal-overlay" id="webcamModal">
 <div class="modal-content" style="max-width: 480px;">
 <div class="card-title">
@@ -763,7 +768,6 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 <span style="font-size:0.75rem; color:var(--text-muted);">Snap item, tag, & hallmark photos in sequence...</span>
 </div>
 
-<!-- Vertical Stacked Thumb-Friendly Buttons -->
 <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
 <button class="btn btn-outline" id="captureWebcamBtn" style="padding: 14px;">📸 SNAP SHOT</button>
 <button class="btn btn-accent" id="finishWebcamScanBtn" style="padding: 14px;">⚡ RUN RECON (0)</button>
@@ -965,7 +969,6 @@ this.value = '0.00';
 }
 });
 
-// Profile Drawer (Option A: Collapsible Tactical Drawer)
 const levelModal = document.getElementById('levelModal');
 document.getElementById('profileAvatarBtn').onclick = () => {
 playAudioFeedback('MONITOR');
@@ -993,11 +996,11 @@ configModal.classList.add('active');
 };
 document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
 
-document.getElementById('configBtn').onclick = () => {
+document.getElementById('configBtn')?.addEventListener('click', () => {
 playAudioFeedback('MONITOR');
 document.getElementById('geminiApiKey').value = STATE.geminiKey;
 configModal.classList.add('active');
-};
+});
 
 document.getElementById('saveConfigBtn').onclick = () => {
 playAudioFeedback('BUY');
@@ -1047,7 +1050,6 @@ return { tier: TIERS[0], index: 0 };
 }
 
 function updatePills() {
-const { tier, index } = getCurrentTier(STATE.xp);
 localStorage.setItem('ts_scans_left', STATE.dailyScans);
 localStorage.setItem('ts_xp', STATE.xp);
 }
@@ -1172,7 +1174,6 @@ document.getElementById('vaultSubActive').classList.remove('active');
 renderVault();
 };
 
-// LIBRARY UPLOAD LOGIC
 const mobileGalleryInput = document.getElementById('mobileGalleryInput');
 document.getElementById('uploadFileBtn').onclick = () => {
 playAudioFeedback('BUY');
@@ -1234,7 +1235,6 @@ reader.readAsDataURL(file);
 });
 }
 
-// IN-APP REAR CAMERA STACKING LOGIC
 const webcamModal = document.getElementById('webcamModal');
 const webcamVideo = document.getElementById('webcamVideo');
 const cameraSelect = document.getElementById('cameraSourceSelect');
@@ -1479,7 +1479,7 @@ progressBarFill.style.width = '100%';
 setTimeout(() => { progressBox.style.display = 'none'; }, 150);
 
 if (!successData) {
-triggerAlert('⚠️ High server demand. Tap below to retry instantly.', true);
+triggerAlert('⚠️️ High server demand. Tap below to retry instantly.', true);
 smartRetryBtn.style.display = 'block';
 return;
 }
