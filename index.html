@@ -364,7 +364,7 @@ color: var(--text-muted);
 }
 .nav-actions-grid {
 display: grid;
-grid-template-columns: 1fr;
+grid-template-columns: 1fr 1fr;
 gap: 6px;
 margin-top: 4px;
 }
@@ -494,6 +494,15 @@ outline: none;
 <input type="number" id="itemCostInput" class="input-field" placeholder="0.00" value="0.00" step="0.01" min="0">
 </div>
 
+<!-- NEW COIN RECON MODE TOGGLE -->
+<div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
+<div>
+<div style="font-weight:700; font-size:0.85rem; color:var(--amber);">🪙 Coin & Currency Mode</div>
+<div style="font-size:0.7rem; color:var(--text-muted);">Enable specialized numismatic & silver melt evaluation.</div>
+</div>
+<input type="checkbox" id="coinModeToggle" style="width:20px; height:20px; cursor:pointer;">
+</div>
+
 <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
 
 <div class="camera-row">
@@ -524,21 +533,21 @@ outline: none;
 </div>
 
 <div style="background:var(--surface); padding:8px 12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border);">
-<span class="metric-label">Market Value Tier</span>
+<span class="metric-label" id="tierLabelTitle">Market Value Tier</span>
 <span id="resRarityBadge" style="font-weight:900; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em;">--</span>
 </div>
 
 <div class="metric-grid">
 <div class="metric-box">
-<span class="metric-label">Estimated Resale</span>
+<span class="metric-label" id="resEstLabel">Estimated Resale</span>
 <span class="metric-val" id="resEstResale">$0.00</span>
 </div>
 <div class="metric-box">
-<span class="metric-label">Net Profit (Est)</span>
+<span class="metric-label" id="resProfitLabel">Net Profit (Est)</span>
 <span class="metric-val profit" id="resEstProfit">$0.00</span>
 </div>
 <div class="metric-box">
-<span class="metric-label">Brand / Origin</span>
+<span class="metric-label">Brand / Mint</span>
 <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
 </div>
 <div class="metric-box" style="cursor:pointer;" id="editableCostBox" title="Tap to update acquisition cost">
@@ -770,6 +779,31 @@ Welcome back, Specialist. Turbo Flash mode is locked in for sub-second vector ma
 </div>
 </div>
 
+<!-- STORE REVIEW MODAL -->
+<div class="modal-overlay" id="storeReviewModal">
+<div class="modal-content">
+<div class="card-title">
+<span id="reviewStoreTitle">Store Insider Reviews</span>
+<button class="settings-btn" id="closeReviewModalBtn">X</button>
+</div>
+<div id="storeReviewsContainer" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;"></div>
+<div style="border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:8px;">
+<div style="font-weight:700; font-size:0.85rem;">Leave an Insider Review</div>
+<div style="display:flex; gap:6px;">
+<select id="newReviewRating" class="input-field" style="width:90px;">
+<option value="5">⭐⭐⭐⭐⭐</option>
+<option value="4">⭐⭐⭐⭐</option>
+<option value="3">⭐⭐⭐</option>
+<option value="2">⭐⭐</option>
+<option value="1">⭐</option>
+</select>
+<input type="text" id="newReviewText" class="input-field" placeholder="Restocks on Tuesdays, great glassware section..." style="flex:1;">
+</div>
+<button class="btn btn-accent" id="submitReviewBtn">Submit Insider Review</button>
+</div>
+</div>
+</div>
+
 <!-- IN-APP MULTI-SHOT CAMERA MODAL -->
 <div class="modal-overlay" id="webcamModal">
 <div class="modal-content" style="max-width: 480px;">
@@ -835,7 +869,7 @@ navigator.vibrate([150, 60, 150, 60, 300, 100, 400]);
 } else if (verdict === 'BUY') {
 navigator.vibrate([120, 80, 120]);
 } else if (verdict === 'MONITOR') {
-navigator.vibrate(180);
+navigator.vibrate([100, 50, 100]);
 } else {
 navigator.vibrate([60, 40, 60, 40, 60]);
 }
@@ -895,17 +929,20 @@ osc.start(startTime);
 osc.stop(startTime + 0.15);
 });
 } else if (verdict === 'MONITOR') {
+const monitorNotes = [440, 554.37];
+monitorNotes.forEach((freq, idx) => {
 const osc = audioCtx.createOscillator();
 const gain = audioCtx.createGain();
 osc.type = 'sine';
-osc.frequency.setValueAtTime(440, now);
-osc.frequency.exponentialRampToValueAtTime(330, now + 0.15);
-gain.gain.setValueAtTime(0.2, now);
-gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+osc.frequency.value = freq;
+const startTime = now + (idx * 0.1);
+gain.gain.setValueAtTime(0.2, startTime);
+gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
 osc.connect(gain);
 gain.connect(audioCtx.destination);
-osc.start(now);
-osc.stop(now + 0.18);
+osc.start(startTime);
+osc.stop(startTime + 0.2);
+});
 } else {
 const osc = audioCtx.createOscillator();
 const gain = audioCtx.createGain();
@@ -980,6 +1017,7 @@ let selectedImagesBase64 = [];
 let compressedThumbDataUrl = null;
 let webcamStream = null;
 let currentlyOpenedVaultItem = null;
+let activeReviewStoreName = null;
 
 const STORES = [
 { name: "Goodwill - Riverdale", address: "4123 Riverdale Rd, Riverdale, UT", lat: 41.1764, lon: -111.9961 },
@@ -1072,7 +1110,6 @@ profileModal.classList.remove('active');
 triggerAlert('Specialist profile & preferences updated successfully.');
 };
 
-// EDITABLE ACQUISITION COST AFTER SCAN
 document.getElementById('editableCostBox').onclick = () => {
 if (!currentAppraisal) return;
 const newCostInput = prompt('Update acquisition cost for this scanned item ($):', currentAppraisal.cost || 0);
@@ -1490,20 +1527,21 @@ return;
 }
 
 const itemCost = parseFloat(document.getElementById('itemCostInput').value) || 0.00;
+const isCoinMode = document.getElementById('coinModeToggle').checked;
 
 const progressBox = document.getElementById('evalProgressContainer');
 const progressBarFill = document.getElementById('evalProgressBarFill');
 const progressText = document.getElementById('evalProgressText');
 progressBox.style.display = 'flex';
 progressBarFill.style.width = '40%';
-progressText.textContent = 'Turbo Cache Check...';
+progressText.textContent = isCoinMode ? 'Numismatic Scan...' : 'Turbo Cache Check...';
 
 smartRetryBtn.style.display = 'none';
 
 const primaryB64 = selectedImagesBase64[0];
 const visualFingerprint = primaryB64.slice(0, 100) + primaryB64.slice(-100);
 
-const cachedMatch = STATE.activeItems.concat(STATE.soldItems).find(i => i.fingerprint === visualFingerprint);
+const cachedMatch = !isCoinMode ? STATE.activeItems.concat(STATE.soldItems).find(i => i.fingerprint === visualFingerprint) : null;
 
 if (cachedMatch) {
 progressBarFill.style.width = '100%';
@@ -1515,11 +1553,10 @@ let isJackpot = cachedMatch.profit >= 50.00;
 if (cachedMatch.profit < 15) verdictType = 'MONITOR';
 if (cachedMatch.resale <= 0 || cachedMatch.profit < 5) verdictType = 'PASS';
 
-// EVALUATION COMPLETE: Trigger haptic, flash, and audio feedback here
 playAudioFeedback(verdictType, isJackpot, true);
 
 currentAppraisal = { ...cachedMatch, cost: itemCost };
-renderAppraisal(currentAppraisal);
+renderAppraisal(currentAppraisal, false);
 resetScanInputs();
 triggerAlert('⚡ Instant Cache Hit: Loaded from Vault history.');
 return;
@@ -1529,7 +1566,20 @@ setTimeout(() => { progressBarFill.style.width = '80%'; progressText.textContent
 
 let successData = null;
 
-const promptText = "Examine these multiple item and tag photos with high precision. Inspect brand logos, model numbers, and hallmarks across all provided angles before concluding. Provide realistic USED / SECONDHAND market resale value on eBay, NOT brand-new retail MSRP. If zero resale value, set resale to 0.00 and disposition to PASS. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
+let promptText = "";
+if (isCoinMode) {
+promptText = "Examine this coin or currency with expert numismatic precision. Identify country, denomination, year, mint mark, metal composition (silver/gold melt vs copper-nickel), estimated grade, and realistic current numismatic market value in USD. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
+"{\n" +
+' "brand": "Issuing Country / Mint",\n' +
+' "item": "Denomination & Year (e.g., 1921 Morgan Silver Dollar)",\n' +
+' "resale": 35.00,\n' +
+' "platform": "Numismatic / eBay",\n' +
+' "shipping": "Insured First Class",\n' +
+' "intel": "Mint mark details, silver melt status, condition notes",\n' +
+' "query": "1921 morgan silver dollar coin sold"\n' +
+"}";
+} else {
+promptText = "Examine these multiple item and tag photos with high precision. Inspect brand logos, model numbers, and hallmarks across all provided angles before concluding. Provide realistic USED / SECONDHAND market resale value on eBay, NOT brand-new retail MSRP. If zero resale value, set resale to 0.00 and disposition to PASS. Return ONLY valid, raw JSON matching this structure without Markdown wraps:\n" +
 "{\n" +
 ' "brand": "Manufacturer",\n' +
 ' "item": "Model descriptor",\n' +
@@ -1539,6 +1589,7 @@ const promptText = "Examine these multiple item and tag photos with high precisi
 ' "intel": "Key tag hallmarks or thrift reality check",\n' +
 ' "query": "clean keywords for ebay sold search"\n' +
 "}";
+}
 
 const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
@@ -1579,7 +1630,7 @@ const jsonMatch = successData.match(/\{[\s\S]*\}/);
 if (!jsonMatch) throw new Error('Invalid JSON format.');
 const parsed = JSON.parse(jsonMatch[0]);
 
-const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : 'Unbranded';
+const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : (isCoinMode ? 'US Mint' : 'Unbranded');
 const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
 const estResale = parseFloat(parsed.resale) || 0.00;
 const estProfit = estResale - itemCost - (estResale * 0.1325);
@@ -1598,7 +1649,6 @@ verdictType = 'MONITOR';
 isJackpot = false;
 }
 
-// EVALUATION COMPLETE: Trigger haptic, flash, and audio feedback here
 playAudioFeedback(verdictType, isJackpot, true);
 
 const fullDesc = (parsedBrand + " " + parsedItem + " " + (parsed.intel || '')).toLowerCase();
@@ -1641,7 +1691,7 @@ status: 'prospect',
 createdAt: Date.now()
 };
 
-renderAppraisal(currentAppraisal);
+renderAppraisal(currentAppraisal, isCoinMode);
 resetScanInputs();
 STATE.dailyScans--;
 STATE.xp += bonusXp;
@@ -1658,7 +1708,7 @@ smartRetryBtn.style.display = 'block';
 }
 }
 
-function renderAppraisal(item) {
+function renderAppraisal(item, isCoinMode = false) {
 document.getElementById('resItemTitle').textContent = item.name;
 document.getElementById('resEstResale').textContent = '$' + item.resale.toFixed(2);
 document.getElementById('resEstProfit').textContent = '$' + item.profit.toFixed(2);
@@ -1666,6 +1716,7 @@ document.getElementById('resBrand').textContent = item.brand;
 document.getElementById('resCostBasis').textContent = '$' + (item.cost || 0).toFixed(2);
 document.getElementById('resIntel').textContent = item.intel;
 
+document.getElementById('tierLabelTitle').textContent = isCoinMode ? 'Numismatic Grade / Tier' : 'Market Value Tier';
 const rarityBadge = document.getElementById('resRarityBadge');
 rarityBadge.textContent = item.rarity || 'Standard Tier';
 rarityBadge.style.color = item.rarityColor || '#9ca3af';
@@ -2025,10 +2076,61 @@ card.innerHTML =
 '</div>' +
 '<div class="nav-actions-grid">' +
 '<a class="nav-app-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination=' + destQuery + '">Google Maps</a>' +
+'<button class="nav-app-btn" onclick="openStoreReviews(\'' + s.name.replace(/'/g, "\\'") + '\')">⭐ Insider Reviews</button>' +
 '</div>';
 grid.appendChild(card);
 });
 }
+
+const storeReviewModal = document.getElementById('storeReviewModal');
+window.openStoreReviews = (storeName) => {
+playAudioFeedback('MONITOR', false, false);
+activeReviewStoreName = storeName;
+document.getElementById('reviewStoreTitle').textContent = storeName + ' • Insider Intel';
+
+const savedReviews = JSON.parse(localStorage.getItem('ts_reviews_' + storeName) || JSON.stringify([
+{ author: 'Specialist Claypool', rating: 5, text: 'Great selection of vintage audio gear in the back aisles.' },
+{ author: 'Scout Vanguard', rating: 4, text: 'Clean store, fast checkout, pricing on clothes is fair.' }
+]));
+
+const container = document.getElementById('storeReviewsContainer');
+container.innerHTML = '';
+savedReviews.forEach(r => {
+const div = document.createElement('div');
+div.style.cssText = 'background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem;';
+div.innerHTML = '<div style="font-weight:700; color:var(--accent);">⭐ ' + r.rating + '/5 • ' + r.author + '</div><div style="color:var(--text-muted); margin-top:2px;">' + r.text + '</div>';
+container.appendChild(div);
+});
+
+storeReviewModal.classList.add('active');
+};
+
+document.getElementById('closeReviewModalBtn').onclick = () => {
+storeReviewModal.classList.remove('active');
+};
+
+document.getElementById('submitReviewBtn').onclick = () => {
+if (!activeReviewStoreName) return;
+const rating = document.getElementById('newReviewRating').value;
+const text = document.getElementById('newReviewText').value.trim();
+if (!text) {
+alert('Please enter a review comment.');
+return;
+}
+
+playAudioFeedback('BUY', false, false);
+const storageKey = 'ts_reviews_' + activeReviewStoreName;
+const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+existing.unshift({
+author: 'Specialist ' + STATE.userLastName,
+rating: parseInt(rating),
+text: text
+});
+localStorage.setItem(storageKey, JSON.stringify(existing));
+document.getElementById('newReviewText').value = '';
+openStoreReviews(activeReviewStoreName);
+triggerAlert('Insider review submitted successfully.');
+};
 
 initStoresList();
 </script>
