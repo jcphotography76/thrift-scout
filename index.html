@@ -473,7 +473,7 @@ outline: none;
 
 <header>
 <div class="brand">
-<span style="font-size: 1.2rem;" title="Koda the Scout • Veteran Owned">🐕‍‍🦺</span>
+<span style="font-size: 1.2rem;" title="Koda the Scout • Veteran Owned">🐕‍🦺</span>
 <span>THRIFT</span><span class="brand-accent">SCOUT</span>
 </div>
 <div class="header-pills">
@@ -564,7 +564,7 @@ outline: none;
 <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:0.8rem; background:#3b82f6;">SHARE EVAL</button>
 <button class="btn btn-accent" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
 </div>
-<button class="btn btn-outline" id="clearEvalBtn" style="font-size:0.75rem; color:var(--text-muted); border-style:dashed; margin-top:4px;">🗑️ CLEAR EVALUATION & SCAN NEXT</button>
+<button class="btn btn-outline" id="clearEvalBtn" style="font-size:0.75rem; color:var(--text-muted); border-style:dashed; margin-top:4px;">🗑️️ CLEAR EVALUATION & SCAN NEXT</button>
 </div>
 </section>
 
@@ -1074,12 +1074,6 @@ configModal.classList.add('active');
 };
 document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
 
-document.getElementById('configBtn')?.addEventListener('click', () => {
-playAudioFeedback('MONITOR', false, false);
-document.getElementById('geminiApiKey').value = STATE.geminiKey;
-configModal.classList.add('active');
-});
-
 document.getElementById('saveConfigBtn').onclick = () => {
 playAudioFeedback('BUY', false, false);
 STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
@@ -1333,7 +1327,6 @@ canvas.width = w;
 canvas.height = h;
 canvas.getContext('2d').drawImage(img, 0, 0, w, h);
 
-// Optimized compression for speed
 const b64 = canvas.toDataURL('image/jpeg', 0.45).split(',')[1];
 selectedImagesBase64.push(b64);
 
@@ -1567,7 +1560,6 @@ setTimeout(() => { progressBarFill.style.width = '80%'; progressText.textContent
 
 let successData = null;
 
-// Streamlined, highly optimized backend prompt to guarantee sub-second execution and prevent rate limits
 let promptText = "";
 if (isCoinMode) {
 promptText = "Examine this coin/currency. Identify country, year, mint mark, silver/gold melt vs copper-nickel, grade, and current numismatic value in USD. Return ONLY raw JSON without Markdown:\n" +
@@ -2111,9 +2103,28 @@ document.getElementById('closeReviewModalBtn').onclick = () => {
 storeReviewModal.classList.remove('active');
 };
 
-document.getElementById('submitReviewBtn').onclick = &r=>( {
-// Review submit logic preserved
+document.getElementById('submitReviewBtn').onclick = () => {
+if (!activeReviewStoreName) return;
+const rating = document.getElementById('newReviewRating').value;
+const text = document.getElementById('newReviewText').value.trim();
+if (!text) {
+alert('Please enter a review comment.');
+return;
+}
+
+playAudioFeedback('BUY', false, false);
+const storageKey = 'ts_reviews_' + activeReviewStoreName;
+const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+existing.unshift({
+author: 'Specialist ' + STATE.userLastName,
+rating: parseInt(rating),
+text: text
 });
+localStorage.setItem(storageKey, JSON.stringify(existing));
+document.getElementById('newReviewText').value = '';
+openStoreReviews(activeReviewStoreName);
+triggerAlert('Insider review submitted successfully.');
+};
 
 initStoresList();
 </script>
