@@ -1572,7 +1572,7 @@
 
       let promptText = "";
       if (isCoinMode) {
-        promptText = "Identify this coin. Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Identify this coin. Return ONLY raw JSON without Markdown code blocks or extra text:\n" +
           "{\n" +
           '  "brand": "Issuing Mint / Country",\n' +
           '  "item": "Denomination & Year",\n' +
@@ -1583,7 +1583,7 @@
           '  "query": "coin ebay sold comps"\n' +
           "}";
       } else {
-        promptText = "Identify item & secondhand resale value. Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Identify item & secondhand resale value. Return ONLY raw JSON without Markdown code blocks or extra text:\n" +
           "{\n" +
           '  "brand": "Manufacturer",\n' +
           '  "item": "Model descriptor",\n' +
@@ -1595,7 +1595,6 @@
           "}";
       }
 
-      // Upgraded to gemini-3.6-flash for blazing-fast speed and high availability
       const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
       
       const parts = [{ text: promptText }];
@@ -1631,7 +1630,13 @@
       }
 
       try {
-        const jsonMatch = successData.match(/\{[\s\S]*\}/);
+        // Robust JSON extraction sanitizer
+        let cleanJsonText = successData.trim();
+        cleanJsonText = cleanJsonText.replace(/^```json\s*/i, '');
+        cleanJsonText = cleanJsonText.replace(/^```\s*/i, '');
+        cleanJsonText = cleanJsonText.replace(/\s*```$/i, '');
+        
+        const jsonMatch = cleanJsonText.match(/\{[\s\S]*\}/);
         if (!jsonMatch) throw new Error('Invalid JSON format.');
         const parsed = JSON.parse(jsonMatch[0]);
 
@@ -1744,8 +1749,8 @@
         appraisalCard.classList.remove('high-flip-gold');
       }
 
-      const ebayUrl = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
-      const velocityUrl = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query) + "&LH_Complete=1";
+      const ebayUrl = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
+      const velocityUrl = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query) + "&LH_Complete=1";
       document.getElementById('resEbayLink').href = ebayUrl;
       document.getElementById('resVelocityLink').href = velocityUrl;
       appraisalCard.style.display = 'flex';
@@ -1985,7 +1990,7 @@
       document.getElementById('vDetailProfit').textContent = '$' + profitVal.toFixed(2);
       document.getElementById('vDetailPlatform').textContent = item.platform || 'eBay';
       document.getElementById('vDetailIntel').textContent = item.intel || item.shipping || 'No additional intelligence notes logged.';
-      document.getElementById('vDetailEbayLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(item.query || (item.brand + " " + item.item)) + "&LH_Sold=1&LH_Complete=1";
+      document.getElementById('vDetailEbayLink').href = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query || (item.brand + " " + item.item)) + "&LH_Sold=1&LH_Complete=1";
       
       document.getElementById('listingAuthResult').style.display = 'none';
       document.getElementById('vaultDetailModal').classList.add('active');
@@ -2041,14 +2046,14 @@
         return;
       }
 
-      const promptText = `Compare these listing photos against the original vault item target: "${vaultItem.name}". Verify if these new photos match the exact same item, brand, and condition. Return ONLY raw JSON without Markdown:\n` +
+      const promptText = `Compare these listing photos against the original vault item target: "${vaultItem.name}". Verify if these new photos match the exact same item, brand, and condition. Return ONLY raw JSON without Markdown code blocks or extra text:\n` +
         "{\n" +
         '  "match": true,\n' +
         '  "confidence": "High",\n' +
         '  "notes": "Confirmed match: Verified item model and markings across listing photos."\n' +
         "}";
 
-      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+      const endpoint = "[https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=](https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=)" + encodeURIComponent(STATE.geminiKey);
       const parts = [{ text: promptText }];
       imagesB64.slice(0, 2).forEach(b64 => {
         parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } });
@@ -2067,10 +2072,16 @@
         if (res.ok) {
           const data = await res.json();
           const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          const jsonMatch = text.match(/\{[\s\S]*\}/);
+          
+          let cleanText = text.trim();
+          cleanText = cleanText.replace(/^```json\s*/i, '');
+          cleanText = cleanText.replace(/^```\s*/i, '');
+          cleanText = cleanText.replace(/\s*```$/i, '');
+
+          const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
           if (jsonMatch) {
             const parsed = JSON.parse(jsonMatch[0]);
-            resultBox.textContent = (parsed.match ? '✅ VERIFIED MATCH: ' : '⚠️️ MISMATCH WARNING: ') + parsed.notes;
+            resultBox.textContent = (parsed.match ? '✅ VERIFIED MATCH: ' : '⚠️ MISMATCH WARNING: ') + parsed.notes;
             playAudioFeedback(parsed.match ? 'BUY' : 'PASS', false, true);
             return;
           }
