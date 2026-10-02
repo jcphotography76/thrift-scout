@@ -663,7 +663,7 @@ Check housewares for smooth-bottom vintage cast iron skillets with heat rings or
 <!-- WELCOME MODAL -->
 <div class="modal-overlay active" id="welcomeModal">
 <div class="modal-content" style="text-align:center; border:2px solid var(--amber); background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%);">
-<div style="font-size:3rem;">🐕‍🦺</div>
+<div style="font-size:3rem;">🐕‍‍🦺</div>
 <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
 <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Veteran Owned & Operated</div>
 <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
@@ -1089,7 +1089,7 @@ playAudioFeedback('BUY', false, false);
 STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
 localStorage.setItem('ts_gemini_key', STATE.geminiKey);
 configModal.classList.remove('active');
-triggerAlert('API Key verified and saved.');
+triggerAlert('API Key verified and saved.', false, true);
 };
 
 document.getElementById('saveProfileBtn').onclick = () => {
@@ -1111,7 +1111,7 @@ document.body.style.fontSize = STATE.fontScale;
 document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
 
 profileModal.classList.remove('active');
-triggerAlert('Specialist profile & preferences updated successfully.');
+triggerAlert('Specialist profile & preferences updated successfully.', false, true);
 };
 
 document.getElementById('editableCostBox').onclick = () => {
@@ -1150,7 +1150,7 @@ if (dispText.includes('BUY')) pill.className = 'disposition-pill disp-flip';
 else if (dispText.includes('MONITOR')) pill.className = 'disposition-pill disp-monitor';
 else pill.className = 'disposition-pill disp-pass';
 
-triggerAlert('Acquisition cost updated. Recalculated net profit.');
+triggerAlert('Acquisition cost updated. Recalculated net profit.', false, true);
 };
 
 document.getElementById('clearEvalBtn').onclick = () => {
@@ -1158,7 +1158,7 @@ playAudioFeedback('MONITOR', false, false);
 currentAppraisal = null;
 document.getElementById('appraisalCard').style.display = 'none';
 resetScanInputs();
-triggerAlert('Evaluation cleared. Ready for next aisle scan.');
+triggerAlert('Evaluation cleared. Ready for next aisle scan.', false, true);
 };
 
 document.getElementById('dailyTargetName').textContent = currentMission.name;
@@ -1166,7 +1166,7 @@ document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
 document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
 document.getElementById('claimChallengeBtn').onclick = () => {
 playAudioFeedback('BUY', false, false);
-triggerAlert('Target mission "' + currentMission.name + '" primed for scan!');
+triggerAlert('Target mission "' + currentMission.name + '" primed for scan!', false, true);
 document.querySelectorAll('.dock-btn')[0].click();
 document.getElementById('openWebcamBtn').scrollIntoView({ behavior: 'smooth' });
 };
@@ -1251,7 +1251,7 @@ profit: newProfit
 currentlyOpenedVaultItem.cost = newCost;
 currentlyOpenedVaultItem.profit = newProfit;
 openVaultDetail(currentlyOpenedVaultItem);
-triggerAlert('Asset acquisition cost updated successfully.');
+triggerAlert('Asset acquisition cost updated successfully.', false, false);
 } catch (err) {
 alert('Failed to update cost: ' + err.message);
 }
@@ -1263,12 +1263,14 @@ updatePills();
 alert('Daily scans reset to 100.');
 };
 
-function triggerAlert(msg, isErr = false) {
+function triggerAlert(msg, isErr = false, autoScroll = false) {
 const box = document.getElementById('statusAlert');
 box.style.display = 'block';
 box.style.borderLeftColor = isErr ? 'var(--coral)' : 'var(--accent)';
 box.textContent = msg;
+if (autoScroll) {
 window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 }
 function dismissAlert() {
 document.getElementById('statusAlert').style.display = 'none';
@@ -1562,7 +1564,7 @@ playAudioFeedback(verdictType, isJackpot, true);
 currentAppraisal = { ...cachedMatch, cost: itemCost };
 renderAppraisal(currentAppraisal, false);
 resetScanInputs();
-triggerAlert('⚡ Instant Cache Hit: Loaded from Vault history.');
+triggerAlert('⚡ Instant Cache Hit: Loaded from Vault history.', false, true);
 return;
 }
 
@@ -1622,7 +1624,7 @@ progressBarFill.style.width = '100%';
 setTimeout(() => { progressBox.style.display = 'none'; }, 100);
 
 if (!successData) {
-triggerAlert('⚠️ High server demand. Tap below to retry instantly.', true);
+triggerAlert('⚠️ High server demand. Tap below to retry instantly.', true, true);
 smartRetryBtn.style.display = 'block';
 return;
 }
@@ -1635,7 +1637,7 @@ const parsed = JSON.parse(jsonMatch[0]);
 const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : (isCoinMode ? 'US Mint' : 'Unbranded');
 const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
 const estResale = parseFloat(parsed.resale) || 0.00;
-const estProfit = estResale - itemCost - (estResale * 0.1325); // Fixed resaleVal scope reference
+const estProfit = estResale - itemCost - (estResale * 0.1325);
 
 let dispText = "BUY (INSTANT FLIP)";
 let verdictType = 'BUY';
@@ -1705,7 +1707,7 @@ alert('🎯 Daily Mission Target Identified! +150 XP Bonus Awarded!');
 }
 
 } catch (err) {
-triggerAlert('Parsing error: ' + err.message, true);
+triggerAlert('Parsing error: ' + err.message, true, true);
 smartRetryBtn.style.display = 'block';
 }
 }
@@ -1839,9 +1841,9 @@ const docData = { ...currentAppraisal, status: 'owned', purchasedAt: Date.now() 
 await addDoc(collection(db, 'vault_inventory'), docData);
 STATE.xp += 50;
 updatePills();
-triggerAlert('Asset securely added to Vault.');
+triggerAlert('Asset securely added to Vault.', false, false);
 } catch (err) {
-triggerAlert('Cloud sync failed: ' + err.message, true);
+triggerAlert('Cloud sync failed: ' + err.message, true, false);
 }
 };
 
@@ -1859,6 +1861,7 @@ if (STATE.vaultSub === 'sold') renderVault();
 attachFirestoreListeners();
 
 function renderVault() {
+const scrollPos = window.scrollY; // Preserve scroll position
 const container = document.getElementById('vaultItemList');
 container.innerHTML = '';
 const list = (STATE.vaultSub === 'active') ? STATE.activeItems : STATE.soldItems;
@@ -1961,6 +1964,11 @@ container.appendChild(wrapper);
 
 document.getElementById('vaultTotal').textContent = '$' + totalValue.toFixed(2);
 document.getElementById('vaultCount').textContent = list.length + ' items';
+
+// Ensure the browser doesn't reset scrolling on dynamic DOM rewrite
+if (STATE.activeTab === 'vault') {
+window.scrollTo(0, scrollPos);
+}
 }
 
 window.openVaultDetail = (item) => {
@@ -2067,7 +2075,7 @@ playAudioFeedback(parsed.match ? 'BUY' : 'PASS', false, true);
 return;
 }
 }
-resultBox.textContent = '⚠️️ Verification check completed. Ready for eBay listing.';
+resultBox.textContent = '⚠ Verification check completed. Ready for eBay listing.';
 } catch (err) {
 resultBox.textContent = '✅ Listing photos staged successfully. Ready for online publication.';
 }
@@ -2109,7 +2117,7 @@ window.deleteCloudItemDirect = async (id) => {
 const coll = (STATE.vaultSub === 'active') ? 'vault_inventory' : 'vault_sold';
 try {
 await deleteDoc(doc(db, coll, id));
-triggerAlert('Asset purged from archive.');
+triggerAlert('Asset purged from archive.', false, false);
 playAudioFeedback('PASS', false, false);
 } catch (err) {
 alert('Delete failed: ' + err.message);
@@ -2223,7 +2231,7 @@ text: text
 localStorage.setItem(storageKey, JSON.stringify(existing));
 document.getElementById('newReviewText').value = '';
 openStoreReviews(activeReviewStoreName);
-triggerAlert('Insider review submitted successfully.');
+triggerAlert('Insider review submitted successfully.', false, false);
 };
 
 initStoresList();
