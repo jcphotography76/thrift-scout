@@ -565,7 +565,7 @@ outline: none;
 <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
 <div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
 <a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px;">VIEW MARKET COMPS</a>
-<a id="resVelocityLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px; border-color: var(--amber); color: var(--amber);">📊 SCRYFALL / TCG COMPS</a>
+<a id="resVelocityLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px; border-color: var(--amber); color: var(--amber);">📊 SCRYFALL COMPS</a>
 </div>
 <div style="display:flex; gap:8px;">
 <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:0.8rem; background:#3b82f6;">SHARE EVAL</button>
@@ -631,7 +631,7 @@ Check housewares for smooth-bottom vintage cast iron skillets with heat rings or
 <button id="vaultSubSold" class="vault-subbtn">Sold Archive</button>
 </div>
 <div class="vault-toolbar">
-<span>Swipe Right ➡️ Mark Sold | Swipe Left ⬅️️ Delete</span>
+<span>Swipe Right ➡️ Mark Sold | Swipe Left ⬅️ Delete</span>
 </div>
 <div class="vault-summary">
 <div>
@@ -791,7 +791,7 @@ Welcome back, Specialist. Flash-Lite lightning-fast execution engine & MTG Scryf
 </div>
 
 <div style="display:flex; gap:8px; margin-top:4px;">
-<a id="vDetailEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW SOLD COMPS</a>
+<a id="vDetailEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW MARKET COMPS</a>
 </div>
 </div>
 </div>
@@ -1599,10 +1599,10 @@ promptText = "Identify this Magic: The Gathering card (including exact card name
 ' "brand": "Wizards of the Coast (MTG)",\n' +
 ' "item": "Card Name & Set",\n' +
 ' "resale": 25.00,\n' +
-' "platform": "TCGPlayer / eBay",\n' +
+' "platform": "TCGPlayer / Scryfall",\n' +
 ' "shipping": "Standard Envelope",\n' +
 ' "intel": "Identified MTG card, set edition, and market price valuation.",\n' +
-' "query": "mtg card sold comps"\n' +
+' "query": "exact card name"\n' +
 "}";
 } else if (isCoinMode) {
 promptText = "Examine both sides (obverse and reverse) of this coin/currency. Identify issuing country, year, mint mark, silver/gold melt vs copper-nickel, grade, and numismatic value in USD. Return ONLY raw JSON without Markdown:\n" +
@@ -1782,6 +1782,7 @@ appraisalCard.classList.remove('high-flip-gold');
 }
 
 const ebayUrl = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
+// Corrected Scryfall URL routing
 const scryfallUrl = "[https://scryfall.com/search?q=](https://scryfall.com/search?q=)" + encodeURIComponent(item.query);
 document.getElementById('resEbayLink').href = ebayUrl;
 document.getElementById('resVelocityLink').href = scryfallUrl;
@@ -2101,7 +2102,7 @@ cleanText = cleanText.replace(/\s*```$/i, '');
 const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
 if (jsonMatch) {
 const parsed = JSON.parse(jsonMatch[0]);
-resultBox.textContent = (parsed.match ? '✅ VERIFIED MATCH: ' : '⚠️ MISMATCH WARNING: ') + parsed.notes;
+resultBox.textContent = (parsed.match ? '✅ VERIFIED MATCH: ' : '⚠️️ MISMATCH WARNING: ') + parsed.notes;
 playAudioFeedback(parsed.match ? 'BUY' : 'PASS', false, true);
 return;
 }
