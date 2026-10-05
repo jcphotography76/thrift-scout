@@ -498,7 +498,7 @@ outline: none;
 <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
 <div>
 <div style="font-weight:700; font-size:0.85rem; color:var(--amber);">🪙 Coin & Currency Mode</div>
-<div style="font-size:0.7rem; color:var(--text-muted);">Enable specialized numismatic & silver melt evaluation.</div>
+<div style="font-size:0.7rem; color:var(--text-muted);">Snap Front & Back photos for numismatic & silver melt evaluation.</div>
 </div>
 <input type="checkbox" id="coinModeToggle" style="width:20px; height:20px; cursor:pointer;">
 </div>
@@ -1323,8 +1323,13 @@ previewContainer.innerHTML = '';
 previewContainer.style.display = 'grid';
 document.getElementById('smartRetryBtn').style.display = 'none';
 
-// Optimized for speed: process only the first file for single-shot flash speed
-const file = files[0];
+const isCoinMode = document.getElementById('coinModeToggle').checked;
+const maxFilesToProcess = isCoinMode ? 2 : 1;
+
+let loadedCount = 0;
+const filesToProcess = Array.from(files).slice(0, maxFilesToProcess);
+
+filesToProcess.forEach((file, index) => {
 const reader = new FileReader();
 reader.onload = (ev) => {
 const img = new Image();
@@ -1342,22 +1347,28 @@ canvas.getContext('2d').drawImage(img, 0, 0, w, h);
 const b64 = canvas.toDataURL('image/jpeg', 0.40).split(',')[1];
 selectedImagesBase64.push(b64);
 
+if (index === 0) {
 const thumbCanvas = document.createElement('canvas');
 thumbCanvas.width = 140;
 thumbCanvas.height = Math.round((canvas.height * 140) / canvas.width);
 thumbCanvas.getContext('2d').drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
 compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.55);
+}
 
 const thumbPreview = document.createElement('img');
 thumbPreview.src = canvas.toDataURL('image/jpeg', 0.40);
 thumbPreview.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
 previewContainer.appendChild(thumbPreview);
 
+loadedCount++;
+if (loadedCount === filesToProcess.length) {
 runScanWorkflow();
+}
 };
 img.src = ev.target.result;
 };
 reader.readAsDataURL(file);
+});
 }
 
 const webcamModal = document.getElementById('webcamModal');
@@ -1456,12 +1467,14 @@ updateStagedTray();
 };
 
 function updateStagedTray() {
-camHeaderTitle.textContent = `In-App Stacking (${stagedImagesB64.length} Shots)`;
+const isCoinMode = document.getElementById('coinModeToggle').checked;
+const targetCount = isCoinMode ? 2 : 1;
+camHeaderTitle.textContent = `In-App Stacking (${stagedImagesB64.length}/${targetCount} Shots)`;
 finishWebcamScanBtn.textContent = `⚡ RUN RECON (${stagedImagesB64.length})`;
 stagedShotsTray.innerHTML = '';
 
 if (stagedImagesB64.length === 0) {
-stagedShotsTray.innerHTML = '<span style="font-size:0.75rem; color:var(--text-muted);">Snap item, tag, & hallmark photos in sequence...</span>';
+stagedShotsTray.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted);">${isCoinMode ? 'Snap Obverse (Front) & Reverse (Back) coin photos...' : 'Snap item photo...'}</span>`;
 return;
 }
 
@@ -1479,7 +1492,8 @@ alert('Please snap at least one photo before running recon.');
 return;
 }
 playAudioFeedback('BUY', false, false);
-selectedImagesBase64 = [stagedImagesB64[stagedImagesB64.length - 1]]; // Use last snapshot for instant speed
+const isCoinMode = document.getElementById('coinModeToggle').checked;
+selectedImagesBase64 = isCoinMode ? stagedImagesB64.slice(0, 2) : [stagedImagesB64[stagedImagesB64.length - 1]];
 compressedThumbDataUrl = stagedThumbUrl;
 
 if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
@@ -1534,7 +1548,7 @@ const progressBarFill = document.getElementById('evalProgressBarFill');
 const progressText = document.getElementById('evalProgressText');
 progressBox.style.display = 'flex';
 progressBarFill.style.width = '50%';
-progressText.textContent = isCoinMode ? 'Numismatic Scan...' : 'Flash-Lite Instant Recon...';
+progressText.textContent = isCoinMode ? 'Numismatic Dual-Shot Scan...' : 'Flash-Lite Instant Recon...';
 
 smartRetryBtn.style.display = 'none';
 
@@ -1566,14 +1580,14 @@ let successData = null;
 
 let promptText = "";
 if (isCoinMode) {
-promptText = "Identify this coin. Return ONLY raw JSON without Markdown code blocks or extra text:\n" +
+promptText = "Examine both sides (obverse and reverse) of this coin/currency. Identify issuing country, year, mint mark, silver/gold melt vs copper-nickel, grade, and numismatic value in USD. Return ONLY raw JSON without Markdown code blocks:\n" +
 "{\n" +
 ' "brand": "Issuing Mint / Country",\n' +
 ' "item": "Denomination & Year",\n' +
-' "resale": 25.00,\n' +
+' "resale": 35.00,\n' +
 ' "platform": "Numismatic",\n' +
 ' "shipping": "Insured Mail",\n' +
-' "intel": "Mint mark & silver melt notes",\n' +
+' "intel": "Mint mark verification from reverse, silver melt status, grade notes",\n' +
 ' "query": "coin ebay sold comps"\n' +
 "}";
 } else {
@@ -1589,10 +1603,12 @@ promptText = "Identify item & secondhand resale value. Return ONLY raw JSON with
 "}";
 }
 
-// Updated to gemini-3.5-flash-lite for maximum speed and zero timeout queues
 const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
-const parts = [{ text: promptText }, { inlineData: { mimeType: 'image/jpeg', data: selectedImagesBase64[0] } }];
+const parts = [{ text: promptText }];
+selectedImagesBase64.forEach(b64 => {
+parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } });
+});
 
 try {
 const res = await fetch(endpoint, {
@@ -1600,7 +1616,7 @@ method: 'POST',
 headers: { 'Content-Type': 'application/json' },
 body: JSON.stringify({
 contents: [{ parts: parts }],
-generationConfig: { temperature: 0.1, maxOutputTokens: 120 }
+generationConfig: { temperature: 0.1, maxOutputTokens: 150 }
 })
 });
 
