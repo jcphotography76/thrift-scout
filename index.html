@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Thrift Scout • Vault</title>
+<title>Thrift Scout • Vault & MTG Recon</title>
 <style>
 :root {
 --bg: #090d16;
@@ -494,20 +494,27 @@ outline: none;
 <input type="number" id="itemCostInput" class="input-field" placeholder="0.00" value="0.00" step="0.01" min="0">
 </div>
 
-<!-- COIN RECON MODE TOGGLE -->
-<div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:10px 12px; border-radius:8px; border:1px solid var(--border);">
+<!-- MODE SELECTOR (Standard, Coin, MTG Card) -->
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+<div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border);">
 <div>
-<div style="font-weight:700; font-size:0.85rem; color:var(--amber);">🪙 Coin & Currency Mode</div>
-<div style="font-size:0.7rem; color:var(--text-muted);">Snap Front & Back photos for numismatic & silver melt evaluation.</div>
+<div style="font-weight:700; font-size:0.78rem; color:var(--amber);">🪙 Coin Mode</div>
 </div>
-<input type="checkbox" id="coinModeToggle" style="width:20px; height:20px; cursor:pointer;">
+<input type="checkbox" id="coinModeToggle" style="width:16px; height:16px; cursor:pointer;">
+</div>
+<div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border);">
+<div>
+<div style="font-weight:700; font-size:0.78rem; color:var(--accent);">🪄 MTG Card Mode</div>
+</div>
+<input type="checkbox" id="mtgModeToggle" style="width:16px; height:16px; cursor:pointer;">
+</div>
 </div>
 
 <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
 
 <div class="camera-row">
-<button class="btn btn-accent" id="openWebcamBtn">📸 SNAP MULTI-SHOTS IN-APP</button>
-<button class="btn btn-outline" id="uploadFileBtn">📁 UPLOAD FROM PHOTOS</button>
+<button class="btn btn-accent" id="openWebcamBtn">📸 SNAP MULTI-SHOTS</button>
+<button class="btn btn-outline" id="uploadFileBtn">📁 UPLOAD PHOTOS</button>
 </div>
 
 <button class="btn btn-amber" id="smartRetryBtn" style="display:none; margin-top:4px;">⚡ RETRY INSTANTLY (NO RETAKE)</button>
@@ -547,7 +554,7 @@ outline: none;
 <span class="metric-val profit" id="resEstProfit">$0.00</span>
 </div>
 <div class="metric-box">
-<span class="metric-label">Brand / Mint</span>
+<span class="metric-label">Brand / Set</span>
 <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
 </div>
 <div class="metric-box" style="cursor:pointer;" id="editableCostBox" title="Tap to update acquisition cost">
@@ -557,8 +564,8 @@ outline: none;
 </div>
 <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
 <div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
-<a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px;">VIEW SOLD COMPS</a>
-<a id="resVelocityLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px; border-color: var(--amber); color: var(--amber);">📊 MARKET VELOCITY</a>
+<a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px;">VIEW MARKET COMPS</a>
+<a id="resVelocityLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px; border-color: var(--amber); color: var(--amber);">📊 SCRYFALL / TCG COMPS</a>
 </div>
 <div style="display:flex; gap:8px;">
 <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:0.8rem; background:#3b82f6;">SHARE EVAL</button>
@@ -624,7 +631,7 @@ Check housewares for smooth-bottom vintage cast iron skillets with heat rings or
 <button id="vaultSubSold" class="vault-subbtn">Sold Archive</button>
 </div>
 <div class="vault-toolbar">
-<span>Swipe Right ➡️ Mark Sold | Swipe Left ⬅️ Delete</span>
+<span>Swipe Right ➡️ Mark Sold | Swipe Left ⬅️️ Delete</span>
 </div>
 <div class="vault-summary">
 <div>
@@ -667,7 +674,7 @@ Check housewares for smooth-bottom vintage cast iron skillets with heat rings or
 <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
 <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Veteran Owned & Operated</div>
 <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-Welcome back, Specialist. Flash-Lite lightning-fast execution engine is locked in.
+Welcome back, Specialist. Flash-Lite lightning-fast execution engine & MTG Scryfall Recon are locked in.
 </p>
 <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
 </div>
@@ -1057,6 +1064,12 @@ this.value = '0.00';
 }
 });
 
+const coinToggle = document.getElementById('coinModeToggle');
+const mtgToggle = document.getElementById('mtgModeToggle');
+
+coinToggle.onchange = () => { if (coinToggle.checked) mtgToggle.checked = false; };
+mtgToggle.onchange = () => { if (mtgToggle.checked) coinToggle.checked = false; };
+
 const levelModal = document.getElementById('levelModal');
 document.getElementById('profileAvatarBtn').onclick = () => {
 playAudioFeedback('MONITOR', false, false);
@@ -1323,7 +1336,7 @@ previewContainer.innerHTML = '';
 previewContainer.style.display = 'grid';
 document.getElementById('smartRetryBtn').style.display = 'none';
 
-const isCoinMode = document.getElementById('coinModeToggle').checked;
+const isCoinMode = coinToggle.checked;
 const maxFilesToProcess = isCoinMode ? 2 : 1;
 
 let loadedCount = 0;
@@ -1467,7 +1480,7 @@ updateStagedTray();
 };
 
 function updateStagedTray() {
-const isCoinMode = document.getElementById('coinModeToggle').checked;
+const isCoinMode = coinToggle.checked;
 const targetCount = isCoinMode ? 2 : 1;
 camHeaderTitle.textContent = `In-App Stacking (${stagedImagesB64.length}/${targetCount} Shots)`;
 finishWebcamScanBtn.textContent = `⚡ RUN RECON (${stagedImagesB64.length})`;
@@ -1492,7 +1505,7 @@ alert('Please snap at least one photo before running recon.');
 return;
 }
 playAudioFeedback('BUY', false, false);
-const isCoinMode = document.getElementById('coinModeToggle').checked;
+const isCoinMode = coinToggle.checked;
 selectedImagesBase64 = isCoinMode ? stagedImagesB64.slice(0, 2) : [stagedImagesB64[stagedImagesB64.length - 1]];
 compressedThumbDataUrl = stagedThumbUrl;
 
@@ -1541,21 +1554,22 @@ return;
 }
 
 const itemCost = parseFloat(document.getElementById('itemCostInput').value) || 0.00;
-const isCoinMode = document.getElementById('coinModeToggle').checked;
+const isCoinMode = coinToggle.checked;
+const isMtgMode = mtgToggle.checked;
 
 const progressBox = document.getElementById('evalProgressContainer');
 const progressBarFill = document.getElementById('evalProgressBarFill');
 const progressText = document.getElementById('evalProgressText');
 progressBox.style.display = 'flex';
 progressBarFill.style.width = '50%';
-progressText.textContent = isCoinMode ? 'Numismatic Dual-Shot Scan...' : 'Flash-Lite Instant Recon...';
+progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Flash-Lite Instant Recon...');
 
 smartRetryBtn.style.display = 'none';
 
 const primaryB64 = selectedImagesBase64[0];
 const visualFingerprint = primaryB64.slice(0, 100) + primaryB64.slice(-100);
 
-const cachedMatch = !isCoinMode ? STATE.activeItems.concat(STATE.soldItems).find(i => i.fingerprint === visualFingerprint) : null;
+const cachedMatch = (!isCoinMode && !isMtgMode) ? STATE.activeItems.concat(STATE.soldItems).find(i => i.fingerprint === visualFingerprint) : null;
 
 if (cachedMatch) {
 progressBarFill.style.width = '100%';
@@ -1579,19 +1593,30 @@ return;
 let successData = null;
 
 let promptText = "";
-if (isCoinMode) {
-promptText = "Examine both sides (obverse and reverse) of this coin/currency. Identify issuing country, year, mint mark, silver/gold melt vs copper-nickel, grade, and numismatic value in USD. Return ONLY raw JSON without Markdown code blocks:\n" +
+if (isMtgMode) {
+promptText = "Identify this Magic: The Gathering card (including exact card name, expansion set name/code like 1999 starter gift box or base set, collector number, foil status, and condition). Return estimated TCGPlayer market value in USD. Return ONLY raw JSON without Markdown:\n" +
+"{\n" +
+' "brand": "Wizards of the Coast (MTG)",\n' +
+' "item": "Card Name & Set",\n' +
+' "resale": 25.00,\n' +
+' "platform": "TCGPlayer / eBay",\n' +
+' "shipping": "Standard Envelope",\n' +
+' "intel": "Identified MTG card, set edition, and market price valuation.",\n' +
+' "query": "mtg card sold comps"\n' +
+"}";
+} else if (isCoinMode) {
+promptText = "Examine both sides (obverse and reverse) of this coin/currency. Identify issuing country, year, mint mark, silver/gold melt vs copper-nickel, grade, and numismatic value in USD. Return ONLY raw JSON without Markdown:\n" +
 "{\n" +
 ' "brand": "Issuing Mint / Country",\n' +
 ' "item": "Denomination & Year",\n' +
 ' "resale": 35.00,\n' +
 ' "platform": "Numismatic",\n' +
 ' "shipping": "Insured Mail",\n' +
-' "intel": "Mint mark verification from reverse, silver melt status, grade notes",\n' +
+' "intel": "Mint mark verification, silver melt status, grade notes",\n' +
 ' "query": "coin ebay sold comps"\n' +
 "}";
 } else {
-promptText = "Identify item & secondhand resale value. Return ONLY raw JSON without Markdown code blocks or extra text:\n" +
+promptText = "Identify item & secondhand resale value. Return ONLY raw JSON without Markdown:\n" +
 "{\n" +
 ' "brand": "Manufacturer",\n' +
 ' "item": "Model descriptor",\n' +
@@ -1647,7 +1672,7 @@ const jsonMatch = cleanJsonText.match(/\{[\s\S]*\}/);
 if (!jsonMatch) throw new Error('Invalid JSON format.');
 const parsed = JSON.parse(jsonMatch[0]);
 
-const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : (isCoinMode ? 'US Mint' : 'Unbranded');
+const parsedBrand = (parsed.brand && parsed.brand.trim() !== '') ? parsed.brand.trim() : (isCoinMode ? 'US Mint' : (isMtgMode ? 'Wizards of the Coast' : 'Unbranded'));
 const parsedItem = (parsed.item && parsed.item.trim() !== '') ? parsed.item.trim() : 'Identified Asset';
 const estResale = parseFloat(parsed.resale) || 0.00;
 const estProfit = estResale - itemCost - (estResale * 0.1325);
@@ -1695,7 +1720,7 @@ name: parsedBrand + " - " + parsedItem,
 cost: itemCost,
 resale: estResale,
 profit: Number(estProfit.toFixed(2)),
-platform: parsed.platform || 'eBay',
+platform: parsed.platform || (isMtgMode ? 'TCGPlayer' : 'eBay'),
 shipping: parsed.shipping || 'USPS Ground Advantage',
 disposition: dispText,
 intel: parsed.intel || 'Standard secondary market asset.',
@@ -1708,7 +1733,7 @@ status: 'prospect',
 createdAt: Date.now()
 };
 
-renderAppraisal(currentAppraisal, isCoinMode);
+renderAppraisal(currentAppraisal, isCoinMode || isMtgMode);
 resetScanInputs();
 STATE.dailyScans--;
 STATE.xp += bonusXp;
@@ -1725,7 +1750,7 @@ smartRetryBtn.style.display = 'block';
 }
 }
 
-function renderAppraisal(item, isCoinMode = false) {
+function renderAppraisal(item, isSpecialMode = false) {
 document.getElementById('resItemTitle').textContent = item.name;
 document.getElementById('resEstResale').textContent = '$' + item.resale.toFixed(2);
 document.getElementById('resEstProfit').textContent = '$' + item.profit.toFixed(2);
@@ -1733,7 +1758,7 @@ document.getElementById('resBrand').textContent = item.brand;
 document.getElementById('resCostBasis').textContent = '$' + (item.cost || 0).toFixed(2);
 document.getElementById('resIntel').textContent = item.intel;
 
-document.getElementById('tierLabelTitle').textContent = isCoinMode ? 'Numismatic Grade / Tier' : 'Market Value Tier';
+document.getElementById('tierLabelTitle').textContent = isSpecialMode ? 'Card / Numismatic Tier' : 'Market Value Tier';
 const rarityBadge = document.getElementById('resRarityBadge');
 rarityBadge.textContent = item.rarity || 'Standard Tier';
 rarityBadge.style.color = item.rarityColor || '#9ca3af';
@@ -1757,9 +1782,9 @@ appraisalCard.classList.remove('high-flip-gold');
 }
 
 const ebayUrl = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
-const velocityUrl = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query) + "&LH_Complete=1";
+const scryfallUrl = "[https://scryfall.com/search?q=](https://scryfall.com/search?q=)" + encodeURIComponent(item.query);
 document.getElementById('resEbayLink').href = ebayUrl;
-document.getElementById('resVelocityLink').href = velocityUrl;
+document.getElementById('resVelocityLink').href = scryfallUrl;
 appraisalCard.style.display = 'flex';
 appraisalCard.scrollIntoView({ behavior: 'smooth' });
 }
