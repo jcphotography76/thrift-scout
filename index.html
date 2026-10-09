@@ -495,7 +495,7 @@
     <!-- TAB 1: SCOUT -->
     <section id="tab-scout" class="tab-view active">
       <div class="card" id="valuationCardContainer">
-        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Turbo Speed (Hard 15s Timeout)</span></div>
+        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Gemini 3.8 Flash (Turbo Engine)</span></div>
         
         <div>
           <label class="metric-label" style="margin-bottom: 4px; display: block;">Thrift Store Asking Price / Cost ($)</label>
@@ -531,8 +531,8 @@
 
         <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
           <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
-            <span id="evalProgressText">Instant Recon...</span>
-            <span>Flash-Lite Engine</span>
+            <span id="evalProgressText">Analyzing Item & Desirability...</span>
+            <span>Gemini 3.8 Flash</span>
           </div>
           <div style="background:var(--border); height:6px; border-radius:3px; overflow:hidden;">
             <div id="evalProgressBarFill" style="background:var(--accent); width:100%; height:100%;"></div>
@@ -562,7 +562,7 @@
             <span class="metric-val profit" id="resEstProfit">$0.00</span>
           </div>
           <div class="metric-box">
-            <span class="metric-label">Brand / Set</span>
+            <span class="metric-label">Brand / Item</span>
             <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
           </div>
           <div class="metric-box" style="cursor:pointer;" id="editableCostBox" title="Tap to update acquisition cost">
@@ -693,9 +693,9 @@
     <div class="modal-content" style="text-align:center; border:2px solid var(--amber); background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%);">
       <div style="font-size:3rem;">🐕‍🦺</div>
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
-      <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Ultra-Speed Timeout Guard Active</div>
+      <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Gemini 3.8 Flash Engine Active</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Hard 15-second request timeouts and robust JSON parsing enforced.
+        Welcome back, Specialist. High-accuracy text reading, release year recognition, and resale desirability grading online.
       </p>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -1407,7 +1407,7 @@
             const canvas = document.createElement('canvas');
             let w = img.width;
             let h = img.height;
-            const maxDim = 480;
+            const maxDim = 800;
             if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
             else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
             canvas.width = w;
@@ -1599,7 +1599,7 @@
     }
 
     async function callGeminiWithRetry(payload, apiKey, retries = 3, delay = 2000) {
-      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(apiKey);
+      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(apiKey);
       for (let i = 0; i < retries; i++) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 15000);
@@ -1647,7 +1647,7 @@
       const progressText = document.getElementById('evalProgressText');
       progressBox.style.display = 'flex';
       progressBarFill.style.width = '50%';
-      progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'AI Vision Recon...');
+      progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Gemini 3.8 Recon...');
 
       smartRetryBtn.style.display = 'none';
 
@@ -1677,15 +1677,15 @@
           '  "query": "coin ebay sold comps"\n' +
           "}";
       } else {
-        promptText = "Analyze this image and identify the exact item (e.g. Bic Ballpoint Pen, Pyrex bowl, brand name, model, vintage or modern, manufacturing era, and realistic secondhand resale value on eBay). Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Analyze this item image (DVD movie, electronic, tool, toy, book, or general retail good). Identify the exact item name, brand/studio, release year, whether it is desirable and sells well on resale markets, and realistic secondhand resale value on eBay. Return ONLY raw JSON without Markdown:\n" +
           "{\n" +
-          '  "brand": "Exact Brand (e.g. Bic)",\n' +
-          '  "item": "Exact Item & Model (e.g. Cristal Ballpoint Pen Medium)",\n' +
-          '  "resale": 5.00,\n' +
+          '  "brand": "Exact Brand or Studio (e.g. Universal Pictures, Sony, Bic, DeWalt)",\n' +
+          '  "item": "Exact Title or Model Name & Release Year (e.g. How the Grinch Stole Christmas DVD (2000))",\n' +
+          '  "resale": 8.00,\n' +
           '  "platform": "eBay",\n' +
           '  "shipping": "USPS Ground Advantage",\n' +
-          '  "intel": "Detailed specs, production period, hallmarks, and resale demand notes",\n' +
-          '  "query": "bic cristal ballpoint pen lot ebay"\n' +
+          '  "intel": "Detailed description, release year, collector/resale desirability, and market demand notes",\n' +
+          '  "query": "how the grinch stole christmas dvd 2000 ebay sold"\n' +
           "}";
       }
 
@@ -1696,7 +1696,7 @@
 
       const payload = {
         contents: [{ parts: parts }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 300 }
+        generationConfig: { temperature: 0.2, maxOutputTokens: 350 }
       };
 
       try {
@@ -1711,13 +1711,13 @@
 
       if (!successData) {
         successData = JSON.stringify({
-          brand: "Generic Item",
-          item: "Unidentified Retail Good",
+          brand: "Unidentified Retail Item",
+          item: "Standard Thrift Good",
           resale: 10.00,
           platform: "eBay",
           shipping: "USPS Ground Advantage",
-          intel: "Network timeout or vision confidence low. Re-snap with better lighting.",
-          query: "thrift item ebay"
+          intel: "Could not read title or text clearly. Try taking a sharper photo of the item's label or cover.",
+          query: "thrift item ebay sold"
         });
       }
 
@@ -1741,7 +1741,7 @@
         let isJackpot = estProfit >= 50.00;
 
         if (estResale <= 0 || estProfit < 2.00) {
-          dispText = "PASS (INSUFFICIENT MARGIN)";
+          dispText = "PASS (LOW MARGIN / DEMAND)";
           verdictType = 'PASS';
           isJackpot = false;
         } else if (estProfit < 10.00) {
