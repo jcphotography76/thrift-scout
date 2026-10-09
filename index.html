@@ -106,7 +106,7 @@
     }
     .btn-emerald { background: var(--emerald); color: #000; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    .camera-row { display: grid; grid-template-columns: 1fr; gap: 8px; }
+    .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
     .cost-input-wrapper { display: flex; flex-direction: column; gap: 4px; flex: 1; }
     .cost-explanation-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
@@ -176,9 +176,11 @@
         <div class="card-title">RAPID THRIFT RECON</div>
         
         <input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
+        <input type="file" id="mobileGalleryInput" accept="image/*" style="display:none;">
 
         <div class="camera-row">
-          <button class="btn btn-emerald" id="snapMobileBtn">📸 SNAP PHOTO (TURBO)</button>
+          <button class="btn btn-emerald" id="snapMobileBtn">📸 SNAP PHOTO</button>
+          <button class="btn btn-outline" id="uploadFileBtn">📁 UPLOAD FILE</button>
         </div>
 
         <div id="imagePreviewContainer" style="display:none; text-align:center;">
@@ -345,13 +347,14 @@
     };
 
     const mobileCam = document.getElementById('mobileCameraInput');
+    const mobileGal = document.getElementById('mobileGalleryInput');
     const previewImg = document.getElementById('previewImg');
     const previewBox = document.getElementById('imagePreviewContainer');
 
     document.getElementById('snapMobileBtn').onclick = () => mobileCam.click();
+    document.getElementById('uploadFileBtn').onclick = () => mobileGal.click();
 
-    mobileCam.onchange = (e) => {
-      const file = e.target.files[0];
+    function processImageFile(file) {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -360,7 +363,7 @@
           const canvas = document.createElement('canvas');
           let w = img.width;
           let h = img.height;
-          const maxDim = 500; // Ultra-lean sizing for sub-2-second speed
+          const maxDim = 500;
           if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
           else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
           canvas.width = w;
@@ -379,11 +382,14 @@
         img.src = event.target.result;
       };
       reader.readAsDataURL(file);
-    };
+    }
+
+    mobileCam.onchange = (e) => processImageFile(e.target.files[0]);
+    mobileGal.onchange = (e) => processImageFile(e.target.files[0]);
 
     document.getElementById('evaluateBtn').onclick = async () => {
       if (!selectedImageBase64) {
-        alert('Snap a photo first.');
+        alert('Snap or upload a photo first.');
         return;
       }
       if (!STATE.geminiKey) {
