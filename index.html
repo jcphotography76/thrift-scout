@@ -1292,8 +1292,7 @@
       const costBasis = currentlyOpenedVaultItem.cost || 0;
       const realized = finalPrice - costBasis - (finalPrice * 0.1325);
 
-      const safeTitle = encodeURIComponent((currentlyOpenedVaultItem.brand || '') + ' ' + (currentlyOpenedVaultItem.item || currentlyOpenedVaultItem.name || ''));
-      const ebayListingUrl = `https://www.ebay.com/sl/prefill?prefill_query=${safeTitle}`;
+      const ebayListingUrl = `https://www.ebay.com/sl/sell`;
       window.open(ebayListingUrl, '_blank');
 
       try {
@@ -1305,7 +1304,7 @@
         STATE.xp += 100;
         updatePills();
         playAudioFeedback('BUY', realized >= 50, false);
-        triggerAlert('Asset marked sold & eBay listing prefill opened.', false, false);
+        triggerAlert('Asset marked sold & eBay sell page opened.', false, false);
         document.getElementById('vaultDetailModal').classList.remove('active');
       } catch (err) {
         alert('Action failed: ' + err.message);
@@ -2134,8 +2133,7 @@
       const costBasis = target.cost || 0;
       const realized = finalPrice - costBasis - (finalPrice * 0.1325);
 
-      const safeTitle = encodeURIComponent((target.brand || '') + ' ' + (target.item || target.name || ''));
-      const ebayListingUrl = `[https://www.ebay.com/sl/prefill?prefill_query=$](https://www.ebay.com/sl/prefill?prefill_query=$){safeTitle}`;
+      const ebayListingUrl = `[https://www.ebay.com/sl/sell](https://www.ebay.com/sl/sell)`;
       window.open(ebayListingUrl, '_blank');
 
       try {
@@ -2147,7 +2145,7 @@
         STATE.xp += 100;
         updatePills();
         playAudioFeedback('BUY', realized >= 50, false);
-        triggerAlert('Asset marked sold & eBay listing prefill opened.', false, false);
+        triggerAlert('Asset marked sold & eBay sell page opened.', false, false);
       } catch (err) {
         alert('Action failed: ' + err.message);
       }
