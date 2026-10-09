@@ -495,7 +495,7 @@
     <!-- TAB 1: SCOUT -->
     <section id="tab-scout" class="tab-view active">
       <div class="card" id="valuationCardContainer">
-        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Gemini 3.8 Flash (Turbo Engine)</span></div>
+        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Gemini 3.8 Flash (Optimized Turbo)</span></div>
         
         <div>
           <label class="metric-label" style="margin-bottom: 4px; display: block;">Thrift Store Asking Price / Cost ($)</label>
@@ -695,7 +695,7 @@
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Gemini 3.8 Flash Engine Active</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. High-accuracy text reading, release year recognition, and resale desirability grading online.
+        Welcome back, Specialist. Optimized turbo scanning & instant cloud vault online.
       </p>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -1407,14 +1407,14 @@
             const canvas = document.createElement('canvas');
             let w = img.width;
             let h = img.height;
-            const maxDim = 800;
+            const maxDim = 600; // Optimized for lightning speed
             if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
             else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
             canvas.width = w;
             canvas.height = h;
             canvas.getContext('2d').drawImage(img, 0, 0, w, h);
             
-            const b64 = canvas.toDataURL('image/jpeg', 0.40).split(',')[1];
+            const b64 = canvas.toDataURL('image/jpeg', 0.55).split(',')[1];
             selectedImagesBase64.push(b64);
 
             if (index === 0) {
@@ -1426,7 +1426,7 @@
             }
 
             const thumbPreview = document.createElement('img');
-            thumbPreview.src = canvas.toDataURL('image/jpeg', 0.40);
+            thumbPreview.src = canvas.toDataURL('image/jpeg', 0.55);
             thumbPreview.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
             previewContainer.appendChild(thumbPreview);
 
@@ -1522,7 +1522,7 @@
       canvas.height = webcamVideo.videoHeight || 480;
       canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
       
-      const b64 = canvas.toDataURL('image/jpeg', 0.40).split(',')[1];
+      const b64 = canvas.toDataURL('image/jpeg', 0.55).split(',')[1];
       stagedImagesB64.push(b64);
 
       if (!stagedThumbUrl) {
@@ -1602,7 +1602,7 @@
       const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(apiKey);
       for (let i = 0; i < retries; i++) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
         try {
           const res = await fetch(endpoint, {
             method: 'POST',
@@ -1647,7 +1647,7 @@
       const progressText = document.getElementById('evalProgressText');
       progressBox.style.display = 'flex';
       progressBarFill.style.width = '50%';
-      progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Gemini 3.8 Recon...');
+      progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Gemini 3.8 Turbo Recon...');
 
       smartRetryBtn.style.display = 'none';
 
@@ -1677,7 +1677,7 @@
           '  "query": "coin ebay sold comps"\n' +
           "}";
       } else {
-        promptText = "Analyze this item image (DVD movie, electronic, tool, toy, book, or general retail good). Identify the exact item name, brand/studio, release year, whether it is desirable and sells well on resale markets, and realistic secondhand resale value on eBay. Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Analyze this item image. Identify the exact item name, brand/studio, release year, whether it is desirable and sells well on resale markets, and realistic secondhand resale value on eBay. Return ONLY raw JSON without Markdown:\n" +
           "{\n" +
           '  "brand": "Exact Brand or Studio (e.g. Universal Pictures, Sony, Bic, DeWalt)",\n' +
           '  "item": "Exact Title or Model Name & Release Year (e.g. How the Grinch Stole Christmas DVD (2000))",\n' +
@@ -1696,7 +1696,7 @@
 
       const payload = {
         contents: [{ parts: parts }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 350 }
+        generationConfig: { temperature: 0.2, maxOutputTokens: 300 }
       };
 
       try {
