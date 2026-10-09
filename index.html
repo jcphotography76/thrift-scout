@@ -1030,7 +1030,7 @@
       dailyScans: parseInt(localStorage.getItem('ts_scans_left') || '100', 10),
       xp: parseInt(localStorage.getItem('ts_xp') || '0', 10),
       activeTab: 'scout',
-      vaultCategory: 'general', // 'general', 'coins', 'mtg'
+      vaultCategory: 'general',
       vaultItems: [],
       userLastName: localStorage.getItem('ts_last_name') || 'Claypool',
       userAvatar: localStorage.getItem('ts_avatar') || '👤',
@@ -1284,16 +1284,31 @@
 
     document.getElementById('quickToggleSellBtn').onclick = async () => {
       if (!currentlyOpenedVaultItem) return;
-      const newStrategy = currentlyOpenedVaultItem.strategy === 'selling' ? 'quick_flip' : 'selling';
+      const id = currentlyOpenedVaultItem.id;
+      const defaultPrice = currentlyOpenedVaultItem.resale || 35.00;
+      const soldInput = prompt('Enter final sold price ($):', defaultPrice);
+      if (soldInput === null) return;
+      const finalPrice = parseFloat(soldInput) || defaultPrice;
+      const costBasis = currentlyOpenedVaultItem.cost || 0;
+      const realized = finalPrice - costBasis - (finalPrice * 0.1325);
+
+      const safeTitle = encodeURIComponent((currentlyOpenedVaultItem.brand || '') + ' ' + (currentlyOpenedVaultItem.item || currentlyOpenedVaultItem.name || ''));
+      const ebayListingUrl = `https://www.ebay.com/sl/prefill?prefill_query=${safeTitle}`;
+      window.open(ebayListingUrl, '_blank');
+
       try {
-        await updateDoc(doc(db, 'vault_inventory', currentlyOpenedVaultItem.id), {
-          strategy: newStrategy
+        await updateDoc(doc(db, 'vault_inventory', id), {
+          status: 'sold',
+          finalSoldPrice: finalPrice,
+          profit: Number(realized.toFixed(2))
         });
-        currentlyOpenedVaultItem.strategy = newStrategy;
-        document.getElementById('vDetailStrategy').textContent = newStrategy === 'selling' ? 'Selling (Active)' : (newStrategy === 'keeping' ? 'Keeping' : 'Quick Flip');
-        triggerAlert('Inventory strategy updated to ' + newStrategy + '.', false, false);
+        STATE.xp += 100;
+        updatePills();
+        playAudioFeedback('BUY', realized >= 50, false);
+        triggerAlert('Asset marked sold & eBay listing prefill opened.', false, false);
+        document.getElementById('vaultDetailModal').classList.remove('active');
       } catch (err) {
-        alert('Strategy update failed: ' + err.message);
+        alert('Action failed: ' + err.message);
       }
     };
 
@@ -1584,6 +1599,34 @@
       mobileGalleryInput.value = '';
     }
 
+    async function callGeminiWithRetry(payload, apiKey, retries = 3, delay = 2000) {
+      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(apiKey);
+      for (let i = 0; i < retries; i++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          const data = await res.json();
+          if (res.ok) return data;
+          if (res.status === 503 && i < retries - 1) {
+            await new Promise(res => setTimeout(res, delay * Math.pow(2, i)));
+            continue;
+          }
+          throw new Error(data.error?.message || `HTTP error ${res.status}`);
+        } catch (err) {
+          clearTimeout(timeoutId);
+          if (i === retries - 1) throw err;
+          await new Promise(res => setTimeout(res, delay));
+        }
+      }
+    }
+
     async function runScanWorkflow() {
       if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
       if (!STATE.geminiKey) {
@@ -1613,76 +1656,61 @@
 
       let promptText = "";
       if (isMtgMode) {
-        promptText = "Identify this Magic: The Gathering card (exact card name, expansion set name/code, collector number, foil status, condition). Return estimated TCGPlayer market value in USD. If comps or card pricing are unavailable or unknown, set resale to 0.00. Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Identify this Magic: The Gathering card (exact card name, expansion set name/code, collector number, foil status, condition, release year). Return estimated TCGPlayer market value in USD. If comps or card pricing are unavailable, set resale to 0.00. Return ONLY raw JSON without Markdown:\n" +
           "{\n" +
           '  "brand": "Wizards of the Coast (MTG)",\n' +
           '  "item": "Card Name & Set",\n' +
           '  "resale": 25.00,\n' +
           '  "platform": "TCGPlayer",\n' +
           '  "shipping": "Standard Envelope",\n' +
-          '  "intel": "Identified MTG card, set edition, and market price valuation.",\n' +
+          '  "intel": "Identified MTG card, set release year, edition, and market valuation.",\n' +
           '  "query": "exact card name set"\n' +
           "}";
       } else if (isCoinMode) {
-        promptText = "Examine both sides (obverse and reverse) of this coin/currency. Identify issuing country, year, mint mark, silver/gold melt vs copper-nickel, grade, and numismatic value in USD. If comps/pricing are unavailable, set resale to 0.00. Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Examine both sides (obverse and reverse) of this coin/currency. Identify issuing country, year of mint mark, silver/gold melt vs copper-nickel, grade, and numismatic value in USD. If comps/pricing are unavailable, set resale to 0.00. Return ONLY raw JSON without Markdown:\n" +
           "{\n" +
           '  "brand": "Issuing Mint / Country",\n' +
           '  "item": "Denomination & Year",\n' +
           '  "resale": 35.00,\n' +
           '  "platform": "Numismatic",\n' +
           '  "shipping": "Insured Mail",\n' +
-          '  "intel": "Mint mark verification, silver melt status, grade notes",\n' +
+          '  "intel": "Mint mark verification, exact year/era, grade notes",\n' +
           '  "query": "coin ebay sold comps"\n' +
           "}";
       } else {
-        promptText = "Identify item & secondhand resale value. If comps are unavailable, set resale to 0.00. Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Identify this thrift item, manufacturer, vintage, exact date or era of manufacture (e.g., Pyrex production years like 1940-1950 based on bottom stamps/hallmarks), and secondhand resale value. If comps are unavailable, set resale to 0.00. Return ONLY raw JSON without Markdown:\n" +
           "{\n" +
           '  "brand": "Manufacturer",\n' +
-          '  "item": "Model descriptor",\n' +
+          '  "item": "Model descriptor & Vintage Era",\n' +
           '  "resale": 15.00,\n' +
           '  "platform": "eBay",\n' +
           '  "shipping": "USPS Ground Advantage",\n' +
-          '  "intel": "Tag or hallmark reality check",\n' +
-          '  "query": "ebay sold keywords"\n' +
+          '  "intel": "Hallmark breakdown, exact manufacture date/era range, and authenticity details",\n' +
+          '  "query": "vintage pyrex cinderella bowl 1950s"\n' +
           "}";
       }
 
-      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
-      
       const parts = [{ text: promptText }];
       selectedImagesBase64.forEach(b64 => {
-        parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } });
+        parts.push({ inline_data: { mime_type: 'image/jpeg', data: b64 } });
       });
 
-      // Hard 8-second AbortController timeout to prevent public network hangs and endless loading states
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      const payload = {
+        contents: [{ parts: parts }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 150 }
+      };
 
       try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: parts }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 150 }
-          }),
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-
-        if (res.ok) {
-          const data = await res.json();
-          successData = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        }
+        const data = await callGeminiWithRetry(payload, STATE.geminiKey);
+        successData = data.candidates?.[0]?.content?.parts?.[0]?.text;
       } catch (e) {
-        clearTimeout(timeoutId);
+        // Fallback heuristic result if network or quota limit triggers
       }
 
       progressBarFill.style.width = '100%';
       setTimeout(() => { progressBox.style.display = 'none'; }, 100);
 
       if (!successData) {
-        // Fallback heuristic result so the app never hangs indefinitely in public
         successData = JSON.stringify({
           brand: isMtgMode ? "Wizards of the Coast (MTG)" : (isCoinMode ? "US Mint" : "Vintage Thrift Asset"),
           item: "Quick Field Recon Item",
@@ -1816,8 +1844,8 @@
       }
 
       const hasComps = item.resale > 0;
-      const ebayUrl = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
-      const scryfallUrl = "[https://scryfall.com/search?q=](https://scryfall.com/search?q=)" + encodeURIComponent(item.query);
+      const ebayUrl = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query || (item.brand + " " + item.item)) + "&LH_Sold=1&LH_Complete=1";
+      const scryfallUrl = "[https://scryfall.com/search?q=](https://scryfall.com/search?q=)" + encodeURIComponent(item.query || item.item);
 
       const ebayBtn = document.getElementById('resEbayLink');
       const scryfallBtn = document.getElementById('resVelocityLink');
@@ -2027,7 +2055,7 @@
             e.preventDefault();
             playAudioFeedback('BUY', false, false);
             if (diffX > 0) {
-              quickSellItem(item.id);
+              quickSellItemDirect(item.id);
             } else {
               deleteCloudItemDirect(item.id);
             }
@@ -2040,7 +2068,7 @@
             '<div class="item-title">' + displayBrand + ' - ' + displayItem + '</div>' +
             '<div class="item-meta">Buy: $' + costVal.toFixed(2) + ' • Target: $' + resaleVal.toFixed(2) + ' • ' + strategyTag + '</div>' +
             '<div class="item-actions" onclick="event.stopPropagation();">' +
-              '<button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="quickSellItem(\'' + item.id + '\')">SELL</button>' +
+              '<button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="quickSellItemDirect(\'' + item.id + '\')">SELL</button>' +
               '<button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; width:auto; color:var(--coral);" onclick="deleteCloudItemDirect(\'' + item.id + '\')">DELETE</button>' +
             '</div>' +
           '</div>' +
@@ -2068,6 +2096,8 @@
       const costVal = Number(item.cost || 0);
       const profitVal = item.profit !== undefined && item.profit !== 0 ? item.profit : (resaleVal - costVal - (resaleVal * 0.1325));
 
+      const safeQuery = item.query || ((item.brand || '') + ' ' + (item.item || item.name || '')).trim();
+
       document.getElementById('vDetailTitle').textContent = (item.brand || 'Asset') + ' - ' + (item.item || item.name || 'Item');
       document.getElementById('vDetailThumb').src = item.imageThumb || item.image || '';
       document.getElementById('vDetailCost').textContent = '$' + costVal.toFixed(2) + ' ✏️';
@@ -2076,12 +2106,15 @@
       document.getElementById('vDetailStrategy').textContent = item.strategy === 'keeping' ? 'Keeping' : (item.strategy === 'quick_flip' ? 'Quick Flip' : 'Selling');
       document.getElementById('vDetailIntel').textContent = item.intel || item.shipping || 'No additional intelligence notes logged.';
       
-      const hasComps = resaleVal > 0;
       const detailEbayLink = document.getElementById('vDetailEbayLink');
-      if (hasComps) {
-        detailEbayLink.href = item.category === 'mtg' ? ("[https://scryfall.com/search?q=](https://scryfall.com/search?q=)" + encodeURIComponent(item.query)) : ("[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query || (item.brand + " " + item.item)) + "&LH_Sold=1&LH_Complete=1");
+      if (safeQuery) {
+        const compsUrl = item.category === 'mtg' 
+          ? ("[https://scryfall.com/search?q=](https://scryfall.com/search?q=)" + encodeURIComponent(safeQuery))
+          : ("[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(safeQuery) + "&LH_Sold=1&LH_Complete=1");
+        
+        detailEbayLink.href = compsUrl;
         detailEbayLink.classList.remove('disabled');
-        detailEbayLink.textContent = 'VIEW COMPS';
+        detailEbayLink.textContent = item.category === 'mtg' ? 'VIEW SCRYFALL' : 'VIEW COMPS';
       } else {
         detailEbayLink.removeAttribute('href');
         detailEbayLink.classList.add('disabled');
@@ -2091,7 +2124,7 @@
       document.getElementById('vaultDetailModal').classList.add('active');
     };
 
-    window.quickSellItem = async (id) => {
+    window.quickSellItemDirect = async (id) => {
       const target = STATE.vaultItems.find(i => i.id === id);
       if (!target) return;
       const defaultPrice = target.resale || 35.00;
@@ -2100,6 +2133,10 @@
       const finalPrice = parseFloat(soldInput) || defaultPrice;
       const costBasis = target.cost || 0;
       const realized = finalPrice - costBasis - (finalPrice * 0.1325);
+
+      const safeTitle = encodeURIComponent((target.brand || '') + ' ' + (target.item || target.name || ''));
+      const ebayListingUrl = `[https://www.ebay.com/sl/prefill?prefill_query=$](https://www.ebay.com/sl/prefill?prefill_query=$){safeTitle}`;
+      window.open(ebayListingUrl, '_blank');
 
       try {
         await updateDoc(doc(db, 'vault_inventory', id), {
@@ -2110,7 +2147,7 @@
         STATE.xp += 100;
         updatePills();
         playAudioFeedback('BUY', realized >= 50, false);
-        triggerAlert('Asset marked as sold. Profit locked in.', false, false);
+        triggerAlert('Asset marked sold & eBay listing prefill opened.', false, false);
       } catch (err) {
         alert('Action failed: ' + err.message);
       }
