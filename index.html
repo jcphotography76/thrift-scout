@@ -108,6 +108,13 @@
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
     .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
+    .mode-selector { display: flex; gap: 8px; }
+    .mode-btn {
+      flex: 1; background: #000; border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px; color: var(--text-muted); font-size: 0.78rem; font-weight: 700; cursor: pointer; text-align: center;
+    }
+    .mode-btn.active { background: var(--emerald-glow); border-color: var(--emerald); color: var(--emerald); }
+
     .cost-input-wrapper { display: flex; flex-direction: column; gap: 4px; flex: 1; }
     .cost-explanation-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
     .cost-input-container { position: relative; display: flex; align-items: center; }
@@ -173,7 +180,13 @@
     <!-- TAB 1: SCOUT -->
     <section id="tab-scout" class="tab-view active">
       <div class="card">
-        <div class="card-title">RAPID THRIFT RECON</div>
+        <div class="card-title">RAPID RECON ENGINE</div>
+
+        <div class="mode-selector">
+          <button class="mode-btn active" data-mode="thrift">📦 Thrift Good</button>
+          <button class="mode-btn" data-mode="coin">🪙 Coin / Currency</button>
+          <button class="mode-btn" data-mode="mtg">🃏 MTG Card</button>
+        </div>
         
         <input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
         <input type="file" id="mobileGalleryInput" accept="image/*" style="display:none;">
@@ -189,7 +202,7 @@
 
         <div style="display:flex; gap:10px; align-items:flex-end; margin-top: 8px;">
           <div class="cost-input-wrapper">
-            <label class="cost-explanation-label">Thrift Store Tag Price</label>
+            <label class="cost-explanation-label" id="costLabel">Thrift Store Tag Price</label>
             <div class="cost-input-container">
               <span class="currency-symbol">$</span>
               <input type="number" id="purchaseCost" class="cost-input-field" placeholder="0.00" value="2.99" step="0.50">
@@ -216,7 +229,7 @@
             <span class="metric-val profit" id="resEstProfit">$0.00</span>
           </div>
           <div class="metric-box">
-            <span class="metric-label">Brand / Title</span>
+            <span class="metric-label">Brand / Category</span>
             <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
           </div>
           <div class="metric-box">
@@ -295,6 +308,7 @@
     const STATE = {
       geminiKey: localStorage.getItem('ts_gemini_key') || '',
       dailyScans: parseInt(localStorage.getItem('ts_scans_left') || '100', 10),
+      currentMode: 'thrift',
       vaultItems: []
     };
 
@@ -333,6 +347,18 @@
       });
     });
 
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        STATE.currentMode = btn.dataset.mode;
+        const label = document.getElementById('costLabel');
+        if (STATE.currentMode === 'coin') label.textContent = 'Coin Acquisition Cost';
+        else if (STATE.currentMode === 'mtg') label.textContent = 'Card Cost / Trade Value';
+        else label.textContent = 'Thrift Store Tag Price';
+      });
+    });
+
     const configModal = document.getElementById('configModal');
     document.getElementById('configBtn').onclick = () => {
       document.getElementById('geminiApiKey').value = STATE.geminiKey;
@@ -363,21 +389,21 @@
           const canvas = document.createElement('canvas');
           let w = img.width;
           let h = img.height;
-          const maxDim = 500;
+          const maxDim = 600;
           if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
           else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
           canvas.width = w;
           canvas.height = h;
           canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.50).split(',')[1];
-          previewImg.src = canvas.toDataURL('image/jpeg', 0.50);
+          selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.60).split(',')[1];
+          previewImg.src = canvas.toDataURL('image/jpeg', 0.60);
           previewBox.style.display = 'block';
 
           const thumbCanvas = document.createElement('canvas');
           thumbCanvas.width = 100;
           thumbCanvas.height = Math.round((canvas.height * 100) / canvas.width);
           thumbCanvas.getContext('2d').drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
-          compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.50);
+          compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.60);
         };
         img.src = event.target.result;
       };
@@ -402,20 +428,45 @@
         return;
       }
 
-      triggerAlert('⚡ Turbo Recon running...');
+      triggerAlert('⚡ Analyzing ' + STATE.currentMode.toUpperCase() + '...');
       const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
-      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
-      const promptText = "Analyze this exact item (whether pen, remote control, DVD, electronic, tool, or general good). Identify the exact brand/manufacturer, specific model or title, release year (if media/electronics), detailed description of what it is, resale desirability, and realistic secondary market resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
-        "{\n" +
-        '  "brand": "Exact Brand or Studio (e.g. Bic, Sony, Universal Pictures)",\n' +
-        '  "item": "Exact Title or Model Name & Release Year (e.g. Cristal Ballpoint Pen, TV Remote Control, How the Grinch Stole Christmas DVD (2000))",\n' +
-        '  "resale": 10.00,\n' +
-        '  "disposition": "FLIP",\n' +
-        '  "platform": "eBay",\n' +
-        '  "intel": "Detailed description of what this item is, release year, and why it is or isn\'t desirable for quick resale.",\n' +
-        '  "query": "exact item keywords for ebay sold search"\n' +
-        "}";
+      let promptText = "";
+      if (STATE.currentMode === 'coin') {
+        promptText = "Analyze this coin or piece of currency. Identify exact coin type, year mint mark, grade condition estimation, numismatic value, and realistic resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
+          "{\n" +
+          '  "brand": "Coin Denomination / Series (e.g. US Morgan Dollar, Washington Quarter)",\n' +
+          '  "item": "Year, Mint Mark & Condition (e.g. 1921-S Morgan Dollar VF)",\n' +
+          '  "resale": 35.00,\n' +
+          '  "disposition": "FLIP",\n' +
+          '  "platform": "eBay",\n' +
+          '  "intel": "Numismatic description, grade estimate, and market demand for this specific coin.",\n' +
+          '  "query": "exact coin keywords for ebay sold search"\n' +
+          "}";
+      } else if (STATE.currentMode === 'mtg') {
+        promptText = "Analyze this Magic: The Gathering trading card. Identify exact card name, set name, collector number, foil status, condition, and realistic secondary market resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
+          "{\n" +
+          '  "brand": "MTG Set Name (e.g. Alpha, Modern Horizons 3)",\n' +
+          '  "item": "Exact Card Name & Variant (e.g. Black Lotus, Tarmogoyf)",\n' +
+          '  "resale": 50.00,\n' +
+          '  "disposition": "FLIP",\n' +
+          '  "platform": "TCGplayer / eBay",\n' +
+          '  "intel": "Card legality, edition details, and pricing trend notes.",\n' +
+          '  "query": "exact card keywords for ebay sold search"\n' +
+          "}";
+      } else {
+        promptText = "Analyze this general thrift store item (pen, remote control, DVD, electronic, tool, or collectible). Identify exact brand, specific model/title, release year (if media/electronics), detailed description, and realistic resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
+          "{\n" +
+          '  "brand": "Exact Brand or Studio (e.g. Sony, Bic)",\n' +
+          '  "item": "Exact Model or Title & Year (e.g. TV Remote Control, DVD (2002))",\n' +
+          '  "resale": 12.00,\n' +
+          '  "disposition": "FLIP",\n' +
+          '  "platform": "eBay",\n' +
+          '  "intel": "Detailed description, condition notes, and resale desirability.",\n' +
+          '  "query": "exact item keywords for ebay sold search"\n' +
+          "}";
+      }
 
       try {
         const res = await fetch(endpoint, {
@@ -443,8 +494,8 @@
         const cleaned = rawContent.replace(/```json/gi, '').replace(/```/g, '').trim();
         const parsed = JSON.parse(cleaned);
 
-        const parsedBrand = parsed.brand || 'Unidentified Item';
-        const parsedItem = parsed.item || 'Retail Good';
+        const parsedBrand = parsed.brand || 'Unidentified';
+        const parsedItem = parsed.item || 'Collectible';
         const estResale = parseFloat(parsed.resale) || 5.00;
         const estProfit = estResale - cost - (estResale * 0.1325);
 
@@ -457,7 +508,7 @@
           profit: Number(estProfit.toFixed(2)),
           platform: parsed.platform || 'eBay',
           disposition: parsed.disposition || 'MONITOR',
-          intel: parsed.intel || 'Standard resale asset.',
+          intel: parsed.intel || 'Standard asset.',
           query: parsed.query || (parsedBrand + " " + parsedItem),
           imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImageBase64),
           purchasedAt: Date.now()
