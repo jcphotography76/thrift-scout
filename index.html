@@ -416,7 +416,7 @@
     mobileCam.onchange = (e) => processImageFile(e.target.files[0]);
     mobileGal.onchange = (e) => processImageFile(e.target.files[0]);
 
-    document.getElementById('evaluateBtn').onclick = async () => {
+   document.getElementById('evaluateBtn').onclick = async () => {
       if (!selectedImageBase64) {
         alert('Snap or upload a photo first.');
         return;
@@ -430,6 +430,108 @@
         alert('Daily scan limit reached.');
         return;
       }
+
+      triggerAlert('⚡ Analyzing ' + STATE.currentMode.toUpperCase() + '...');
+      const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
+      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+
+      let promptText = "";
+      if (STATE.currentMode === 'coin') {
+        promptText = "Analyze this coin or piece of currency. Identify exact coin type, year mint mark, grade condition estimation, numismatic value, traffic-light disposition (FLIP, MONITOR, PASS), and realistic resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
+          "{\n" +
+          '  "brand": "Coin Denomination / Series",\n' +
+          '  "item": "Year, Mint Mark & Condition",\n' +
+          '  "resale": 35.00,\n' +
+          '  "disposition": "FLIP",\n' +
+          '  "platform": "eBay",\n' +
+          '  "intel": "Numismatic description, grade estimate, and market demand.",\n' +
+          '  "query": "exact coin keywords for ebay sold search"\n' +
+          "}";
+      } else if (STATE.currentMode === 'mtg') {
+        promptText = "Analyze this Magic: The Gathering trading card. Identify exact card name, set name, collector number, foil status, condition, traffic-light disposition (FLIP, MONITOR, PASS), and realistic secondary market resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
+          "{\n" +
+          '  "brand": "MTG Set Name",\n' +
+          '  "item": "Exact Card Name & Variant",\n' +
+          '  "resale": 50.00,\n' +
+          '  "disposition": "FLIP",\n' +
+          '  "platform": "TCGplayer / eBay",\n' +
+          '  "intel": "Card legality, edition details, and pricing trend notes.",\n' +
+          '  "query": "exact card keywords for ebay sold search"\n' +
+          "}";
+      } else {
+        promptText = "Analyze this general thrift store item. Identify exact brand, specific model/title, release year, detailed description, traffic-light disposition (FLIP, MONITOR, PASS), and realistic resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
+          "{\n" +
+          '  "brand": "Exact Brand or Studio",\n' +
+          '  "item": "Exact Model or Title & Year",\n' +
+          '  "resale": 12.00,\n' +
+          '  "disposition": "FLIP",\n' +
+          '  "platform": "eBay",\n' +
+          '  "intel": "Detailed description, condition notes, and resale desirability.",\n' +
+          '  "query": "exact item keywords for ebay sold search"\n' +
+          "}";
+      }
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { text: promptText },
+                { inlineData: { mimeType: 'image/jpeg', data: selectedImageBase64 } }
+              ]
+            }]
+          })
+        });
+
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody.error?.message || ('HTTP ' + res.status));
+        }
+
+        const data = await res.json();
+        const rawContent = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawContent) throw new Error('Model produced an empty evaluation.');
+
+        const cleaned = rawContent.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleaned);
+
+        const parsedBrand = parsed.brand || 'Unidentified';
+        const parsedItem = parsed.item || 'Collectible';
+        const estResale = parseFloat(parsed.resale) || 5.00;
+        const estProfit = estResale - cost - (estResale * 0.1325);
+        const disp = parsed.disposition || 'MONITOR';
+
+        if (disp === 'FLIP') playAudioTier('jackpot');
+        else if (disp === 'MONITOR') playAudioTier('mid');
+        else playAudioTier('low');
+
+        currentAppraisal = {
+          brand: parsedBrand,
+          item: parsedItem,
+          name: parsedBrand + " - " + parsedItem,
+          cost: cost,
+          resale: estResale,
+          profit: Number(estProfit.toFixed(2)),
+          platform: parsed.platform || 'eBay',
+          disposition: disp,
+          intel: parsed.intel || 'Standard asset.',
+          query: parsed.query || (parsedBrand + " " + parsedItem),
+          imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImageBase64),
+          purchasedAt: Date.now()
+        };
+
+        renderAppraisal(currentAppraisal);
+        STATE.dailyScans--;
+        updatePills();
+        dismissAlert();
+
+      } catch (err) {
+        console.error("Full evaluation failure details:", err);
+        triggerAlert('Evaluation error: ' + err.message, true);
+      }
+    };
 
       triggerAlert('⚡ Analyzing ' + STATE.currentMode.toUpperCase() + '...');
       const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
