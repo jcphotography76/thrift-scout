@@ -681,7 +681,7 @@
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Hardened Anti-Corruption Build</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Hardened build verified: Zero truncation, strict error handlers, anti-hijack outbound comp routing, and deterministic single-write storage locked in.
+        Audio recovery lifecycle active: audio session resumes immediately when switching back from comps.
       </p>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -871,10 +871,8 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Centralized Profit Formulation Helper
     const calcProfit = (resale, cost) => Number((resale - cost - (resale * 0.1325)).toFixed(2));
 
-    // BULLETPROOF EXTERNAL OUTBOUND URL DISPATCHER (PREVENTS GITHUB PAGES 404 HIJACKING)
     function openExternalUrl(url) {
       if (!url || typeof url !== 'string' || !url.startsWith('http')) {
         alert('Invalid comp destination URL.');
@@ -916,74 +914,108 @@
       setTimeout(() => { document.body.classList.remove('flash-active'); }, 350);
     }
 
+    // AUDIO CONTEXT AUTO-RECOVERY PIPELINE
     let audioCtx = null;
+
+    function getOrCreateAudioContext() {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) return null;
+
+      // If context doesn't exist, is closed, or stuck in an unresumable state, recreate fresh
+      if (!audioCtx || audioCtx.state === 'closed') {
+        audioCtx = new AudioContextClass();
+      } else if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
+        audioCtx.resume().catch(() => {
+          // If browser rejected resume due to background kill, recreate context
+          audioCtx = new AudioContextClass();
+        });
+      }
+      return audioCtx;
+    }
+
+    // Recover Web Audio hardware the moment user returns to app
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        getOrCreateAudioContext();
+      }
+    });
+    window.addEventListener('pageshow', () => {
+      getOrCreateAudioContext();
+    });
+    window.addEventListener('focus', () => {
+      getOrCreateAudioContext();
+    });
+
     function playAudioFeedback(verdict = 'BUY', isJackpot = false, shouldTriggerEffects = false) {
       if (shouldTriggerEffects) triggerHapticAndFlash(verdict, isJackpot);
       try {
-        if (!audioCtx) {
-          const AudioContext = window.AudioContext || window.webkitAudioContext;
-          if (AudioContext) audioCtx = new AudioContext();
-        }
-        if (!audioCtx) return;
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const ctx = getOrCreateAudioContext();
+        if (!ctx) return;
 
-        const now = audioCtx.currentTime;
+        // Guarantee context is running on user gesture
+        if (ctx.state === 'suspended' || ctx.state === 'interrupted') {
+          ctx.resume();
+        }
+
+        const now = ctx.currentTime;
         if (isJackpot) {
           [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00].forEach((freq, idx) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
             osc.type = idx % 2 === 0 ? 'triangle' : 'sine';
             osc.frequency.value = freq;
             const startTime = now + (idx * 0.08);
             gain.gain.setValueAtTime(0.25, startTime);
             gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
             osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            gain.connect(ctx.destination);
             osc.start(startTime);
             osc.stop(startTime + 0.3);
           });
         } else if (verdict === 'BUY') {
           [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
             osc.type = 'triangle';
             osc.frequency.value = freq;
             const startTime = now + (idx * 0.06);
             gain.gain.setValueAtTime(0.2, startTime);
             gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
             osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            gain.connect(ctx.destination);
             osc.start(startTime);
             osc.stop(startTime + 0.15);
           });
         } else if (verdict === 'MONITOR') {
           [440, 554.37].forEach((freq, idx) => {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
             osc.type = 'sine';
             osc.frequency.value = freq;
             const startTime = now + (idx * 0.1);
             gain.gain.setValueAtTime(0.2, startTime);
             gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
             osc.connect(gain);
-            gain.connect(audioCtx.destination);
+            gain.connect(ctx.destination);
             osc.start(startTime);
             osc.stop(startTime + 0.2);
           });
         } else {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(350, now);
           osc.frequency.exponentialRampToValueAtTime(60, now + 0.45);
           gain.gain.setValueAtTime(0.25, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
           osc.connect(gain);
-          gain.connect(audioCtx.destination);
+          gain.connect(ctx.destination);
           osc.start(now);
           osc.stop(now + 0.48);
         }
-      } catch (e) {}
+      } catch (e) {
+        // Fallback silently if device muted
+      }
     }
 
     const TIERS = [
@@ -1009,7 +1041,7 @@
       dailyScans: parseInt(localStorage.getItem('ts_scans_left') || '100', 10),
       xp: parseInt(localStorage.getItem('ts_xp') || '0', 10),
       activeTab: 'scout',
-      vaultCategory: 'general', // 'general', 'coins', 'mtg'
+      vaultCategory: 'general',
       vaultItems: [],
       userLastName: localStorage.getItem('ts_last_name') || 'Claypool',
       userAvatar: localStorage.getItem('ts_avatar') || '👤',
@@ -1237,7 +1269,6 @@
       alert('Daily scans reset to 100.');
     };
 
-    // HARD REAL-TIME ERROR HANDLING (NO FABRICATED/FALLBACK APPRAISALS)
     function triggerAlert(msg, isErr = false, autoScroll = false) {
       const box = document.getElementById('statusAlert');
       box.style.display = 'block';
@@ -1480,7 +1511,6 @@
       const parts = [{ text: promptText }];
       selectedImagesBase64.forEach(b64 => parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } }));
 
-      // Strict 8-second Timeout Circuit
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
       let successData = null;
@@ -1508,9 +1538,8 @@
       progressBarFill.style.width = '100%';
       setTimeout(() => { progressBox.style.display = 'none'; }, 100);
 
-      // STRICT ERROR STATE (NO SYNTHETIC DATA CREATED ON FAILURE)
       if (!successData) {
-        triggerAlert('⚠️ Connection timed out (8s limit) or service busy. No synthetic estimates generated.', true, true);
+        triggerAlert('⚠️ Scan timed out (8s limit) or service busy. Tap below to retry.', true, true);
         document.getElementById('smartRetryBtn').style.display = 'block';
         return;
       }
@@ -1542,7 +1571,6 @@
 
         playAudioFeedback(verdictType, isJackpot, true);
 
-        // DETERMINISTIC SECURE ID (SINGLE-WRITE GUARANTEE)
         const uniqueId = 'item_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
 
         currentAppraisal = {
@@ -1587,7 +1615,6 @@
       pill.textContent = item.disposition;
       pill.className = item.disposition.includes('BUY') ? 'disposition-pill disp-flip' : (item.disposition.includes('MONITOR') ? 'disposition-pill disp-monitor' : 'disposition-pill disp-pass');
 
-      // BULLETPROOF COMP BUTTON STATE MANAGEMENT (PREVENTS 404S)
       const compsBtn = document.getElementById('resDirectCompsBtn');
       const targetUrl = generateCompUrl(item);
 
@@ -1605,7 +1632,6 @@
       document.getElementById('appraisalCard').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Direct Firestore SetDoc with Deterministic ID Lock (Prevents Multiple Duplicate Entries)
     document.getElementById('saveVaultBtn').onclick = async () => {
       if (isSavingToVault || !currentAppraisal) return;
       isSavingToVault = true;
@@ -1622,7 +1648,6 @@
       }
     };
 
-    // Real-Time Vault Firestore Listener
     onSnapshot(query(collection(db, 'vault_inventory'), orderBy('createdAt', 'desc')), (snap) => {
       STATE.vaultItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderVault();
