@@ -426,8 +426,7 @@
 
       triggerAlert('⚡ Analyzing ' + STATE.currentMode.toUpperCase() + '...');
       const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
-const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
-      let promptText = "";
+const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);      let promptText = "";
       if (STATE.currentMode === 'coin') {
         promptText = "Analyze this coin or piece of currency. Identify exact coin type, year mint mark, grade condition estimation, numismatic value, traffic-light disposition (FLIP, MONITOR, PASS), and realistic resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
           "{\n" +
