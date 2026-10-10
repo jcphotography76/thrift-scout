@@ -479,7 +479,7 @@
     <!-- TAB 1: SCOUT -->
     <section id="tab-scout" class="tab-view active">
       <div class="card" id="valuationCardContainer">
-        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Grounded Live Comps Engine</span></div>
+        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Live Comps Engine</span></div>
         
         <div>
           <label class="metric-label" style="margin-bottom: 4px; display: block;">Thrift Store Asking Price / Cost ($)</label>
@@ -498,7 +498,7 @@
           <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border);">
             <div>
               <div style="font-weight:700; font-size:0.80rem; color:var(--accent);">🪄 MTG Card Mode</div>
-              <div style="font-size:0.65rem; color:var(--text-muted);">Scryfall Live Feed</div>
+              <div style="font-size:0.65rem; color:var(--text-muted);">Scryfall Direct Feed</div>
             </div>
             <input type="checkbox" id="mtgModeToggle" style="width:18px; height:18px; cursor:pointer;">
           </div>
@@ -519,8 +519,8 @@
 
         <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
           <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
-            <span id="evalProgressText">Checking Live Comps...</span>
-            <span id="evalEngineStatus">Gemini 2.5-Flash Pipeline</span>
+            <span id="evalProgressText">Processing Scan...</span>
+            <span id="evalEngineStatus">Gemini 3.8-Flash Precision Engine</span>
           </div>
           <div style="background:var(--border); height:6px; border-radius:3px; overflow:hidden;">
             <div id="evalProgressBarFill" style="background:var(--accent); width:100%; height:100%;"></div>
@@ -559,14 +559,12 @@
           </div>
         </div>
 
-        <!-- RE-EVALUATION BUTTON -->
         <button id="reEvalEditsBtn" class="btn btn-amber" style="display:none; font-size:0.8rem; padding:10px; margin-top:2px;">
           ⚡ RE-EVALUATE WITH CORRECTIONS
         </button>
 
         <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
         
-        <!-- INVENTORY STRATEGY SELECTOR -->
         <div>
           <label class="metric-label" style="margin-bottom: 4px; display: block;">Inventory Disposition Strategy</label>
           <select id="assetStrategySelect" class="input-field">
@@ -576,7 +574,6 @@
           </select>
         </div>
 
-        <!-- OUTBOUND COMPS TRIGGER -->
         <div style="display:flex; gap:8px; margin-top:4px;">
           <button id="resDirectCompsBtn" class="btn btn-outline" style="flex:1; font-size:0.85rem; border-color: var(--amber); color: var(--amber);">📊 VIEW SOLD COMPS</button>
         </div>
@@ -687,9 +684,9 @@
     <div class="modal-content" style="text-align:center; border:2px solid var(--amber); background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%);">
       <div style="font-size:3rem;">🐕‍🦺</div>
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
-      <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Grounded Live Comps</div>
+      <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Direct Comps Engine</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Gemini 2.5-Flash with Search Fallback Cascade is armed. Real secondary sold comps, zero rate-limit drops.
+        Welcome back, Specialist. Gemini 3.8-Flash Vision Engine is online. Realistic secondary valuations, zero deprecated endpoints.
       </p>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -903,10 +900,10 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js](https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js)";
     import { 
       getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, orderBy 
-    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    } from "[https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js)";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAtDQnJuWvJOp__hVHO5fdNhjiRjZZkskI",
@@ -941,11 +938,11 @@
       const encoded = encodeURIComponent(cleanTerm);
 
       if (item.category === 'mtg') {
-        return `https://scryfall.com/search?q=${encoded}`;
+        return `[https://scryfall.com/search?q=$](https://scryfall.com/search?q=$){encoded}`;
       } else if (item.category === 'coins') {
-        return `https://www.ebay.com/sch/11116/i.html?_nkw=${encoded}&LH_Sold=1&LH_Complete=1`;
+        return `[https://www.ebay.com/sch/11116/i.html?_nkw=$](https://www.ebay.com/sch/11116/i.html?_nkw=$){encoded}&LH_Sold=1&LH_Complete=1`;
       } else {
-        return `https://www.ebay.com/sch/i.html?_nkw=${encoded}&LH_Sold=1&LH_Complete=1`;
+        return `[https://www.ebay.com/sch/i.html?_nkw=$](https://www.ebay.com/sch/i.html?_nkw=$){encoded}&LH_Sold=1&LH_Complete=1`;
       }
     }
 
@@ -1194,22 +1191,21 @@
       appraisal.disposition = dispText;
     }
 
-    // Unified call engine handling search-grounding with automatic fallback cascade
-   async function executeModelQuery(endpointModel, promptText, parts) {
-      // Strictly target gemini-3.8-flash
-      const model = "gemini-3.8-flash";
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`;
+    // Direct JSON API Execution Engine (Restricted strictly to 3.8-flash with JSON mode)
+    async function executeModelQuery(promptText, parts) {
+      const endpoint = `[https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$){encodeURIComponent(STATE.geminiKey)}`;
       
       const payload = {
         contents: [{ parts: parts }],
         generationConfig: { 
           temperature: 0.1, 
-          maxOutputTokens: 300 
+          maxOutputTokens: 350,
+          response_mime_type: "application/json"
         }
       };
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 20000);
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
 
       try {
         const res = await fetch(endpoint, {
@@ -1230,9 +1226,10 @@
         }
       } catch (err) {
         clearTimeout(timeoutId);
-        return { ok: false, error: err.name === 'AbortError' ? 'Scan timed out after 20 seconds.' : err.message };
+        return { ok: false, error: err.name === 'AbortError' ? 'Scan timed out after 25 seconds.' : err.message };
       }
     }
+
     document.getElementById('reEvalEditsBtn').onclick = async () => {
       if (!currentAppraisal || !STATE.geminiKey) return;
       const btn = document.getElementById('reEvalEditsBtn');
@@ -1242,31 +1239,27 @@
       const correctedQuery = `${currentAppraisal.brand} ${currentAppraisal.item}`;
       const cost = currentAppraisal.cost || 0.00;
 
-      const promptText = `Find actual live completed eBay sold prices for this single item: "${correctedQuery}". DO NOT return MSRP or multipack lot prices. Provide the conservative median realized cash sold value in USD for this individual item. Return ONLY raw JSON without markdown:\n` +
+      const promptText = `Provide the conservative median secondary cash sold value in USD for this exact single item: "${correctedQuery}". Return valid JSON matching schema:\n` +
         `{\n` +
         `  "brand": "${currentAppraisal.brand}",\n` +
         `  "item": "${currentAppraisal.item}",\n` +
         `  "resale": 18.00,\n` +
-        `  "intel": "Grounded search verified against recent single-item sold comps.",\n` +
+        `  "intel": "Verified realistic secondary sold value.",\n` +
         `  "query": "${correctedQuery}"\n` +
         `}`;
 
-      const res = await executeModelQuery("gemini-2.5-flash", promptText, [{ text: promptText }], true);
+      const res = await executeModelQuery(promptText, [{ text: promptText }]);
 
       if (res.ok && res.text) {
         try {
-          const clean = res.text.replace(/```json|```/gi, '').trim();
-          const jsonMatch = clean.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            const parsed = JSON.parse(jsonMatch[0]);
-            currentAppraisal.resale = parseFloat(parsed.resale) || currentAppraisal.resale;
-            currentAppraisal.intel = parsed.intel || currentAppraisal.intel;
-            currentAppraisal.profit = calcProfit(currentAppraisal.resale, cost);
-            recalculateDisposition(currentAppraisal);
-            renderAppraisal(currentAppraisal);
-            playAudioFeedback(currentAppraisal.profit >= 50 ? 'BUY' : 'MONITOR', currentAppraisal.profit >= 50, true);
-            triggerAlert('Live market re-evaluation complete.', false, true);
-          }
+          const parsed = JSON.parse(res.text.trim());
+          currentAppraisal.resale = parseFloat(parsed.resale) || currentAppraisal.resale;
+          currentAppraisal.intel = parsed.intel || currentAppraisal.intel;
+          currentAppraisal.profit = calcProfit(currentAppraisal.resale, cost);
+          recalculateDisposition(currentAppraisal);
+          renderAppraisal(currentAppraisal);
+          playAudioFeedback(currentAppraisal.profit >= 50 ? 'BUY' : 'MONITOR', currentAppraisal.profit >= 50, true);
+          triggerAlert('Re-evaluation complete.', false, true);
         } catch (e) {
           alert('Parse error on re-evaluation: ' + e.message);
         }
@@ -1309,7 +1302,7 @@
 
       playAudioFeedback(verdictType, isJackpot, true);
 
-      const manualSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%231f2937' width='100' height='100'/%3E%3Ctext fill='%2314b8a6' font-family='sans-serif' font-weight='bold' font-size='38' x='50%25' y='55%25' text-anchor='middle' dominant-baseline='central'%3E✍️%3C/text%3E%3C/svg%3E";
+      const manualSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%231f2937' width='100' height='100'/%3E%3Ctext fill='%2314b8a6' font-family='sans-serif' font-weight='bold' font-size='38' x='50%25' y='55%25' text-anchor='middle' dominant-baseline='central'%3E✍️%3C/text%3E%3C/svg%3E";
       const uniqueId = 'item_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
 
       currentAppraisal = {
@@ -1401,7 +1394,7 @@
     document.getElementById('dailyTargetName').textContent = currentMission.name;
     document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
     document.getElementById('dailyCompsActionBtn').onclick = () => {
-      openExternalUrl(`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(currentMission.query)}&LH_Sold=1&LH_Complete=1`);
+      openExternalUrl(`[https://www.ebay.com/sch/i.html?_nkw=$](https://www.ebay.com/sch/i.html?_nkw=$){encodeURIComponent(currentMission.query)}&LH_Sold=1&LH_Complete=1`);
     };
 
     document.getElementById('claimChallengeBtn').onclick = () => {
@@ -1701,14 +1694,14 @@
       const statusLabel = document.getElementById('evalEngineStatus');
       progressBox.style.display = 'flex';
       progressBarFill.style.width = '35%';
-      progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Checking Live Market Comps...');
-      statusLabel.textContent = 'Grounded Gemini Flash Pipeline';
+      progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Checking Market Comps...');
+      statusLabel.textContent = 'Gemini 3.8-Flash Precision Engine';
 
       document.getElementById('smartRetryBtn').style.display = 'none';
 
       let promptText = "";
       if (isMtgMode) {
-        promptText = "Identify this Magic: The Gathering card (exact card name, set, collector number, foil status, condition). Search live TCGPlayer and recent market data. Return estimated market value in USD. Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Identify this Magic: The Gathering card (exact name, set, collector number, foil status, condition). Return realistic secondary market value in USD. Return ONLY valid JSON matching this schema:\n" +
           "{\n" +
           '  "brand": "Wizards of the Coast (MTG)",\n' +
           '  "item": "Card Name & Set",\n' +
@@ -1719,25 +1712,25 @@
           '  "query": "exact card name"\n' +
           "}";
       } else if (isCoinMode) {
-        promptText = "Examine both sides (obverse/reverse) of this coin/currency. Search live numismatic completed comps. Identify country, year, mint mark, silver/gold melt status, and realized cash value in USD. Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Examine both sides (obverse/reverse) of this coin/currency. Identify country, year, mint mark, precious metal content, and realized collector value in USD. Return ONLY valid JSON matching this schema:\n" +
           "{\n" +
           '  "brand": "Issuing Mint / Country",\n' +
           '  "item": "Denomination & Year",\n' +
           '  "resale": 35.00,\n' +
           '  "platform": "Numismatic",\n' +
           '  "shipping": "Insured Mail",\n' +
-          '  "intel": "Mint mark verification and metal notes.",\n' +
+          '  "intel": "Mint mark verification and metal composition.",\n' +
           '  "query": "coin year mint mark"\n' +
           "}";
       } else {
-        promptText = "Identify this exact secondhand item. Check actual completed sold prices on eBay for this individual item. DO NOT return MSRP, retail asking prices, or multipack/set values for a single boxed item. Provide the conservative MEDIAN REALIZED SOLD PRICE in USD. Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Identify this exact secondhand item. Return conservative median secondary market sold price in USD. DO NOT return MSRP or multipack values for single items. Return ONLY valid JSON matching this schema:\n" +
           "{\n" +
           '  "brand": "Manufacturer or Studio",\n' +
           '  "item": "Exact Model or Single Item Descriptor",\n' +
           '  "resale": 18.00,\n' +
           '  "platform": "eBay",\n' +
           '  "shipping": "USPS Ground Advantage",\n' +
-          '  "intel": "Verified against recent individual sold comps.",\n' +
+          '  "intel": "Secondary market appraisal rationale.",\n' +
           '  "query": "brand item descriptor keywords"\n' +
           "}";
       }
@@ -1745,13 +1738,7 @@
       const parts = [{ text: promptText }];
       selectedImagesBase64.forEach(b64 => parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } }));
 
-      // Tier 1: Attempt Grounded Live Search on 2.5 Flash
-let queryResult = await executeModelQuery("gemini-2.5-flash", promptText, parts, true);
-      // Tier 2: Automatic Fallback to Non-Grounded Turbo if Quota (429) or Tool Conflict
-      if (!queryResult.ok && (queryResult.status === 429 || queryResult.status === 400 || queryResult.status === 404)) {
-        statusLabel.textContent = 'Engaging Turbo Fallback (Zero-Quota)...';
-        queryResult = await executeModelQuery("gemini-2.5-flash", promptText, parts, false);
-      }
+      const queryResult = await executeModelQuery(promptText, parts);
 
       progressBarFill.style.width = '100%';
       setTimeout(() => { progressBox.style.display = 'none'; }, 100);
@@ -1763,11 +1750,7 @@ let queryResult = await executeModelQuery("gemini-2.5-flash", promptText, parts,
       }
 
       try {
-        let cleanText = queryResult.text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
-        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error('Invalid response structure: ' + cleanText);
-        const parsed = JSON.parse(jsonMatch[0]);
-
+        const parsed = JSON.parse(queryResult.text.trim());
         const parsedBrand = parsed.brand || (isMtgMode ? 'Wizards of the Coast' : (isCoinMode ? 'US Mint' : 'Unbranded'));
         const parsedItem = parsed.item || 'Identified Asset';
         const estResale = parseFloat(parsed.resale) || 0.00;
@@ -1869,7 +1852,6 @@ let queryResult = await executeModelQuery("gemini-2.5-flash", promptText, parts,
     onSnapshot(query(collection(db, 'vault_inventory'), orderBy('createdAt', 'desc')), (snap) => {
       STATE.vaultItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderVault();
-      runDailySilentCompsSync();
     });
 
     function renderVault() {
@@ -1911,78 +1893,6 @@ let queryResult = await executeModelQuery("gemini-2.5-flash", promptText, parts,
       document.getElementById('vaultTotal').textContent = '$' + totalValue.toFixed(2);
       document.getElementById('vaultCount').textContent = filtered.length + ' items';
       if (STATE.activeTab === 'vault') window.scrollTo(0, scrollPos);
-    }
-
-    let isDailySyncRunning = false;
-    async function runDailySilentCompsSync() {
-      if (isDailySyncRunning || !STATE.geminiKey) return;
-      const todayKey = new Date().toISOString().slice(0, 10);
-      const lastSync = localStorage.getItem('ts_last_comps_sync');
-
-      if (lastSync === todayKey) return;
-      isDailySyncRunning = true;
-
-      setTimeout(async () => {
-        try {
-          localStorage.setItem('ts_last_comps_sync', todayKey);
-
-          const mtgItems = STATE.vaultItems.filter(i => i.category === 'mtg').slice(0, 5);
-          for (const card of mtgItems) {
-            try {
-              const cleanCardQuery = encodeURIComponent(card.item.split('(')[0].trim());
-              const scryfallRes = await fetch(`[https://api.scryfall.com/cards/named?fuzzy=$](https://api.scryfall.com/cards/named?fuzzy=$){cleanCardQuery}`);
-              if (scryfallRes.ok) {
-                const sData = await scryfallRes.json();
-                const marketPrice = parseFloat(sData.prices?.usd || sData.prices?.usd_foil);
-                if (marketPrice && Math.abs(marketPrice - card.resale) > 1.00) {
-                  const newProfit = calcProfit(marketPrice, card.cost || 0);
-                  await updateDoc(doc(db, 'vault_inventory', card.id), {
-                    resale: marketPrice,
-                    profit: newProfit,
-                    lastSynced: Date.now()
-                  });
-                }
-              }
-            } catch (err) {}
-          }
-
-          const volatileItems = STATE.vaultItems
-            .filter(i => (i.strategy === 'quick_flip' || (i.disposition && i.disposition.includes('MONITOR'))) && i.category !== 'mtg')
-            .slice(0, 3);
-
-          for (const item of volatileItems) {
-            const queryTerm = encodeURIComponent(item.query || item.name);
-            const prompt = `Give current median secondary sold price in USD for: "${queryTerm}". Return raw JSON without markdown: {"resale": 24.00}`;
-
-            const res = await executeModelQuery("gemini-2.5-flash", prompt, [{ text: prompt }], false);
-
-            if (res.ok && res.text) {
-              const clean = res.text.replace(/```json|```/gi, '').trim();
-              const jsonMatch = clean.match(/\{[\s\S]*\}/);
-              if (jsonMatch) {
-                const data = JSON.parse(jsonMatch[0]);
-                const newResale = parseFloat(data.resale);
-                if (newResale && Math.abs(newResale - item.resale) > 2.00) {
-                  const newProfit = calcProfit(newResale, item.cost || 0);
-                  await updateDoc(doc(db, 'vault_inventory', item.id), {
-                    resale: newResale,
-                    profit: newProfit,
-                    lastSynced: Date.now()
-                  });
-
-                  if (newProfit >= 15.00 && item.profit < 15.00) {
-                    triggerAlert(`🔥 Price Alert: ${item.name} rose to $${newResale.toFixed(2)}!`, false, false);
-                    playAudioFeedback('BUY', false, false);
-                  }
-                }
-              }
-            }
-          }
-        } catch (e) {
-        } finally {
-          isDailySyncRunning = false;
-        }
-      }, 2500);
     }
 
     window.openVaultDetailById = (id) => {
