@@ -964,7 +964,6 @@
       setTimeout(() => { document.body.classList.remove('flash-active'); }, 350);
     }
 
-    // AUDIO CONTEXT AUTO-RECOVERY PIPELINE
     let audioCtx = null;
 
     function getOrCreateAudioContext() {
@@ -993,7 +992,6 @@
       getOrCreateAudioContext();
     });
 
-    // HELPER: Resonant bell chime with metallic harmonic overtones
     function playBellChime(ctx, freq, startTime, duration = 0.35, gainLevel = 0.18) {
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
@@ -1022,7 +1020,6 @@
       osc2.stop(startTime + (duration * 0.6));
     }
 
-    // PSYCHOACOUSTIC CASINO SOUND ENGINE
     function playAudioFeedback(verdict = 'BUY', isJackpot = false, shouldTriggerEffects = false) {
       if (shouldTriggerEffects) triggerHapticAndFlash(verdict, isJackpot);
       try {
@@ -1034,7 +1031,6 @@
 
         const now = ctx.currentTime;
 
-        // 1. JACKPOT FLIP ($50+ Net): C-Major Ascending 7-Note Bell Cascade (120 BPM feel)
         if (isJackpot) {
           const jackpotScale = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00];
           jackpotScale.forEach((freq, idx) => {
@@ -1046,21 +1042,15 @@
             playBellChime(ctx, 1567.98, resolveTime, 0.6, 0.15);
             playBellChime(ctx, 2093.00, resolveTime, 0.7, 0.18);
           }, 420);
-        } 
-        // 2. SOLID BUY ($15–$49 Net): Resonant 3-Tone Ascending Cash Chime (G5 -> C6 -> E6)
-        else if (verdict === 'BUY') {
+        } else if (verdict === 'BUY') {
           const winArp = [783.99, 1046.50, 1318.51];
           winArp.forEach((freq, idx) => {
             playBellChime(ctx, freq, now + (idx * 0.075), 0.4, 0.20);
           });
-        } 
-        // 3. MONITOR / SLIM MARGIN ($5–$14 Net): Soft Dual Neutral Chime (E5 -> G5)
-        else if (verdict === 'MONITOR') {
+        } else if (verdict === 'MONITOR') {
           playBellChime(ctx, 659.25, now, 0.3, 0.14);
           playBellChime(ctx, 783.99, now + 0.09, 0.35, 0.16);
-        } 
-        // 4. PASS / NO MARGIN: Muted Tactile Wood Click (Zero Punishment / Neutral Tone)
-        else {
+        } else {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'sine';
@@ -1075,9 +1065,7 @@
           osc.start(now);
           osc.stop(now + 0.08);
         }
-      } catch (e) {
-        // Silently continue if device audio is suppressed
-      }
+      } catch (e) {}
     }
 
     const TIERS = [
@@ -1152,7 +1140,6 @@
       }
     }
 
-    // INLINE CORRECTION HANDLERS WITH PROMPTS
     document.getElementById('resItemTitle').onclick = () => {
       if (!currentAppraisal) return;
       const newTitle = prompt('Edit Item Name / Descriptor:', currentAppraisal.item || '');
@@ -1208,7 +1195,6 @@
       appraisal.disposition = dispText;
     }
 
-    // FAST TEXT-ONLY RE-EVALUATION WITH GROUNDED SEARCH
     document.getElementById('reEvalEditsBtn').onclick = async () => {
       if (!currentAppraisal || !STATE.geminiKey) return;
       const btn = document.getElementById('reEvalEditsBtn');
@@ -1233,7 +1219,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: [{ text: promptText }] }],
-            tools: [{ googleSearch: {} }],
+            tools: [{ google_search: {} }],
             generationConfig: { temperature: 0.1, maxOutputTokens: 180 }
           })
         });
@@ -1263,7 +1249,6 @@
       }
     };
 
-    // MANUAL ENTRY PIPELINE
     const manualModal = document.getElementById('manualEntryModal');
     document.getElementById('openManualEntryBtn').onclick = () => {
       playAudioFeedback('MONITOR', false, false);
@@ -1668,7 +1653,7 @@
       mobileGalleryInput.value = '';
     }
 
-   async function runScanWorkflow() {
+    async function runScanWorkflow() {
       if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
       if (!STATE.geminiKey) {
         alert('Set Gemini API key in Config.');
@@ -1725,13 +1710,12 @@
           "}";
       }
 
-      // Endpoint targeting gemini-3.8-flash
       const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
       const parts = [{ text: promptText }];
       selectedImagesBase64.forEach(b64 => parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } }));
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s for vision + search grounding
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
 
       let successData = null;
       let rawErrorMessage = null;
@@ -1742,7 +1726,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: parts }],
-            tools: [{ google_search: {} }], // REST API requires snake_case: google_search
+            tools: [{ google_search: {} }],
             generationConfig: { temperature: 0.1, maxOutputTokens: 300 }
           }),
           signal: controller.signal
@@ -1827,6 +1811,7 @@
         document.getElementById('smartRetryBtn').style.display = 'block';
       }
     }
+
     function renderAppraisal(item) {
       document.getElementById('resItemTitle').textContent = `${item.item} ✏️`;
       document.getElementById('resEstResale').textContent = '$' + item.resale.toFixed(2);
@@ -1920,29 +1905,26 @@
       if (STATE.activeTab === 'vault') window.scrollTo(0, scrollPos);
     }
 
-    // SILENT ZERO-LAG DAILY COMPS BACKGROUND ENGINE
     let isDailySyncRunning = false;
     async function runDailySilentCompsSync() {
       if (isDailySyncRunning || !STATE.geminiKey) return;
       const todayKey = new Date().toISOString().slice(0, 10);
       const lastSync = localStorage.getItem('ts_last_comps_sync');
 
-      // Strict 24-hour gatekeeper: exits in 0ms if already checked today
       if (lastSync === todayKey) return;
 
       isDailySyncRunning = true;
 
-      // 2.5s delay guarantees camera and UI mount with 100% responsiveness first
       setTimeout(async () => {
         try {
           localStorage.setItem('ts_last_comps_sync', todayKey);
 
-          // MTG AUTO-SYNC (Free Scryfall API batch loop)
           const mtgItems = STATE.vaultItems.filter(i => i.category === 'mtg').slice(0, 5);
           for (const card of mtgItems) {
             try {
               const cleanCardQuery = encodeURIComponent(card.item.split('(')[0].trim());
-const scryfallRes = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${cleanCardQuery}`);              if (scryfallRes.ok) {
+              const scryfallRes = await fetch(`[https://api.scryfall.com/cards/named?fuzzy=$](https://api.scryfall.com/cards/named?fuzzy=$){cleanCardQuery}`);
+              if (scryfallRes.ok) {
                 const sData = await scryfallRes.json();
                 const marketPrice = parseFloat(sData.prices?.usd || sData.prices?.usd_foil);
                 if (marketPrice && Math.abs(marketPrice - card.resale) > 1.00) {
@@ -1957,7 +1939,6 @@ const scryfallRes = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${cl
             } catch (err) {}
           }
 
-          // GENERAL/COIN TARGET SYNC (Up to 3 MONITOR or quick_flip items only)
           const volatileItems = STATE.vaultItems
             .filter(i => (i.strategy === 'quick_flip' || (i.disposition && i.disposition.includes('MONITOR'))) && i.category !== 'mtg')
             .slice(0, 3);
@@ -1969,11 +1950,12 @@ const scryfallRes = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${cl
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`, {              method: 'POST',
+            const res = await fetch(`[https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$){encodeURIComponent(STATE.geminiKey)}`, {
+              method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
-                tools: [{ googleSearch: {} }],
+                tools: [{ google_search: {} }],
                 generationConfig: { temperature: 0.1, maxOutputTokens: 60 }
               }),
               signal: controller.signal
@@ -1994,7 +1976,6 @@ const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models
                   lastSynced: Date.now()
                 });
 
-                // Margin expansion alert if item flipped from slim to profitable
                 if (newProfit >= 15.00 && item.profit < 15.00) {
                   triggerAlert(`🔥 Price Alert: ${item.name} rose to $${newResale.toFixed(2)}!`, false, false);
                   playAudioFeedback('BUY', false, false);
@@ -2003,7 +1984,6 @@ const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models
             }
           }
         } catch (e) {
-          // Silent fallback without blocking scanning
         } finally {
           isDailySyncRunning = false;
         }
@@ -2114,8 +2094,8 @@ const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models
     }
 
     window.openMapsRoute = (destAddress) => {
-  openExternalUrl(`https://www.google.com/maps/dir/?api=1&destination=${destAddress}`);
-};
+      openExternalUrl(`[https://www.google.com/maps/dir/?api=1&destination=$](https://www.google.com/maps/dir/?api=1&destination=$){destAddress}`);
+    };
 
     window.openStoreReviews = (storeName) => {
       playAudioFeedback('MONITOR', false, false);
