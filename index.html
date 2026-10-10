@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Thrift Scout • Hardened Core Build</title>
+  <title>Thrift Scout • Tri-Vault & Psychoacoustic Engine</title>
   <style>
     :root {
       --bg: #090d16;
@@ -681,7 +681,7 @@
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Hardened Anti-Corruption Build</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Audio recovery lifecycle active: audio session resumes immediately when switching back from comps.
+        Psychoacoustic Slot Engine Active: Clean C-major bell harmonic chimes loaded with hardware lifecycle resume.
       </p>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -921,19 +921,16 @@
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       if (!AudioContextClass) return null;
 
-      // If context doesn't exist, is closed, or stuck in an unresumable state, recreate fresh
       if (!audioCtx || audioCtx.state === 'closed') {
         audioCtx = new AudioContextClass();
       } else if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
         audioCtx.resume().catch(() => {
-          // If browser rejected resume due to background kill, recreate context
           audioCtx = new AudioContextClass();
         });
       }
       return audioCtx;
     }
 
-    // Recover Web Audio hardware the moment user returns to app
     window.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         getOrCreateAudioContext();
@@ -946,75 +943,90 @@
       getOrCreateAudioContext();
     });
 
+    // HELPER: Resonant bell chime with metallic harmonic overtones
+    function playBellChime(ctx, freq, startTime, duration = 0.35, gainLevel = 0.18) {
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(freq, startTime);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(freq * 2.76, startTime);
+
+      gain1.gain.setValueAtTime(gainLevel, startTime);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+      gain2.gain.setValueAtTime(gainLevel * 0.35, startTime);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + (duration * 0.6));
+
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+
+      osc1.start(startTime);
+      osc1.stop(startTime + duration);
+      osc2.start(startTime);
+      osc2.stop(startTime + (duration * 0.6));
+    }
+
+    // PSYCHOACOUSTIC CASINO SOUND ENGINE
     function playAudioFeedback(verdict = 'BUY', isJackpot = false, shouldTriggerEffects = false) {
       if (shouldTriggerEffects) triggerHapticAndFlash(verdict, isJackpot);
       try {
         const ctx = getOrCreateAudioContext();
         if (!ctx) return;
-
-        // Guarantee context is running on user gesture
         if (ctx.state === 'suspended' || ctx.state === 'interrupted') {
           ctx.resume();
         }
 
         const now = ctx.currentTime;
+
+        // 1. JACKPOT FLIP ($50+ Net): C-Major Ascending 7-Note Bell Cascade (120 BPM feel)
         if (isJackpot) {
-          [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00].forEach((freq, idx) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = idx % 2 === 0 ? 'triangle' : 'sine';
-            osc.frequency.value = freq;
-            const startTime = now + (idx * 0.08);
-            gain.gain.setValueAtTime(0.25, startTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.3);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(startTime);
-            osc.stop(startTime + 0.3);
+          const jackpotScale = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00];
+          jackpotScale.forEach((freq, idx) => {
+            playBellChime(ctx, freq, now + (idx * 0.055), 0.45, 0.22);
           });
-        } else if (verdict === 'BUY') {
-          [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.value = freq;
-            const startTime = now + (idx * 0.06);
-            gain.gain.setValueAtTime(0.2, startTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.15);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(startTime);
-            osc.stop(startTime + 0.15);
+          setTimeout(() => {
+            const resolveTime = ctx.currentTime;
+            playBellChime(ctx, 1046.50, resolveTime, 0.6, 0.15);
+            playBellChime(ctx, 1567.98, resolveTime, 0.6, 0.15);
+            playBellChime(ctx, 2093.00, resolveTime, 0.7, 0.18);
+          }, 420);
+        } 
+        // 2. SOLID BUY ($15–$49 Net): Resonant 3-Tone Ascending Cash Chime (G5 -> C6 -> E6)
+        else if (verdict === 'BUY') {
+          const winArp = [783.99, 1046.50, 1318.51];
+          winArp.forEach((freq, idx) => {
+            playBellChime(ctx, freq, now + (idx * 0.075), 0.4, 0.20);
           });
-        } else if (verdict === 'MONITOR') {
-          [440, 554.37].forEach((freq, idx) => {
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = freq;
-            const startTime = now + (idx * 0.1);
-            gain.gain.setValueAtTime(0.2, startTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.2);
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.start(startTime);
-            osc.stop(startTime + 0.2);
-          });
-        } else {
+        } 
+        // 3. MONITOR / SLIM MARGIN ($5–$14 Net): Soft Dual Neutral Chime (E5 -> G5)
+        else if (verdict === 'MONITOR') {
+          playBellChime(ctx, 659.25, now, 0.3, 0.14);
+          playBellChime(ctx, 783.99, now + 0.09, 0.35, 0.16);
+        } 
+        // 4. PASS / NO MARGIN: Muted Tactile Wood Click (Zero Punishment / Neutral Tone)
+        else {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
-          osc.type = 'sawtooth';
-          osc.frequency.setValueAtTime(350, now);
-          osc.frequency.exponentialRampToValueAtTime(60, now + 0.45);
-          gain.gain.setValueAtTime(0.25, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(180, now);
+          osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
+
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
+
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start(now);
-          osc.stop(now + 0.48);
+          osc.stop(now + 0.08);
         }
       } catch (e) {
-        // Fallback silently if device muted
+        // Silently continue if device audio is suppressed
       }
     }
 
@@ -1757,7 +1769,8 @@
       const R = 3958.8;
       const dLat = (lat2 - lat1) * Math.PI / 180;
       const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
       return (R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)))).toFixed(1);
     }
 
