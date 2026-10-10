@@ -230,9 +230,9 @@
       pointer-events: auto;
     }
     .btn.disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-      pointer-events: none;
+      opacity: 0.35 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
       background: var(--surface) !important;
       color: var(--text-muted) !important;
       border: 1px dashed var(--border) !important;
@@ -308,19 +308,6 @@
       touch-action: pan-y;
     }
     .vault-item:hover { border-color: var(--border-focus); }
-    .swipe-actions-bg {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 16px;
-      font-size: 0.75rem;
-      font-weight: 800;
-      z-index: 1;
-    }
-    .swipe-action-left { color: var(--accent); }
-    .swipe-action-right { color: var(--coral); }
 
     .item-thumb { width: 74px; height: 74px; min-width: 74px; border-radius: 8px; object-fit: cover; background: #111827; border: 1px solid var(--border); cursor: pointer; }
     .item-content { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
@@ -383,7 +370,7 @@
       color: var(--text);
       font-size: 0.75rem;
       font-weight: 700;
-      text-decoration: none;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -581,9 +568,9 @@
           </select>
         </div>
 
-        <div style="display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
-          <a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px;">VIEW MARKET COMPS</a>
-          <a id="resVelocityLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem; min-width: 130px; border-color: var(--amber); color: var(--amber);">📊 SCRYFALL COMPS</a>
+        <!-- OUTBOUND COMPS TRIGGER -->
+        <div style="display:flex; gap:8px; margin-top:4px;">
+          <button id="resDirectCompsBtn" class="btn btn-outline" style="flex:1; font-size:0.85rem; border-color: var(--amber); color: var(--amber);">📊 VIEW SOLD COMPS</button>
         </div>
         <div style="display:flex; gap:8px;">
           <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:0.8rem; background:#3b82f6;">SHARE EVAL</button>
@@ -626,7 +613,7 @@
             </div>
           </div>
           <div style="display:flex; gap:8px; margin-top:2px;">
-            <a id="dailyCompsLink" target="_blank" class="btn btn-outline" style="font-size:0.75rem; padding:8px 12px; width:auto;" href="https://www.ebay.com/sch/i.html?_nkw=vintage+cast+iron+skillet+wagner+griswold&LH_Sold=1&LH_Complete=1">View Target Comps</a>
+            <button id="dailyCompsActionBtn" class="btn btn-outline" style="font-size:0.75rem; padding:8px 12px; width:auto;">View Target Comps</button>
             <button class="btn btn-accent" id="claimChallengeBtn" style="font-size:0.75rem; padding:8px 12px; width:auto;">Apply Target to Scan</button>
           </div>
         </div>
@@ -651,7 +638,7 @@
         </div>
         <div class="vault-toolbar">
           <span id="vaultModeLabel">General Vault Inventory</span>
-          <span>Swipe Right ➡️ Sell | Swipe Left ⬅️ Delete</span>
+          <span>Tap item for full details & comps</span>
         </div>
         <div class="vault-summary">
           <div>
@@ -694,7 +681,7 @@
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Tri-Vault Architecture Online</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Full engine active: MTG Scryfall, Tri-Vault cataloging, and 8-second protected queries.
+        Welcome back, Specialist. Comp links are fully protected against 404 hijacking. Ready for recon.
       </p>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -796,7 +783,7 @@
       
       <div style="display:flex; gap:8px; margin-top:4px;">
         <button class="btn btn-accent" id="quickToggleSellBtn" style="flex:1; font-size:0.8rem;">⚡ SELL INSTANTLY</button>
-        <a id="vDetailEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW COMPS</a>
+        <button id="vDetailCompsActionBtn" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW COMPS</button>
       </div>
     </div>
   </div>
@@ -886,6 +873,34 @@
 
     // Centralized Profit Formulation Helper
     const calcProfit = (resale, cost) => Number((resale - cost - (resale * 0.1325)).toFixed(2));
+
+    // BULLETPROOF EXTERNAL OUTBOUND URL DISPATCHER (PREVENTS GITHUB PAGES 404 HIJACKING)
+    function openExternalUrl(url) {
+      if (!url || typeof url !== 'string' || !url.startsWith('http')) {
+        alert('Invalid comp destination URL.');
+        return;
+      }
+      const newWin = window.open(url, '_blank', 'noopener,noreferrer');
+      if (!newWin || newWin.closed || typeof newWin.closed === 'undefined') {
+        window.location.assign(url);
+      }
+    }
+
+    function generateCompUrl(item) {
+      if (!item || !item.query || typeof item.query !== 'string' || item.query.trim() === '') {
+        return null;
+      }
+      const cleanTerm = item.query.trim();
+      const encoded = encodeURIComponent(cleanTerm);
+
+      if (item.category === 'mtg') {
+        return `https://scryfall.com/search?q=${encoded}`;
+      } else if (item.category === 'coins') {
+        return `https://www.ebay.com/sch/11116/i.html?_nkw=${encoded}&LH_Sold=1&LH_Complete=1`;
+      } else {
+        return `https://www.ebay.com/sch/i.html?_nkw=${encoded}&LH_Sold=1&LH_Complete=1`;
+      }
+    }
 
     function triggerHapticAndFlash(verdict = 'BUY', isJackpot = false) {
       if ('vibrate' in navigator) {
@@ -1120,7 +1135,10 @@
 
     document.getElementById('dailyTargetName').textContent = currentMission.name;
     document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
-    document.getElementById('dailyCompsLink').href = "https://www.ebay.com/sch/i.html?_nkw=" + encodeURIComponent(currentMission.query) + "&LH_Sold=1&LH_Complete=1";
+    document.getElementById('dailyCompsActionBtn').onclick = () => {
+      openExternalUrl(`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(currentMission.query)}&LH_Sold=1&LH_Complete=1`);
+    };
+
     document.getElementById('claimChallengeBtn').onclick = () => {
       playAudioFeedback('BUY', false, false);
       triggerAlert('Target mission primed for scan!', false, true);
@@ -1442,18 +1460,18 @@
           '  "platform": "Numismatic",\n' +
           '  "shipping": "Insured Mail",\n' +
           '  "intel": "Mint mark verification and metal notes.",\n' +
-          '  "query": "coin ebay sold comps"\n' +
+          '  "query": "coin year mint mark"\n' +
           "}";
       } else {
-        promptText = "Identify item & secondhand resale value. If comps unavailable, return resale: 0.00. Return ONLY raw JSON without Markdown:\n" +
+        promptText = "Identify item & secondhand resale value. If media (DVD, CD, VHS), state exact title and format. If comps unavailable, return resale: 0.00. Return ONLY raw JSON without Markdown:\n" +
           "{\n" +
-          '  "brand": "Manufacturer",\n' +
-          '  "item": "Model descriptor",\n' +
+          '  "brand": "Manufacturer or Studio",\n' +
+          '  "item": "Model or Title descriptor",\n' +
           '  "resale": 15.00,\n' +
           '  "platform": "eBay",\n' +
           '  "shipping": "USPS Ground Advantage",\n' +
           '  "intel": "Hallmark & market notes",\n' +
-          '  "query": "ebay sold keywords"\n' +
+          '  "query": "title brand keywords"\n' +
           "}";
       }
 
@@ -1567,30 +1585,18 @@
       pill.textContent = item.disposition;
       pill.className = item.disposition.includes('BUY') ? 'disposition-pill disp-flip' : (item.disposition.includes('MONITOR') ? 'disposition-pill disp-monitor' : 'disposition-pill disp-pass');
 
-      // Smart Comps Button Logic: If no comps or resale <= 0, gray out the button
-      const hasComps = item.resale > 0;
-      const ebayBtn = document.getElementById('resEbayLink');
-      const scryfallBtn = document.getElementById('resVelocityLink');
+      // BULLETPROOF COMP BUTTON STATE MANAGEMENT
+      const compsBtn = document.getElementById('resDirectCompsBtn');
+      const targetUrl = generateCompUrl(item);
 
-      const ebayUrl = "[https://www.ebay.com/sch/i.html?_nkw=](https://www.ebay.com/sch/i.html?_nkw=)" + encodeURIComponent(item.query) + "&LH_Sold=1&LH_Complete=1";
-      const scryfallUrl = "[https://scryfall.com/search?q=](https://scryfall.com/search?q=)" + encodeURIComponent(item.query);
-
-      if (hasComps) {
-        ebayBtn.href = ebayUrl;
-        ebayBtn.classList.remove('disabled');
-        ebayBtn.textContent = 'VIEW MARKET COMPS';
-
-        scryfallBtn.href = item.category === 'mtg' ? scryfallUrl : ebayUrl;
-        scryfallBtn.classList.remove('disabled');
-        scryfallBtn.textContent = item.category === 'mtg' ? '📊 SCRYFALL COMPS' : '📊 MARKET COMPS';
+      if (targetUrl && item.resale > 0) {
+        compsBtn.classList.remove('disabled');
+        compsBtn.textContent = item.category === 'mtg' ? '📊 VIEW SCRYFALL COMPS' : '📊 VIEW SOLD COMPS';
+        compsBtn.onclick = () => openExternalUrl(targetUrl);
       } else {
-        ebayBtn.removeAttribute('href');
-        ebayBtn.classList.add('disabled');
-        ebayBtn.textContent = 'NO COMPS AVAILABLE';
-
-        scryfallBtn.removeAttribute('href');
-        scryfallBtn.classList.add('disabled');
-        scryfallBtn.textContent = 'NO COMPS AVAILABLE';
+        compsBtn.classList.add('disabled');
+        compsBtn.textContent = 'NO COMPS AVAILABLE';
+        compsBtn.onclick = null;
       }
 
       document.getElementById('appraisalCard').style.display = 'flex';
@@ -1677,15 +1683,17 @@
       document.getElementById('vDetailStrategy').textContent = item.strategy === 'keeping' ? 'Keeping' : (item.strategy === 'quick_flip' ? 'Quick Flip' : 'Selling');
       document.getElementById('vDetailIntel').textContent = item.intel || 'No extra intelligence notes logged.';
 
-      const link = document.getElementById('vDetailEbayLink');
-      if (item.resale > 0) {
-        link.classList.remove('disabled');
-        link.href = item.category === 'mtg' ? `[https://scryfall.com/search?q=$](https://scryfall.com/search?q=$){encodeURIComponent(item.query)}` : `[https://www.ebay.com/sch/i.html?_nkw=$](https://www.ebay.com/sch/i.html?_nkw=$){encodeURIComponent(item.query)}&LH_Sold=1&LH_Complete=1`;
-        link.textContent = 'VIEW COMPS';
+      const compBtn = document.getElementById('vDetailCompsActionBtn');
+      const targetUrl = generateCompUrl(item);
+
+      if (targetUrl && item.resale > 0) {
+        compBtn.classList.remove('disabled');
+        compBtn.textContent = 'VIEW COMPS';
+        compBtn.onclick = () => openExternalUrl(targetUrl);
       } else {
-        link.classList.add('disabled');
-        link.removeAttribute('href');
-        link.textContent = 'NO COMPS AVAILABLE';
+        compBtn.classList.add('disabled');
+        compBtn.textContent = 'NO COMPS AVAILABLE';
+        compBtn.onclick = null;
       }
 
       document.getElementById('vaultDetailModal').classList.add('active');
@@ -1753,13 +1761,17 @@
             <span class="store-dist-badge">${s.dist || '--'} mi</span>
           </div>
           <div class="nav-actions-grid">
-            <a class="nav-app-btn" target="_blank" href="[https://www.google.com/maps/dir/?api=1&destination=$](https://www.google.com/maps/dir/?api=1&destination=$){encodeURIComponent(s.address)}">Google Maps</a>
+            <button class="nav-app-btn" onclick="openMapsRoute('${encodeURIComponent(s.address)}')">Google Maps</button>
             <button class="nav-app-btn" onclick="openStoreReviews('${s.name.replace(/'/g, "\\'")}')">⭐ Reviews</button>
           </div>
         `;
         grid.appendChild(card);
       });
     }
+
+    window.openMapsRoute = (destAddress) => {
+      openExternalUrl(`[https://www.google.com/maps/dir/?api=1&destination=$](https://www.google.com/maps/dir/?api=1&destination=$){destAddress}`);
+    };
 
     window.openStoreReviews = (storeName) => {
       playAudioFeedback('MONITOR', false, false);
