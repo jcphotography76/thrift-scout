@@ -6,7 +6,7 @@
   <title>Thrift Scout • Field Recon</title>
   <style>
     :root {
-      --bg: #000000;
+      --bg: #030305;
       --card-bg: #0d1117;
       --border: #21262d;
       --border-focus: #388bfd;
@@ -23,29 +23,22 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: var(--font-stack);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding-bottom: calc(75px + env(safe-area-inset-bottom));
-      overflow-x: hidden;
+      background-color: var(--bg); color: var(--text); font-family: var(--font-stack);
+      min-height: 100vh; display: flex; flex-direction: column;
+      padding-bottom: calc(75px + env(safe-area-inset-bottom)); overflow-x: hidden;
     }
     header {
-      position: sticky; top: 0; z-index: 50;
-      background: rgba(0, 0, 0, 0.88);
-      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 16px;
+      position: sticky; top: 0; z-index: 50; background: rgba(3, 3, 5, 0.85);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border); padding: 12px 16px;
       display: flex; justify-content: space-between; align-items: center;
     }
-    .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; }
+    .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; }
     .brand-accent { color: var(--emerald); }
     .header-pills { display: flex; gap: 8px; align-items: center; }
     .scan-pill {
       background: var(--emerald-glow); border: 1px solid var(--emerald);
-      color: var(--emerald); font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+      color: var(--emerald); font-size: 0.72rem; font-weight: 700; padding: 5px 10px; border-radius: 999px;
     }
     .settings-btn {
       background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted);
@@ -55,8 +48,9 @@
     .tab-view { display: none; flex-direction: column; gap: 14px; }
     .tab-view.active { display: flex; }
     .card {
-      background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;
       padding: 16px; display: flex; flex-direction: column; gap: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
     }
     .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
     .status-alert {
@@ -64,9 +58,11 @@
       border-left: 4px solid var(--blue); background: var(--card-bg); line-height: 1.4;
     }
     .btn {
-      width: 100%; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 0.9rem;
+      width: 100%; padding: 12px; border-radius: 10px; font-weight: 700; font-size: 0.9rem;
       cursor: pointer; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; user-select: none;
+      transition: opacity 0.15s ease;
     }
+    .btn:active { opacity: 0.8; }
     .btn-emerald { background: var(--emerald); color: #000; }
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
     .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -87,11 +83,10 @@
       padding: 12px 12px 12px 28px; color: var(--text); font-size: 0.95rem; font-weight: 700; font-family: inherit; outline: none;
     }
     .cost-input-field:focus { border-color: var(--border-focus); }
-
     .eval-action-wrapper { display: flex; flex-direction: column; justify-content: flex-end; flex: 1.2; }
 
     .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .metric-box { background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .metric-box { background: #000; border: 1px solid var(--border); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 4px; }
     .metric-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
     .metric-val { font-size: 1.15rem; font-weight: 800; }
     .metric-val.profit { color: var(--emerald); }
@@ -111,22 +106,23 @@
 
     .bottom-dock {
       position: fixed; bottom: 0; left: 0; right: 0; height: calc(60px + env(safe-area-inset-bottom));
-      padding-bottom: env(safe-area-inset-bottom); background: rgba(0, 0, 0, 0.95);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--border);
+      padding-bottom: env(safe-area-inset-bottom); background: rgba(3, 3, 5, 0.95);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border);
       display: flex; justify-content: space-around; align-items: center; z-index: 100;
     }
     .dock-btn { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.75rem; font-weight: 700; }
     .dock-btn.active { color: var(--emerald); }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 200; }
     .modal-overlay.active { display: flex; }
-    .modal-content { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px; max-width: 480px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    .modal-content { background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; padding: 18px; max-width: 480px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
     .input-field { width: 100%; background: #000; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; color: var(--text); font-size: 0.9rem; font-family: inherit; outline: none; }
   </style>
 </head>
 <body>
+
   <header>
     <div class="brand">
-      <span>🐕 THRIFT</span><span class="brand-accent">SCOUT</span>
+      <span>🐕 KODA'S THRIFT</span><span class="brand-accent">SCOUT</span>
     </div>
     <div class="header-pills">
       <div class="scan-pill" id="scanPill">100 SCANS</div>
@@ -197,7 +193,7 @@
             <span class="metric-val" id="resPlatform" style="font-size:0.85rem;">eBay</span>
           </div>
         </div>
-        <div style="font-size:0.85rem; color:var(--text); line-height:1.4; background:#000; padding:10px; border-radius:6px; border:1px solid var(--border);" id="resIntel"></div>
+        <div style="font-size:0.85rem; color:var(--text); line-height:1.4; background:#000; padding:10px; border-radius:8px; border:1px solid var(--border);" id="resIntel"></div>
         <div style="display:flex; gap:8px; margin-top:4px;">
           <a id="resEbayLink" target="_blank" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW SOLD COMPS</a>
           <button class="btn btn-emerald" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
@@ -246,6 +242,7 @@
       </div>
     </div>
   </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { 
@@ -429,7 +426,7 @@
 
       triggerAlert('⚡ Analyzing ' + STATE.currentMode.toUpperCase() + '...');
       const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
-      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
       let promptText = "";
       if (STATE.currentMode === 'coin') {
