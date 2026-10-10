@@ -1195,18 +1195,21 @@
     }
 
     // Unified call engine handling search-grounding with automatic fallback cascade
-    async function executeModelQuery(endpointModel, promptText, parts, enableGrounding = true) {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${endpointModel}:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`;
+   async function executeModelQuery(endpointModel, promptText, parts) {
+      // Strictly target gemini-3.8-flash
+      const model = "gemini-3.8-flash";
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`;
+      
       const payload = {
         contents: [{ parts: parts }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 300 }
+        generationConfig: { 
+          temperature: 0.1, 
+          maxOutputTokens: 300 
+        }
       };
-      if (enableGrounding) {
-        payload.tools = [{ google_search: {} }];
-      }
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), enableGrounding ? 20000 : 8000);
+      const timeoutId = setTimeout(() => controller.abort(), 20000);
 
       try {
         const res = await fetch(endpoint, {
@@ -1227,10 +1230,9 @@
         }
       } catch (err) {
         clearTimeout(timeoutId);
-        return { ok: false, error: err.name === 'AbortError' ? 'Timeout on network route.' : err.message };
+        return { ok: false, error: err.name === 'AbortError' ? 'Scan timed out after 20 seconds.' : err.message };
       }
     }
-
     document.getElementById('reEvalEditsBtn').onclick = async () => {
       if (!currentAppraisal || !STATE.geminiKey) return;
       const btn = document.getElementById('reEvalEditsBtn');
