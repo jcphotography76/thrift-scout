@@ -376,7 +376,7 @@
     document.getElementById('snapMobileBtn').onclick = () => mobileCam.click();
     document.getElementById('uploadFileBtn').onclick = () => mobileGal.click();
 
-    function processImageFile(file) {
+   function processImageFile(file) {
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -385,25 +385,32 @@
           const canvas = document.createElement('canvas');
           let w = img.width;
           let h = img.height;
-          const maxDim = 600;
+          
+          // Hard cap dimensions to 800px max for instant API response times
+          const maxDim = 800;
           if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
           else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+          
           canvas.width = w;
           canvas.height = h;
-          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-          selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.60).split(',')[1];
-          previewImg.src = canvas.toDataURL('image/jpeg', 0.60);
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          
+          // Compress aggressively to 0.50 quality for maximum speed over cellular
+          selectedImageBase64 = canvas.toDataURL('image/jpeg', 0.50).split(',')[1];
+          previewImg.src = canvas.toDataURL('image/jpeg', 0.50);
           previewBox.style.display = 'block';
 
           const thumbCanvas = document.createElement('canvas');
           thumbCanvas.width = 100;
           thumbCanvas.height = Math.round((canvas.height * 100) / canvas.width);
           thumbCanvas.getContext('2d').drawImage(img, 0, 0, thumbCanvas.width, thumbCanvas.height);
-          compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.60);
+          compressedThumbDataUrl = thumbCanvas.toDataURL('image/jpeg', 0.50);
         };
         img.src = event.target.result;
       };
       reader.readAsDataURL(file);
+    }
     }
 
     mobileCam.onchange = (e) => processImageFile(e.target.files[0]);
