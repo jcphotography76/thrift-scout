@@ -1668,7 +1668,7 @@
       mobileGalleryInput.value = '';
     }
 
-    async function runScanWorkflow() {
+   async function runScanWorkflow() {
       if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
       if (!STATE.geminiKey) {
         alert('Set Gemini API key in Config.');
@@ -1725,14 +1725,16 @@
           "}";
       }
 
-      // GROUNDED LIVE SEARCH UPGRADE VIA GEMINI-3.8-FLASH
+      // Endpoint targeting gemini-3.8-flash
       const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
       const parts = [{ text: promptText }];
       selectedImagesBase64.forEach(b64 => parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } }));
 
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000); // 12-second allowance for web grounding
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s for vision + search grounding
+
       let successData = null;
+      let rawErrorMessage = null;
 
       try {
         const res = await fetch(endpoint, {
@@ -1740,8 +1742,8 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             contents: [{ parts: parts }],
-            tools: [{ googleSearch: {} }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 200 }
+            tools: [{ google_search: {} }], // REST API requires snake_case: google_search
+            generationConfig: { temperature: 0.1, maxOutputTokens: 300 }
           }),
           signal: controller.signal
         });
@@ -1750,16 +1752,20 @@
         if (res.ok) {
           const data = await res.json();
           successData = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        } else {
+          const errJson = await res.json().catch(() => ({}));
+          rawErrorMessage = errJson.error?.message || ('HTTP ' + res.status);
         }
       } catch (e) {
         clearTimeout(timeoutId);
+        rawErrorMessage = e.name === 'AbortError' ? 'Scan timed out after 30 seconds.' : e.message;
       }
 
       progressBarFill.style.width = '100%';
       setTimeout(() => { progressBox.style.display = 'none'; }, 100);
 
       if (!successData) {
-        triggerAlert('⚠️ Scan timed out or network busy. Tap below to retry.', true, true);
+        triggerAlert('⚠️ Scan failed: ' + (rawErrorMessage || 'Unknown network error'), true, true);
         document.getElementById('smartRetryBtn').style.display = 'block';
         return;
       }
@@ -1767,7 +1773,7 @@
       try {
         let cleanText = successData.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
         const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error('Invalid JSON received from server.');
+        if (!jsonMatch) throw new Error('Invalid JSON received: ' + cleanText);
         const parsed = JSON.parse(jsonMatch[0]);
 
         const parsedBrand = parsed.brand || (isMtgMode ? 'Wizards of the Coast' : (isCoinMode ? 'US Mint' : 'Unbranded'));
@@ -1821,7 +1827,6 @@
         document.getElementById('smartRetryBtn').style.display = 'block';
       }
     }
-
     function renderAppraisal(item) {
       document.getElementById('resItemTitle').textContent = `${item.item} ✏️`;
       document.getElementById('resEstResale').textContent = '$' + item.resale.toFixed(2);
