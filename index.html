@@ -71,6 +71,13 @@
     .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
     .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
+    .mode-selector { display: flex; gap: 8px; }
+    .mode-btn {
+      flex: 1; background: #000; border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px; color: var(--text-muted); font-size: 0.78rem; font-weight: 700; cursor: pointer; text-align: center;
+    }
+    .mode-btn.active { background: var(--emerald-glow); border-color: var(--emerald); color: var(--emerald); }
+
     .cost-input-wrapper { display: flex; flex-direction: column; gap: 4px; flex: 1; }
     .cost-explanation-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
     .cost-input-container { position: relative; display: flex; align-items: center; }
@@ -117,7 +124,6 @@
   </style>
 </head>
 <body>
-
   <header>
     <div class="brand">
       <span>🐕 THRIFT</span><span class="brand-accent">SCOUT</span>
@@ -134,7 +140,13 @@
     <!-- TAB 1: SCOUT -->
     <section id="tab-scout" class="tab-view active">
       <div class="card">
-        <div class="card-title">RAPID THRIFT RECON</div>
+        <div class="card-title">FIELD RECON ENGINE</div>
+
+        <div class="mode-selector">
+          <button class="mode-btn active" data-mode="thrift">📦 Thrift</button>
+          <button class="mode-btn" data-mode="coin">🪙 Coins</button>
+          <button class="mode-btn" data-mode="mtg">🃏 MTG</button>
+        </div>
         
         <input type="file" id="mobileCameraInput" accept="image/*" capture="environment" style="display:none;">
         <input type="file" id="mobileGalleryInput" accept="image/*" style="display:none;">
@@ -150,7 +162,7 @@
 
         <div style="display:flex; gap:10px; align-items:flex-end; margin-top: 8px;">
           <div class="cost-input-wrapper">
-            <label class="cost-explanation-label">Thrift Store Tag Price</label>
+            <label class="cost-explanation-label" id="costLabel">Acquisition Cost</label>
             <div class="cost-input-container">
               <span class="currency-symbol">$</span>
               <input type="number" id="purchaseCost" class="cost-input-field" placeholder="0.00" value="2.99" step="0.50">
@@ -177,7 +189,7 @@
             <span class="metric-val profit" id="resEstProfit">$0.00</span>
           </div>
           <div class="metric-box">
-            <span class="metric-label">Brand / Title</span>
+            <span class="metric-label">Category / Brand</span>
             <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
           </div>
           <div class="metric-box">
@@ -234,7 +246,6 @@
       </div>
     </div>
   </div>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import { 
@@ -256,6 +267,7 @@
     const STATE = {
       geminiKey: localStorage.getItem('ts_gemini_key') || '',
       dailyScans: parseInt(localStorage.getItem('ts_scans_left') || '100', 10),
+      currentMode: 'thrift',
       vaultItems: []
     };
 
@@ -274,7 +286,6 @@
 
         const now = audioCtx.currentTime;
         if (tier === 'jackpot') {
-          // High tier: Fruit catch / win chime
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(523.25, now);
           osc.frequency.setValueAtTime(659.25, now + 0.08);
@@ -285,7 +296,6 @@
           osc.start(now);
           osc.stop(now + 0.4);
         } else if (tier === 'mid') {
-          // Mid tier: Standard bloop
           osc.type = 'sine';
           osc.frequency.setValueAtTime(440, now);
           osc.frequency.exponentialRampToValueAtTime(220, now + 0.15);
@@ -294,7 +304,6 @@
           osc.start(now);
           osc.stop(now + 0.15);
         } else {
-          // Low tier: Pass / death sound drop
           osc.type = 'sawtooth';
           osc.frequency.setValueAtTime(180, now);
           osc.frequency.exponentialRampToValueAtTime(60, now + 0.3);
@@ -303,9 +312,7 @@
           osc.start(now);
           osc.stop(now + 0.3);
         }
-      } catch (e) {
-        // AudioContext restricted before user interaction
-      }
+      } catch (e) {}
     }
 
     function updatePills() {
@@ -336,6 +343,18 @@
         document.querySelectorAll('.tab-view').forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById(btn.dataset.target).classList.add('active');
+      });
+    });
+
+    document.querySelectorAll('.mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        STATE.currentMode = btn.dataset.mode;
+        const label = document.getElementById('costLabel');
+        if (STATE.currentMode === 'coin') label.textContent = 'Coin Acquisition Cost';
+        else if (STATE.currentMode === 'mtg') label.textContent = 'Card Cost / Trade Value';
+        else label.textContent = 'Thrift Store Tag Price';
       });
     });
 
@@ -408,20 +427,45 @@
         return;
       }
 
-      triggerAlert('⚡ Rapid Recon running...');
+      triggerAlert('⚡ Analyzing ' + STATE.currentMode.toUpperCase() + '...');
       const cost = parseFloat(document.getElementById('purchaseCost').value) || 0;
       const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
 
-      const promptText = "Analyze this exact item (whether pen, remote control, DVD, electronic, tool, or general good). Identify the exact brand/manufacturer, specific model or title, release year (if media/electronics), detailed description of what it is, traffic-light disposition (FLIP, MONITOR, or PASS), and realistic secondary market resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
-        "{\n" +
-        '  "brand": "Exact Brand or Studio (e.g. Bic, Sony, Universal Pictures)",\n' +
-        '  "item": "Exact Title or Model Name & Release Year (e.g. Cristal Ballpoint Pen, TV Remote Control, How the Grinch Stole Christmas DVD (2000))",\n' +
-        '  "resale": 10.00,\n' +
-        '  "disposition": "FLIP",\n' +
-        '  "platform": "eBay",\n' +
-        '  "intel": "Detailed description of what this item is, release year, condition notes, and why it is or isn\'t desirable for quick resale.",\n' +
-        '  "query": "exact item keywords for ebay sold search"\n' +
-        "}";
+      let promptText = "";
+      if (STATE.currentMode === 'coin') {
+        promptText = "Analyze this coin or piece of currency. Identify exact coin type, year mint mark, grade condition estimation, numismatic value, traffic-light disposition (FLIP, MONITOR, PASS), and realistic resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
+          "{\n" +
+          '  "brand": "Coin Denomination / Series",\n' +
+          '  "item": "Year, Mint Mark & Condition",\n' +
+          '  "resale": 35.00,\n' +
+          '  "disposition": "FLIP",\n' +
+          '  "platform": "eBay",\n' +
+          '  "intel": "Numismatic description, grade estimate, and market demand.",\n' +
+          '  "query": "exact coin keywords for ebay sold search"\n' +
+          "}";
+      } else if (STATE.currentMode === 'mtg') {
+        promptText = "Analyze this Magic: The Gathering trading card. Identify exact card name, set name, collector number, foil status, condition, traffic-light disposition (FLIP, MONITOR, PASS), and realistic secondary market resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
+          "{\n" +
+          '  "brand": "MTG Set Name",\n' +
+          '  "item": "Exact Card Name & Variant",\n' +
+          '  "resale": 50.00,\n' +
+          '  "disposition": "FLIP",\n' +
+          '  "platform": "TCGplayer / eBay",\n' +
+          '  "intel": "Card legality, edition details, and pricing trend notes.",\n' +
+          '  "query": "exact card keywords for ebay sold search"\n' +
+          "}";
+      } else {
+        promptText = "Analyze this general thrift store item. Identify exact brand, specific model/title, release year, detailed description, traffic-light disposition (FLIP, MONITOR, PASS), and realistic resale value in USD. Return ONLY valid, raw JSON without Markdown wraps:\n" +
+          "{\n" +
+          '  "brand": "Exact Brand or Studio",\n' +
+          '  "item": "Exact Model or Title & Year",\n' +
+          '  "resale": 12.00,\n' +
+          '  "disposition": "FLIP",\n' +
+          '  "platform": "eBay",\n' +
+          '  "intel": "Detailed description, condition notes, and resale desirability.",\n' +
+          '  "query": "exact item keywords for ebay sold search"\n' +
+          "}";
+      }
 
       try {
         const res = await fetch(endpoint, {
@@ -449,13 +493,12 @@
         const cleaned = rawContent.replace(/```json/gi, '').replace(/```/g, '').trim();
         const parsed = JSON.parse(cleaned);
 
-        const parsedBrand = parsed.brand || 'Unidentified Item';
-        const parsedItem = parsed.item || 'Retail Good';
+        const parsedBrand = parsed.brand || 'Unidentified';
+        const parsedItem = parsed.item || 'Collectible';
         const estResale = parseFloat(parsed.resale) || 5.00;
         const estProfit = estResale - cost - (estResale * 0.1325);
         const disp = parsed.disposition || 'MONITOR';
 
-        // Play audio tier based on disposition
         if (disp === 'FLIP') playAudioTier('jackpot');
         else if (disp === 'MONITOR') playAudioTier('mid');
         else playAudioTier('low');
@@ -469,7 +512,7 @@
           profit: Number(estProfit.toFixed(2)),
           platform: parsed.platform || 'eBay',
           disposition: disp,
-          intel: parsed.intel || 'Standard resale asset.',
+          intel: parsed.intel || 'Standard asset.',
           query: parsed.query || (parsedBrand + " " + parsedItem),
           imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImageBase64),
           purchasedAt: Date.now()
