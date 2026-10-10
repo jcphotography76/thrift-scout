@@ -511,7 +511,6 @@
           <button class="btn btn-outline" id="uploadFileBtn">📁 UPLOAD PHOTOS</button>
         </div>
 
-        <!-- MANUAL ENTRY BYPASS TRIGGER -->
         <button class="btn btn-outline" id="openManualEntryBtn" style="border-style:dashed; color:var(--accent); border-color:var(--accent);">✍️ MANUAL RECON (NO CAMERA)</button>
 
         <button class="btn btn-amber" id="smartRetryBtn" style="display:none; margin-top:4px;">⚡ RETRY INSTANTLY (NO RETAKE)</button>
@@ -521,7 +520,7 @@
         <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
           <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
             <span id="evalProgressText">Checking Live Comps...</span>
-            <span>Gemini 3.8-Flash • Search Grounded</span>
+            <span id="evalEngineStatus">Gemini 2.5-Flash Pipeline</span>
           </div>
           <div style="background:var(--border); height:6px; border-radius:3px; overflow:hidden;">
             <div id="evalProgressBarFill" style="background:var(--accent); width:100%; height:100%;"></div>
@@ -690,7 +689,7 @@
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Grounded Live Comps</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Gemini 3.8-Flash Live Grounding is armed. Realistic secondary market liquidations, zero retail inflation.
+        Welcome back, Specialist. Gemini 2.5-Flash with Search Fallback Cascade is armed. Real secondary sold comps, zero rate-limit drops.
       </p>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -1195,6 +1194,43 @@
       appraisal.disposition = dispText;
     }
 
+    // Unified call engine handling search-grounding with automatic fallback cascade
+    async function executeModelQuery(endpointModel, promptText, parts, enableGrounding = true) {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${endpointModel}:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`;
+      const payload = {
+        contents: [{ parts: parts }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 300 }
+      };
+      if (enableGrounding) {
+        payload.tools = [{ google_search: {} }];
+      }
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), enableGrounding ? 20000 : 8000);
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          return { ok: true, text: data.candidates?.[0]?.content?.parts?.[0]?.text };
+        } else {
+          const errJson = await res.json().catch(() => ({}));
+          const errMsg = errJson.error?.message || `HTTP ${res.status}`;
+          return { ok: false, error: errMsg, status: res.status };
+        }
+      } catch (err) {
+        clearTimeout(timeoutId);
+        return { ok: false, error: err.name === 'AbortError' ? 'Timeout on network route.' : err.message };
+      }
+    }
+
     document.getElementById('reEvalEditsBtn').onclick = async () => {
       if (!currentAppraisal || !STATE.geminiKey) return;
       const btn = document.getElementById('reEvalEditsBtn');
@@ -1213,40 +1249,32 @@
         `  "query": "${correctedQuery}"\n` +
         `}`;
 
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: promptText }] }],
-            tools: [{ google_search: {} }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 180 }
-          })
-        });
+      const res = await executeModelQuery("gemini-2.5-flash", promptText, [{ text: promptText }], true);
 
-        if (res.ok) {
-          const data = await res.json();
-          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          const clean = rawText.replace(/```json|```/gi, '').trim();
+      if (res.ok && res.text) {
+        try {
+          const clean = res.text.replace(/```json|```/gi, '').trim();
           const jsonMatch = clean.match(/\{[\s\S]*\}/);
-          if (!jsonMatch) throw new Error('Invalid JSON received.');
-          const parsed = JSON.parse(jsonMatch[0]);
-
-          currentAppraisal.resale = parseFloat(parsed.resale) || currentAppraisal.resale;
-          currentAppraisal.intel = parsed.intel || currentAppraisal.intel;
-          currentAppraisal.profit = calcProfit(currentAppraisal.resale, cost);
-          recalculateDisposition(currentAppraisal);
-          renderAppraisal(currentAppraisal);
-          playAudioFeedback(currentAppraisal.profit >= 50 ? 'BUY' : 'MONITOR', currentAppraisal.profit >= 50, true);
-          triggerAlert('Live market re-evaluation complete.', false, true);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            currentAppraisal.resale = parseFloat(parsed.resale) || currentAppraisal.resale;
+            currentAppraisal.intel = parsed.intel || currentAppraisal.intel;
+            currentAppraisal.profit = calcProfit(currentAppraisal.resale, cost);
+            recalculateDisposition(currentAppraisal);
+            renderAppraisal(currentAppraisal);
+            playAudioFeedback(currentAppraisal.profit >= 50 ? 'BUY' : 'MONITOR', currentAppraisal.profit >= 50, true);
+            triggerAlert('Live market re-evaluation complete.', false, true);
+          }
+        } catch (e) {
+          alert('Parse error on re-evaluation: ' + e.message);
         }
-      } catch (err) {
-        alert('Re-eval failed: ' + err.message);
-      } finally {
-        btn.style.display = 'none';
-        btn.classList.remove('disabled');
-        btn.textContent = '⚡ RE-EVALUATE WITH CORRECTIONS';
+      } else {
+        alert('Re-eval failed: ' + (res.error || 'Server rejection.'));
       }
+
+      btn.style.display = 'none';
+      btn.classList.remove('disabled');
+      btn.textContent = '⚡ RE-EVALUATE WITH CORRECTIONS';
     };
 
     const manualModal = document.getElementById('manualEntryModal');
@@ -1668,9 +1696,11 @@
       const progressBox = document.getElementById('evalProgressContainer');
       const progressBarFill = document.getElementById('evalProgressBarFill');
       const progressText = document.getElementById('evalProgressText');
+      const statusLabel = document.getElementById('evalEngineStatus');
       progressBox.style.display = 'flex';
       progressBarFill.style.width = '35%';
       progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Checking Live Market Comps...');
+      statusLabel.textContent = 'Grounded Gemini Flash Pipeline';
 
       document.getElementById('smartRetryBtn').style.display = 'none';
 
@@ -1710,54 +1740,31 @@
           "}";
       }
 
-      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
       const parts = [{ text: promptText }];
       selectedImagesBase64.forEach(b64 => parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } }));
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      // Tier 1: Attempt Grounded Live Search on 2.5 Flash
+      let queryResult = await executeModelQuery("gemini-2.5-flash", promptText, parts, true);
 
-      let successData = null;
-      let rawErrorMessage = null;
-
-      try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: parts }],
-            tools: [{ google_search: {} }],
-            generationConfig: { temperature: 0.1, maxOutputTokens: 300 }
-          }),
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-
-        if (res.ok) {
-          const data = await res.json();
-          successData = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        } else {
-          const errJson = await res.json().catch(() => ({}));
-          rawErrorMessage = errJson.error?.message || ('HTTP ' + res.status);
-        }
-      } catch (e) {
-        clearTimeout(timeoutId);
-        rawErrorMessage = e.name === 'AbortError' ? 'Scan timed out after 30 seconds.' : e.message;
+      // Tier 2: Automatic Fallback to Non-Grounded Turbo if Quota (429) or Tool Conflict
+      if (!queryResult.ok && (queryResult.status === 429 || queryResult.status === 400 || queryResult.status === 404)) {
+        statusLabel.textContent = 'Engaging Turbo Fallback (Zero-Quota)...';
+        queryResult = await executeModelQuery("gemini-2.5-flash", promptText, parts, false);
       }
 
       progressBarFill.style.width = '100%';
       setTimeout(() => { progressBox.style.display = 'none'; }, 100);
 
-      if (!successData) {
-        triggerAlert('⚠️ Scan failed: ' + (rawErrorMessage || 'Unknown network error'), true, true);
+      if (!queryResult.ok || !queryResult.text) {
+        triggerAlert('⚠️ Scan failed: ' + (queryResult.error || 'Server connection error'), true, true);
         document.getElementById('smartRetryBtn').style.display = 'block';
         return;
       }
 
       try {
-        let cleanText = successData.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+        let cleanText = queryResult.text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
         const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
-        if (!jsonMatch) throw new Error('Invalid JSON received: ' + cleanText);
+        if (!jsonMatch) throw new Error('Invalid response structure: ' + cleanText);
         const parsed = JSON.parse(jsonMatch[0]);
 
         const parsedBrand = parsed.brand || (isMtgMode ? 'Wizards of the Coast' : (isCoinMode ? 'US Mint' : 'Unbranded'));
@@ -1794,7 +1801,7 @@
           platform: parsed.platform || (isMtgMode ? 'TCGPlayer' : 'eBay'),
           shipping: parsed.shipping || 'Standard Ground',
           disposition: dispText,
-          intel: parsed.intel || 'Live secondary market appraisal.',
+          intel: parsed.intel || 'Secondary market appraisal.',
           query: parsed.query || (parsedBrand + " " + parsedItem),
           imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImagesBase64[0]),
           category: isMtgMode ? 'mtg' : (isCoinMode ? 'coins' : 'general'),
@@ -1912,7 +1919,6 @@
       const lastSync = localStorage.getItem('ts_last_comps_sync');
 
       if (lastSync === todayKey) return;
-
       isDailySyncRunning = true;
 
       setTimeout(async () => {
@@ -1947,38 +1953,26 @@
             const queryTerm = encodeURIComponent(item.query || item.name);
             const prompt = `Give current median secondary sold price in USD for: "${queryTerm}". Return raw JSON without markdown: {"resale": 24.00}`;
 
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 6000);
+            const res = await executeModelQuery("gemini-2.5-flash", prompt, [{ text: prompt }], false);
 
-            const res = await fetch(`[https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$){encodeURIComponent(STATE.geminiKey)}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }],
-                tools: [{ google_search: {} }],
-                generationConfig: { temperature: 0.1, maxOutputTokens: 60 }
-              }),
-              signal: controller.signal
-            });
-            clearTimeout(timeoutId);
+            if (res.ok && res.text) {
+              const clean = res.text.replace(/```json|```/gi, '').trim();
+              const jsonMatch = clean.match(/\{[\s\S]*\}/);
+              if (jsonMatch) {
+                const data = JSON.parse(jsonMatch[0]);
+                const newResale = parseFloat(data.resale);
+                if (newResale && Math.abs(newResale - item.resale) > 2.00) {
+                  const newProfit = calcProfit(newResale, item.cost || 0);
+                  await updateDoc(doc(db, 'vault_inventory', item.id), {
+                    resale: newResale,
+                    profit: newProfit,
+                    lastSynced: Date.now()
+                  });
 
-            if (res.ok) {
-              const json = await res.json();
-              const clean = json.candidates?.[0]?.content?.parts?.[0]?.text?.replace(/```json|```/gi, '').trim();
-              const data = JSON.parse(clean);
-              const newResale = parseFloat(data.resale);
-
-              if (newResale && Math.abs(newResale - item.resale) > 2.00) {
-                const newProfit = calcProfit(newResale, item.cost || 0);
-                await updateDoc(doc(db, 'vault_inventory', item.id), {
-                  resale: newResale,
-                  profit: newProfit,
-                  lastSynced: Date.now()
-                });
-
-                if (newProfit >= 15.00 && item.profit < 15.00) {
-                  triggerAlert(`🔥 Price Alert: ${item.name} rose to $${newResale.toFixed(2)}!`, false, false);
-                  playAudioFeedback('BUY', false, false);
+                  if (newProfit >= 15.00 && item.profit < 15.00) {
+                    triggerAlert(`🔥 Price Alert: ${item.name} rose to $${newResale.toFixed(2)}!`, false, false);
+                    playAudioFeedback('BUY', false, false);
+                  }
                 }
               }
             }
