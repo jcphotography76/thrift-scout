@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Thrift Scout • Core Build with Manual Recon</title>
+  <title>Thrift Scout • Core Build with Manual Recon & Silent Sync</title>
   <style>
     :root {
       --bg: #090d16;
@@ -559,6 +559,12 @@
             <span class="metric-val" id="resCostBasis" style="font-size:1.1rem; color:var(--amber);">$0.00</span>
           </div>
         </div>
+
+        <!-- RE-EVALUATION BUTTON (ACTIVATES UPON FIELD EDIT) -->
+        <button id="reEvalEditsBtn" class="btn btn-amber" style="display:none; font-size:0.8rem; padding:10px; margin-top:2px;">
+          ⚡ RE-EVALUATE WITH CORRECTIONS
+        </button>
+
         <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
         
         <!-- INVENTORY STRATEGY SELECTOR -->
@@ -684,7 +690,7 @@
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Manual Recon Active</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Manual Recon mode & inline text/resale edits are ready. No blind hallucinations.
+        Welcome back, Specialist. Manual Recon mode, inline corrections, and silent daily comps tracking are locked in.
       </p>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -1138,7 +1144,15 @@
     coinToggle.onchange = () => { if (coinToggle.checked) mtgToggle.checked = false; };
     mtgToggle.onchange = () => { if (mtgToggle.checked) coinToggle.checked = false; };
 
-    // INLINE RESULT EDITING HANDLERS (CORRECT HALLUCINATIONS DIRECTLY)
+    function markItemEdited() {
+      const reEvalBtn = document.getElementById('reEvalEditsBtn');
+      if (reEvalBtn) {
+        reEvalBtn.style.display = 'block';
+        reEvalBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    // INLINE CORRECTION HANDLERS WITH PROMPTS
     document.getElementById('resItemTitle').onclick = () => {
       if (!currentAppraisal) return;
       const newTitle = prompt('Edit Item Name / Descriptor:', currentAppraisal.item || '');
@@ -1147,6 +1161,7 @@
       currentAppraisal.name = `${currentAppraisal.brand} - ${currentAppraisal.item}`;
       currentAppraisal.query = `${currentAppraisal.brand} ${currentAppraisal.item}`;
       renderAppraisal(currentAppraisal);
+      markItemEdited();
     };
 
     document.getElementById('editableBrandBox').onclick = () => {
@@ -1157,6 +1172,7 @@
       currentAppraisal.name = `${currentAppraisal.brand} - ${currentAppraisal.item}`;
       currentAppraisal.query = `${currentAppraisal.brand} ${currentAppraisal.item}`;
       renderAppraisal(currentAppraisal);
+      markItemEdited();
     };
 
     document.getElementById('editableResaleBox').onclick = () => {
@@ -1192,7 +1208,51 @@
       appraisal.disposition = dispText;
     }
 
-    // MANUAL ENTRY MODAL PIPELINE
+    // FAST TEXT-ONLY RE-EVALUATION ON CORRECTIONS
+    document.getElementById('reEvalEditsBtn').onclick = async () => {
+      if (!currentAppraisal || !STATE.geminiKey) return;
+      const btn = document.getElementById('reEvalEditsBtn');
+      btn.textContent = '⏳ Re-evaluating Market...';
+      btn.classList.add('disabled');
+
+      const correctedQuery = `${currentAppraisal.brand} ${currentAppraisal.item}`;
+      const cost = currentAppraisal.cost || 0.00;
+
+      const promptText = `Re-appraise secondary market value based on this verified correction: "${correctedQuery}". Return ONLY valid JSON without markdown: {"brand": "${currentAppraisal.brand}", "item": "${currentAppraisal.item}", "resale": 35.00, "intel": "Updated appraisal based on confirmed details.", "query": "${correctedQuery}"}`;
+
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }],
+            generationConfig: { temperature: 0.1, maxOutputTokens: 120 }
+          })
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          const parsed = JSON.parse(rawText.replace(/```json|```/gi, '').trim());
+
+          currentAppraisal.resale = parseFloat(parsed.resale) || currentAppraisal.resale;
+          currentAppraisal.intel = parsed.intel || currentAppraisal.intel;
+          currentAppraisal.profit = calcProfit(currentAppraisal.resale, cost);
+          recalculateDisposition(currentAppraisal);
+          renderAppraisal(currentAppraisal);
+          playAudioFeedback(currentAppraisal.profit >= 50 ? 'BUY' : 'MONITOR', currentAppraisal.profit >= 50, true);
+          triggerAlert('Re-evaluation updated successfully.', false, true);
+        }
+      } catch (err) {
+        alert('Re-eval failed: ' + err.message);
+      } finally {
+        btn.style.display = 'none';
+        btn.classList.remove('disabled');
+        btn.textContent = '⚡ RE-EVALUATE WITH CORRECTIONS';
+      }
+    };
+
+    // MANUAL ENTRY PIPELINE
     const manualModal = document.getElementById('manualEntryModal');
     document.getElementById('openManualEntryBtn').onclick = () => {
       playAudioFeedback('MONITOR', false, false);
@@ -1223,9 +1283,7 @@
 
       playAudioFeedback(verdictType, isJackpot, true);
 
-      // SVG Placeholder for manual entries
       const manualSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%231f2937' width='100' height='100'/%3E%3Ctext fill='%2314b8a6' font-family='sans-serif' font-weight='bold' font-size='38' x='50%25' y='55%25' text-anchor='middle' dominant-baseline='central'%3E✍️%3C/text%3E%3C/svg%3E";
-
       const uniqueId = 'item_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
 
       currentAppraisal = {
@@ -1310,6 +1368,7 @@
       playAudioFeedback('MONITOR', false, false);
       currentAppraisal = null;
       document.getElementById('appraisalCard').style.display = 'none';
+      document.getElementById('reEvalEditsBtn').style.display = 'none';
       resetScanInputs();
     };
 
@@ -1587,3 +1646,519 @@
       playAudioFeedback('BUY', false, false);
       document.getElementById('smartRetryBtn').style.display = 'none';
       runScanWorkflow();
+    };
+
+    function resetScanInputs() {
+      selectedImagesBase64 = [];
+      compressedThumbDataUrl = null;
+      document.getElementById('imagePreviewContainer').innerHTML = '';
+      document.getElementById('imagePreviewContainer').style.display = 'none';
+      document.getElementById('itemCostInput').value = '0.00';
+      mobileGalleryInput.value = '';
+    }
+
+    async function runScanWorkflow() {
+      if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
+      if (!STATE.geminiKey) {
+        alert('Set Gemini API key in Config.');
+        configModal.classList.add('active');
+        return;
+      }
+
+      const itemCost = parseFloat(document.getElementById('itemCostInput').value) || 0.00;
+      const isCoinMode = coinToggle.checked;
+      const isMtgMode = mtgToggle.checked;
+
+      const progressBox = document.getElementById('evalProgressContainer');
+      const progressBarFill = document.getElementById('evalProgressBarFill');
+      const progressText = document.getElementById('evalProgressText');
+      progressBox.style.display = 'flex';
+      progressBarFill.style.width = '50%';
+      progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Turbo Instant Recon...');
+
+      document.getElementById('smartRetryBtn').style.display = 'none';
+
+      let promptText = "";
+      if (isMtgMode) {
+        promptText = "Identify this Magic: The Gathering card (exact card name, set, collector number, foil status, condition). Return estimated TCGPlayer market value in USD. If comps are unavailable or card unconfirmed, return resale: 0.00. Return ONLY raw JSON without Markdown:\n" +
+          "{\n" +
+          '  "brand": "Wizards of the Coast (MTG)",\n' +
+          '  "item": "Card Name & Set",\n' +
+          '  "resale": 25.00,\n' +
+          '  "platform": "TCGPlayer",\n' +
+          '  "shipping": "Standard Envelope",\n' +
+          '  "intel": "Set edition and market valuation notes.",\n' +
+          '  "query": "exact card name"\n' +
+          "}";
+      } else if (isCoinMode) {
+        promptText = "Examine both sides (obverse/reverse) of this coin/currency. Identify issuing country, year, mint mark, silver/gold melt status, grade, and numismatic value in USD. If comps unavailable, return resale: 0.00. Return ONLY raw JSON without Markdown:\n" +
+          "{\n" +
+          '  "brand": "Issuing Mint / Country",\n' +
+          '  "item": "Denomination & Year",\n' +
+          '  "resale": 35.00,\n' +
+          '  "platform": "Numismatic",\n' +
+          '  "shipping": "Insured Mail",\n' +
+          '  "intel": "Mint mark verification and metal notes.",\n' +
+          '  "query": "coin year mint mark"\n' +
+          "}";
+      } else {
+        promptText = "Identify item & secondhand resale value. If media (DVD, CD, VHS), state exact title and format. If comps unavailable, return resale: 0.00. Return ONLY raw JSON without Markdown:\n" +
+          "{\n" +
+          '  "brand": "Manufacturer or Studio",\n' +
+          '  "item": "Model or Title descriptor",\n' +
+          '  "resale": 15.00,\n' +
+          '  "platform": "eBay",\n' +
+          '  "shipping": "USPS Ground Advantage",\n' +
+          '  "intel": "Hallmark & market notes",\n' +
+          '  "query": "title brand keywords"\n' +
+          "}";
+      }
+
+      const endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=" + encodeURIComponent(STATE.geminiKey);
+      const parts = [{ text: promptText }];
+      selectedImagesBase64.forEach(b64 => parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } }));
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+      let successData = null;
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: parts }],
+            generationConfig: { temperature: 0.1, maxOutputTokens: 140 }
+          }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data = await res.json();
+          successData = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        }
+      } catch (e) {
+        clearTimeout(timeoutId);
+      }
+
+      progressBarFill.style.width = '100%';
+      setTimeout(() => { progressBox.style.display = 'none'; }, 100);
+
+      if (!successData) {
+        triggerAlert('⚠️ Scan timed out (8s limit) or service busy. Tap below to retry.', true, true);
+        document.getElementById('smartRetryBtn').style.display = 'block';
+        return;
+      }
+
+      try {
+        let cleanText = successData.trim().replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+        const jsonMatch = cleanText.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) throw new Error('Invalid JSON received from server.');
+        const parsed = JSON.parse(jsonMatch[0]);
+
+        const parsedBrand = parsed.brand || (isMtgMode ? 'Wizards of the Coast' : (isCoinMode ? 'US Mint' : 'Unbranded'));
+        const parsedItem = parsed.item || 'Identified Asset';
+        const estResale = parseFloat(parsed.resale) || 0.00;
+        const estProfit = calcProfit(estResale, itemCost);
+
+        let dispText = "BUY (INSTANT FLIP)";
+        let verdictType = 'BUY';
+        let isJackpot = estProfit >= 50.00;
+
+        if (estResale <= 0 || estProfit < 5.00) {
+          dispText = "PASS (INSUFFICIENT MARGIN)";
+          verdictType = 'PASS';
+          isJackpot = false;
+        } else if (estProfit < 15.00) {
+          dispText = "MONITOR (SLIM MARGIN)";
+          verdictType = 'MONITOR';
+          isJackpot = false;
+        }
+
+        playAudioFeedback(verdictType, isJackpot, true);
+
+        const uniqueId = 'item_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
+
+        currentAppraisal = {
+          id: uniqueId,
+          brand: parsedBrand,
+          item: parsedItem,
+          name: parsedBrand + " - " + parsedItem,
+          cost: itemCost,
+          resale: estResale,
+          profit: estProfit,
+          platform: parsed.platform || (isMtgMode ? 'TCGPlayer' : 'eBay'),
+          shipping: parsed.shipping || 'Standard Ground',
+          disposition: dispText,
+          intel: parsed.intel || 'Standard secondary market asset.',
+          query: parsed.query || (parsedBrand + " " + parsedItem),
+          imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImagesBase64[0]),
+          category: isMtgMode ? 'mtg' : (isCoinMode ? 'coins' : 'general'),
+          strategy: document.getElementById('assetStrategySelect').value || 'selling',
+          status: 'owned',
+          createdAt: Date.now()
+        };
+
+        renderAppraisal(currentAppraisal);
+        resetScanInputs();
+        dismissAlert();
+      } catch (err) {
+        triggerAlert('Parsing error: ' + err.message, true, true);
+        document.getElementById('smartRetryBtn').style.display = 'block';
+      }
+    }
+
+    function renderAppraisal(item) {
+      document.getElementById('resItemTitle').textContent = `${item.item} ✏️`;
+      document.getElementById('resEstResale').textContent = '$' + item.resale.toFixed(2);
+      document.getElementById('resEstProfit').textContent = '$' + item.profit.toFixed(2);
+      document.getElementById('resBrand').textContent = `${item.brand} ✏️`;
+      document.getElementById('resCostBasis').textContent = '$' + (item.cost || 0).toFixed(2);
+      document.getElementById('resIntel').textContent = item.intel;
+      document.getElementById('assetStrategySelect').value = item.strategy || 'selling';
+
+      const pill = document.getElementById('resDispPill');
+      pill.textContent = item.disposition;
+      pill.className = item.disposition.includes('BUY') ? 'disposition-pill disp-flip' : (item.disposition.includes('MONITOR') ? 'disposition-pill disp-monitor' : 'disposition-pill disp-pass');
+
+      const compsBtn = document.getElementById('resDirectCompsBtn');
+      const targetUrl = generateCompUrl(item);
+
+      if (targetUrl && item.resale > 0) {
+        compsBtn.classList.remove('disabled');
+        compsBtn.textContent = item.category === 'mtg' ? '📊 VIEW SCRYFALL COMPS' : '📊 VIEW SOLD COMPS';
+        compsBtn.onclick = () => openExternalUrl(targetUrl);
+      } else {
+        compsBtn.classList.add('disabled');
+        compsBtn.textContent = 'NO COMPS AVAILABLE';
+        compsBtn.onclick = null;
+      }
+
+      document.getElementById('appraisalCard').style.display = 'flex';
+      document.getElementById('appraisalCard').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.getElementById('saveVaultBtn').onclick = async () => {
+      if (isSavingToVault || !currentAppraisal) return;
+      isSavingToVault = true;
+      playAudioFeedback('BUY', currentAppraisal.profit >= 50, false);
+      currentAppraisal.strategy = document.getElementById('assetStrategySelect').value || 'selling';
+
+      try {
+        await setDoc(doc(db, 'vault_inventory', currentAppraisal.id), currentAppraisal);
+        triggerAlert(`Securely logged to ${currentAppraisal.category.toUpperCase()} Vault.`, false, false);
+        setTimeout(() => { isSavingToVault = false; }, 800);
+      } catch (err) {
+        isSavingToVault = false;
+        triggerAlert('Vault sync failed: ' + err.message, true, false);
+      }
+    };
+
+    onSnapshot(query(collection(db, 'vault_inventory'), orderBy('createdAt', 'desc')), (snap) => {
+      STATE.vaultItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      renderVault();
+      runDailySilentCompsSync();
+    });
+
+    function renderVault() {
+      const scrollPos = window.scrollY;
+      const container = document.getElementById('vaultItemList');
+      container.innerHTML = '';
+      
+      const filtered = STATE.vaultItems.filter(item => (item.category || 'general') === STATE.vaultCategory);
+      let totalValue = 0;
+
+      filtered.forEach(item => {
+        const resale = Number(item.resale || 0);
+        const cost = Number(item.cost || 0);
+        const profit = item.profit !== undefined ? Number(item.profit) : calcProfit(resale, cost);
+        totalValue += profit;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'vault-item-container';
+        wrapper.innerHTML = `
+          <div class="vault-item" onclick="openVaultDetailById('${item.id}')">
+            <img class="item-thumb" src="${item.imageThumb || ''}" alt="Asset">
+            <div class="item-content">
+              <div class="item-title">${item.brand} - ${item.item}</div>
+              <div class="item-meta">Buy: $${cost.toFixed(2)} • Target: $${resale.toFixed(2)} • ${item.strategy === 'keeping' ? '🔒 Keeping' : (item.strategy === 'quick_flip' ? '⚡ Quick Flip' : '🛒 Selling')}</div>
+              <div class="item-actions" onclick="event.stopPropagation();">
+                <button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="quickSellItem('${item.id}')">SELL</button>
+                <button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; width:auto; color:var(--coral);" onclick="deleteVaultItem('${item.id}')">DELETE</button>
+              </div>
+            </div>
+            <div style="text-align:right;">
+              <div style="color:var(--accent); font-weight:800; font-size:1rem;">+$${profit.toFixed(2)}</div>
+              <div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">EST. PROFIT</div>
+            </div>
+          </div>
+        `;
+        container.appendChild(wrapper);
+      });
+
+      document.getElementById('vaultTotal').textContent = '$' + totalValue.toFixed(2);
+      document.getElementById('vaultCount').textContent = filtered.length + ' items';
+      if (STATE.activeTab === 'vault') window.scrollTo(0, scrollPos);
+    }
+
+    // SILENT ZERO-LAG DAILY COMPS BACKGROUND ENGINE
+    let isDailySyncRunning = false;
+    async function runDailySilentCompsSync() {
+      if (isDailySyncRunning || !STATE.geminiKey) return;
+      const todayKey = new Date().toISOString().slice(0, 10);
+      const lastSync = localStorage.getItem('ts_last_comps_sync');
+
+      // Strict 24-hour gatekeeper: exits in 0ms if already checked today
+      if (lastSync === todayKey) return;
+
+      isDailySyncRunning = true;
+
+      // 2.5s delay guarantees camera and UI mount with 100% responsiveness first
+      setTimeout(async () => {
+        try {
+          localStorage.setItem('ts_last_comps_sync', todayKey);
+
+          // MTG AUTO-SYNC (Free Scryfall API batch loop)
+          const mtgItems = STATE.vaultItems.filter(i => i.category === 'mtg').slice(0, 5);
+          for (const card of mtgItems) {
+            try {
+              const cleanCardQuery = encodeURIComponent(card.item.split('(')[0].trim());
+              const scryfallRes = await fetch(`[https://api.scryfall.com/cards/named?fuzzy=$](https://api.scryfall.com/cards/named?fuzzy=$){cleanCardQuery}`);
+              if (scryfallRes.ok) {
+                const sData = await scryfallRes.json();
+                const marketPrice = parseFloat(sData.prices?.usd || sData.prices?.usd_foil);
+                if (marketPrice && Math.abs(marketPrice - card.resale) > 1.00) {
+                  const newProfit = calcProfit(marketPrice, card.cost || 0);
+                  await updateDoc(doc(db, 'vault_inventory', card.id), {
+                    resale: marketPrice,
+                    profit: newProfit,
+                    lastSynced: Date.now()
+                  });
+                }
+              }
+            } catch (err) {}
+          }
+
+          // GENERAL/COIN TARGET SYNC (Up to 3 MONITOR or quick_flip items only)
+          const volatileItems = STATE.vaultItems
+            .filter(i => (i.strategy === 'quick_flip' || (i.disposition && i.disposition.includes('MONITOR'))) && i.category !== 'mtg')
+            .slice(0, 3);
+
+          for (const item of volatileItems) {
+            const queryTerm = encodeURIComponent(item.query || item.name);
+            const prompt = `Give current median secondary sold price in USD for: "${queryTerm}". Return raw JSON without markdown: {"resale": 24.00}`;
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 4000); // 4-second strict network abort
+
+            const res = await fetch(`[https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=$){encodeURIComponent(STATE.geminiKey)}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: prompt }] }],
+                generationConfig: { temperature: 0.1, maxOutputTokens: 60 }
+              }),
+              signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (res.ok) {
+              const json = await res.json();
+              const clean = json.candidates?.[0]?.content?.parts?.[0]?.text?.replace(/```json|```/gi, '').trim();
+              const data = JSON.parse(clean);
+              const newResale = parseFloat(data.resale);
+
+              if (newResale && Math.abs(newResale - item.resale) > 2.00) {
+                const newProfit = calcProfit(newResale, item.cost || 0);
+                await updateDoc(doc(db, 'vault_inventory', item.id), {
+                  resale: newResale,
+                  profit: newProfit,
+                  lastSynced: Date.now()
+                });
+
+                // Margin expansion alert if item flipped from slim to profitable
+                if (newProfit >= 15.00 && item.profit < 15.00) {
+                  triggerAlert(`🔥 Price Alert: ${item.name} rose to $${newResale.toFixed(2)}!`, false, false);
+                  playAudioFeedback('BUY', false, false);
+                }
+              }
+            }
+          }
+        } catch (e) {
+          // Silent fallback without blocking scanning
+        } finally {
+          isDailySyncRunning = false;
+        }
+      }, 2500);
+    }
+
+    window.openVaultDetailById = (id) => {
+      const item = STATE.vaultItems.find(i => i.id === id);
+      if (item) openVaultDetail(item);
+    };
+
+    function openVaultDetail(item) {
+      playAudioFeedback('MONITOR', false, false);
+      currentlyOpenedVaultItem = item;
+      document.getElementById('vDetailTitle').textContent = `${item.brand} - ${item.item}`;
+      document.getElementById('vDetailThumb').src = item.imageThumb || '';
+      document.getElementById('vDetailCost').textContent = `$${(item.cost || 0).toFixed(2)} ✏️`;
+      document.getElementById('vDetailResale').textContent = `$${(item.resale || 0).toFixed(2)}`;
+      document.getElementById('vDetailProfit').textContent = `$${(item.profit || 0).toFixed(2)}`;
+      document.getElementById('vDetailStrategy').textContent = item.strategy === 'keeping' ? 'Keeping' : (item.strategy === 'quick_flip' ? 'Quick Flip' : 'Selling');
+      document.getElementById('vDetailIntel').textContent = item.intel || 'No extra intelligence notes logged.';
+
+      const compBtn = document.getElementById('vDetailCompsActionBtn');
+      const targetUrl = generateCompUrl(item);
+
+      if (targetUrl && item.resale > 0) {
+        compBtn.classList.remove('disabled');
+        compBtn.textContent = 'VIEW COMPS';
+        compBtn.onclick = () => openExternalUrl(targetUrl);
+      } else {
+        compBtn.classList.add('disabled');
+        compBtn.textContent = 'NO COMPS AVAILABLE';
+        compBtn.onclick = null;
+      }
+
+      document.getElementById('vaultDetailModal').classList.add('active');
+    }
+
+    window.quickSellItem = async (id) => {
+      const target = STATE.vaultItems.find(i => i.id === id);
+      if (!target) return;
+      const soldInput = prompt('Enter final sold price ($):', target.resale || 35.00);
+      if (soldInput === null) return;
+      const finalPrice = parseFloat(soldInput) || (target.resale || 35.00);
+      const realized = calcProfit(finalPrice, target.cost || 0);
+
+      try {
+        await updateDoc(doc(db, 'vault_inventory', id), { status: 'sold', finalSoldPrice: finalPrice, profit: realized });
+        playAudioFeedback('BUY', realized >= 50, false);
+        triggerAlert('Asset marked as sold. Profit locked in.', false, false);
+      } catch (err) {
+        alert('Action failed: ' + err.message);
+      }
+    };
+
+    window.deleteVaultItem = async (id) => {
+      try {
+        await deleteDoc(doc(db, 'vault_inventory', id));
+        playAudioFeedback('PASS', false, false);
+        triggerAlert('Asset purged from vault.', false, false);
+      } catch (err) {
+        alert('Delete failed: ' + err.message);
+      }
+    };
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 3958.8;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      return (R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)))).toFixed(1);
+    }
+
+    function initStoresList() {
+      if (!navigator.geolocation) { renderStoreCards(STORES); return; }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const enriched = STORES.map(s => ({ ...s, dist: parseFloat(calculateDistance(pos.coords.latitude, pos.coords.longitude, s.lat, s.lon)) })).sort((a, b) => a.dist - b.dist);
+          renderStoreCards(enriched);
+        },
+        () => renderStoreCards(STORES),
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+      );
+    }
+
+    function renderStoreCards(storeList) {
+      const grid = document.getElementById('storeRadarGrid');
+      grid.innerHTML = '';
+      storeList.forEach(s => {
+        const card = document.createElement('div');
+        card.className = 'store-card-modern';
+        card.innerHTML = `
+          <div class="store-card-top">
+            <div>
+              <div class="store-name-title">${s.name}</div>
+              <div class="store-address-text">${s.address}</div>
+            </div>
+            <span class="store-dist-badge">${s.dist || '--'} mi</span>
+          </div>
+          <div class="nav-actions-grid">
+            <button class="nav-app-btn" onclick="openMapsRoute('${encodeURIComponent(s.address)}')">Google Maps</button>
+            <button class="nav-app-btn" onclick="openStoreReviews('${s.name.replace(/'/g, "\\'")}')">⭐ Reviews</button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    window.openMapsRoute = (destAddress) => {
+      openExternalUrl(`[https://www.google.com/maps/dir/?api=1&destination=$](https://www.google.com/maps/dir/?api=1&destination=$){destAddress}`);
+    };
+
+    window.openStoreReviews = (storeName) => {
+      playAudioFeedback('MONITOR', false, false);
+      activeReviewStoreName = storeName;
+      document.getElementById('reviewStoreTitle').textContent = storeName + ' • Intel';
+      const savedReviews = JSON.parse(localStorage.getItem('ts_reviews_' + storeName) || JSON.stringify([
+        { author: 'Specialist Claypool', rating: 5, text: 'Great selection of vintage audio gear in the back.' }
+      ]));
+
+      const container = document.getElementById('storeReviewsContainer');
+      container.innerHTML = '';
+      savedReviews.forEach(r => {
+        const div = document.createElement('div');
+        div.style.cssText = 'background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem;';
+        div.innerHTML = `<div style="font-weight:700; color:var(--accent);">⭐ ${r.rating}/5 • ${r.author}</div><div style="color:var(--text-muted); margin-top:2px;">${r.text}</div>`;
+        container.appendChild(div);
+      });
+      document.getElementById('storeReviewModal').classList.add('active');
+    };
+
+    document.getElementById('closeReviewModalBtn').onclick = () => { document.getElementById('storeReviewModal').classList.remove('active'); };
+    document.getElementById('submitReviewBtn').onclick = () => {
+      if (!activeReviewStoreName) return;
+      const rating = document.getElementById('newReviewRating').value;
+      const text = document.getElementById('newReviewText').value.trim();
+      if (!text) return;
+
+      const storageKey = 'ts_reviews_' + activeReviewStoreName;
+      const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
+      existing.unshift({ author: 'Specialist ' + STATE.userLastName, rating: parseInt(rating), text: text });
+      localStorage.setItem(storageKey, JSON.stringify(existing));
+      document.getElementById('newReviewText').value = '';
+      openStoreReviews(activeReviewStoreName);
+    };
+
+    document.getElementById('shareEvaluationBtn').onclick = async () => {
+      if (!currentAppraisal) return;
+      const canvas = document.createElement('canvas');
+      canvas.width = 600; canvas.height = 360;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, 600, 360);
+      ctx.strokeStyle = '#14b8a6'; ctx.lineWidth = 4; ctx.strokeRect(10, 10, 580, 340);
+      ctx.fillStyle = '#14b8a6'; ctx.font = 'bold 16px sans-serif'; ctx.fillText('THRIFT SCOUT • RECON', 30, 45);
+      ctx.fillStyle = '#f9fafb'; ctx.font = 'bold 20px sans-serif'; ctx.fillText(currentAppraisal.name, 30, 80);
+      ctx.fillStyle = '#9ca3af'; ctx.font = '14px sans-serif'; ctx.fillText('Target Resale: $' + currentAppraisal.resale.toFixed(2), 30, 130);
+      ctx.fillStyle = '#14b8a6'; ctx.font = 'bold 22px sans-serif'; ctx.fillText('Est. Net Profit: $' + currentAppraisal.profit.toFixed(2), 30, 170);
+      ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 16px sans-serif'; ctx.fillText('VERDICT: ' + currentAppraisal.disposition, 30, 220);
+
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], 'thrift-scout.jpg', { type: 'image/jpeg' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ title: currentAppraisal.name, files: [file] });
+        } else {
+          navigator.clipboard.writeText(`${currentAppraisal.name} | Resale: $${currentAppraisal.resale} | Profit: $${currentAppraisal.profit}`);
+          alert('Evaluation copied to clipboard!');
+        }
+      }, 'image/jpeg', 0.90);
+    };
+
+    initStoresList();
+  </script>
+</body>
+</html>
