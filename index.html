@@ -1937,8 +1937,7 @@
           for (const card of mtgItems) {
             try {
               const cleanCardQuery = encodeURIComponent(card.item.split('(')[0].trim());
-              const scryfallRes = await fetch(`[https://api.scryfall.com/cards/named?fuzzy=$](https://api.scryfall.com/cards/named?fuzzy=$){cleanCardQuery}`);
-              if (scryfallRes.ok) {
+const scryfallRes = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${cleanCardQuery}`);              if (scryfallRes.ok) {
                 const sData = await scryfallRes.json();
                 const marketPrice = parseFloat(sData.prices?.usd || sData.prices?.usd_foil);
                 if (marketPrice && Math.abs(marketPrice - card.resale) > 1.00) {
@@ -1965,8 +1964,7 @@
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-            const res = await fetch(`[https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$){encodeURIComponent(STATE.geminiKey)}`, {
-              method: 'POST',
+const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`, {              method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 contents: [{ parts: [{ text: prompt }] }],
@@ -2111,8 +2109,8 @@
     }
 
     window.openMapsRoute = (destAddress) => {
-      openExternalUrl(`[https://www.google.com/maps/dir/?api=1&destination=$](https://www.google.com/maps/dir/?api=1&destination=$){destAddress}`);
-    };
+  openExternalUrl(`https://www.google.com/maps/dir/?api=1&destination=${destAddress}`);
+};
 
     window.openStoreReviews = (storeName) => {
       playAudioFeedback('MONITOR', false, false);
