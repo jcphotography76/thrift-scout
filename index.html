@@ -1746,8 +1746,7 @@
       selectedImagesBase64.forEach(b64 => parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } }));
 
       // Tier 1: Attempt Grounded Live Search on 2.5 Flash
-      let queryResult = await executeModelQuery("gemini-2.5-flash", promptText, parts, true);
-
+let queryResult = await executeModelQuery("gemini-2.5-flash", promptText, parts, true);
       // Tier 2: Automatic Fallback to Non-Grounded Turbo if Quota (429) or Tool Conflict
       if (!queryResult.ok && (queryResult.status === 429 || queryResult.status === 400 || queryResult.status === 404)) {
         statusLabel.textContent = 'Engaging Turbo Fallback (Zero-Quota)...';
