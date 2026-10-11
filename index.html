@@ -543,7 +543,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
     import {
-      getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, orderBy
+      getFirestore, collection, doc, setDoc, addDoc, getDocs, deleteDoc, updateDoc, onSnapshot, query, orderBy, limit
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -1224,6 +1224,57 @@
     document.getElementById('vTabCoins').onclick = () => setVaultSubTab('coins', 'Numismatic Vault');
     document.getElementById('vTabMtg').onclick = () => setVaultSubTab('mtg', 'Magic: The Gathering Collection');
 
+    // ================= PHOTO FINGERPRINT (difference hash) =================
+    // Shrinks the photo to 9x8 grayscale and records whether each pixel is brighter than its
+    // neighbour. Two photos of the same item/framing give nearly identical 64-bit fingerprints.
+    let currentPhash = null;
+    const HISTORY_MATCH_MAX_DIST = 4;   // out of 64 bits; low = strict, avoids wrong matches
+    const HISTORY_LOOKBACK = 300;       // how many recent scans to compare against
+
+    function computePhash(source) {
+      try {
+        const c = document.createElement('canvas');
+        c.width = 9; c.height = 8;
+        const ctx = c.getContext('2d', { willReadFrequently: true });
+        ctx.drawImage(source, 0, 0, 9, 8);
+        const d = ctx.getImageData(0, 0, 9, 8).data;
+        const gray = (x, y) => { const i = (y * 9 + x) * 4; return 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; };
+        let bits = '';
+        for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) bits += gray(x, y) > gray(x + 1, y) ? '1' : '0';
+        let hex = '';
+        for (let i = 0; i < 64; i += 4) hex += parseInt(bits.slice(i, i + 4), 2).toString(16);
+        return hex;
+      } catch (e) { return null; }
+    }
+
+    function hammingHex(a, b) {
+      if (!a || !b || a.length !== b.length) return 64;
+      let dist = 0;
+      for (let i = 0; i < a.length; i++) {
+        let x = parseInt(a[i], 16) ^ parseInt(b[i], 16);
+        while (x) { dist += x & 1; x >>= 1; }
+      }
+      return dist;
+    }
+
+    async function findHistoryMatch(phash, category) {
+      if (!phash) return null;
+      try {
+        const snap = await getDocs(query(collection(db, 'scout_history'), orderBy('createdAt', 'desc'), limit(HISTORY_LOOKBACK)));
+        let best = null, bestDist = 65;
+        snap.forEach(dc => {
+          const h = dc.data();
+          if (!h.phash || (h.category || 'general') !== category || !(Number(h.resale) > 0)) return;
+          const dist = hammingHex(phash, h.phash);
+          if (dist < bestDist) { bestDist = dist; best = h; }
+        });
+        return (best && bestDist <= HISTORY_MATCH_MAX_DIST) ? { ...best, dist: bestDist } : null;
+      } catch (e) {
+        console.warn('History lookup skipped:', e);
+        return null;   // any problem -> just do a normal AI scan
+      }
+    }
+
     // ================= IMAGES: sharp copy for AI, tiny copy for vault =================
     function makeImages(source, srcW, srcH) {
       const draw = (maxDim, quality) => {
@@ -1235,7 +1286,7 @@
         c.getContext('2d').drawImage(source, 0, 0, w, h);
         return c.toDataURL('image/jpeg', quality);
       };
-      return { scan: draw(SCAN_IMAGE_MAX, SCAN_IMAGE_QUALITY), thumb: draw(THUMB_MAX, THUMB_QUALITY) };
+      return { scan: draw(SCAN_IMAGE_MAX, SCAN_IMAGE_QUALITY), thumb: draw(THUMB_MAX, THUMB_QUALITY), phash: computePhash(source) };
     }
 
     function compressImageFile(file) {
@@ -1277,10 +1328,10 @@
       const previews = [];
       try {
         for (let i = 0; i < toProcess.length; i++) {
-          const { scan, thumb } = await compressImageFile(toProcess[i]);
+          const { scan, thumb, phash } = await compressImageFile(toProcess[i]);
           selectedImagesBase64.push(scan.split(',')[1]);
           previews.push(scan);
-          if (i === 0) compressedThumbDataUrl = thumb;
+          if (i === 0) { compressedThumbDataUrl = thumb; currentPhash = phash; }
         }
       } catch (err) {
         triggerAlert('⚠️ ' + err.message, true, true);
@@ -1351,6 +1402,7 @@
       playAudioFeedback('BUY', false, false);
       selectedImagesBase64 = stagedShots.map(s => s.scan.split(',')[1]);
       compressedThumbDataUrl = stagedShots[0].thumb;
+      currentPhash = stagedShots[0].phash;
       showPreviews(stagedShots.map(s => s.scan));
       stopCamera();
       webcamModal.classList.remove('active');
@@ -1366,6 +1418,7 @@
     function resetScanInputs() {
       selectedImagesBase64 = [];
       compressedThumbDataUrl = null;
+      currentPhash = null;
       document.getElementById('imagePreviewContainer').innerHTML = '';
       document.getElementById('imagePreviewContainer').style.display = 'none';
       document.getElementById('itemCostInput').value = '0.00';
@@ -1406,7 +1459,23 @@
       const parts = [{ text: promptText }];
       selectedImagesBase64.forEach(b64 => parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } }));
 
-      const result = await callGemini(parts);
+      const scanPhash = currentPhash;
+      let result = null;
+      if (!isCoinMode && !isMtgMode && scanPhash) {
+        setProgress('Checking your scan history...', 35);
+        const hit = await findHistoryMatch(scanPhash, 'general');
+        if (hit) {
+          result = {
+            ok: true, cached: true, secs: '0.0', model: 'scan history',
+            text: JSON.stringify({
+              brand: hit.brand, item: hit.item, resale: hit.resale, platform: hit.platform,
+              shipping: hit.shipping, query: hit.query,
+              intel: '📚 Matched from your scan history (no AI call used). ' + (hit.intel || '')
+            })
+          };
+        }
+      }
+      if (!result) result = await callGemini(parts);
       document.getElementById('evalProgressContainer').style.display = 'none';
 
       if (!result.ok) {
@@ -1445,9 +1514,22 @@
           status: 'owned', createdAt: Date.now()
         };
 
+        if (!result.cached) {
+          // Log every live scan (kept or not) so the history database keeps growing. Never blocks the UI.
+          addDoc(collection(db, 'scout_history'), {
+            brand: parsedBrand, item: parsedItem, resale: estResale, cost: itemCost,
+            platform: currentAppraisal.platform, shipping: currentAppraisal.shipping,
+            intel: currentAppraisal.intel, query: currentAppraisal.query,
+            category: currentAppraisal.category, phash: scanPhash || null,
+            imageThumb: currentAppraisal.imageThumb, createdAt: Date.now()
+          }).catch(err => console.warn('History log failed:', err));
+        }
+
         renderAppraisal(currentAppraisal);
         resetScanInputs();
-        triggerAlert(`Scan finished in ${result.secs}s (${result.model}).`, false, false);
+        triggerAlert(result.cached
+          ? 'Instant match from your scan history. No AI call used.'
+          : `Scan finished in ${result.secs}s (${result.model}).`, false, false);
       } catch (err) {
         triggerAlert('Could not read the AI answer: ' + err.message, true, true);
         document.getElementById('smartRetryBtn').style.display = 'block';
