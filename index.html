@@ -896,10 +896,10 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+    import { initializeApp } from "[https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js](https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js)";
     import { 
       getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, orderBy 
-    } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+    } from "[https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js](https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js)";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAtDQnJuWvJOp__hVHO5fdNhjiRjZZkskI",
@@ -934,11 +934,11 @@
       const encoded = encodeURIComponent(cleanTerm);
 
       if (item.category === 'mtg') {
-        return `https://scryfall.com/search?q=${encoded}`;
+        return `[https://scryfall.com/search?q=$](https://scryfall.com/search?q=$){encoded}`;
       } else if (item.category === 'coins') {
-        return `https://www.ebay.com/sch/11116/i.html?_nkw=${encoded}&LH_Sold=1&LH_Complete=1`;
+        return `[https://www.ebay.com/sch/11116/i.html?_nkw=$](https://www.ebay.com/sch/11116/i.html?_nkw=$){encoded}&LH_Sold=1&LH_Complete=1`;
       } else {
-        return `https://www.ebay.com/sch/i.html?_nkw=${encoded}&LH_Sold=1&LH_Complete=1`;
+        return `[https://www.ebay.com/sch/i.html?_nkw=$](https://www.ebay.com/sch/i.html?_nkw=$){encoded}&LH_Sold=1&LH_Complete=1`;
       }
     }
 
@@ -1192,9 +1192,9 @@
       appraisal.disposition = dispText;
     }
 
-    // Direct JSON API Execution Engine (Restricted strictly to 3.8-flash with JSON response enforcement)
-    async function executeModelQuery(promptText, parts) {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`;
+    // Direct JSON API Execution strictly locked on gemini-3.8-flash with auto-retry on 503 capacity limits
+    async function executeModelQuery(promptText, parts, maxAttempts = 3) {
+      const endpoint = `[https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$](https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=$){encodeURIComponent(STATE.geminiKey)}`;
       
       const payload = {
         contents: [{ parts: parts }],
@@ -1205,29 +1205,44 @@
         }
       };
 
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 25000);
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 25000);
 
-      try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
+        try {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
 
-        if (res.ok) {
-          const data = await res.json();
-          return { ok: true, text: data.candidates?.[0]?.content?.parts?.[0]?.text };
-        } else {
+          if (res.ok) {
+            const data = await res.json();
+            return { ok: true, text: data.candidates?.[0]?.content?.parts?.[0]?.text };
+          }
+
           const errJson = await res.json().catch(() => ({}));
           const errMsg = errJson.error?.message || `HTTP ${res.status}`;
+
+          // Catch 503 Server Demand Spikes & 429 rate limits, and automatically back off
+          if ((res.status === 503 || res.status === 429) && attempt < maxAttempts) {
+            const progressText = document.getElementById('evalProgressText');
+            if (progressText) progressText.textContent = `Server busy, retrying automatically (${attempt}/${maxAttempts - 1})...`;
+            await new Promise(r => setTimeout(r, 2000 * attempt));
+            continue;
+          }
+
           return { ok: false, error: errMsg, status: res.status };
+        } catch (err) {
+          clearTimeout(timeoutId);
+          if (attempt < maxAttempts) {
+            await new Promise(r => setTimeout(r, 2000 * attempt));
+            continue;
+          }
+          return { ok: false, error: err.name === 'AbortError' ? 'Scan timed out after 25 seconds.' : err.message };
         }
-      } catch (err) {
-        clearTimeout(timeoutId);
-        return { ok: false, error: err.name === 'AbortError' ? 'Scan timed out after 25 seconds.' : err.message };
       }
     }
 
@@ -1303,7 +1318,7 @@
 
       playAudioFeedback(verdictType, isJackpot, true);
 
-      const manualSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%231f2937' width='100' height='100'/%3E%3Ctext fill='%2314b8a6' font-family='sans-serif' font-weight='bold' font-size='38' x='50%25' y='55%25' text-anchor='middle' dominant-baseline='central'%3E✍️%3C/text%3E%3C/svg%3E";
+      const manualSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)' width='100' height='100' viewBox='0 0 100 100'%3E%3Crect fill='%231f2937' width='100' height='100'/%3E%3Ctext fill='%2314b8a6' font-family='sans-serif' font-weight='bold' font-size='38' x='50%25' y='55%25' text-anchor='middle' dominant-baseline='central'%3E✍️%3C/text%3E%3C/svg%3E";
       const uniqueId = 'item_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
 
       currentAppraisal = {
@@ -1395,7 +1410,7 @@
     document.getElementById('dailyTargetName').textContent = currentMission.name;
     document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
     document.getElementById('dailyCompsActionBtn').onclick = () => {
-      openExternalUrl(`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(currentMission.query)}&LH_Sold=1&LH_Complete=1`);
+      openExternalUrl(`[https://www.ebay.com/sch/i.html?_nkw=$](https://www.ebay.com/sch/i.html?_nkw=$){encodeURIComponent(currentMission.query)}&LH_Sold=1&LH_Complete=1`);
     };
 
     document.getElementById('claimChallengeBtn').onclick = () => {
@@ -2000,7 +2015,7 @@
     }
 
     window.openMapsRoute = (destAddress) => {
-      openExternalUrl(`https://www.google.com/maps/dir/?api=1&destination=${destAddress}`);
+      openExternalUrl(`[https://www.google.com/maps/dir/?api=1&destination=$](https://www.google.com/maps/dir/?api=1&destination=$){destAddress}`);
     };
 
     window.openStoreReviews = (storeName) => {
