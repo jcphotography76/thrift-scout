@@ -147,22 +147,9 @@
           <input type="number" id="itemCostInput" class="input-field" placeholder="0.00" value="0.00" step="0.01" min="0">
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-          <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border);">
-            <div>
-              <div style="font-weight:700; font-size:.8rem; color:var(--amber);">🪙 Coin Mode</div>
-              <div style="font-size:.65rem; color:var(--text-muted);">Front + Back Dual Shot</div>
-            </div>
-            <input type="checkbox" id="coinModeToggle" style="width:18px; height:18px; cursor:pointer;">
-          </div>
-          <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border);">
-            <div>
-              <div style="font-weight:700; font-size:.8rem; color:var(--accent);">🪄 MTG Card Mode</div>
-              <div style="font-size:.65rem; color:var(--text-muted);">Scryfall Comp Feed</div>
-            </div>
-            <input type="checkbox" id="mtgModeToggle" style="width:18px; height:18px; cursor:pointer;">
-          </div>
-        </div>
+        <!-- Coin & MTG recon modes are built but hidden for the v1 launch -->
+        <input type="checkbox" id="coinModeToggle" style="display:none;">
+        <input type="checkbox" id="mtgModeToggle" style="display:none;">
 
         <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
 
@@ -296,11 +283,12 @@
     <!-- TAB 3: TRI-VAULT -->
     <section id="tab-vault" class="tab-view">
       <div class="card">
-        <div class="vault-subtoggle">
+        <div class="vault-subtoggle" style="grid-template-columns:1fr; display:none;">
           <button id="vTabGeneral" class="vault-subbtn active">📦 General</button>
-          <button id="vTabCoins" class="vault-subbtn">🪙 Coins/Cash</button>
-          <button id="vTabMtg" class="vault-subbtn">🪄 MTG Cards</button>
         </div>
+        <!-- Coins/Cash and MTG Cards vault tabs hidden for v1; logic preserved for later -->
+        <button id="vTabCoins" style="display:none;"></button>
+        <button id="vTabMtg" style="display:none;"></button>
         <div class="vault-toolbar">
           <span id="vaultModeLabel">General Vault Inventory</span>
           <span>Tap item for full details & comps</span>
@@ -482,6 +470,7 @@
         </div>
       </div>
       <div style="font-size:.82rem; color:var(--text-muted); line-height:1.4;" id="vDetailIntel"></div>
+      <button class="btn btn-amber" id="vDetailVerifyBtn" style="font-size:.85rem; padding:12px;">🔎 VERIFY THIS ITEM (Careful Re-check)</button>
       <div style="display:flex; gap:8px; margin-top:4px;">
         <button class="btn btn-accent" id="quickToggleSellBtn" style="flex:1; font-size:.8rem;">⚡ TOGGLE QUICK FLIP</button>
         <button id="vDetailCompsActionBtn" class="btn btn-outline" style="flex:1; font-size:.8rem;">VIEW COMPS</button>
@@ -1127,6 +1116,64 @@
       } catch (err) { alert('Strategy update failed: ' + err.message); }
     };
 
+    // ================= VAULT: CAREFUL SECOND-OPINION VERIFY =================
+    document.getElementById('vDetailVerifyBtn').onclick = async () => {
+      if (!currentlyOpenedVaultItem || isBusy) return;
+      if (!STATE.geminiKey) { alert('Set your Gemini API key in Config first.'); return; }
+      isBusy = true;
+
+      const btn = document.getElementById('vDetailVerifyBtn');
+      const originalLabel = btn.textContent;
+      btn.textContent = '\u23f3 Re-checking carefully...';
+      btn.classList.add('disabled');
+      triggerAlert('Running a careful second-opinion check on this item...', false, false);
+
+      const item = currentlyOpenedVaultItem;
+      const promptText = "You are double-checking a secondhand item that was already given a first guess. " +
+        "Look closely at the photo for brand marks, model numbers, fabric tags, maker's marks, or any detail " +
+        "that confirms or corrects the first guess below. Be conservative and realistic about sold value, not retail price.\n\n" +
+        "First guess -> brand: \"" + (item.brand || '') + "\", item: \"" + (item.item || '') + "\", estimated resale: $" + (item.resale || 0) + "\n\n" +
+        "Return ONLY valid JSON matching this schema:\n" +
+        '{"brand":"corrected or confirmed brand","item":"corrected or confirmed item descriptor","resale":18.00,"intel":"what you actually see confirming or correcting the first guess, and why the price changed or stayed the same","query":"brand item descriptor keywords"}';
+
+      const parts = [{ text: promptText }];
+      if (item.imageThumb && item.imageThumb.startsWith('data:image')) {
+        const b64 = item.imageThumb.split(',')[1];
+        if (b64) parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } });
+      }
+
+      const res = await callGemini(parts);
+
+      if (res.ok) {
+        try {
+          const parsed = parseModelJson(res.text);
+          const newBrand = parsed.brand || item.brand;
+          const newItem = parsed.item || item.item;
+          const newResale = parseFloat(parsed.resale);
+          const finalResale = isNaN(newResale) ? item.resale : newResale;
+          const finalProfit = calcProfit(finalResale, item.cost || 0);
+
+          await updateDoc(doc(db, 'vault_inventory', item.id), {
+            brand: newBrand, item: newItem, resale: finalResale, profit: finalProfit,
+            intel: parsed.intel || item.intel, query: parsed.query || item.query, verified: true
+          });
+
+          currentlyOpenedVaultItem = { ...item, brand: newBrand, item: newItem, resale: finalResale, profit: finalProfit, intel: parsed.intel || item.intel, query: parsed.query || item.query, verified: true };
+          openVaultDetail(currentlyOpenedVaultItem);
+          playAudioFeedback(finalProfit >= 50 ? 'BUY' : 'MONITOR', finalProfit >= 50, true);
+          triggerAlert(`Verified in ${res.secs}s (${res.model}). Updated with the closer look.`, false, true);
+        } catch (e) {
+          triggerAlert('Could not read the verification answer: ' + e.message, true, true);
+        }
+      } else {
+        triggerAlert('\u26a0\ufe0f Verification failed: ' + res.error, true, true);
+      }
+
+      btn.textContent = originalLabel;
+      btn.classList.remove('disabled');
+      isBusy = false;
+    };
+
     document.getElementById('resetQuotaBtn').onclick = () => {
       STATE.dailyScans = 100;
       updatePills();
@@ -1502,7 +1549,7 @@
       document.getElementById('vDetailResale').textContent = `$${(item.resale || 0).toFixed(2)}`;
       document.getElementById('vDetailProfit').textContent = `$${(item.profit || 0).toFixed(2)}`;
       document.getElementById('vDetailStrategy').textContent = item.strategy === 'keeping' ? 'Keeping' : (item.strategy === 'quick_flip' ? 'Quick Flip' : 'Selling');
-      document.getElementById('vDetailIntel').textContent = item.intel || 'No extra intelligence notes logged.';
+      document.getElementById('vDetailIntel').textContent = (item.verified ? '✅ Verified • ' : '') + (item.intel || 'No extra intelligence notes logged.');
 
       const compBtn = document.getElementById('vDetailCompsActionBtn');
       const targetUrl = generateCompUrl(item);
