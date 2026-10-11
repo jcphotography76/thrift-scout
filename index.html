@@ -534,7 +534,7 @@
         <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
           <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
             <span id="evalProgressText">Processing Scan...</span>
-            <span id="evalEngineStatus">Gemini Precision Engine</span>
+            <span id="evalEngineStatus">Gemini 3.8-Flash Precision Engine</span>
           </div>
           <div style="background:var(--border); height:6px; border-radius:3px; overflow:hidden;">
             <div id="evalProgressBarFill" style="background:var(--accent); width:100%; height:100%;"></div>
@@ -700,7 +700,7 @@
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
       <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Direct Comps Engine</div>
       <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Vision Comps Engine is primed. Real secondary market comps with direct database synchronization.
+        Welcome back, Specialist. Gemini 3.8-Flash Vision Engine is ready. Real secondary market comps with direct database synchronization.
       </p>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -1230,22 +1230,19 @@
       appraisal.disposition = dispText;
     }
 
-    async function executeModelQuery(promptText, parts, maxAttempts = 2) {
-      const models = ['gemini-2.5-flash', 'gemini-3.8-flash'];
+    async function executeModelQuery(promptText, parts, maxAttempts = 3) {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`;
       
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        const currentModel = models[attempt - 1] || models[0];
-        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`;
-        
-        const payload = {
-          contents: [{ parts: parts }],
-          generationConfig: { 
-            temperature: 0.1, 
-            maxOutputTokens: 800,
-            response_mime_type: "application/json"
-          }
-        };
+      const payload = {
+        contents: [{ parts: parts }],
+        generationConfig: { 
+          temperature: 0.1, 
+          maxOutputTokens: 800,
+          response_mime_type: "application/json"
+        }
+      };
 
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 20000);
 
@@ -1268,8 +1265,8 @@
 
           if ((res.status === 503 || res.status === 429) && attempt < maxAttempts) {
             const progressText = document.getElementById('evalProgressText');
-            if (progressText) progressText.textContent = `High demand on primary engine. Switching to backup...`;
-            await new Promise(r => setTimeout(r, 1200));
+            if (progressText) progressText.textContent = `Server busy, retrying automatically (${attempt}/${maxAttempts - 1})...`;
+            await new Promise(r => setTimeout(r, 2000 * attempt));
             continue;
           }
 
@@ -1277,7 +1274,7 @@
         } catch (err) {
           clearTimeout(timeoutId);
           if (attempt < maxAttempts) {
-            await new Promise(r => setTimeout(r, 1000));
+            await new Promise(r => setTimeout(r, 2000 * attempt));
             continue;
           }
           return { ok: false, error: err.name === 'AbortError' ? 'Scan timed out after 20s.' : err.message };
@@ -1754,7 +1751,7 @@
       progressBox.style.display = 'flex';
       progressBarFill.style.width = '35%';
       progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Checking Market Comps...');
-      statusLabel.textContent = 'Gemini Precision Engine';
+      statusLabel.textContent = 'Gemini 3.8-Flash Precision Engine';
 
       document.getElementById('smartRetryBtn').style.display = 'none';
 
