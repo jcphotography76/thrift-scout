@@ -3,486 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Thrift Scout • Grounded Live Comps Engine</title>
+  <title>Thrift Scout</title>
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: #111827;
-      --surface: #1f2937;
-      --border: #374151;
-      --border-focus: #6366f1;
-      --text: #f9fafb;
-      --text-muted: #9ca3af;
-      --primary: #6366f1;
-      --primary-glow: rgba(99, 102, 241, 0.2);
-      --accent: #14b8a6;
-      --accent-glow: rgba(20, 184, 166, 0.2);
-      --coral: #f43f5e;
-      --coral-glow: rgba(244, 63, 94, 0.2);
-      --amber: #f59e0b;
-      --amber-glow: rgba(245, 158, 11, 0.2);
-      --gold: #fbbf24;
-      --gold-glow: rgba(251, 191, 36, 0.35);
-      --font-scale: 1rem;
-      --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --bg:#090d16; --card-bg:#111827; --surface:#1f2937; --border:#374151; --border-focus:#6366f1;
+      --text:#f9fafb; --text-muted:#9ca3af; --primary:#6366f1; --primary-glow:rgba(99,102,241,.2);
+      --accent:#14b8a6; --accent-glow:rgba(20,184,166,.2); --coral:#f43f5e; --coral-glow:rgba(244,63,94,.2);
+      --amber:#f59e0b; --amber-glow:rgba(245,158,11,.2); --gold:#fbbf24; --gold-glow:rgba(251,191,36,.35);
+      --font-scale:1rem;
+      --font-stack:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     }
-    
-    [data-theme="light"] {
-      --bg: #f3f4f6;
-      --card-bg: #ffffff;
-      --surface: #e5e7eb;
-      --border: #cbd5e1;
-      --border-focus: #4f46e5;
-      --text: #0f172a;
-      --text-muted: #475569;
-    }
-    [data-theme="midnight"] {
-      --bg: #030712;
-      --card-bg: #0b0f19;
-      --surface: #111827;
-      --border: #1f2937;
-      --border-focus: #38bdf8;
-      --text: #f0f9ff;
-      --text-muted: #64748b;
-      --accent: #38bdf8;
-      --accent-glow: rgba(56, 189, 248, 0.2);
-    }
-    [data-theme="tactical"] {
-      --bg: #0f1711;
-      --card-bg: #142217;
-      --surface: #1e3323;
-      --border: #2e4d36;
-      --border-focus: #22c55e;
-      --text: #f0fdf4;
-      --text-muted: #86efac;
-      --accent: #22c55e;
-      --accent-glow: rgba(34, 197, 94, 0.2);
-    }
-    [data-theme="cyberpunk"] {
-      --bg: #0f051d;
-      --card-bg: #18082e;
-      --surface: #271147;
-      --border: #4a1d8a;
-      --border-focus: #ec4899;
-      --text: #fdf4ff;
-      --text-muted: #d8b4fe;
-      --accent: #ec4899;
-      --accent-glow: rgba(236, 72, 153, 0.2);
-    }
+    [data-theme="light"] { --bg:#f3f4f6; --card-bg:#fff; --surface:#e5e7eb; --border:#cbd5e1; --border-focus:#4f46e5; --text:#0f172a; --text-muted:#475569; }
+    [data-theme="midnight"] { --bg:#030712; --card-bg:#0b0f19; --surface:#111827; --border:#1f2937; --border-focus:#38bdf8; --text:#f0f9ff; --text-muted:#64748b; --accent:#38bdf8; --accent-glow:rgba(56,189,248,.2); }
+    [data-theme="tactical"] { --bg:#0f1711; --card-bg:#142217; --surface:#1e3323; --border:#2e4d36; --border-focus:#22c55e; --text:#f0fdf4; --text-muted:#86efac; --accent:#22c55e; --accent-glow:rgba(34,197,94,.2); }
+    [data-theme="cyberpunk"] { --bg:#0f051d; --card-bg:#18082e; --surface:#271147; --border:#4a1d8a; --border-focus:#ec4899; --text:#fdf4ff; --text-muted:#d8b4fe; --accent:#ec4899; --accent-glow:rgba(236,72,153,.2); }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: var(--font-stack);
-      font-size: var(--font-scale);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding-bottom: calc(75px + env(safe-area-inset-bottom));
-      overflow-x: hidden;
-      overscroll-behavior-y: none;
-      touch-action: pan-y;
-      -webkit-overflow-scrolling: touch;
-      -webkit-font-smoothing: antialiased;
-      transition: background-color 0.3s, color 0.3s;
+      background-color:var(--bg); color:var(--text); font-family:var(--font-stack); font-size:var(--font-scale);
+      min-height:100vh; display:flex; flex-direction:column; padding-bottom:calc(75px + env(safe-area-inset-bottom));
+      overflow-x:hidden; overscroll-behavior-y:none; touch-action:pan-y; -webkit-overflow-scrolling:touch;
+      -webkit-font-smoothing:antialiased; transition:background-color .3s,color .3s;
     }
-
-    @keyframes screenFlash {
-      0% { background-color: var(--accent); }
-      100% { background-color: var(--bg); }
-    }
-    body.flash-active {
-      animation: screenFlash 0.35s ease-out;
-    }
+    @keyframes screenFlash { 0% { background-color:var(--accent); } 100% { background-color:var(--bg); } }
+    body.flash-active { animation:screenFlash .35s ease-out; }
 
     header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      background: rgba(17, 24, 39, 0.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      position:sticky; top:0; z-index:50; background:rgba(17,24,39,.88); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--border); padding:12px 16px; display:flex; justify-content:space-between; align-items:center;
     }
-    [data-theme="light"] header { background: rgba(255, 255, 255, 0.88); }
-    .brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 1.15rem; letter-spacing: -0.02em; color: var(--text); }
-    .brand-accent { color: var(--accent); }
-    .header-pills { display: flex; gap: 8px; align-items: center; }
-    
+    [data-theme="light"] header { background:rgba(255,255,255,.88); }
+    .brand { display:flex; align-items:center; gap:8px; font-weight:800; font-size:1.15rem; letter-spacing:-.02em; color:var(--text); }
+    .brand-accent { color:var(--accent); }
+    .header-pills { display:flex; gap:8px; align-items:center; }
     .profile-avatar-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      overflow: hidden;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.95rem;
-      touch-action: manipulation;
+      width:36px; height:36px; border-radius:50%; background:var(--surface); border:1px solid var(--border); overflow:hidden;
+      cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.95rem; touch-action:manipulation;
     }
-    
-    main { 
-      flex: 1; 
-      width: 100%; 
-      max-width: 680px; 
-      margin: 0 auto; 
-      padding: 20px 16px; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 16px; 
-    }
-
-    .tab-view { display: none; flex-direction: column; gap: 14px; }
-    .tab-view.active { display: flex; }
-    
+    .profile-avatar-btn img { width:100%; height:100%; object-fit:cover; }
+    main { flex:1; width:100%; max-width:680px; margin:0 auto; padding:20px 16px; display:flex; flex-direction:column; gap:16px; }
+    .tab-view { display:none; flex-direction:column; gap:14px; }
+    .tab-view.active { display:flex; }
     .card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.15);
-      position: relative;
+      background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:16px; display:flex;
+      flex-direction:column; gap:12px; box-shadow:0 4px 20px -2px rgba(0,0,0,.15); position:relative;
     }
-
-    .card-title { font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; justify-content: space-between; align-items: center; }
+    .card-title { font-size:.95rem; font-weight:700; color:var(--text); display:flex; justify-content:space-between; align-items:center; }
     .badge-accent {
-      background: var(--accent-glow);
-      color: var(--accent);
-      border: 1px solid var(--accent);
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      background:var(--accent-glow); color:var(--accent); border:1px solid var(--accent); font-size:.7rem; font-weight:700;
+      padding:3px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:.04em;
     }
     .status-alert {
-      display: none;
-      padding: 14px 16px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      border-left: 5px solid var(--primary);
-      background: var(--card-bg);
-      color: var(--text);
-      line-height: 1.4;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+      display:none; padding:14px 16px; border-radius:10px; font-size:.9rem; font-weight:700; border-left:5px solid var(--primary);
+      background:var(--card-bg); color:var(--text); line-height:1.4; box-shadow:0 4px 14px rgba(0,0,0,.15);
     }
-    .challenge-banner {
-      background: linear-gradient(135deg, #1e1b4b 0%, #111827 100%);
-      border: 1px solid #4338ca;
-      border-radius: 12px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      color: #f9fafb;
-    }
-    [data-theme="light"] .challenge-banner {
-      background: linear-gradient(135deg, #312e81 100%, #1e1b4b 0%);
-    }
-    .challenge-inner {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    .challenge-reward {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--amber-glow);
-      border: 1px solid var(--amber);
-      color: var(--amber);
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 6px;
-      width: fit-content;
-    }
+    .challenge-banner { background:linear-gradient(135deg,#1e1b4b 0%,#111827 100%); border:1px solid #4338ca; border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:10px; color:#f9fafb; }
+    .challenge-inner { display:flex; gap:12px; align-items:center; }
+    .challenge-reward { display:inline-flex; align-items:center; gap:6px; background:var(--amber-glow); border:1px solid var(--amber); color:var(--amber); font-size:.75rem; font-weight:800; padding:3px 8px; border-radius:6px; width:fit-content; }
     .btn {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      cursor: pointer;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      text-decoration: none;
-      user-select: none;
-      -webkit-user-select: none;
-      pointer-events: auto;
-      touch-action: manipulation;
+      width:100%; padding:12px; border-radius:10px; font-weight:700; font-size:.9rem; cursor:pointer; border:none; display:flex;
+      align-items:center; justify-content:center; gap:8px; text-decoration:none; user-select:none; -webkit-user-select:none;
+      pointer-events:auto; touch-action:manipulation;
     }
-    .btn.disabled {
-      opacity: 0.35 !important;
-      cursor: not-allowed !important;
-      pointer-events: none !important;
-      background: var(--surface) !important;
-      color: var(--text-muted) !important;
-      border: 1px dashed var(--border) !important;
-    }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-accent { background: var(--accent); color: #090d16; }
-    .btn-amber { background: var(--amber); color: #090d16; }
-    .btn-outline { background: var(--surface); border: 1px solid var(--border); color: var(--text); }
-    .settings-btn {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-weight: 700;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-    .camera-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-    .metric-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .metric-box {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-    .metric-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-    .metric-val { font-size: 1.2rem; font-weight: 800; color: var(--text); }
-    .metric-val.profit { color: var(--accent); }
-    .disposition-pill {
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-weight: 800;
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-    .disp-flip { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--accent); }
-    .disp-monitor { background: var(--amber-glow); color: var(--amber); border: 1px solid var(--amber); }
-    .disp-pass { background: var(--coral-glow); color: var(--coral); border: 1px solid var(--coral); }
-    
-    .vault-summary { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-    
-    .vault-subtoggle { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--surface); padding: 4px; border-radius: 8px; border: 1px solid var(--border); }
-    .vault-subbtn {
-      background: transparent;
-      color: var(--text);
-      border: none;
-      padding: 7px 2px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: center;
-      transition: background 0.2s, color 0.2s;
-      touch-action: manipulation;
-    }
-    .vault-subbtn.active { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    
-    .vault-toolbar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); }
-    .vault-list { display: flex; flex-direction: column; gap: 10px; }
-    
-    .vault-item-container {
-      position: relative;
-      overflow: hidden;
-      border-radius: 10px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-    }
-    .vault-item {
-      display: flex;
-      gap: 12px;
-      background: var(--surface);
-      padding: 12px;
-      align-items: center;
-      cursor: pointer;
-      position: relative;
-      z-index: 2;
-      transition: transform 0.2s ease;
-      touch-action: pan-y;
-    }
-    .vault-item:hover { border-color: var(--border-focus); }
-
-    .item-thumb { width: 74px; height: 74px; min-width: 74px; border-radius: 8px; object-fit: cover; background: #111827; border: 1px solid var(--border); cursor: pointer; }
-    .item-content { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-    
-    .item-title { font-weight: 700; font-size: 0.90rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-meta { font-size: 0.76rem; color: var(--text-muted); }
-    .item-actions { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
-
-    .store-radar-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .store-card-modern {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .store-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-    
-    .store-name-title {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-    .store-dist-badge {
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: var(--accent);
-      background: var(--accent-glow);
-      border: 1px solid var(--accent);
-      padding: 2px 8px;
-      border-radius: 6px;
-      white-space: nowrap;
-    }
-    .store-address-text {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-    .nav-actions-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-      margin-top: 4px;
-    }
-    .nav-app-btn {
-      text-align: center;
-      padding: 9px 4px;
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.75rem;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      touch-action: manipulation;
-    }
-
+    .btn.disabled { opacity:.35 !important; cursor:not-allowed !important; pointer-events:none !important; background:var(--surface) !important; color:var(--text-muted) !important; border:1px dashed var(--border) !important; }
+    .btn-primary { background:var(--primary); color:#fff; }
+    .btn-accent { background:var(--accent); color:#090d16; }
+    .btn-amber { background:var(--amber); color:#090d16; }
+    .btn-outline { background:var(--surface); border:1px solid var(--border); color:var(--text); }
+    .settings-btn { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:6px 12px; border-radius:6px; font-weight:700; cursor:pointer; touch-action:manipulation; }
+    .camera-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .metric-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+    .metric-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; display:flex; flex-direction:column; gap:4px; }
+    .metric-label { font-size:.7rem; color:var(--text-muted); text-transform:uppercase; letter-spacing:.05em; }
+    .metric-val { font-size:1.2rem; font-weight:800; color:var(--text); }
+    .metric-val.profit { color:var(--accent); }
+    .disposition-pill { padding:4px 10px; border-radius:6px; font-weight:800; font-size:.75rem; letter-spacing:.05em; text-transform:uppercase; }
+    .disp-flip { background:var(--accent-glow); color:var(--accent); border:1px solid var(--accent); }
+    .disp-monitor { background:var(--amber-glow); color:var(--amber); border:1px solid var(--amber); }
+    .disp-pass { background:var(--coral-glow); color:var(--coral); border:1px solid var(--coral); }
+    .vault-summary { display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:12px; }
+    .vault-subtoggle { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; background:var(--surface); padding:4px; border-radius:8px; border:1px solid var(--border); }
+    .vault-subbtn { background:transparent; color:var(--text); border:none; padding:7px 2px; font-size:.75rem; font-weight:700; border-radius:6px; cursor:pointer; text-align:center; transition:background .2s,color .2s; touch-action:manipulation; }
+    .vault-subbtn.active { background:var(--card-bg); color:var(--text); border:1px solid var(--border); box-shadow:0 2px 5px rgba(0,0,0,.1); }
+    .vault-toolbar { display:flex; justify-content:space-between; align-items:center; font-size:.75rem; color:var(--text-muted); }
+    .vault-list { display:flex; flex-direction:column; gap:10px; }
+    .vault-item-container { position:relative; overflow:hidden; border-radius:10px; background:var(--surface); border:1px solid var(--border); }
+    .vault-item { display:flex; gap:12px; background:var(--surface); padding:12px; align-items:center; cursor:pointer; position:relative; z-index:2; touch-action:pan-y; }
+    .vault-item:hover { border-color:var(--border-focus); }
+    .item-thumb { width:74px; height:74px; min-width:74px; border-radius:8px; object-fit:cover; background:#111827; border:1px solid var(--border); }
+    .item-content { flex:1; display:flex; flex-direction:column; gap:3px; min-width:0; }
+    .item-title { font-weight:700; font-size:.9rem; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .item-meta { font-size:.76rem; color:var(--text-muted); }
+    .item-actions { display:flex; gap:6px; margin-top:4px; flex-wrap:wrap; }
+    .store-radar-grid { display:flex; flex-direction:column; gap:12px; }
+    .store-card-modern { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:10px; }
+    .store-card-top { display:flex; justify-content:space-between; align-items:flex-start; }
+    .store-name-title { font-size:.95rem; font-weight:800; color:var(--text); }
+    .store-dist-badge { font-size:.75rem; font-weight:800; color:var(--accent); background:var(--accent-glow); border:1px solid var(--accent); padding:2px 8px; border-radius:6px; white-space:nowrap; }
+    .store-address-text { font-size:.78rem; color:var(--text-muted); }
+    .nav-actions-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin-top:4px; }
+    .nav-app-btn { text-align:center; padding:9px 4px; background:var(--card-bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:.75rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; touch-action:manipulation; }
+    .badge-card { display:flex; gap:10px; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px; opacity:.55; }
+    .badge-card.unlocked { opacity:1; border-color:var(--amber); }
     .bottom-dock {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: calc(60px + env(safe-area-inset-bottom));
-      padding-bottom: env(safe-area-inset-bottom);
-      background: rgba(17, 24, 39, 0.95);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 100;
+      position:fixed; bottom:0; left:0; right:0; height:calc(60px + env(safe-area-inset-bottom)); padding-bottom:env(safe-area-inset-bottom);
+      background:rgba(17,24,39,.95); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-top:1px solid var(--border);
+      display:flex; justify-content:space-around; align-items:center; z-index:100;
     }
-    [data-theme="light"] .bottom-dock { background: rgba(255, 255, 255, 0.95); }
-    .dock-btn {
-      flex: 1;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-size: 0.75rem;
-      font-weight: 700;
-      pointer-events: auto;
-      touch-action: manipulation;
-    }
-    .dock-btn.active { color: var(--accent); }
-    
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 200;
-      pointer-events: auto;
-      touch-action: manipulation;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal-content {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-      max-width: 480px;
-      width: 100%;
-      max-height: 85vh;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      z-index: 201;
-      pointer-events: auto;
-      cursor: default;
-    }
-    #webcamVideo {
-      width: 100%;
-      height: 280px;
-      background: #000;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      object-fit: cover;
-    }
-    .input-field {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      color: var(--text);
-      font-size: 0.9rem;
-      font-family: inherit;
-      outline: none;
-    }
-    .input-field:focus { border-color: var(--border-focus); }
+    [data-theme="light"] .bottom-dock { background:rgba(255,255,255,.95); }
+    .dock-btn { flex:1; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:.75rem; font-weight:700; pointer-events:auto; touch-action:manipulation; }
+    .dock-btn.active { color:var(--accent); }
+    .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; padding:16px; z-index:200; pointer-events:auto; touch-action:manipulation; }
+    .modal-overlay.active { display:flex; }
+    .modal-content { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:18px; max-width:480px; width:100%; max-height:85vh; overflow-y:auto; display:flex; flex-direction:column; gap:12px; z-index:201; pointer-events:auto; cursor:default; }
+    #webcamVideo { width:100%; height:280px; background:#000; border-radius:8px; border:1px solid var(--border); object-fit:cover; }
+    .input-field { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:10px 12px; color:var(--text); font-size:.9rem; font-family:inherit; outline:none; }
+    .input-field:focus { border-color:var(--border-focus); }
   </style>
 </head>
 <body>
 
   <header>
     <div class="brand">
-      <span style="font-size: 1.2rem;" title="Koda the Scout • Veteran Owned">🐕‍🦺</span>
+      <span style="font-size:1.2rem;" title="Koda the Scout • Veteran Owned">🐕‍🦺</span>
       <span>THRIFT</span><span class="brand-accent">SCOUT</span>
     </div>
     <div class="header-pills">
+      <span class="badge-accent" id="quotaPill" title="Scans left on this device's counter">100 left</span>
       <div class="profile-avatar-btn" id="profileAvatarBtn" title="Profile Settings & Stats">👤</div>
     </div>
   </header>
@@ -493,26 +140,25 @@
     <!-- TAB 1: SCOUT -->
     <section id="tab-scout" class="tab-view active">
       <div class="card" id="valuationCardContainer">
-        <div class="card-title">RAPID VALUATION <span style="font-size:0.68rem; color:var(--accent);">⚡ Direct Vision Comps</span></div>
-        
+        <div class="card-title">RAPID VALUATION <span style="font-size:.68rem; color:var(--accent);">⚡ AI Vision Estimate</span></div>
+
         <div>
-          <label class="metric-label" style="margin-bottom: 4px; display: block;">Thrift Store Asking Price / Cost ($)</label>
+          <label class="metric-label" style="margin-bottom:4px; display:block;">Thrift Store Asking Price / Cost ($)</label>
           <input type="number" id="itemCostInput" class="input-field" placeholder="0.00" value="0.00" step="0.01" min="0">
         </div>
 
-        <!-- SPECIALIST RECON MODES -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
           <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border);">
             <div>
-              <div style="font-weight:700; font-size:0.80rem; color:var(--amber);">🪙 Coin Mode</div>
-              <div style="font-size:0.65rem; color:var(--text-muted);">Front + Back Dual Shot</div>
+              <div style="font-weight:700; font-size:.8rem; color:var(--amber);">🪙 Coin Mode</div>
+              <div style="font-size:.65rem; color:var(--text-muted);">Front + Back Dual Shot</div>
             </div>
             <input type="checkbox" id="coinModeToggle" style="width:18px; height:18px; cursor:pointer;">
           </div>
           <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border);">
             <div>
-              <div style="font-weight:700; font-size:0.80rem; color:var(--accent);">🪄 MTG Card Mode</div>
-              <div style="font-size:0.65rem; color:var(--text-muted);">Scryfall Comp Feed</div>
+              <div style="font-weight:700; font-size:.8rem; color:var(--accent);">🪄 MTG Card Mode</div>
+              <div style="font-size:.65rem; color:var(--text-muted);">Scryfall Comp Feed</div>
             </div>
             <input type="checkbox" id="mtgModeToggle" style="width:18px; height:18px; cursor:pointer;">
           </div>
@@ -521,23 +167,23 @@
         <input type="file" id="mobileGalleryInput" accept="image/*" multiple style="display:none;">
 
         <div class="camera-row">
-          <button class="btn btn-accent" id="openWebcamBtn">📸 SNAP MULTI-SHOTS</button>
+          <button class="btn btn-accent" id="openWebcamBtn">📸 SNAP PHOTO</button>
           <button class="btn btn-outline" id="uploadFileBtn">📁 UPLOAD PHOTOS</button>
         </div>
 
         <button class="btn btn-outline" id="openManualEntryBtn" style="border-style:dashed; color:var(--accent); border-color:var(--accent);">✍️ MANUAL RECON (NO CAMERA)</button>
 
-        <button class="btn btn-amber" id="smartRetryBtn" style="display:none; margin-top:4px;">⚡ RETRY INSTANTLY (NO RETAKE)</button>
+        <button class="btn btn-amber" id="smartRetryBtn" style="display:none; margin-top:4px;">⚡ RETRY (NO RETAKE)</button>
 
-        <div id="imagePreviewContainer" style="display:none; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap:8px; margin-top:8px;"></div>
+        <div id="imagePreviewContainer" style="display:none; grid-template-columns:repeat(auto-fill,minmax(70px,1fr)); gap:8px; margin-top:8px;"></div>
 
         <div id="evalProgressContainer" style="display:none; flex-direction:column; gap:6px; margin-top:8px;">
-          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--accent); font-weight:700;">
+          <div style="display:flex; justify-content:space-between; font-size:.75rem; color:var(--accent); font-weight:700;">
             <span id="evalProgressText">Processing Scan...</span>
-            <span id="evalEngineStatus">Gemini 3.8-Flash Precision Engine</span>
+            <span id="evalEngineStatus">AI Vision Engine</span>
           </div>
           <div style="background:var(--border); height:6px; border-radius:3px; overflow:hidden;">
-            <div id="evalProgressBarFill" style="background:var(--accent); width:100%; height:100%;"></div>
+            <div id="evalProgressBarFill" style="background:var(--accent); width:100%; height:100%; transition:width .3s;"></div>
           </div>
         </div>
       </div>
@@ -550,8 +196,8 @@
         </div>
 
         <div style="background:var(--surface); padding:8px 12px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; border:1px solid var(--border);">
-          <span class="metric-label" id="tierLabelTitle">Market Value Tier</span>
-          <span id="resRarityBadge" style="font-weight:900; font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em;">--</span>
+          <span class="metric-label" id="tierLabelTitle">AI Estimate • Verify with Sold Comps</span>
+          <span id="resRarityBadge" style="font-weight:900; font-size:.9rem; text-transform:uppercase; letter-spacing:.05em;">--</span>
         </div>
 
         <div class="metric-grid">
@@ -565,7 +211,7 @@
           </div>
           <div class="metric-box" style="cursor:pointer;" id="editableBrandBox" title="Tap to edit brand">
             <span class="metric-label">Brand / Mint / Set ✏️</span>
-            <span class="metric-val" id="resBrand" style="font-size:0.95rem;">--</span>
+            <span class="metric-val" id="resBrand" style="font-size:.95rem;">--</span>
           </div>
           <div class="metric-box" style="cursor:pointer;" id="editableCostBox" title="Tap to update acquisition cost">
             <span class="metric-label">Acquisition Cost ✏️</span>
@@ -573,14 +219,14 @@
           </div>
         </div>
 
-        <button id="reEvalEditsBtn" class="btn btn-amber" style="display:none; font-size:0.8rem; padding:10px; margin-top:2px;">
+        <button id="reEvalEditsBtn" class="btn btn-amber" style="display:none; font-size:.8rem; padding:10px; margin-top:2px;">
           ⚡ RE-EVALUATE WITH CORRECTIONS
         </button>
 
-        <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
-        
+        <div style="font-size:.82rem; color:var(--text-muted); line-height:1.4;" id="resIntel"></div>
+
         <div>
-          <label class="metric-label" style="margin-bottom: 4px; display: block;">Inventory Disposition Strategy</label>
+          <label class="metric-label" style="margin-bottom:4px; display:block;">Inventory Disposition Strategy</label>
           <select id="assetStrategySelect" class="input-field">
             <option value="selling">🛒 Selling (Active Inventory)</option>
             <option value="keeping">🔒 Keeping (Personal Collection)</option>
@@ -589,27 +235,27 @@
         </div>
 
         <div style="display:flex; gap:8px; margin-top:4px;">
-          <button id="resDirectCompsBtn" class="btn btn-outline" style="flex:1; font-size:0.85rem; border-color: var(--amber); color: var(--amber);">📊 VIEW SOLD COMPS</button>
+          <button id="resDirectCompsBtn" class="btn btn-outline" style="flex:1; font-size:.85rem; border-color:var(--amber); color:var(--amber);">📊 VIEW SOLD COMPS</button>
         </div>
         <div style="display:flex; gap:8px;">
-          <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:0.8rem; background:#3b82f6;">SHARE EVAL</button>
-          <button class="btn btn-accent" id="saveVaultBtn" style="flex:1; font-size:0.8rem;">SEND TO VAULT</button>
+          <button class="btn btn-primary" id="shareEvaluationBtn" style="flex:1; font-size:.8rem; background:#3b82f6;">SHARE EVAL</button>
+          <button class="btn btn-accent" id="saveVaultBtn" style="flex:1; font-size:.8rem;">SEND TO VAULT</button>
         </div>
-        <button class="btn btn-outline" id="clearEvalBtn" style="font-size:0.75rem; color:var(--text-muted); border-style:dashed; margin-top:4px;">🗑️ CLEAR EVALUATION & SCAN NEXT</button>
+        <button class="btn btn-outline" id="clearEvalBtn" style="font-size:.75rem; color:var(--text-muted); border-style:dashed; margin-top:4px;">🗑️ CLEAR EVALUATION & SCAN NEXT</button>
       </div>
     </section>
 
     <!-- TAB 2: INTEL -->
     <section id="tab-intel" class="tab-view">
-      <div style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-          <div style="font-size: 2rem; background: var(--surface); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid var(--border);">🐕‍🦺</div>
+      <div style="background:linear-gradient(135deg,#111827 0%,#1f2937 100%); border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="font-size:2rem; background:var(--surface); width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:50%; border:1px solid var(--border);">🐕‍🦺</div>
           <div>
-            <div style="font-weight: 800; font-size: 0.95rem; color: var(--text);">KODA THE SCOUT</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Tactical Recon • Sniff Out the Profit</div>
+            <div style="font-weight:800; font-size:.95rem; color:var(--text);">KODA THE SCOUT</div>
+            <div style="font-size:.75rem; color:var(--text-muted);">Tactical Recon • Sniff Out the Profit</div>
           </div>
         </div>
-        <div style="background: var(--amber-glow); border: 1px solid var(--amber); color: var(--amber); font-size: 0.72rem; font-weight: 800; padding: 5px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em;">
+        <div style="background:var(--amber-glow); border:1px solid var(--amber); color:var(--amber); font-size:.72rem; font-weight:800; padding:5px 10px; border-radius:6px; text-transform:uppercase; letter-spacing:.05em;">
           🇺🇸 Veteran Owned
         </div>
       </div>
@@ -623,17 +269,17 @@
           <div class="challenge-inner">
             <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:800; font-size:0.95rem; color:#fff;" id="dailyTargetName">Cast Iron Skillet (Griswold / Wagner)</span>
+                <span style="font-weight:800; font-size:.95rem; color:#fff;" id="dailyTargetName">Cast Iron Skillet (Griswold / Wagner)</span>
                 <span class="challenge-reward" id="dailyRewardBadge">+150 XP BONUS</span>
               </div>
-              <p style="font-size:0.78rem; color:#cbd5e1; line-height:1.3;" id="dailyTargetDesc">
+              <p style="font-size:.78rem; color:#cbd5e1; line-height:1.3;" id="dailyTargetDesc">
                 Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.
               </p>
             </div>
           </div>
           <div style="display:flex; gap:8px; margin-top:2px;">
-            <button id="dailyCompsActionBtn" class="btn btn-outline" style="font-size:0.75rem; padding:8px 12px; width:auto;">View Target Comps</button>
-            <button class="btn btn-accent" id="claimChallengeBtn" style="font-size:0.75rem; padding:8px 12px; width:auto;">Apply Target to Scan</button>
+            <button id="dailyCompsActionBtn" class="btn btn-outline" style="font-size:.75rem; padding:8px 12px; width:auto;">View Target Comps</button>
+            <button class="btn btn-accent" id="claimChallengeBtn" style="font-size:.75rem; padding:8px 12px; width:auto;">Apply Target to Scan</button>
           </div>
         </div>
       </div>
@@ -643,7 +289,7 @@
           <span>📖 SCOUT HANDBOOK & BADGES</span>
           <span class="badge-accent">Level Perks</span>
         </div>
-        <p style="font-size:0.82rem; color:var(--text-muted);">Tap to view your level progression, badge rewards, and XP scoring rules.</p>
+        <p style="font-size:.82rem; color:var(--text-muted);">Tap to view your level progression, badge rewards, and XP scoring rules.</p>
       </div>
     </section>
 
@@ -680,7 +326,7 @@
           <span>LOCAL THRIFT HUBS</span>
           <span class="badge-accent" id="gpsPill">Proximity Active</span>
         </div>
-        <p style="font-size:0.82rem; color:var(--text-muted);">Direct routes to verified area hubs with distance sorted automatically from your current position.</p>
+        <p style="font-size:.82rem; color:var(--text-muted);">Direct routes to verified area hubs with distance sorted automatically from your current position.</p>
         <div class="store-radar-grid" id="storeRadarGrid"></div>
       </div>
     </section>
@@ -695,12 +341,12 @@
 
   <!-- WELCOME MODAL -->
   <div class="modal-overlay active" id="welcomeModal">
-    <div class="modal-content" style="text-align:center; border:2px solid var(--amber); background: linear-gradient(135deg, #1e1b4b 0%, #090d16 100%);">
+    <div class="modal-content" style="text-align:center; border:2px solid var(--amber); background:linear-gradient(135deg,#1e1b4b 0%,#090d16 100%);">
       <div style="font-size:3rem;">🐕‍🦺</div>
       <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
-      <div style="font-size:0.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:0.06em;">Thrift Scout • Direct Comps Engine</div>
-      <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Gemini 3.8-Flash Vision Engine is ready. Real secondary market comps with direct database synchronization.
+      <div style="font-size:.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:.06em;">Thrift Scout • AI Vision Engine</div>
+      <p style="font-size:.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
+        Welcome back, Specialist. Vision engine is ready. Prices are AI estimates, so always confirm with the sold comps button before you buy big.
       </p>
       <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
     </div>
@@ -719,9 +365,9 @@
       </div>
       <div>
         <label class="metric-label">Item Title & Material / Details</label>
-        <input type="text" id="manualItemInput" class="input-field" placeholder="e.g., #8 Cast Iron Skillet w/ Heat Ring, 100% Virgin Wool Flannel">
+        <input type="text" id="manualItemInput" class="input-field" placeholder="e.g., #8 Cast Iron Skillet w/ Heat Ring">
       </div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
         <div>
           <label class="metric-label">Acquisition Cost ($)</label>
           <input type="number" id="manualCostInput" class="input-field" placeholder="0.00" value="0.00" step="0.01">
@@ -747,31 +393,27 @@
     </div>
   </div>
 
-  <!-- LEVEL & BADGES / PROFILE DRAWER MODAL -->
+  <!-- LEVEL & BADGES MODAL -->
   <div class="modal-overlay" id="levelModal">
     <div class="modal-content">
       <div class="card-title">
         <span id="modalRankTitle">Scout Level & Badges</span>
         <button class="settings-btn" id="closeLevelBtn">X</button>
       </div>
-
       <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center;">
         <div style="font-size:2.5rem;" id="modalBadgeIcon">🥉</div>
         <div style="font-size:1.2rem; font-weight:800; color:var(--text); margin-top:4px;" id="modalRankName">Rookie</div>
-        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" id="modalXpSubtitle">0 XP Earned</div>
-        
+        <div style="font-size:.8rem; color:var(--text-muted); margin-top:2px;" id="modalXpSubtitle">0 XP Earned</div>
         <div style="background:var(--border); height:6px; border-radius:3px; margin:10px 0; overflow:hidden;">
-          <div class="progress-bar-fill" id="modalProgressFill" style="background:var(--accent); width:0%; height:100%;"></div>
+          <div id="modalProgressFill" style="background:var(--accent); width:0%; height:100%;"></div>
         </div>
-        <div style="font-size:0.75rem; color:var(--accent); font-weight:700;" id="modalNextRankInfo">750 XP to Picker</div>
+        <div style="font-size:.75rem; color:var(--accent); font-weight:700;" id="modalNextRankInfo">750 XP to Picker</div>
       </div>
-
-      <div style="display: flex; gap: 8px; margin-top: 4px;">
-        <button class="btn btn-outline" id="openConfigFromDrawerBtn" style="flex:1; font-size:0.8rem;">⚙️ Config API Key</button>
-        <button class="btn btn-outline" id="openSettingsFromDrawerBtn" style="flex:1; font-size:0.8rem;">👤 Edit Profile</button>
+      <div style="display:flex; gap:8px; margin-top:4px;">
+        <button class="btn btn-outline" id="openConfigFromDrawerBtn" style="flex:1; font-size:.8rem;">⚙️ Config API Key</button>
+        <button class="btn btn-outline" id="openSettingsFromDrawerBtn" style="flex:1; font-size:.8rem;">👤 Edit Profile</button>
       </div>
-
-      <div class="card-title" style="margin-top:4px; font-size:0.85rem;">BADGE TIERS</div>
+      <div class="card-title" style="margin-top:4px; font-size:.85rem;">BADGE TIERS</div>
       <div style="display:flex; flex-direction:column; gap:8px;" id="badgeTiersList"></div>
     </div>
   </div>
@@ -836,14 +478,13 @@
         </div>
         <div class="metric-box">
           <span class="metric-label">Inventory Strategy</span>
-          <span class="metric-val" id="vDetailStrategy" style="font-size:0.9rem; color:var(--accent);">Selling</span>
+          <span class="metric-val" id="vDetailStrategy" style="font-size:.9rem; color:var(--accent);">Selling</span>
         </div>
       </div>
-      <div style="font-size:0.82rem; color:var(--text-muted); line-height:1.4;" id="vDetailIntel"></div>
-      
+      <div style="font-size:.82rem; color:var(--text-muted); line-height:1.4;" id="vDetailIntel"></div>
       <div style="display:flex; gap:8px; margin-top:4px;">
-        <button class="btn btn-accent" id="quickToggleSellBtn" style="flex:1; font-size:0.8rem;">⚡ SELL INSTANTLY</button>
-        <button id="vDetailCompsActionBtn" class="btn btn-outline" style="flex:1; font-size:0.8rem;">VIEW COMPS</button>
+        <button class="btn btn-accent" id="quickToggleSellBtn" style="flex:1; font-size:.8rem;">⚡ TOGGLE QUICK FLIP</button>
+        <button id="vDetailCompsActionBtn" class="btn btn-outline" style="flex:1; font-size:.8rem;">VIEW COMPS</button>
       </div>
     </div>
   </div>
@@ -857,7 +498,7 @@
       </div>
       <div id="storeReviewsContainer" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;"></div>
       <div style="border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:8px;">
-        <div style="font-weight:700; font-size:0.85rem;">Leave an Insider Review</div>
+        <div style="font-weight:700; font-size:.85rem;">Leave an Insider Review</div>
         <div style="display:flex; gap:6px;">
           <select id="newReviewRating" class="input-field" style="width:90px;">
             <option value="5">⭐⭐⭐⭐⭐</option>
@@ -873,23 +514,20 @@
     </div>
   </div>
 
-  <!-- IN-APP MULTI-SHOT CAMERA MODAL -->
+  <!-- CAMERA MODAL -->
   <div class="modal-overlay" id="webcamModal">
-    <div class="modal-content" style="max-width: 480px;">
+    <div class="modal-content" style="max-width:480px;">
       <div class="card-title">
-        <span id="camHeaderTitle">In-App Multi-Shot Stacking (0 Shots)</span>
+        <span id="camHeaderTitle">Camera (0/1 Shots)</span>
         <button class="settings-btn" id="closeWebcamBtn">X</button>
       </div>
       <video id="webcamVideo" autoplay playsinline muted></video>
-      <select id="cameraSourceSelect" class="input-field" style="display:none;"></select>
-      
       <div id="stagedShotsTray" style="display:flex; gap:8px; overflow-x:auto; padding:4px 0; min-height:64px; align-items:center;">
-        <span style="font-size:0.75rem; color:var(--text-muted);">Snap item, tag, & hallmark photos in sequence...</span>
+        <span style="font-size:.75rem; color:var(--text-muted);">Snap the item. In Coin Mode, snap front then back.</span>
       </div>
-
       <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
-        <button class="btn btn-outline" id="captureWebcamBtn" style="padding: 14px;">📸 SNAP SHOT</button>
-        <button class="btn btn-accent" id="finishWebcamScanBtn" style="padding: 14px;">⚡ RUN RECON (0)</button>
+        <button class="btn btn-outline" id="captureWebcamBtn" style="padding:14px;">📸 SNAP SHOT</button>
+        <button class="btn btn-accent" id="finishWebcamScanBtn" style="padding:14px;">⚡ RUN RECON (0)</button>
       </div>
     </div>
   </div>
@@ -903,8 +541,8 @@
         <input type="password" id="geminiApiKey" class="input-field" placeholder="AIzaSy..." style="margin-top:4px;">
       </div>
       <div>
-        <label class="metric-label">Quota Reset</label>
-        <button class="btn btn-outline" style="margin-top:4px; padding:8px;" id="resetQuotaBtn">Reset Daily Quota (100)</button>
+        <label class="metric-label">Scans left on this device's counter</label>
+        <button class="btn btn-outline" style="margin-top:4px; padding:8px;" id="resetQuotaBtn">Reset Counter (100)</button>
       </div>
       <div style="display:flex; gap:8px;">
         <button class="btn btn-outline" id="closeConfigBtn" style="flex:1;">Cancel</button>
@@ -915,8 +553,8 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-    import { 
-      getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, orderBy 
+    import {
+      getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, query, orderBy
     } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -931,6 +569,18 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // ================= AI SETTINGS (change models ONLY here) =================
+    // Tried in order. A model is skipped ONLY if Google says it doesn't exist (404)
+    // or is overloaded (503). Max 2 calls per scan, never a retry loop.
+    const MODELS = ['gemini-3.5-flash', 'gemini-3.1-flash-lite'];
+    const REQUEST_TIMEOUT_MS = 25000;
+    const SCAN_IMAGE_MAX = 768;   // size sent to the AI (readable hallmarks)
+    const SCAN_IMAGE_QUALITY = 0.6;
+    const THUMB_MAX = 360;        // tiny copy saved in the vault
+    const THUMB_QUALITY = 0.35;
+    // =========================================================================
+
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const calcProfit = (resale, cost) => Number((resale - cost - (resale * 0.1325)).toFixed(2));
 
     function openExternalUrl(url) {
@@ -945,19 +595,11 @@
     }
 
     function generateCompUrl(item) {
-      if (!item || !item.query || typeof item.query !== 'string' || item.query.trim() === '') {
-        return null;
-      }
-      const cleanTerm = item.query.trim();
-      const encoded = encodeURIComponent(cleanTerm);
-
-      if (item.category === 'mtg') {
-        return `https://scryfall.com/search?q=${encoded}`;
-      } else if (item.category === 'coins') {
-        return `https://www.ebay.com/sch/11116/i.html?_nkw=${encoded}&LH_Sold=1&LH_Complete=1`;
-      } else {
-        return `https://www.ebay.com/sch/i.html?_nkw=${encoded}&LH_Sold=1&LH_Complete=1`;
-      }
+      if (!item || !item.query || typeof item.query !== 'string' || item.query.trim() === '') return null;
+      const encoded = encodeURIComponent(item.query.trim());
+      if (item.category === 'mtg') return `https://scryfall.com/search?q=${encoded}`;
+      if (item.category === 'coins') return `https://www.ebay.com/sch/11116/i.html?_nkw=${encoded}&LH_Sold=1&LH_Complete=1`;
+      return `https://www.ebay.com/sch/i.html?_nkw=${encoded}&LH_Sold=1&LH_Complete=1`;
     }
 
     function triggerHapticAndFlash(verdict = 'BUY', isJackpot = false) {
@@ -967,7 +609,6 @@
         else if (verdict === 'MONITOR') navigator.vibrate([100, 50, 100]);
         else navigator.vibrate([60, 40, 60, 40, 60]);
       }
-
       document.body.classList.remove('flash-active');
       void document.body.offsetWidth;
       document.body.classList.add('flash-active');
@@ -975,47 +616,29 @@
     }
 
     let audioCtx = null;
-
     function getOrCreateAudioContext() {
       try {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextClass) return null;
-        if (!audioCtx || audioCtx.state === 'closed') {
-          audioCtx = new AudioContextClass();
-        }
+        if (!audioCtx || audioCtx.state === 'closed') audioCtx = new AudioContextClass();
         return audioCtx;
-      } catch (e) {
-        return null;
-      }
+      } catch (e) { return null; }
     }
 
     function playBellChime(ctx, freq, startTime, duration = 0.35, gainLevel = 0.18) {
       try {
-        const osc1 = ctx.createOscillator();
-        const gain1 = ctx.createGain();
-        osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(freq, startTime);
-
-        const osc2 = ctx.createOscillator();
-        const gain2 = ctx.createGain();
-        osc2.type = 'triangle';
-        osc2.frequency.setValueAtTime(freq * 2.76, startTime);
-
+        const osc1 = ctx.createOscillator(), gain1 = ctx.createGain();
+        osc1.type = 'sine'; osc1.frequency.setValueAtTime(freq, startTime);
+        const osc2 = ctx.createOscillator(), gain2 = ctx.createGain();
+        osc2.type = 'triangle'; osc2.frequency.setValueAtTime(freq * 2.76, startTime);
         gain1.gain.setValueAtTime(gainLevel, startTime);
         gain1.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-
         gain2.gain.setValueAtTime(gainLevel * 0.35, startTime);
         gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + (duration * 0.6));
-
-        osc1.connect(gain1);
-        gain1.connect(ctx.destination);
-        osc2.connect(gain2);
-        gain2.connect(ctx.destination);
-
-        osc1.start(startTime);
-        osc1.stop(startTime + duration);
-        osc2.start(startTime);
-        osc2.stop(startTime + (duration * 0.6));
+        osc1.connect(gain1); gain1.connect(ctx.destination);
+        osc2.connect(gain2); gain2.connect(ctx.destination);
+        osc1.start(startTime); osc1.stop(startTime + duration);
+        osc2.start(startTime); osc2.stop(startTime + (duration * 0.6));
       } catch (e) {}
     }
 
@@ -1024,46 +647,34 @@
       try {
         const ctx = getOrCreateAudioContext();
         if (!ctx) return;
-        if (ctx.state === 'suspended') {
-          ctx.resume().catch(() => {});
-        }
-
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
         const now = ctx.currentTime;
 
         if (isJackpot) {
-          const jackpotScale = [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00];
-          jackpotScale.forEach((freq, idx) => {
+          [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00].forEach((freq, idx) => {
             playBellChime(ctx, freq, now + (idx * 0.055), 0.45, 0.22);
           });
           setTimeout(() => {
             if (!ctx || ctx.state === 'closed') return;
-            const resolveTime = ctx.currentTime;
-            playBellChime(ctx, 1046.50, resolveTime, 0.6, 0.15);
-            playBellChime(ctx, 1567.98, resolveTime, 0.6, 0.15);
-            playBellChime(ctx, 2093.00, resolveTime, 0.7, 0.18);
+            const t = ctx.currentTime;
+            playBellChime(ctx, 1046.50, t, 0.6, 0.15);
+            playBellChime(ctx, 1567.98, t, 0.6, 0.15);
+            playBellChime(ctx, 2093.00, t, 0.7, 0.18);
           }, 420);
         } else if (verdict === 'BUY') {
-          const winArp = [783.99, 1046.50, 1318.51];
-          winArp.forEach((freq, idx) => {
-            playBellChime(ctx, freq, now + (idx * 0.075), 0.4, 0.20);
-          });
+          [783.99, 1046.50, 1318.51].forEach((freq, idx) => playBellChime(ctx, freq, now + (idx * 0.075), 0.4, 0.20));
         } else if (verdict === 'MONITOR') {
           playBellChime(ctx, 659.25, now, 0.3, 0.14);
           playBellChime(ctx, 783.99, now + 0.09, 0.35, 0.16);
         } else {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
+          const osc = ctx.createOscillator(), gain = ctx.createGain();
           osc.type = 'sine';
           osc.frequency.setValueAtTime(180, now);
           osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
-
           gain.gain.setValueAtTime(0.12, now);
           gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
-
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.start(now);
-          osc.stop(now + 0.08);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(now); osc.stop(now + 0.08);
         }
       } catch (e) {}
     }
@@ -1082,9 +693,7 @@
       { name: "Vintage Graphic Band or Tour Tee", desc: "Hunt for single-stitch hems or 90s licensed band shirts.", query: "vintage single stitch band tee" },
       { name: "Graphing Calculator", desc: "Look in the tech bins for Texas Instruments (TI-84, TI-83 Plus, TI-89).", query: "ti-84 plus graphing calculator" }
     ];
-
-    const todayIndex = new Date().getDate() % DAILY_MISSIONS.length;
-    const currentMission = DAILY_MISSIONS[todayIndex];
+    const currentMission = DAILY_MISSIONS[new Date().getDate() % DAILY_MISSIONS.length];
 
     const STATE = {
       geminiKey: localStorage.getItem('ts_gemini_key') || '',
@@ -1106,6 +715,7 @@
     let currentlyOpenedVaultItem = null;
     let activeReviewStoreName = null;
     let isSavingToVault = false;
+    let isBusy = false; // blocks double-taps and duplicate API calls
 
     const STORES = [
       { name: "Goodwill - Riverdale", address: "4123 Riverdale Rd, Riverdale, UT", lat: 41.1764, lon: -111.9961 },
@@ -1116,12 +726,33 @@
 
     document.documentElement.setAttribute('data-theme', STATE.currentTheme);
     document.body.style.fontSize = STATE.fontScale;
-
     document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
+
+    function applyAvatar() {
+      const el = document.getElementById('profileAvatarBtn');
+      const v = STATE.userAvatar || '👤';
+      el.innerHTML = '';
+      if (/^https?:\/\//i.test(v)) {
+        const img = document.createElement('img');
+        img.src = v; img.alt = 'Avatar';
+        el.appendChild(img);
+      } else {
+        el.textContent = v;
+      }
+    }
+    applyAvatar();
+
+    function updatePills() {
+      localStorage.setItem('ts_scans_left', STATE.dailyScans);
+      localStorage.setItem('ts_xp', STATE.xp);
+      const pill = document.getElementById('quotaPill');
+      if (pill) pill.textContent = Math.max(0, STATE.dailyScans) + ' left';
+    }
+    updatePills();
 
     const enterHQBtn = document.getElementById('enterHQBtn');
     const welcomeModal = document.getElementById('welcomeModal');
-    
+
     function closeWelcomeModal(e) {
       if (e) { e.preventDefault(); e.stopPropagation(); }
       try {
@@ -1134,33 +765,22 @@
       }
       sessionStorage.setItem('ts_hq_dismissed', 'true');
     }
-
     if (sessionStorage.getItem('ts_hq_dismissed') === 'true' && welcomeModal) {
       welcomeModal.classList.remove('active');
       welcomeModal.style.display = 'none';
     }
-
-    if (enterHQBtn) {
-      enterHQBtn.addEventListener('click', closeWelcomeModal);
-      enterHQBtn.addEventListener('touchend', closeWelcomeModal);
-    }
-    if (welcomeModal) {
-      welcomeModal.addEventListener('click', (e) => {
-        if (e.target === welcomeModal) closeWelcomeModal(e);
-      });
-    }
+    if (enterHQBtn) enterHQBtn.addEventListener('click', closeWelcomeModal);
+    if (welcomeModal) welcomeModal.addEventListener('click', (e) => { if (e.target === welcomeModal) closeWelcomeModal(e); });
 
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) {
-          overlay.classList.remove('active');
-        }
+        if (e.target === overlay && overlay.id !== 'webcamModal') overlay.classList.remove('active');
       });
     });
 
     const costInput = document.getElementById('itemCostInput');
-    costInput.addEventListener('focus', function() { if (this.value === '0.00' || this.value === '0') this.value = ''; });
-    costInput.addEventListener('blur', function() { if (this.value.trim() === '') this.value = '0.00'; });
+    costInput.addEventListener('focus', function () { if (this.value === '0.00' || this.value === '0') this.value = ''; });
+    costInput.addEventListener('blur', function () { if (this.value.trim() === '') this.value = '0.00'; });
 
     const coinToggle = document.getElementById('coinModeToggle');
     const mtgToggle = document.getElementById('mtgModeToggle');
@@ -1199,136 +819,143 @@
 
     document.getElementById('editableResaleBox').onclick = () => {
       if (!currentAppraisal) return;
-      const newResaleInput = prompt('Update Estimated Resale ($):', currentAppraisal.resale || 0);
-      if (newResaleInput === null) return;
-      const newResale = parseFloat(newResaleInput);
-      if (isNaN(newResale)) return;
-
-      currentAppraisal.resale = newResale;
-      currentAppraisal.profit = calcProfit(newResale, currentAppraisal.cost || 0);
+      const v = prompt('Update Estimated Resale ($):', currentAppraisal.resale || 0);
+      if (v === null) return;
+      const n = parseFloat(v);
+      if (isNaN(n)) return;
+      currentAppraisal.resale = n;
+      currentAppraisal.profit = calcProfit(n, currentAppraisal.cost || 0);
       recalculateDisposition(currentAppraisal);
       renderAppraisal(currentAppraisal);
     };
 
     document.getElementById('editableCostBox').onclick = () => {
       if (!currentAppraisal) return;
-      const newCostInput = prompt('Update Acquisition Cost ($):', currentAppraisal.cost || 0);
-      if (newCostInput === null) return;
-      const newCost = parseFloat(newCostInput);
-      if (isNaN(newCost)) return;
-
-      currentAppraisal.cost = newCost;
-      currentAppraisal.profit = calcProfit(currentAppraisal.resale, newCost);
+      const v = prompt('Update Acquisition Cost ($):', currentAppraisal.cost || 0);
+      if (v === null) return;
+      const n = parseFloat(v);
+      if (isNaN(n)) return;
+      currentAppraisal.cost = n;
+      currentAppraisal.profit = calcProfit(currentAppraisal.resale, n);
       recalculateDisposition(currentAppraisal);
       renderAppraisal(currentAppraisal);
     };
 
-    function recalculateDisposition(appraisal) {
-      let dispText = "BUY (INSTANT FLIP)";
-      if (appraisal.resale <= 0 || appraisal.profit < 5.00) dispText = "PASS (INSUFFICIENT MARGIN)";
-      else if (appraisal.profit < 15.00) dispText = "MONITOR (SLIM MARGIN)";
-      appraisal.disposition = dispText;
+    function recalculateDisposition(a) {
+      let d = "BUY (INSTANT FLIP)";
+      if (a.resale <= 0 || a.profit < 5.00) d = "PASS (INSUFFICIENT MARGIN)";
+      else if (a.profit < 15.00) d = "MONITOR (SLIM MARGIN)";
+      a.disposition = d;
     }
 
-    async function executeModelQuery(promptText, parts, maxAttempts = 3) {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${encodeURIComponent(STATE.geminiKey)}`;
-      
-      const payload = {
-        contents: [{ parts: parts }],
-        generationConfig: { 
-          temperature: 0.1, 
-          maxOutputTokens: 800,
-          response_mime_type: "application/json"
-        }
-      };
+    // ================= GEMINI CALL (single, controlled, counted) =================
+    function setProgress(text, pct) {
+      document.getElementById('evalProgressContainer').style.display = 'flex';
+      document.getElementById('evalProgressText').textContent = text;
+      document.getElementById('evalProgressBarFill').style.width = pct + '%';
+    }
 
-      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    async function callGemini(parts) {
+      if (!STATE.geminiKey) return { ok: false, error: 'No API key saved. Open your profile and tap Config API Key.' };
+      if (STATE.dailyScans <= 0) return { ok: false, error: 'Your on-screen scan counter is at 0. Reset it in Config if Google still allows calls.' };
+
+      const body = JSON.stringify({
+        contents: [{ parts }],
+        generationConfig: { temperature: 0.1, maxOutputTokens: 2048, responseMimeType: 'application/json' }
+      });
+
+      let lastError = 'Unknown error';
+      for (const model of MODELS) {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+        STATE.dailyScans = Math.max(0, STATE.dailyScans - 1); // count every real call
+        updatePills();
+        setProgress(`Asking ${model}...`, 55);
+        const startedAt = performance.now();
 
         try {
-          const res = await fetch(endpoint, {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'application/json', 'x-goog-api-key': STATE.geminiKey },
+            body,
             signal: controller.signal
           });
           clearTimeout(timeoutId);
 
           if (res.ok) {
             const data = await res.json();
-            return { ok: true, text: data.candidates?.[0]?.content?.parts?.[0]?.text };
+            const cand = data.candidates?.[0];
+            const text = cand?.content?.parts?.map(p => p.text || '').join('').trim();
+            const secs = ((performance.now() - startedAt) / 1000).toFixed(1);
+            if (!text) {
+              return { ok: false, error: `${model} returned an empty answer (reason: ${cand?.finishReason || data.promptFeedback?.blockReason || 'unknown'}).` };
+            }
+            return { ok: true, text, model, secs };
           }
 
           const errJson = await res.json().catch(() => ({}));
-          const errMsg = errJson.error?.message || `HTTP ${res.status}`;
+          const msg = errJson.error?.message || `HTTP ${res.status}`;
+          lastError = `${model}: ${msg}`;
 
-          if ((res.status === 503 || res.status === 429) && attempt < maxAttempts) {
-            const progressText = document.getElementById('evalProgressText');
-            if (progressText) progressText.textContent = `Server busy, retrying automatically (${attempt}/${maxAttempts - 1})...`;
-            await new Promise(r => setTimeout(r, 2000 * attempt));
-            continue;
-          }
-
-          return { ok: false, error: errMsg, status: res.status };
+          // Only move on to the next model if THIS one isn't available.
+          if (res.status === 404 || res.status === 503) continue;
+          if (res.status === 429) return { ok: false, error: `Google says you're over the limit (429). ${msg}` };
+          return { ok: false, error: lastError };
         } catch (err) {
           clearTimeout(timeoutId);
-          if (attempt < maxAttempts) {
-            await new Promise(r => setTimeout(r, 2000 * attempt));
-            continue;
-          }
-          return { ok: false, error: err.name === 'AbortError' ? 'Scan timed out after 20s.' : err.message };
+          if (err.name === 'AbortError') return { ok: false, error: `Timed out after ${REQUEST_TIMEOUT_MS / 1000}s. Check your signal and tap Retry.` };
+          return { ok: false, error: `Network problem: ${err.message}` };
         }
       }
+      return { ok: false, error: lastError };
+    }
+
+    function parseModelJson(text) {
+      const cleaned = text.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
+      return JSON.parse(cleaned);
     }
 
     document.getElementById('reEvalEditsBtn').onclick = async () => {
-      if (!currentAppraisal || !STATE.geminiKey) return;
+      if (!currentAppraisal || isBusy) return;
+      isBusy = true;
       const btn = document.getElementById('reEvalEditsBtn');
-      btn.textContent = '⏳ Checking Live Comps...';
+      btn.textContent = '⏳ Re-checking value...';
       btn.classList.add('disabled');
 
-      const correctedQuery = `${currentAppraisal.brand} ${currentAppraisal.item}`;
-      const cost = currentAppraisal.cost || 0.00;
+      const q = `${currentAppraisal.brand} ${currentAppraisal.item}`;
+      const promptText = `Give the conservative median secondhand sold price in USD for this exact single item: "${q}". Return ONLY valid JSON: {"resale": 18.00, "intel": "short reason"}`;
+      const res = await callGemini([{ text: promptText }]);
 
-      const promptText = `Provide the conservative median secondary cash sold value in USD for this exact single item: "${correctedQuery}". Return valid JSON matching schema:\n` +
-        `{\n` +
-        `  "brand": "${currentAppraisal.brand}",\n` +
-        `  "item": "${currentAppraisal.item}",\n` +
-        `  "resale": 18.00,\n` +
-        `  "intel": "Verified realistic secondary sold value.",\n` +
-        `  "query": "${correctedQuery}"\n` +
-        `}`;
-
-      const res = await executeModelQuery(promptText, [{ text: promptText }]);
-
-      if (res.ok && res.text) {
+      if (res.ok) {
         try {
-          const parsed = JSON.parse(res.text.trim());
+          const parsed = parseModelJson(res.text);
           currentAppraisal.resale = parseFloat(parsed.resale) || currentAppraisal.resale;
           currentAppraisal.intel = parsed.intel || currentAppraisal.intel;
-          currentAppraisal.profit = calcProfit(currentAppraisal.resale, cost);
+          currentAppraisal.profit = calcProfit(currentAppraisal.resale, currentAppraisal.cost || 0);
           recalculateDisposition(currentAppraisal);
           renderAppraisal(currentAppraisal);
           playAudioFeedback(currentAppraisal.profit >= 50 ? 'BUY' : 'MONITOR', currentAppraisal.profit >= 50, true);
-          triggerAlert('Re-evaluation complete.', false, true);
+          triggerAlert(`Re-evaluation complete (${res.secs}s).`, false, true);
         } catch (e) {
-          alert('Parse error on re-evaluation: ' + e.message);
+          triggerAlert('Could not read the AI answer: ' + e.message, true, true);
         }
       } else {
-        alert('Re-eval failed: ' + (res.error || 'Server rejection.'));
+        triggerAlert('⚠️ Re-eval failed: ' + res.error, true, true);
       }
 
       btn.style.display = 'none';
       btn.classList.remove('disabled');
       btn.textContent = '⚡ RE-EVALUATE WITH CORRECTIONS';
+      document.getElementById('evalProgressContainer').style.display = 'none';
+      isBusy = false;
     };
 
+    // ================= MANUAL ENTRY =================
     const manualModal = document.getElementById('manualEntryModal');
     document.getElementById('openManualEntryBtn').onclick = () => {
       playAudioFeedback('MONITOR', false, false);
-      const prefillCost = parseFloat(document.getElementById('itemCostInput').value) || 0.00;
-      document.getElementById('manualCostInput').value = prefillCost > 0 ? prefillCost.toFixed(2) : '0.00';
+      const prefill = parseFloat(document.getElementById('itemCostInput').value) || 0.00;
+      document.getElementById('manualCostInput').value = prefill > 0 ? prefill.toFixed(2) : '0.00';
       manualModal.classList.add('active');
     };
     document.getElementById('closeManualEntryBtn').onclick = () => manualModal.classList.remove('active');
@@ -1336,19 +963,14 @@
     document.getElementById('submitManualEntryBtn').onclick = () => {
       const brand = document.getElementById('manualBrandInput').value.trim() || 'Unbranded';
       const itemDesc = document.getElementById('manualItemInput').value.trim();
-      if (!itemDesc) {
-        alert('Please enter an item descriptor or title.');
-        return;
-      }
+      if (!itemDesc) { alert('Please enter an item descriptor or title.'); return; }
       const cost = parseFloat(document.getElementById('manualCostInput').value) || 0.00;
       const resale = parseFloat(document.getElementById('manualResaleInput').value) || 25.00;
       const category = document.getElementById('manualCategorySelect').value;
       const intel = document.getElementById('manualIntelInput').value.trim() || 'Manual field appraisal logged directly.';
       const profit = calcProfit(resale, cost);
 
-      let dispText = "BUY (INSTANT FLIP)";
-      let verdictType = 'BUY';
-      let isJackpot = profit >= 50.00;
+      let dispText = "BUY (INSTANT FLIP)", verdictType = 'BUY', isJackpot = profit >= 50.00;
       if (resale <= 0 || profit < 5.00) { dispText = "PASS (INSUFFICIENT MARGIN)"; verdictType = 'PASS'; isJackpot = false; }
       else if (profit < 15.00) { dispText = "MONITOR (SLIM MARGIN)"; verdictType = 'MONITOR'; isJackpot = false; }
 
@@ -1358,23 +980,13 @@
       const uniqueId = 'item_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
 
       currentAppraisal = {
-        id: uniqueId,
-        brand: brand,
-        item: itemDesc,
-        name: `${brand} - ${itemDesc}`,
-        cost: cost,
-        resale: resale,
-        profit: profit,
+        id: uniqueId, brand, item: itemDesc, name: `${brand} - ${itemDesc}`,
+        cost, resale, profit,
         platform: category === 'mtg' ? 'TCGPlayer' : 'eBay',
-        shipping: 'Standard Ground',
-        disposition: dispText,
-        intel: intel,
-        query: `${brand} ${itemDesc}`,
-        imageThumb: manualSvg,
-        category: category,
+        shipping: 'Standard Ground', disposition: dispText, intel,
+        query: `${brand} ${itemDesc}`, imageThumb: manualSvg, category,
         strategy: document.getElementById('assetStrategySelect').value || 'selling',
-        status: 'owned',
-        createdAt: Date.now()
+        status: 'owned', createdAt: Date.now()
       };
 
       manualModal.classList.remove('active');
@@ -1382,11 +994,9 @@
       triggerAlert('Manual recon logged. Comps updated.', false, true);
     };
 
+    // ================= PROFILE / CONFIG =================
     const levelModal = document.getElementById('levelModal');
-    document.getElementById('profileAvatarBtn').onclick = () => {
-      playAudioFeedback('MONITOR', false, false);
-      openLevelModal();
-    };
+    document.getElementById('profileAvatarBtn').onclick = () => { playAudioFeedback('MONITOR', false, false); openLevelModal(); };
     document.getElementById('closeLevelBtn').onclick = () => levelModal.classList.remove('active');
 
     const profileModal = document.getElementById('profileModal');
@@ -1407,13 +1017,12 @@
       configModal.classList.add('active');
     };
     document.getElementById('closeConfigBtn').onclick = () => configModal.classList.remove('active');
-    
     document.getElementById('saveConfigBtn').onclick = () => {
       playAudioFeedback('BUY', false, false);
       STATE.geminiKey = document.getElementById('geminiApiKey').value.trim();
       localStorage.setItem('ts_gemini_key', STATE.geminiKey);
       configModal.classList.remove('active');
-      triggerAlert('API Key verified and saved.', false, true);
+      triggerAlert('API key saved.', false, true);
     };
 
     document.getElementById('saveProfileBtn').onclick = () => {
@@ -1422,15 +1031,14 @@
       STATE.userAvatar = document.getElementById('profileAvatarInput').value.trim() || '👤';
       STATE.currentTheme = document.getElementById('themeSelect').value;
       STATE.fontScale = document.getElementById('fontScaleSelect').value;
-
       localStorage.setItem('ts_last_name', STATE.userLastName);
       localStorage.setItem('ts_avatar', STATE.userAvatar);
       localStorage.setItem('ts_theme', STATE.currentTheme);
       localStorage.setItem('ts_font_scale', STATE.fontScale);
-
       document.documentElement.setAttribute('data-theme', STATE.currentTheme);
       document.body.style.fontSize = STATE.fontScale;
       document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
+      applyAvatar();
       profileModal.classList.remove('active');
       triggerAlert('Specialist profile updated successfully.', false, true);
     };
@@ -1448,7 +1056,6 @@
     document.getElementById('dailyCompsActionBtn').onclick = () => {
       openExternalUrl(`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(currentMission.query)}&LH_Sold=1&LH_Complete=1`);
     };
-
     document.getElementById('claimChallengeBtn').onclick = () => {
       playAudioFeedback('BUY', false, false);
       triggerAlert('Target mission primed for scan!', false, true);
@@ -1457,75 +1064,56 @@
     };
 
     function getCurrentTier(xp) {
-      for (let i = TIERS.length - 1; i >= 0; i--) {
-        if (xp >= TIERS[i].minXp) return { tier: TIERS[i], index: i };
-      }
+      for (let i = TIERS.length - 1; i >= 0; i--) if (xp >= TIERS[i].minXp) return { tier: TIERS[i], index: i };
       return { tier: TIERS[0], index: 0 };
     }
-
-    function updatePills() {
-      localStorage.setItem('ts_scans_left', STATE.dailyScans);
-      localStorage.setItem('ts_xp', STATE.xp);
-    }
-    updatePills();
 
     function openLevelModal() {
       const { tier, index } = getCurrentTier(STATE.xp);
       const nextTier = TIERS[index + 1];
-
       document.getElementById('modalBadgeIcon').textContent = tier.icon;
       document.getElementById('modalRankName').textContent = tier.name;
       document.getElementById('modalXpSubtitle').textContent = STATE.xp.toLocaleString() + ' Total XP Earned';
-
       const fill = document.getElementById('modalProgressFill');
       const nextInfo = document.getElementById('modalNextRankInfo');
-
       if (nextTier) {
         const range = nextTier.minXp - tier.minXp;
-        const currentProgress = STATE.xp - tier.minXp;
-        const pct = Math.min(100, Math.max(0, Math.round((currentProgress / range) * 100)));
+        const pct = Math.min(100, Math.max(0, Math.round(((STATE.xp - tier.minXp) / range) * 100)));
         fill.style.width = pct + '%';
         nextInfo.textContent = (nextTier.minXp - STATE.xp).toLocaleString() + ' XP needed to reach ' + nextTier.name;
       } else {
         fill.style.width = '100%';
         nextInfo.textContent = 'Maximum Rank Achieved!';
       }
-
       const list = document.getElementById('badgeTiersList');
       list.innerHTML = '';
       TIERS.forEach(t => {
-        const isUnlocked = STATE.xp >= t.minXp;
+        const unlocked = STATE.xp >= t.minXp;
         const card = document.createElement('div');
-        card.className = 'badge-card' + (isUnlocked ? ' unlocked' : '');
-        card.innerHTML = `<div style="font-size:1.5rem;">${t.icon}</div><div><div style="font-weight:800; font-size:0.88rem; color:${isUnlocked ? 'var(--amber)' : 'var(--text)'};">${t.name}</div><div style="font-size:0.72rem; color:var(--text-muted);">${t.desc}</div></div>`;
+        card.className = 'badge-card' + (unlocked ? ' unlocked' : '');
+        card.innerHTML = `<div style="font-size:1.5rem;">${t.icon}</div><div><div style="font-weight:800; font-size:.88rem; color:${unlocked ? 'var(--amber)' : 'var(--text)'};">${t.name}</div><div style="font-size:.72rem; color:var(--text-muted);">${t.desc}</div></div>`;
         list.appendChild(card);
       });
-
       levelModal.classList.add('active');
     }
 
     document.getElementById('openHandbookBtn').onclick = openLevelModal;
-    document.getElementById('closeVaultDetailBtn').onclick = () => { document.getElementById('vaultDetailModal').classList.remove('active'); };
+    document.getElementById('closeVaultDetailBtn').onclick = () => document.getElementById('vaultDetailModal').classList.remove('active');
 
     document.getElementById('vDetailCost').onclick = async () => {
       if (!currentlyOpenedVaultItem) return;
-      const newCostInput = prompt('Enter acquired cost ($):', currentlyOpenedVaultItem.cost || 0);
-      if (newCostInput === null) return;
-      const newCost = parseFloat(newCostInput);
+      const v = prompt('Enter acquired cost ($):', currentlyOpenedVaultItem.cost || 0);
+      if (v === null) return;
+      const newCost = parseFloat(v);
       if (isNaN(newCost)) return;
-
-      const resaleVal = Number(currentlyOpenedVaultItem.resale || 35.00);
-      const newProfit = calcProfit(resaleVal, newCost);
-      
+      const newProfit = calcProfit(Number(currentlyOpenedVaultItem.resale || 35.00), newCost);
       try {
         await updateDoc(doc(db, 'vault_inventory', currentlyOpenedVaultItem.id), { cost: newCost, profit: newProfit });
         currentlyOpenedVaultItem.cost = newCost;
         currentlyOpenedVaultItem.profit = newProfit;
         openVaultDetail(currentlyOpenedVaultItem);
         triggerAlert('Acquisition cost updated.', false, false);
-      } catch (err) {
-        alert('Failed to update cost: ' + err.message);
-      }
+      } catch (err) { alert('Failed to update cost: ' + err.message); }
     };
 
     document.getElementById('quickToggleSellBtn').onclick = async () => {
@@ -1534,17 +1122,15 @@
       try {
         await updateDoc(doc(db, 'vault_inventory', currentlyOpenedVaultItem.id), { strategy: newStrategy });
         currentlyOpenedVaultItem.strategy = newStrategy;
-        document.getElementById('vDetailStrategy').textContent = newStrategy === 'selling' ? 'Selling (Active)' : 'Quick Flip';
+        document.getElementById('vDetailStrategy').textContent = newStrategy === 'selling' ? 'Selling' : 'Quick Flip';
         triggerAlert('Inventory strategy updated.', false, false);
-      } catch (err) {
-        alert('Strategy update failed: ' + err.message);
-      }
+      } catch (err) { alert('Strategy update failed: ' + err.message); }
     };
 
     document.getElementById('resetQuotaBtn').onclick = () => {
       STATE.dailyScans = 100;
       updatePills();
-      alert('Daily scans reset to 100.');
+      alert('Counter reset to 100.');
     };
 
     function triggerAlert(msg, isErr = false, autoScroll = false) {
@@ -1578,76 +1164,92 @@
       document.getElementById('vaultTotalLabel').textContent = `${cat.toUpperCase()} Portfolio`;
       renderVault();
     };
-
     document.getElementById('vTabGeneral').onclick = () => setVaultSubTab('general', 'General Vault Inventory');
     document.getElementById('vTabCoins').onclick = () => setVaultSubTab('coins', 'Numismatic Vault');
     document.getElementById('vTabMtg').onclick = () => setVaultSubTab('mtg', 'Magic: The Gathering Collection');
 
-    const mobileGalleryInput = document.getElementById('mobileGalleryInput');
-    document.getElementById('uploadFileBtn').onclick = () => {
-      playAudioFeedback('BUY', false, false);
-      mobileGalleryInput.click();
-    };
-    mobileGalleryInput.onchange = (e) => handleFileSelection(e.target.files);
+    // ================= IMAGES: sharp copy for AI, tiny copy for vault =================
+    function makeImages(source, srcW, srcH) {
+      const draw = (maxDim, quality) => {
+        let w = srcW, h = srcH;
+        if (w >= h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
+        else if (h > w && h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(source, 0, 0, w, h);
+        return c.toDataURL('image/jpeg', quality);
+      };
+      return { scan: draw(SCAN_IMAGE_MAX, SCAN_IMAGE_QUALITY), thumb: draw(THUMB_MAX, THUMB_QUALITY) };
+    }
 
     function compressImageFile(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let w = img.width, h = img.height;
-            const maxDim = 360;
-            if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
-            else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
-            canvas.width = w; canvas.height = h;
-            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-            resolve(canvas.toDataURL('image/jpeg', 0.35));
-          };
-          img.src = ev.target.result;
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const out = makeImages(img, img.naturalWidth || img.width, img.naturalHeight || img.height);
+          URL.revokeObjectURL(url);
+          resolve(out);
         };
-        reader.readAsDataURL(file);
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read that image.')); };
+        img.src = url;
       });
     }
 
+    function showPreviews(dataUrls) {
+      const box = document.getElementById('imagePreviewContainer');
+      box.innerHTML = '';
+      box.style.display = 'grid';
+      dataUrls.forEach(u => {
+        const t = document.createElement('img');
+        t.src = u;
+        t.style.cssText = 'width:70px; height:70px; object-fit:cover; border-radius:6px; border:1px solid var(--border);';
+        box.appendChild(t);
+      });
+    }
+
+    const mobileGalleryInput = document.getElementById('mobileGalleryInput');
+    document.getElementById('uploadFileBtn').onclick = () => { playAudioFeedback('BUY', false, false); mobileGalleryInput.click(); };
+    mobileGalleryInput.onchange = (e) => handleFileSelection(e.target.files);
+
     async function handleFileSelection(files) {
-      if (!files || files.length === 0) return;
+      if (!files || files.length === 0 || isBusy) return;
       playAudioFeedback('BUY', false, false);
       selectedImagesBase64 = [];
-      const previewContainer = document.getElementById('imagePreviewContainer');
-      previewContainer.innerHTML = '';
-      previewContainer.style.display = 'grid';
       document.getElementById('smartRetryBtn').style.display = 'none';
-
-      const isCoinMode = coinToggle.checked;
-      const filesToProcess = Array.from(files).slice(0, isCoinMode ? 2 : 1);
-
-      for (let i = 0; i < filesToProcess.length; i++) {
-        const dataUrl = await compressImageFile(filesToProcess[i]);
-        selectedImagesBase64.push(dataUrl.split(',')[1]);
-        if (i === 0) compressedThumbDataUrl = dataUrl;
-
-        const thumb = document.createElement('img');
-        thumb.src = dataUrl;
-        thumb.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
-        previewContainer.appendChild(thumb);
+      const toProcess = Array.from(files).slice(0, coinToggle.checked ? 2 : 1);
+      const previews = [];
+      try {
+        for (let i = 0; i < toProcess.length; i++) {
+          const { scan, thumb } = await compressImageFile(toProcess[i]);
+          selectedImagesBase64.push(scan.split(',')[1]);
+          previews.push(scan);
+          if (i === 0) compressedThumbDataUrl = thumb;
+        }
+      } catch (err) {
+        triggerAlert('⚠️ ' + err.message, true, true);
+        return;
       }
+      showPreviews(previews);
       runScanWorkflow();
     }
 
+    // ================= CAMERA =================
     const webcamModal = document.getElementById('webcamModal');
     const webcamVideo = document.getElementById('webcamVideo');
     const stagedShotsTray = document.getElementById('stagedShotsTray');
     const camHeaderTitle = document.getElementById('camHeaderTitle');
     const finishWebcamScanBtn = document.getElementById('finishWebcamScanBtn');
-    let stagedImagesB64 = [];
-    let stagedThumbUrl = null;
+    let stagedShots = []; // { scan, thumb }
+
+    function stopCamera() {
+      if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+      webcamStream = null;
+    }
 
     document.getElementById('openWebcamBtn').onclick = async () => {
       playAudioFeedback('BUY', false, false);
-      stagedImagesB64 = [];
-      stagedThumbUrl = null;
+      stagedShots = [];
       updateStagedTray();
       webcamModal.classList.add('active');
       try {
@@ -1660,60 +1262,42 @@
       }
     };
 
-    document.getElementById('closeWebcamBtn').onclick = () => {
-      if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
-      webcamModal.classList.remove('active');
-    };
+    document.getElementById('closeWebcamBtn').onclick = () => { stopCamera(); webcamModal.classList.remove('active'); };
 
     document.getElementById('captureWebcamBtn').onclick = () => {
       playAudioFeedback('BUY', false, false);
-      const canvas = document.createElement('canvas');
-      let w = webcamVideo.videoWidth || 640;
-      let h = webcamVideo.videoHeight || 480;
-      const maxDim = 360;
-      if (w > h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
-      else if (h > maxDim) { w = Math.round((w * maxDim) / h); h = maxDim; }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(webcamVideo, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.35);
-      stagedImagesB64.push(dataUrl.split(',')[1]);
-      if (!stagedThumbUrl) stagedThumbUrl = dataUrl;
+      const max = coinToggle.checked ? 2 : 1;
+      const w = webcamVideo.videoWidth || 640, h = webcamVideo.videoHeight || 480;
+      const shot = makeImages(webcamVideo, w, h);
+      if (stagedShots.length >= max) stagedShots.shift(); // keep newest shots
+      stagedShots.push(shot);
       updateStagedTray();
     };
 
     function updateStagedTray() {
-      const isCoinMode = coinToggle.checked;
-      camHeaderTitle.textContent = `In-App Stacking (${stagedImagesB64.length}/${isCoinMode ? 2 : 1} Shots)`;
-      finishWebcamScanBtn.textContent = `⚡ RUN RECON (${stagedImagesB64.length})`;
+      const max = coinToggle.checked ? 2 : 1;
+      camHeaderTitle.textContent = `Camera (${stagedShots.length}/${max} Shots)`;
+      finishWebcamScanBtn.textContent = `⚡ RUN RECON (${stagedShots.length})`;
       stagedShotsTray.innerHTML = '';
-      stagedImagesB64.forEach((b64) => {
+      if (stagedShots.length === 0) {
+        stagedShotsTray.innerHTML = '<span style="font-size:.75rem; color:var(--text-muted);">Snap the item. In Coin Mode, snap front then back.</span>';
+      }
+      stagedShots.forEach(s => {
         const img = document.createElement('img');
-        img.src = 'data:image/jpeg;base64,' + b64;
-        img.style.cssText = 'width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 2px solid var(--accent);';
+        img.src = s.scan;
+        img.style.cssText = 'width:50px; height:50px; object-fit:cover; border-radius:6px; border:2px solid var(--accent);';
         stagedShotsTray.appendChild(img);
       });
     }
 
     finishWebcamScanBtn.onclick = () => {
-      if (stagedImagesB64.length === 0) return;
+      if (stagedShots.length === 0 || isBusy) return;
       playAudioFeedback('BUY', false, false);
-      const isCoinMode = coinToggle.checked;
-      selectedImagesBase64 = isCoinMode ? stagedImagesB64.slice(0, 2) : [stagedImagesB64[stagedImagesB64.length - 1]];
-      compressedThumbDataUrl = stagedThumbUrl;
-
-      if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
+      selectedImagesBase64 = stagedShots.map(s => s.scan.split(',')[1]);
+      compressedThumbDataUrl = stagedShots[0].thumb;
+      showPreviews(stagedShots.map(s => s.scan));
+      stopCamera();
       webcamModal.classList.remove('active');
-
-      const previewContainer = document.getElementById('imagePreviewContainer');
-      previewContainer.innerHTML = '';
-      previewContainer.style.display = 'grid';
-      selectedImagesBase64.forEach(b64 => {
-        const thumb = document.createElement('img');
-        thumb.src = 'data:image/jpeg;base64,' + b64;
-        thumb.style.cssText = 'width: 70px; height: 70px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border);';
-        previewContainer.appendChild(thumb);
-      });
-
       runScanWorkflow();
     };
 
@@ -1732,131 +1316,87 @@
       mobileGalleryInput.value = '';
     }
 
+    // ================= MAIN SCAN =================
     async function runScanWorkflow() {
+      if (isBusy) return; // stops double-taps from burning extra scans
       if (!selectedImagesBase64 || selectedImagesBase64.length === 0) return;
       if (!STATE.geminiKey) {
-        alert('Set Gemini API key in Config.');
+        alert('Set your Gemini API key in Config first.');
         configModal.classList.add('active');
         return;
       }
+      isBusy = true;
 
       const itemCost = parseFloat(document.getElementById('itemCostInput').value) || 0.00;
       const isCoinMode = coinToggle.checked;
       const isMtgMode = mtgToggle.checked;
 
-      const progressBox = document.getElementById('evalProgressContainer');
-      const progressBarFill = document.getElementById('evalProgressBarFill');
-      const progressText = document.getElementById('evalProgressText');
-      const statusLabel = document.getElementById('evalEngineStatus');
-      progressBox.style.display = 'flex';
-      progressBarFill.style.width = '35%';
-      progressText.textContent = isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Checking Market Comps...');
-      statusLabel.textContent = 'Gemini 3.8-Flash Precision Engine';
-
+      setProgress(isMtgMode ? 'Scryfall MTG Recon...' : (isCoinMode ? 'Numismatic Scan...' : 'Checking Market Comps...'), 25);
+      document.getElementById('evalEngineStatus').textContent = 'AI Vision Engine';
       document.getElementById('smartRetryBtn').style.display = 'none';
 
       let promptText = "";
       if (isMtgMode) {
-        promptText = "Identify this Magic: The Gathering card (exact name, set, collector number, foil status, condition). Return realistic secondary market value in USD. Return ONLY valid JSON matching this schema:\n" +
-          "{\n" +
-          '  "brand": "Wizards of the Coast (MTG)",\n' +
-          '  "item": "Card Name & Set",\n' +
-          '  "resale": 25.00,\n' +
-          '  "platform": "TCGPlayer",\n' +
-          '  "shipping": "Standard Envelope",\n' +
-          '  "intel": "Set edition and market valuation notes.",\n' +
-          '  "query": "exact card name"\n' +
-          "}";
+        promptText = "Identify this Magic: The Gathering card (exact name, set, collector number, foil status, condition). Give a realistic secondary market value in USD. Return ONLY valid JSON matching this schema:\n" +
+          '{"brand":"Wizards of the Coast (MTG)","item":"Card Name & Set","resale":25.00,"platform":"TCGPlayer","shipping":"Standard Envelope","intel":"Set edition and market valuation notes.","query":"exact card name"}';
       } else if (isCoinMode) {
-        promptText = "Examine both sides (obverse/reverse) of this coin/currency. Identify country, year, mint mark, precious metal content, and realized collector value in USD. Return ONLY valid JSON matching this schema:\n" +
-          "{\n" +
-          '  "brand": "Issuing Mint / Country",\n' +
-          '  "item": "Denomination & Year",\n' +
-          '  "resale": 35.00,\n' +
-          '  "platform": "Numismatic",\n' +
-          '  "shipping": "Insured Mail",\n' +
-          '  "intel": "Mint mark verification and metal composition.",\n' +
-          '  "query": "coin year mint mark"\n' +
-          "}";
+        promptText = "Examine both sides (obverse/reverse) of this coin or currency. Identify country, year, mint mark, metal content, and realistic collector value in USD. Return ONLY valid JSON matching this schema:\n" +
+          '{"brand":"Issuing Mint / Country","item":"Denomination & Year","resale":35.00,"platform":"Numismatic","shipping":"Insured Mail","intel":"Mint mark verification and metal composition.","query":"coin year mint mark"}';
       } else {
-        promptText = "Identify this exact secondhand item. Return conservative median secondary market sold price in USD. DO NOT return MSRP or multipack values for single items. Return ONLY valid JSON matching this schema:\n" +
-          "{\n" +
-          '  "brand": "Manufacturer or Studio",\n' +
-          '  "item": "Exact Model or Single Item Descriptor",\n' +
-          '  "resale": 18.00,\n' +
-          '  "platform": "eBay",\n' +
-          '  "shipping": "USPS Ground Advantage",\n' +
-          '  "intel": "Secondary market appraisal rationale.",\n' +
-          '  "query": "brand item descriptor keywords"\n' +
-          "}";
+        promptText = "Identify this exact secondhand item. Return a conservative median secondary market SOLD price in USD. Do NOT return MSRP or multipack values for single items. Return ONLY valid JSON matching this schema:\n" +
+          '{"brand":"Manufacturer or Studio","item":"Exact Model or Single Item Descriptor","resale":18.00,"platform":"eBay","shipping":"USPS Ground Advantage","intel":"Short appraisal rationale.","query":"brand item descriptor keywords"}';
       }
 
       const parts = [{ text: promptText }];
       selectedImagesBase64.forEach(b64 => parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } }));
 
-      const queryResult = await executeModelQuery(promptText, parts);
+      const result = await callGemini(parts);
+      document.getElementById('evalProgressContainer').style.display = 'none';
 
-      progressBarFill.style.width = '100%';
-      setTimeout(() => { progressBox.style.display = 'none'; }, 100);
-
-      if (!queryResult.ok || !queryResult.text) {
-        triggerAlert('⚠️ Scan failed: ' + (queryResult.error || 'Server connection error'), true, true);
+      if (!result.ok) {
+        triggerAlert('⚠️ Scan failed: ' + result.error, true, true);
         document.getElementById('smartRetryBtn').style.display = 'block';
+        isBusy = false;
         return;
       }
 
       try {
-        const parsed = JSON.parse(queryResult.text.trim());
+        const parsed = parseModelJson(result.text);
         const parsedBrand = parsed.brand || (isMtgMode ? 'Wizards of the Coast' : (isCoinMode ? 'US Mint' : 'Unbranded'));
         const parsedItem = parsed.item || 'Identified Asset';
         const estResale = parseFloat(parsed.resale) || 0.00;
         const estProfit = calcProfit(estResale, itemCost);
 
-        let dispText = "BUY (INSTANT FLIP)";
-        let verdictType = 'BUY';
-        let isJackpot = estProfit >= 50.00;
-
-        if (estResale <= 0 || estProfit < 5.00) {
-          dispText = "PASS (INSUFFICIENT MARGIN)";
-          verdictType = 'PASS';
-          isJackpot = false;
-        } else if (estProfit < 15.00) {
-          dispText = "MONITOR (SLIM MARGIN)";
-          verdictType = 'MONITOR';
-          isJackpot = false;
-        }
+        let dispText = "BUY (INSTANT FLIP)", verdictType = 'BUY', isJackpot = estProfit >= 50.00;
+        if (estResale <= 0 || estProfit < 5.00) { dispText = "PASS (INSUFFICIENT MARGIN)"; verdictType = 'PASS'; isJackpot = false; }
+        else if (estProfit < 15.00) { dispText = "MONITOR (SLIM MARGIN)"; verdictType = 'MONITOR'; isJackpot = false; }
 
         playAudioFeedback(verdictType, isJackpot, true);
+        STATE.xp += 10;
+        updatePills();
 
         const uniqueId = 'item_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
-
         currentAppraisal = {
-          id: uniqueId,
-          brand: parsedBrand,
-          item: parsedItem,
-          name: parsedBrand + " - " + parsedItem,
-          cost: itemCost,
-          resale: estResale,
-          profit: estProfit,
+          id: uniqueId, brand: parsedBrand, item: parsedItem, name: parsedBrand + " - " + parsedItem,
+          cost: itemCost, resale: estResale, profit: estProfit,
           platform: parsed.platform || (isMtgMode ? 'TCGPlayer' : 'eBay'),
           shipping: parsed.shipping || 'Standard Ground',
-          disposition: dispText,
-          intel: parsed.intel || 'Secondary market appraisal.',
+          disposition: dispText, intel: parsed.intel || 'Secondary market appraisal.',
           query: parsed.query || (parsedBrand + " " + parsedItem),
           imageThumb: compressedThumbDataUrl || ("data:image/jpeg;base64," + selectedImagesBase64[0]),
           category: isMtgMode ? 'mtg' : (isCoinMode ? 'coins' : 'general'),
           strategy: document.getElementById('assetStrategySelect').value || 'selling',
-          status: 'owned',
-          createdAt: Date.now()
+          status: 'owned', createdAt: Date.now()
         };
 
         renderAppraisal(currentAppraisal);
         resetScanInputs();
-        dismissAlert();
+        triggerAlert(`Scan finished in ${result.secs}s (${result.model}).`, false, false);
       } catch (err) {
-        triggerAlert('Parsing error: ' + err.message, true, true);
+        triggerAlert('Could not read the AI answer: ' + err.message, true, true);
         document.getElementById('smartRetryBtn').style.display = 'block';
       }
+      isBusy = false;
     }
 
     function renderAppraisal(item) {
@@ -1874,7 +1414,6 @@
 
       const compsBtn = document.getElementById('resDirectCompsBtn');
       const targetUrl = generateCompUrl(item);
-
       if (targetUrl && item.resale > 0) {
         compsBtn.classList.remove('disabled');
         compsBtn.textContent = item.category === 'mtg' ? '📊 VIEW SCRYFALL COMPS' : '📊 VIEW SOLD COMPS';
@@ -1894,7 +1433,6 @@
       isSavingToVault = true;
       playAudioFeedback('BUY', currentAppraisal.profit >= 50, false);
       currentAppraisal.strategy = document.getElementById('assetStrategySelect').value || 'selling';
-
       try {
         await setDoc(doc(db, 'vault_inventory', currentAppraisal.id), currentAppraisal);
         triggerAlert(`Securely logged to ${currentAppraisal.category.toUpperCase()} Vault.`, false, false);
@@ -1908,13 +1446,12 @@
     onSnapshot(query(collection(db, 'vault_inventory'), orderBy('createdAt', 'desc')), (snap) => {
       STATE.vaultItems = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       renderVault();
-    });
+    }, (err) => triggerAlert('Vault could not load: ' + err.message, true, false));
 
     function renderVault() {
       const scrollPos = window.scrollY;
       const container = document.getElementById('vaultItemList');
       container.innerHTML = '';
-      
       const filtered = STATE.vaultItems.filter(item => (item.category || 'general') === STATE.vaultCategory);
       let totalValue = 0;
 
@@ -1923,26 +1460,26 @@
         const cost = Number(item.cost || 0);
         const profit = item.profit !== undefined ? Number(item.profit) : calcProfit(resale, cost);
         totalValue += profit;
+        const strat = item.status === 'sold' ? '✅ Sold' : (item.strategy === 'keeping' ? '🔒 Keeping' : (item.strategy === 'quick_flip' ? '⚡ Quick Flip' : '🛒 Selling'));
 
         const wrapper = document.createElement('div');
         wrapper.className = 'vault-item-container';
         wrapper.innerHTML = `
-          <div class="vault-item" onclick="openVaultDetailById('${item.id}')">
-            <img class="item-thumb" src="${item.imageThumb || ''}" alt="Asset">
+          <div class="vault-item" onclick="openVaultDetailById('${esc(item.id)}')">
+            <img class="item-thumb" src="${esc(item.imageThumb || '')}" alt="Asset">
             <div class="item-content">
-              <div class="item-title">${item.brand} - ${item.item}</div>
-              <div class="item-meta">Buy: $${cost.toFixed(2)} • Target: $${resale.toFixed(2)} • ${item.strategy === 'keeping' ? '🔒 Keeping' : (item.strategy === 'quick_flip' ? '⚡ Quick Flip' : '🛒 Selling')}</div>
+              <div class="item-title">${esc(item.brand)} - ${esc(item.item)}</div>
+              <div class="item-meta">Buy: $${cost.toFixed(2)} • Target: $${resale.toFixed(2)} • ${strat}</div>
               <div class="item-actions" onclick="event.stopPropagation();">
-                <button class="btn btn-accent" style="padding:4px 8px; font-size:0.75rem; width:auto;" onclick="quickSellItem('${item.id}')">SELL</button>
-                <button class="btn btn-outline" style="padding:4px 8px; font-size:0.75rem; width:auto; color:var(--coral);" onclick="deleteVaultItem('${item.id}')">DELETE</button>
+                <button class="btn btn-accent" style="padding:4px 8px; font-size:.75rem; width:auto;" onclick="quickSellItem('${esc(item.id)}')">SELL</button>
+                <button class="btn btn-outline" style="padding:4px 8px; font-size:.75rem; width:auto; color:var(--coral);" onclick="deleteVaultItem('${esc(item.id)}')">DELETE</button>
               </div>
             </div>
             <div style="text-align:right;">
               <div style="color:var(--accent); font-weight:800; font-size:1rem;">+$${profit.toFixed(2)}</div>
-              <div style="font-size:0.68rem; color:var(--text-muted); margin-top:2px;">EST. PROFIT</div>
+              <div style="font-size:.68rem; color:var(--text-muted); margin-top:2px;">${item.status === 'sold' ? 'REALIZED' : 'EST. PROFIT'}</div>
             </div>
-          </div>
-        `;
+          </div>`;
         container.appendChild(wrapper);
       });
 
@@ -1969,7 +1506,6 @@
 
       const compBtn = document.getElementById('vDetailCompsActionBtn');
       const targetUrl = generateCompUrl(item);
-
       if (targetUrl && item.resale > 0) {
         compBtn.classList.remove('disabled');
         compBtn.textContent = 'VIEW COMPS';
@@ -1979,7 +1515,6 @@
         compBtn.textContent = 'NO COMPS AVAILABLE';
         compBtn.onclick = null;
       }
-
       document.getElementById('vaultDetailModal').classList.add('active');
     }
 
@@ -1990,33 +1525,29 @@
       if (soldInput === null) return;
       const finalPrice = parseFloat(soldInput) || (target.resale || 35.00);
       const realized = calcProfit(finalPrice, target.cost || 0);
-
       try {
         await updateDoc(doc(db, 'vault_inventory', id), { status: 'sold', finalSoldPrice: finalPrice, profit: realized });
         playAudioFeedback('BUY', realized >= 50, false);
         triggerAlert('Asset marked as sold. Profit locked in.', false, false);
-      } catch (err) {
-        alert('Action failed: ' + err.message);
-      }
+      } catch (err) { alert('Action failed: ' + err.message); }
     };
 
     window.deleteVaultItem = async (id) => {
+      if (!confirm('Delete this item from the vault?')) return;
       try {
         await deleteDoc(doc(db, 'vault_inventory', id));
         playAudioFeedback('PASS', false, false);
         triggerAlert('Asset purged from vault.', false, false);
-      } catch (err) {
-        alert('Delete failed: ' + err.message);
-      }
+      } catch (err) { alert('Delete failed: ' + err.message); }
     };
 
+    // ================= STORES =================
     function calculateDistance(lat1, lon1, lat2, lon2) {
       const R = 3958.8;
       const dLat = (lat2 - lat1) * Math.PI / 180;
       const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-      return (R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)))).toFixed(1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      return (R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)))).toFixed(1);
     }
 
     function initStoresList() {
@@ -2040,16 +1571,15 @@
         card.innerHTML = `
           <div class="store-card-top">
             <div>
-              <div class="store-name-title">${s.name}</div>
-              <div class="store-address-text">${s.address}</div>
+              <div class="store-name-title">${esc(s.name)}</div>
+              <div class="store-address-text">${esc(s.address)}</div>
             </div>
-            <span class="store-dist-badge">${s.dist || '--'} mi</span>
+            <span class="store-dist-badge">${s.dist ?? '--'} mi</span>
           </div>
           <div class="nav-actions-grid">
             <button class="nav-app-btn" onclick="openMapsRoute('${encodeURIComponent(s.address)}')">Google Maps</button>
-            <button class="nav-app-btn" onclick="openStoreReviews('${s.name.replace(/'/g, "\\'")}')">⭐ Reviews</button>
-          </div>
-        `;
+            <button class="nav-app-btn" onclick="openStoreReviews(decodeURIComponent('${encodeURIComponent(s.name)}'))">⭐ Reviews</button>
+          </div>`;
         grid.appendChild(card);
       });
     }
@@ -2062,36 +1592,37 @@
       playAudioFeedback('MONITOR', false, false);
       activeReviewStoreName = storeName;
       document.getElementById('reviewStoreTitle').textContent = storeName + ' • Intel';
-      const savedReviews = JSON.parse(localStorage.getItem('ts_reviews_' + storeName) || JSON.stringify([
-        { author: 'Specialist Claypool', rating: 5, text: 'Great selection of vintage audio gear in the back.' }
-      ]));
+      let saved;
+      try { saved = JSON.parse(localStorage.getItem('ts_reviews_' + storeName) || 'null'); } catch (e) { saved = null; }
+      if (!saved || !saved.length) saved = [{ author: 'Specialist Claypool', rating: 5, text: 'Great selection of vintage audio gear in the back.' }];
 
       const container = document.getElementById('storeReviewsContainer');
       container.innerHTML = '';
-      savedReviews.forEach(r => {
+      saved.forEach(r => {
         const div = document.createElement('div');
-        div.style.cssText = 'background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:0.8rem;';
-        div.innerHTML = `<div style="font-weight:700; color:var(--accent);">⭐ ${r.rating}/5 • ${r.author}</div><div style="color:var(--text-muted); margin-top:2px;">${r.text}</div>`;
+        div.style.cssText = 'background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:.8rem;';
+        div.innerHTML = `<div style="font-weight:700; color:var(--accent);">⭐ ${esc(r.rating)}/5 • ${esc(r.author)}</div><div style="color:var(--text-muted); margin-top:2px;">${esc(r.text)}</div>`;
         container.appendChild(div);
       });
       document.getElementById('storeReviewModal').classList.add('active');
     };
 
-    document.getElementById('closeReviewModalBtn').onclick = () => { document.getElementById('storeReviewModal').classList.remove('active'); };
+    document.getElementById('closeReviewModalBtn').onclick = () => document.getElementById('storeReviewModal').classList.remove('active');
     document.getElementById('submitReviewBtn').onclick = () => {
       if (!activeReviewStoreName) return;
       const rating = document.getElementById('newReviewRating').value;
       const text = document.getElementById('newReviewText').value.trim();
       if (!text) return;
-
-      const storageKey = 'ts_reviews_' + activeReviewStoreName;
-      const existing = JSON.parse(localStorage.getItem(storageKey) || '[]');
-      existing.unshift({ author: 'Specialist ' + STATE.userLastName, rating: parseInt(rating), text: text });
-      localStorage.setItem(storageKey, JSON.stringify(existing));
+      const key = 'ts_reviews_' + activeReviewStoreName;
+      let existing;
+      try { existing = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { existing = []; }
+      existing.unshift({ author: 'Specialist ' + STATE.userLastName, rating: parseInt(rating, 10), text });
+      localStorage.setItem(key, JSON.stringify(existing));
       document.getElementById('newReviewText').value = '';
       openStoreReviews(activeReviewStoreName);
     };
 
+    // ================= SHARE =================
     document.getElementById('shareEvaluationBtn').onclick = async () => {
       if (!currentAppraisal) return;
       const canvas = document.createElement('canvas');
@@ -2100,19 +1631,21 @@
       ctx.fillStyle = '#111827'; ctx.fillRect(0, 0, 600, 360);
       ctx.strokeStyle = '#14b8a6'; ctx.lineWidth = 4; ctx.strokeRect(10, 10, 580, 340);
       ctx.fillStyle = '#14b8a6'; ctx.font = 'bold 16px sans-serif'; ctx.fillText('THRIFT SCOUT • RECON', 30, 45);
-      ctx.fillStyle = '#f9fafb'; ctx.font = 'bold 20px sans-serif'; ctx.fillText(currentAppraisal.name, 30, 80);
+      ctx.fillStyle = '#f9fafb'; ctx.font = 'bold 20px sans-serif'; ctx.fillText(currentAppraisal.name.slice(0, 48), 30, 80);
       ctx.fillStyle = '#9ca3af'; ctx.font = '14px sans-serif'; ctx.fillText('Target Resale: $' + currentAppraisal.resale.toFixed(2), 30, 130);
       ctx.fillStyle = '#14b8a6'; ctx.font = 'bold 22px sans-serif'; ctx.fillText('Est. Net Profit: $' + currentAppraisal.profit.toFixed(2), 30, 170);
       ctx.fillStyle = '#f59e0b'; ctx.font = 'bold 16px sans-serif'; ctx.fillText('VERDICT: ' + currentAppraisal.disposition, 30, 220);
 
       canvas.toBlob(async (blob) => {
-        const file = new File([blob], 'thrift-scout.jpg', { type: 'image/jpeg' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({ title: currentAppraisal.name, files: [file] });
-        } else {
-          navigator.clipboard.writeText(`${currentAppraisal.name} | Resale: $${currentAppraisal.resale} | Profit: $${currentAppraisal.profit}`);
-          alert('Evaluation copied to clipboard!');
-        }
+        try {
+          const file = new File([blob], 'thrift-scout.jpg', { type: 'image/jpeg' });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ title: currentAppraisal.name, files: [file] });
+          } else {
+            await navigator.clipboard.writeText(`${currentAppraisal.name} | Resale: $${currentAppraisal.resale} | Profit: $${currentAppraisal.profit}`);
+            alert('Evaluation copied to clipboard!');
+          }
+        } catch (e) { /* user cancelled share */ }
       }, 'image/jpeg', 0.90);
     };
 
