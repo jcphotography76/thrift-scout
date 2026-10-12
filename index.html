@@ -561,9 +561,11 @@
     const db = getFirestore(app);
 
     // ================= AI SETTINGS (change models ONLY here) =================
-    // Tried in order. A model is skipped ONLY if Google says it doesn't exist (404)
-    // or is overloaded (503). Max 2 calls per scan, never a retry loop.
-    const MODELS = ['gemini-3.5-flash', 'gemini-3.1-flash-lite'];
+    // One fast model only. (Full Flash has a tiny free daily cap, so it is not used.)
+    // Skipped to the next model ONLY on 404/503. Never a retry loop.
+    const MODELS = ['gemini-3.1-flash-lite'];
+    const SCAN_MAX_TOKENS = 1024;    // thinking tokens count toward this cap, so keep headroom
+    const VERIFY_MAX_TOKENS = 1536;
     const REQUEST_TIMEOUT_MS = 25000;
     const SCAN_IMAGE_MAX = 768;   // size sent to the AI (readable hallmarks)
     const SCAN_IMAGE_QUALITY = 0.6;
@@ -855,17 +857,27 @@
       document.getElementById('evalProgressBarFill').style.width = pct + '%';
     }
 
-    async function callGemini(parts) {
+    async function callGemini(parts, opts) {
+      const maxTokens = (opts && opts.maxTokens) || SCAN_MAX_TOKENS;
       if (!STATE.geminiKey) return { ok: false, error: 'No API key saved. Open your profile and tap Config API Key.' };
       if (STATE.dailyScans <= 0) return { ok: false, error: 'Your on-screen scan counter is at 0. Reset it in Config if Google still allows calls.' };
 
-      const body = JSON.stringify({
+      // Ask for minimal "thinking" so answers come back faster. If Google rejects that
+      // setting (400), we remember it and retry once without it.
+      let thinkingOk = true;
+      try { thinkingOk = localStorage.getItem('ts_no_think') !== '1'; } catch (e) {}
+      const buildBody = () => JSON.stringify({
         contents: [{ parts }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 2048, responseMimeType: 'application/json' }
+        generationConfig: Object.assign(
+          { temperature: 0.1, maxOutputTokens: maxTokens, responseMimeType: 'application/json' },
+          thinkingOk ? { thinkingConfig: { thinkingLevel: 'minimal' } } : {}
+        )
       });
+      let body = buildBody();
 
       let lastError = 'Unknown error';
-      for (const model of MODELS) {
+      for (let mi = 0; mi < MODELS.length; mi++) {
+        const model = MODELS[mi];
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
         STATE.dailyScans = Math.max(0, STATE.dailyScans - 1); // count every real call
@@ -897,6 +909,14 @@
           const msg = errJson.error?.message || `HTTP ${res.status}`;
           lastError = `${model}: ${msg}`;
 
+          // Thinking setting rejected: turn it off for good and redo this same model once.
+          if (res.status === 400 && thinkingOk && /think/i.test(msg)) {
+            thinkingOk = false;
+            try { localStorage.setItem('ts_no_think', '1'); } catch (e) {}
+            body = buildBody();
+            mi--;
+            continue;
+          }
           // Only move on to the next model if THIS one isn't available.
           if (res.status === 404 || res.status === 503) continue;
           if (res.status === 429) return { ok: false, error: `Google says you're over the limit (429). ${msg}` };
@@ -1167,7 +1187,7 @@
       }
       extraShots.forEach(sh => parts.push({ inlineData: { mimeType: 'image/jpeg', data: sh.scan.split(',')[1] } }));
 
-      const res = await callGemini(parts);
+      const res = await callGemini(parts, { maxTokens: VERIFY_MAX_TOKENS });
 
       if (res.ok) {
         try {
