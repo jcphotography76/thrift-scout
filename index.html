@@ -516,7 +516,9 @@
       </div>
       <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
         <button class="btn btn-outline" id="captureWebcamBtn" style="padding:14px;">📸 SNAP SHOT</button>
+        <button class="btn btn-outline" id="verifyGalleryBtn" style="padding:12px; display:none;">📁 ADD FROM GALLERY</button>
         <button class="btn btn-accent" id="finishWebcamScanBtn" style="padding:14px;">⚡ RUN RECON (0)</button>
+        <input type="file" id="verifyGalleryInput" accept="image/*" multiple style="display:none;">
       </div>
     </div>
   </div>
@@ -1126,9 +1128,16 @@
     };
 
     // ================= VAULT: CAREFUL SECOND-OPINION VERIFY =================
-    document.getElementById('vDetailVerifyBtn').onclick = async () => {
+    document.getElementById('vDetailVerifyBtn').onclick = () => {
       if (!currentlyOpenedVaultItem || isBusy) return;
       if (!STATE.geminiKey) { alert('Set your Gemini API key in Config first.'); return; }
+      playAudioFeedback('BUY', false, false);
+      openCamera('verify'); // snap up to 3 close-ups, then RUN VERIFY calls runVerify()
+    };
+
+    async function runVerify(extraShots) {
+      extraShots = extraShots || [];
+      if (!currentlyOpenedVaultItem || isBusy) return;
       isBusy = true;
 
       const btn = document.getElementById('vDetailVerifyBtn');
@@ -1145,11 +1154,18 @@
         "Return ONLY valid JSON matching this schema:\n" +
         '{"brand":"corrected or confirmed brand","item":"corrected or confirmed item descriptor","resale":18.00,"intel":"what you actually see confirming or correcting the first guess, and why the price changed or stayed the same","query":"brand item descriptor keywords"}';
 
-      const parts = [{ text: promptText }];
+      const extraNote = extraShots.length
+        ? "\n\nIMAGE ORDER: the FIRST image is the small original scan photo. The next " + extraShots.length +
+          " image(s) are NEW close-up photos taken for this re-check. Read any serial numbers, model numbers, " +
+          "stamps, tags, or markings in the close-ups and use them to confirm or correct the first guess. " +
+          "If a serial or model number is readable, mention it in the intel."
+        : "";
+      const parts = [{ text: promptText + extraNote }];
       if (item.imageThumb && item.imageThumb.startsWith('data:image')) {
         const b64 = item.imageThumb.split(',')[1];
         if (b64) parts.push({ inlineData: { mimeType: 'image/jpeg', data: b64 } });
       }
+      extraShots.forEach(sh => parts.push({ inlineData: { mimeType: 'image/jpeg', data: sh.scan.split(',')[1] } }));
 
       const res = await callGemini(parts);
 
@@ -1181,7 +1197,7 @@
       btn.textContent = originalLabel;
       btn.classList.remove('disabled');
       isBusy = false;
-    };
+    }
 
     document.getElementById('resetQuotaBtn').onclick = () => {
       STATE.dailyScans = 100;
@@ -1276,7 +1292,8 @@
     }
 
     // ================= IMAGES: sharp copy for AI, tiny copy for vault =================
-    function makeImages(source, srcW, srcH) {
+    const VERIFY_IMAGE_MAX = 1280, VERIFY_IMAGE_QUALITY = 0.7; // sharper close-ups for serial numbers
+    function makeImages(source, srcW, srcH, scanMax) {
       const draw = (maxDim, quality) => {
         let w = srcW, h = srcH;
         if (w >= h && w > maxDim) { h = Math.round((h * maxDim) / w); w = maxDim; }
@@ -1286,15 +1303,15 @@
         c.getContext('2d').drawImage(source, 0, 0, w, h);
         return c.toDataURL('image/jpeg', quality);
       };
-      return { scan: draw(SCAN_IMAGE_MAX, SCAN_IMAGE_QUALITY), thumb: draw(THUMB_MAX, THUMB_QUALITY), phash: computePhash(source) };
+      return { scan: scanMax ? draw(scanMax, VERIFY_IMAGE_QUALITY) : draw(SCAN_IMAGE_MAX, SCAN_IMAGE_QUALITY), thumb: draw(THUMB_MAX, THUMB_QUALITY), phash: computePhash(source) };
     }
 
-    function compressImageFile(file) {
+    function compressImageFile(file, scanMax) {
       return new Promise((resolve, reject) => {
         const url = URL.createObjectURL(file);
         const img = new Image();
         img.onload = () => {
-          const out = makeImages(img, img.naturalWidth || img.width, img.naturalHeight || img.height);
+          const out = makeImages(img, img.naturalWidth || img.width, img.naturalHeight || img.height, scanMax);
           URL.revokeObjectURL(url);
           resolve(out);
         };
@@ -1348,15 +1365,21 @@
     const camHeaderTitle = document.getElementById('camHeaderTitle');
     const finishWebcamScanBtn = document.getElementById('finishWebcamScanBtn');
     let stagedShots = []; // { scan, thumb }
+    let cameraMode = 'scan'; // 'scan' = normal scan, 'verify' = close-up photos for Verify
+    const verifyGalleryBtn = document.getElementById('verifyGalleryBtn');
+    const verifyGalleryInput = document.getElementById('verifyGalleryInput');
+
+    function maxShots() { return cameraMode === 'verify' ? 3 : (coinToggle.checked ? 2 : 1); }
 
     function stopCamera() {
       if (webcamStream) webcamStream.getTracks().forEach(t => t.stop());
       webcamStream = null;
     }
 
-    document.getElementById('openWebcamBtn').onclick = async () => {
-      playAudioFeedback('BUY', false, false);
+    async function openCamera(mode) {
+      cameraMode = mode || 'scan';
       stagedShots = [];
+      verifyGalleryBtn.style.display = cameraMode === 'verify' ? 'block' : 'none';
       updateStagedTray();
       webcamModal.classList.add('active');
       try {
@@ -1364,30 +1387,66 @@
         webcamVideo.srcObject = webcamStream;
         await webcamVideo.play();
       } catch (err) {
-        alert('Could not access camera: ' + err.message);
-        webcamModal.classList.remove('active');
+        if (cameraMode === 'verify') {
+          // Camera blocked: still let the user pick photos from the gallery.
+          triggerAlert('Camera unavailable. Use ADD FROM GALLERY, or tap RUN VERIFY to re-check the saved photo.', true, false);
+        } else {
+          alert('Could not access camera: ' + err.message);
+          webcamModal.classList.remove('active');
+        }
       }
+    }
+
+    function closeCamera() {
+      stopCamera();
+      webcamModal.classList.remove('active');
+      cameraMode = 'scan';
+      verifyGalleryBtn.style.display = 'none';
+    }
+
+    document.getElementById('openWebcamBtn').onclick = () => {
+      playAudioFeedback('BUY', false, false);
+      openCamera('scan');
     };
 
-    document.getElementById('closeWebcamBtn').onclick = () => { stopCamera(); webcamModal.classList.remove('active'); };
+    document.getElementById('closeWebcamBtn').onclick = closeCamera;
 
     document.getElementById('captureWebcamBtn').onclick = () => {
       playAudioFeedback('BUY', false, false);
-      const max = coinToggle.checked ? 2 : 1;
+      const max = maxShots();
       const w = webcamVideo.videoWidth || 640, h = webcamVideo.videoHeight || 480;
-      const shot = makeImages(webcamVideo, w, h);
+      const shot = makeImages(webcamVideo, w, h, cameraMode === 'verify' ? VERIFY_IMAGE_MAX : undefined);
       if (stagedShots.length >= max) stagedShots.shift(); // keep newest shots
       stagedShots.push(shot);
       updateStagedTray();
     };
 
+    verifyGalleryBtn.onclick = () => verifyGalleryInput.click();
+    verifyGalleryInput.onchange = async (e) => {
+      const files = Array.from(e.target.files || []);
+      verifyGalleryInput.value = '';
+      for (const f of files) {
+        if (stagedShots.length >= maxShots()) break;
+        try { stagedShots.push(await compressImageFile(f, VERIFY_IMAGE_MAX)); }
+        catch (err) { triggerAlert('⚠️ ' + err.message, true, false); }
+      }
+      updateStagedTray();
+    };
+
     function updateStagedTray() {
-      const max = coinToggle.checked ? 2 : 1;
-      camHeaderTitle.textContent = `Camera (${stagedShots.length}/${max} Shots)`;
-      finishWebcamScanBtn.textContent = `⚡ RUN RECON (${stagedShots.length})`;
+      const max = maxShots();
+      const verify = cameraMode === 'verify';
+      camHeaderTitle.textContent = verify
+        ? `Verify Close-ups (${stagedShots.length}/${max})`
+        : `Camera (${stagedShots.length}/${max} Shots)`;
+      finishWebcamScanBtn.textContent = verify
+        ? `🔎 RUN VERIFY (${stagedShots.length} new)`
+        : `⚡ RUN RECON (${stagedShots.length})`;
       stagedShotsTray.innerHTML = '';
       if (stagedShots.length === 0) {
-        stagedShotsTray.innerHTML = '<span style="font-size:.75rem; color:var(--text-muted);">Snap the item. In Coin Mode, snap front then back.</span>';
+        stagedShotsTray.innerHTML = '<span style="font-size:.75rem; color:var(--text-muted);">' +
+          (verify ? 'Snap up to 3 close-ups (serial number, tags, markings). Or just tap RUN VERIFY to re-check the saved photo.'
+                  : 'Snap the item. In Coin Mode, snap front then back.') + '</span>';
       }
       stagedShots.forEach(s => {
         const img = document.createElement('img');
@@ -1398,14 +1457,20 @@
     }
 
     finishWebcamScanBtn.onclick = () => {
-      if (stagedShots.length === 0 || isBusy) return;
+      if (isBusy) return;
       playAudioFeedback('BUY', false, false);
+      if (cameraMode === 'verify') {
+        const shots = stagedShots.slice();
+        closeCamera();
+        runVerify(shots);
+        return;
+      }
+      if (stagedShots.length === 0) return;
       selectedImagesBase64 = stagedShots.map(s => s.scan.split(',')[1]);
       compressedThumbDataUrl = stagedShots[0].thumb;
       currentPhash = stagedShots[0].phash;
       showPreviews(stagedShots.map(s => s.scan));
-      stopCamera();
-      webcamModal.classList.remove('active');
+      closeCamera();
       runScanWorkflow();
     };
 
