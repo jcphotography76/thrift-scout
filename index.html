@@ -18,6 +18,41 @@
     [data-theme="tactical"] { --bg:#0f1711; --card-bg:#142217; --surface:#1e3323; --border:#2e4d36; --border-focus:#22c55e; --text:#f0fdf4; --text-muted:#86efac; --accent:#22c55e; --accent-glow:rgba(34,197,94,.2); }
     [data-theme="cyberpunk"] { --bg:#0f051d; --card-bg:#18082e; --surface:#271147; --border:#4a1d8a; --border-focus:#ec4899; --text:#fdf4ff; --text-muted:#d8b4fe; --accent:#ec4899; --accent-glow:rgba(236,72,153,.2); }
 
+
+    /* ===== UNLOCKABLE THEMES ===== */
+    [data-theme="phosphor"] { --bg:#020a04; --card-bg:#04140a; --surface:#072111; --border:#0f4a24; --border-focus:#33ff77; --text:#b8ffd0; --text-muted:#3fbf6a; --accent:#33ff77; --accent-glow:rgba(51,255,119,.22); --font-stack:"SF Mono","Cascadia Mono",Menlo,Consolas,"Courier New",monospace; }
+    [data-theme="frost"] { --bg:#e8f3fa; --card-bg:#fbfeff; --surface:#d6e9f5; --border:#a9cde3; --border-focus:#0ea5e9; --text:#0b2a3d; --text-muted:#4a7690; --accent:#0891d1; --accent-glow:rgba(8,145,209,.2); }
+    [data-theme="noir"] { --bg:#0b0b0d; --card-bg:#151517; --surface:#212124; --border:#3a3a3f; --border-focus:#d4d4d8; --text:#f4f4f5; --text-muted:#8e8e96; --accent:#e4e4e7; --accent-glow:rgba(228,228,231,.15); --coral:#c1121f; }
+    [data-theme="synthwave"] { --bg:#120626; --card-bg:#1e0b3d; --surface:#2c1259; --border:#5b1f9e; --border-focus:#00f0ff; --text:#fff0fb; --text-muted:#c9a6ff; --accent:#00f0ff; --accent-glow:rgba(0,240,255,.22); --amber:#ff3df0; }
+    [data-theme="sepia"] { --bg:#efe3c8; --card-bg:#f8efd9; --surface:#e4d3ae; --border:#c4aa78; --border-focus:#8a5a1f; --text:#3b2a14; --text-muted:#7a6238; --accent:#8a4b0f; --accent-glow:rgba(138,75,15,.2); }
+    [data-theme="deepspace"] { --bg:#02030a; --card-bg:#080b1c; --surface:#10152f; --border:#252c5c; --border-focus:#8b9bff; --text:#eef0ff; --text-muted:#8087b8; --accent:#8b9bff; --accent-glow:rgba(139,155,255,.22); }
+    [data-theme="forest"] { --bg:#0c1a12; --card-bg:#12261a; --surface:#1b3a27; --border:#2f5c3f; --border-focus:#a3e635; --text:#f1f8e9; --text-muted:#9bc79f; --accent:#a3e635; --accent-glow:rgba(163,230,53,.2); }
+    [data-theme="goldrush"] { --bg:#1c1208; --card-bg:#2a1b0c; --surface:#3b2813; --border:#6b4a22; --border-focus:#f5b83d; --text:#fff4dc; --text-muted:#c9a468; --accent:#f5b83d; --accent-glow:rgba(245,184,61,.22); }
+    [data-theme="auction"] { --bg:#0a0f1e; --card-bg:#101831; --surface:#18234a; --border:#2b3b78; --border-focus:#d4af37; --text:#f6f1e1; --text-muted:#9aa5cf; --accent:#d4af37; --accent-glow:rgba(212,175,55,.22); }
+    [data-theme="velvet"] { --bg:#16041a; --card-bg:#240a2b; --surface:#361240; --border:#6a2a78; --border-focus:#e8b4f8; --text:#fdf1ff; --text-muted:#c79bd6; --accent:#e8b4f8; --accent-glow:rgba(232,180,248,.22); --gold:#f5d27a; }
+    [data-theme="factory"] { --bg:#16181b; --card-bg:#202327; --surface:#2c3035; --border:#474c53; --border-focus:#ffb800; --text:#f2f3f4; --text-muted:#9aa0a8; --accent:#ffb800; --accent-glow:rgba(255,184,0,.2); }
+    [data-theme="amberterm"] { --bg:#0c0600; --card-bg:#1a0e00; --surface:#261500; --border:#5c3600; --border-focus:#ffb000; --text:#ffd48a; --text-muted:#b57a1a; --accent:#ffb000; --accent-glow:rgba(255,176,0,.22); --font-stack:"SF Mono","Cascadia Mono",Menlo,Consolas,"Courier New",monospace; }
+    [data-theme="frost"] header, [data-theme="sepia"] header { background:rgba(248,244,232,.9); }
+    [data-theme="frost"] header { background:rgba(251,254,255,.9); }
+    [data-theme="frost"] .bottom-dock, [data-theme="sepia"] .bottom-dock { background:rgba(255,255,255,.95); }
+    [data-theme="sepia"] .bottom-dock { background:rgba(248,239,217,.96); }
+    [data-theme="frost"] .btn-accent, [data-theme="sepia"] .btn-accent { color:#fff; }
+    [data-theme="phosphor"] body::after, [data-theme="amberterm"] body::after {
+      content:""; position:fixed; inset:0; pointer-events:none; z-index:9999;
+      background:repeating-linear-gradient(to bottom, rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.16) 3px);
+      box-shadow:inset 0 0 120px rgba(0,0,0,.55);
+    }
+    [data-theme="phosphor"] .metric-val, [data-theme="phosphor"] .brand, [data-theme="amberterm"] .brand { text-shadow:0 0 8px var(--accent-glow); }
+    [data-theme="synthwave"] .brand, [data-theme="synthwave"] .btn-accent { box-shadow:0 0 14px var(--accent-glow); }
+
+    /* ===== VERIFIED ITEMS ===== */
+    .vault-item.verified { background:linear-gradient(90deg, rgba(34,197,94,.20), rgba(34,197,94,.07)); box-shadow:inset 4px 0 0 #22c55e; border-color:rgba(34,197,94,.55); }
+    .vault-item-container.verified-wrap { border-color:rgba(34,197,94,.65); }
+    .verified-check { position:absolute; top:6px; right:6px; z-index:3; width:22px; height:22px; border-radius:50%; background:#22c55e; color:#fff; font-size:.8rem; font-weight:900; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(34,197,94,.6); }
+    .verified-pill { display:inline-block; font-size:.62rem; font-weight:800; letter-spacing:.04em; color:#16a34a; background:rgba(34,197,94,.15); border:1px solid rgba(34,197,94,.5); border-radius:999px; padding:1px 7px; margin-left:6px; vertical-align:middle; }
+    .theme-chip { display:flex; justify-content:space-between; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-size:.8rem; opacity:.55; }
+    .theme-chip.unlocked { opacity:1; border-color:var(--accent); }
+
     * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
     body {
       background-color:var(--bg); color:var(--text); font-family:var(--font-stack); font-size:var(--font-scale);
@@ -403,6 +438,9 @@
       </div>
       <div class="card-title" style="margin-top:4px; font-size:.85rem;">BADGE TIERS</div>
       <div style="display:flex; flex-direction:column; gap:8px;" id="badgeTiersList"></div>
+      <div class="card-title" style="margin-top:8px; font-size:.85rem;">UNLOCKABLE THEMES</div>
+      <div style="display:flex; flex-direction:column; gap:6px;" id="themeUnlockList"></div>
+      <div style="font-size:.7rem; color:var(--text-muted); margin-top:6px;">Ranks take real time: the first 500 XP each day counts in full, so climbing means coming back trip after trip.</div>
     </div>
   </div>
 
@@ -423,13 +461,7 @@
       </div>
       <div>
         <label class="metric-label">Interface Theme</label>
-        <select id="themeSelect" class="input-field" style="margin-top:4px;">
-          <option value="dark">Dark Ops (Default)</option>
-          <option value="light">Daylight Recon (Light Mode)</option>
-          <option value="midnight">Midnight Stealth</option>
-          <option value="tactical">Tactical Woodland</option>
-          <option value="cyberpunk" selected>Cyberpunk Grid</option>
-        </select>
+        <select id="themeSelect" class="input-field" style="margin-top:4px;"></select>
       </div>
       <div>
         <label class="metric-label">Text Scale / Font Size</label>
@@ -471,6 +503,15 @@
       </div>
       <div style="font-size:.82rem; color:var(--text-muted); line-height:1.4;" id="vDetailIntel"></div>
       <button class="btn btn-amber" id="vDetailVerifyBtn" style="font-size:.85rem; padding:12px;">🔎 VERIFY THIS ITEM (Careful Re-check)</button>
+      <div id="vVerifyProgress" style="display:none; flex-direction:column; gap:6px; margin-top:2px;">
+        <div style="display:flex; justify-content:space-between; font-size:.75rem; color:var(--accent); font-weight:700;">
+          <span id="vVerifyProgressText">Verifying...</span>
+          <span id="vVerifyEngine">Careful Re-check</span>
+        </div>
+        <div style="background:var(--border); height:6px; border-radius:3px; overflow:hidden;">
+          <div id="vVerifyProgressFill" style="background:var(--accent); width:0%; height:100%; transition:width .3s;"></div>
+        </div>
+      </div>
       <div style="display:flex; gap:8px; margin-top:4px;">
         <button class="btn btn-accent" id="quickToggleSellBtn" style="flex:1; font-size:.8rem;">⚡ TOGGLE QUICK FLIP</button>
         <button id="vDetailCompsActionBtn" class="btn btn-outline" style="flex:1; font-size:.8rem;">VIEW COMPS</button>
@@ -617,77 +658,236 @@
       setTimeout(() => { document.body.classList.remove('flash-active'); }, 350);
     }
 
-    let audioCtx = null;
+    // ================= SOUND ENGINE (polished bells, reverb, escalating wins) =================
+    let audioCtx = null, busCache = null, lastSoundAt = 0, winStreak = 0;
     function getOrCreateAudioContext() {
       try {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
         if (!AudioContextClass) return null;
-        if (!audioCtx || audioCtx.state === 'closed') audioCtx = new AudioContextClass();
+        if (!audioCtx || audioCtx.state === 'closed') { audioCtx = new AudioContextClass(); busCache = null; }
         return audioCtx;
       } catch (e) { return null; }
     }
-
-    function playBellChime(ctx, freq, startTime, duration = 0.35, gainLevel = 0.18) {
-      try {
-        const osc1 = ctx.createOscillator(), gain1 = ctx.createGain();
-        osc1.type = 'sine'; osc1.frequency.setValueAtTime(freq, startTime);
-        const osc2 = ctx.createOscillator(), gain2 = ctx.createGain();
-        osc2.type = 'triangle'; osc2.frequency.setValueAtTime(freq * 2.76, startTime);
-        gain1.gain.setValueAtTime(gainLevel, startTime);
-        gain1.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-        gain2.gain.setValueAtTime(gainLevel * 0.35, startTime);
-        gain2.gain.exponentialRampToValueAtTime(0.0001, startTime + (duration * 0.6));
-        osc1.connect(gain1); gain1.connect(ctx.destination);
-        osc2.connect(gain2); gain2.connect(ctx.destination);
-        osc1.start(startTime); osc1.stop(startTime + duration);
-        osc2.start(startTime); osc2.stop(startTime + (duration * 0.6));
-      } catch (e) {}
+    function makeImpulse(ctx, secs, decay) {
+      const len = Math.floor(ctx.sampleRate * secs), buf = ctx.createBuffer(2, len, ctx.sampleRate);
+      for (let ch = 0; ch < 2; ch++) {
+        const d = buf.getChannelData(ch);
+        for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+      }
+      return buf;
     }
-
-    function playAudioFeedback(verdict = 'BUY', isJackpot = false, shouldTriggerEffects = false) {
-      if (shouldTriggerEffects) triggerHapticAndFlash(verdict, isJackpot);
+    function getBus(ctx) {
+      if (busCache && busCache.ctx === ctx) return busCache.node;
+      const input = ctx.createGain(), dry = ctx.createGain(), wet = ctx.createGain();
+      const conv = ctx.createConvolver(), comp = ctx.createDynamicsCompressor();
+      dry.gain.value = 0.9; wet.gain.value = 0.3;
+      conv.buffer = makeImpulse(ctx, 1.7, 2.8);
+      comp.threshold.value = -16; comp.ratio.value = 4; comp.attack.value = 0.003; comp.release.value = 0.2;
+      input.connect(dry); input.connect(conv); conv.connect(wet);
+      dry.connect(comp); wet.connect(comp); comp.connect(ctx.destination);
+      busCache = { ctx, node: input };
+      return input;
+    }
+    // Run a sound once the audio context is actually running (fixes silent taps on iOS/PWA).
+    function sfx(fn) {
+      lastSoundAt = performance.now();
       try {
         const ctx = getOrCreateAudioContext();
         if (!ctx) return;
-        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
-        const now = ctx.currentTime;
-
-        if (isJackpot) {
-          [523.25, 659.25, 783.99, 1046.50, 1318.51, 1567.98, 2093.00].forEach((freq, idx) => {
-            playBellChime(ctx, freq, now + (idx * 0.055), 0.45, 0.22);
-          });
-          setTimeout(() => {
-            if (!ctx || ctx.state === 'closed') return;
-            const t = ctx.currentTime;
-            playBellChime(ctx, 1046.50, t, 0.6, 0.15);
-            playBellChime(ctx, 1567.98, t, 0.6, 0.15);
-            playBellChime(ctx, 2093.00, t, 0.7, 0.18);
-          }, 420);
-        } else if (verdict === 'BUY') {
-          [783.99, 1046.50, 1318.51].forEach((freq, idx) => playBellChime(ctx, freq, now + (idx * 0.075), 0.4, 0.20));
-        } else if (verdict === 'MONITOR') {
-          playBellChime(ctx, 659.25, now, 0.3, 0.14);
-          playBellChime(ctx, 783.99, now + 0.09, 0.35, 0.16);
-        } else {
-          const osc = ctx.createOscillator(), gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(180, now);
-          osc.frequency.exponentialRampToValueAtTime(60, now + 0.08);
-          gain.gain.setValueAtTime(0.12, now);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.08);
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.start(now); osc.stop(now + 0.08);
-        }
+        const go = () => { try { fn(ctx, ctx.currentTime + 0.02); } catch (e) {} };
+        if (ctx.state === 'running') go();
+        else ctx.resume().then(go).catch(() => {});
       } catch (e) {}
     }
+    const semi = (f, n) => f * Math.pow(2, n / 12);
+
+    // Warm bell: soft attack + inharmonic partials, routed through reverb.
+    function playBellChime(ctx, freq, t, dur = 0.55, level = 0.16, bright = 1) {
+      try {
+        const bus = getBus(ctx);
+        const partials = [[1, 1, 1], [2.0, 0.40, 0.65], [2.76, 0.22 * bright, 0.45], [4.07, 0.10 * bright, 0.30], [5.4, 0.05 * bright, 0.20]];
+        partials.forEach(([r, g, d]) => {
+          const o = ctx.createOscillator(), a = ctx.createGain();
+          o.type = 'sine'; o.frequency.setValueAtTime(freq * r, t);
+          a.gain.setValueAtTime(0.0001, t);
+          a.gain.linearRampToValueAtTime(level * g, t + 0.006);
+          a.gain.exponentialRampToValueAtTime(0.0001, t + dur * d);
+          o.connect(a); a.connect(bus); o.start(t); o.stop(t + dur * d + 0.05);
+        });
+      } catch (e) {}
+    }
+    // Slow warm swell under big wins.
+    function playSwell(ctx, freqs, t, dur, level) {
+      try {
+        const bus = getBus(ctx);
+        freqs.forEach(f => {
+          const o = ctx.createOscillator(), a = ctx.createGain();
+          o.type = 'triangle'; o.frequency.setValueAtTime(f, t);
+          a.gain.setValueAtTime(0.0001, t);
+          a.gain.linearRampToValueAtTime(level, t + dur * 0.45);
+          a.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+          o.connect(a); a.connect(bus); o.start(t); o.stop(t + dur + 0.05);
+        });
+      } catch (e) {}
+    }
+    const PENTA = [0, 2, 4, 7, 9]; // major pentatonic = always sounds pleasant
+    function playSparkle(ctx, t, n, baseFreq, level) {
+      for (let i = 0; i < n; i++) {
+        const step = PENTA[i % 5] + 12 * Math.floor(i / 5);
+        playBellChime(ctx, semi(baseFreq, step), t + i * 0.045, 0.35, level, 0.6);
+      }
+    }
+    function cascade(ctx, t, count, baseFreq, gap, dur, level) {
+      for (let i = 0; i < count; i++) {
+        const step = PENTA[i % 5] + 12 * Math.floor(i / 5);
+        playBellChime(ctx, semi(baseFreq, step), t + i * gap, dur, level, 1);
+      }
+    }
+    function chord(ctx, t, freqs, dur, level) { freqs.forEach(f => playBellChime(ctx, f, t, dur, level, 1)); }
+
+    // Small cues
+    function playTap() { sfx((ctx, t) => playBellChime(ctx, 1318.5, t, 0.18, 0.07, 0.3)); }
+    function playNav() { sfx((ctx, t) => { playBellChime(ctx, 987.8, t, 0.2, 0.09, 0.4); playBellChime(ctx, 1318.5, t + 0.07, 0.3, 0.1, 0.5); }); }
+    function playConfirm() { sfx((ctx, t) => [783.99, 1046.5, 1318.5].forEach((f, i) => playBellChime(ctx, f, t + i * 0.07, 0.4, 0.13, 0.7))); }
+    function playPass() { sfx((ctx, t) => { playBellChime(ctx, 392, t, 0.3, 0.09, 0.2); playBellChime(ctx, 311.1, t + 0.1, 0.4, 0.09, 0.2); }); }
+
+    // Escalating win sounds, like a slot machine: the bigger the profit, the bigger the show.
+    // Back-to-back good finds also nudge the pitch upward.
+    function winLevel(profit) {
+      if (profit >= 100) return 5; if (profit >= 50) return 4; if (profit >= 30) return 3;
+      if (profit >= 15) return 2; if (profit >= 5) return 1; return 0;
+    }
+    function playWin(level) {
+      if (level <= 0) { winStreak = 0; return playPass(); }
+      winStreak = Math.min(winStreak + 1, 6);
+      const shift = level >= 2 ? winStreak - 1 : 0;
+      sfx((ctx, t) => {
+        const base = semi(523.25, shift); // C5, lifted by streak
+        if (level === 1) {
+          playBellChime(ctx, base, t, 0.45, 0.15); playBellChime(ctx, semi(base, 4), t + 0.09, 0.55, 0.16);
+        } else if (level === 2) {
+          cascade(ctx, t, 3, base, 0.08, 0.6, 0.17);
+          playSparkle(ctx, t + 0.3, 3, semi(base, 24), 0.05);
+        } else if (level === 3) {
+          cascade(ctx, t, 6, base, 0.06, 0.6, 0.18);
+          playSwell(ctx, [base, semi(base, 7), semi(base, 12)], t, 0.9, 0.05);
+          chord(ctx, t + 0.42, [semi(base, 12), semi(base, 16), semi(base, 19)], 0.9, 0.12);
+        } else if (level === 4) {
+          cascade(ctx, t, 9, base, 0.055, 0.65, 0.19);
+          playSwell(ctx, [base / 2, base, semi(base, 7), semi(base, 12)], t, 1.4, 0.06);
+          chord(ctx, t + 0.55, [semi(base, 12), semi(base, 16), semi(base, 19), semi(base, 24)], 1.2, 0.13);
+          playSparkle(ctx, t + 0.75, 6, semi(base, 24), 0.05);
+        } else {
+          cascade(ctx, t, 14, base, 0.05, 0.7, 0.2);
+          playSwell(ctx, [base / 2, base, semi(base, 4), semi(base, 7), semi(base, 12)], t, 2.0, 0.07);
+          chord(ctx, t + 0.72, [semi(base, 12), semi(base, 16), semi(base, 19), semi(base, 24)], 1.4, 0.14);
+          chord(ctx, t + 1.15, [semi(base, 19), semi(base, 24), semi(base, 28), semi(base, 31)], 1.8, 0.14);
+          playSparkle(ctx, t + 0.9, 10, semi(base, 24), 0.05);
+        }
+      });
+    }
+    // Full result moment: haptics + flash + escalating sound
+    function playResultSound(profit, verdict, isJackpot) {
+      triggerHapticAndFlash(verdict, isJackpot);
+      playWin(verdict === 'PASS' ? 0 : Math.max(1, winLevel(profit)));
+    }
+    // Rank-up / theme-unlock fanfare
+    function playUnlockFanfare() { playWin(4); }
+
+    // Legacy entry point used across the app
+    function playAudioFeedback(verdict = 'BUY', isJackpot = false, shouldTriggerEffects = false) {
+      if (shouldTriggerEffects) triggerHapticAndFlash(verdict, isJackpot);
+      if (isJackpot) return playWin(4);
+      if (verdict === 'BUY') return playConfirm();
+      if (verdict === 'MONITOR') return playNav();
+      return playPass();
+    }
+
+    // Make sure EVERY tap gets feedback, and unlock audio on the first touch.
+    document.addEventListener('pointerdown', () => {
+      const ctx = getOrCreateAudioContext();
+      if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+    }, { passive: true });
+    document.addEventListener('click', (e) => {
+      const el = e.target && e.target.closest && e.target.closest('button, .dock-btn, .vault-item, .badge-card, a, select, [role="button"]');
+      if (!el) return;
+      setTimeout(() => { if (performance.now() - lastSoundAt > 200) playTap(); }, 0);
+    }, true);
 
     const TIERS = [
-      { name: "Rookie", icon: "🥉", minXp: 0, maxXp: 749, desc: "Novice hunter learning hallmarks & basic comps." },
-      { name: "Picker", icon: "🥈", minXp: 750, maxXp: 1999, desc: "Consistent eye for vintage tags, wool, and electronics." },
-      { name: "Pro Hunter", icon: "🥇", minXp: 2000, maxXp: 4999, desc: "High-volume precision scout with solid margins." },
-      { name: "Master Scout", icon: "💎", minXp: 5000, maxXp: 9999, desc: "Elite collector with deep manufacturing era knowledge." },
-      { name: "Apex Reseller", icon: "👑", minXp: 10000, maxXp: Infinity, desc: "Top tier authority commanding a high-performance vault." }
+      { name: "Rookie", icon: "🥉", minXp: 0, desc: "Novice hunter learning hallmarks & basic comps." },
+      { name: "Picker", icon: "🥈", minXp: 750, desc: "Consistent eye for vintage tags, wool, and electronics." },
+      { name: "Pro Hunter", icon: "🥇", minXp: 2000, desc: "High-volume precision scout with solid margins." },
+      { name: "Master Scout", icon: "💎", minXp: 5000, desc: "Elite collector with deep manufacturing era knowledge." },
+      { name: "Elite Scout", icon: "🔷", minXp: 12000, desc: "Spots value in a single glance across every aisle." },
+      { name: "Veteran Dealer", icon: "🛡️", minXp: 25000, desc: "Seasoned seller with a vault that pays its own way." },
+      { name: "Market Maven", icon: "📈", minXp: 45000, desc: "Reads the market before the market reads you." },
+      { name: "Grand Curator", icon: "🏛️", minXp: 75000, desc: "A collection and a reputation built over hundreds of trips." },
+      { name: "Legend", icon: "🌟", minXp: 120000, desc: "Whispered about at every thrift counter in the county." },
+      { name: "Apex Reseller", icon: "👑", minXp: 200000, desc: "Top tier authority commanding a high-performance vault." }
     ];
+
+    // Unlockable themes: free ones first, then earned by XP.
+    const THEMES = [
+      { id: "dark", label: "Dark Ops (Default)", unlockXp: 0 },
+      { id: "light", label: "Daylight Recon (Light Mode)", unlockXp: 0 },
+      { id: "midnight", label: "Midnight Stealth", unlockXp: 0 },
+      { id: "tactical", label: "Tactical Woodland", unlockXp: 0 },
+      { id: "cyberpunk", label: "Cyberpunk Grid", unlockXp: 0 },
+      { id: "phosphor", label: "Phosphor Terminal (green CRT)", unlockXp: 2000 },
+      { id: "frost", label: "Frostbite (snow & ice)", unlockXp: 3500 },
+      { id: "noir", label: "Noir Detective", unlockXp: 5000 },
+      { id: "synthwave", label: "Synthwave Arcade", unlockXp: 7500 },
+      { id: "sepia", label: "Vintage Sepia Ledger", unlockXp: 10000 },
+      { id: "deepspace", label: "Deep Space", unlockXp: 14000 },
+      { id: "forest", label: "Forest Trail", unlockXp: 18000 },
+      { id: "goldrush", label: "Gold Rush", unlockXp: 24000 },
+      { id: "auction", label: "Midnight Auction House", unlockXp: 32000 },
+      { id: "velvet", label: "Royal Velvet", unlockXp: 45000 },
+      { id: "factory", label: "Factory Floor", unlockXp: 60000 },
+      { id: "amberterm", label: "Amber Terminal", unlockXp: 80000 }
+    ];
+    const themeUnlocked = (id) => { const t = THEMES.find(x => x.id === id); return !t || STATE.xp >= t.unlockXp; };
+
+    // XP pacing: first 500 XP each day is full value, anything past that earns only 10%.
+    // That makes ranks a matter of many trips, not one big haul.
+    const DAILY_FULL_XP = 500;
+    function awardXp(base) {
+      const today = new Date().toDateString();
+      let earned = parseInt(localStorage.getItem('ts_xp_today') || '0', 10);
+      if (localStorage.getItem('ts_xp_day') !== today) { earned = 0; localStorage.setItem('ts_xp_day', today); }
+      const full = Math.max(0, Math.min(base, DAILY_FULL_XP - earned));
+      const gained = full + Math.round((base - full) * 0.1);
+      const prevXp = STATE.xp;
+      STATE.xp += gained;
+      localStorage.setItem('ts_xp_today', String(earned + full));
+      updatePills();
+      announceUnlocks(prevXp, STATE.xp);
+      return gained;
+    }
+    function announceUnlocks(prevXp, newXp) {
+      const prevTier = getCurrentTier(prevXp).tier, newTier = getCurrentTier(newXp).tier;
+      const newThemes = THEMES.filter(t => t.unlockXp > prevXp && t.unlockXp <= newXp);
+      if (newTier.name !== prevTier.name || newThemes.length) {
+        let msg = '';
+        if (newTier.name !== prevTier.name) msg += `${newTier.icon} RANK UP: ${newTier.name}! `;
+        if (newThemes.length) msg += `🎨 New theme unlocked: ${newThemes.map(t => t.label).join(', ')}`;
+        setTimeout(() => { triggerAlert(msg.trim(), false, true); playUnlockFanfare(); }, 1400);
+      }
+    }
+    function buildThemeSelect() {
+      const sel = document.getElementById('themeSelect');
+      sel.innerHTML = '';
+      THEMES.forEach(t => {
+        const o = document.createElement('option');
+        o.value = t.id;
+        const ok = STATE.xp >= t.unlockXp;
+        o.textContent = ok ? t.label : `🔒 ${t.label} - unlocks at ${t.unlockXp.toLocaleString()} XP`;
+        o.disabled = !ok;
+        sel.appendChild(o);
+      });
+      sel.value = STATE.currentTheme;
+    }
 
     const DAILY_MISSIONS = [
       { name: "Cast Iron Skillet (Griswold / Wagner)", desc: "Check housewares for smooth-bottom vintage cast iron skillets.", query: "vintage cast iron skillet wagner griswold" },
@@ -726,6 +926,7 @@
       { name: "Deseret Industries - Centerville", address: "351 N Marketplace Dr, Centerville, UT", lat: 40.9238, lon: -111.8872 }
     ];
 
+    if (!themeUnlocked(STATE.currentTheme)) STATE.currentTheme = 'cyberpunk';
     document.documentElement.setAttribute('data-theme', STATE.currentTheme);
     document.body.style.fontSize = STATE.fontScale;
     document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
@@ -1024,7 +1225,7 @@
       levelModal.classList.remove('active');
       document.getElementById('profileNameInput').value = STATE.userLastName;
       document.getElementById('profileAvatarInput').value = STATE.userAvatar;
-      document.getElementById('themeSelect').value = STATE.currentTheme;
+      buildThemeSelect();
       document.getElementById('fontScaleSelect').value = STATE.fontScale;
       profileModal.classList.add('active');
     };
@@ -1049,7 +1250,7 @@
       playAudioFeedback('BUY', false, false);
       STATE.userLastName = document.getElementById('profileNameInput').value.trim() || 'Claypool';
       STATE.userAvatar = document.getElementById('profileAvatarInput').value.trim() || '👤';
-      STATE.currentTheme = document.getElementById('themeSelect').value;
+      { const picked = document.getElementById('themeSelect').value; STATE.currentTheme = themeUnlocked(picked) ? picked : STATE.currentTheme; }
       STATE.fontScale = document.getElementById('fontScaleSelect').value;
       localStorage.setItem('ts_last_name', STATE.userLastName);
       localStorage.setItem('ts_avatar', STATE.userAvatar);
@@ -1114,6 +1315,17 @@
         card.innerHTML = `<div style="font-size:1.5rem;">${t.icon}</div><div><div style="font-weight:800; font-size:.88rem; color:${unlocked ? 'var(--amber)' : 'var(--text)'};">${t.name}</div><div style="font-size:.72rem; color:var(--text-muted);">${t.desc}</div></div>`;
         list.appendChild(card);
       });
+      const tl = document.getElementById('themeUnlockList');
+      if (tl) {
+        tl.innerHTML = '';
+        THEMES.filter(t => t.unlockXp > 0).forEach(t => {
+          const ok = STATE.xp >= t.unlockXp;
+          const row = document.createElement('div');
+          row.className = 'theme-chip' + (ok ? ' unlocked' : '');
+          row.innerHTML = `<span>${ok ? '🎨' : '🔒'} ${t.label}</span><span style="color:var(--text-muted);">${ok ? 'Unlocked' : t.unlockXp.toLocaleString() + ' XP'}</span>`;
+          tl.appendChild(row);
+        });
+      }
       levelModal.classList.add('active');
     }
 
@@ -1155,6 +1367,27 @@
       openCamera('verify'); // snap up to 3 close-ups, then RUN VERIFY calls runVerify()
     };
 
+    let verifyTimer = null;
+    function setVerifyProgress(text, pct) {
+      document.getElementById('vVerifyProgress').style.display = 'flex';
+      document.getElementById('vVerifyProgressText').textContent = text;
+      document.getElementById('vVerifyProgressFill').style.width = pct + '%';
+    }
+    function startVerifyProgress(shotCount) {
+      let pct = 10;
+      setVerifyProgress(shotCount ? `Preparing ${shotCount} close-up${shotCount > 1 ? 's' : ''}...` : 'Preparing saved photo...', pct);
+      clearInterval(verifyTimer);
+      verifyTimer = setInterval(() => {
+        pct = Math.min(90, pct + (pct < 40 ? 6 : pct < 70 ? 3 : 1));
+        setVerifyProgress(pct < 35 ? 'Reading marks and tags...' : (pct < 75 ? 'Careful re-check in progress...' : 'Finalizing second opinion...'), pct);
+      }, 700);
+    }
+    function stopVerifyProgress(ok) {
+      clearInterval(verifyTimer); verifyTimer = null;
+      if (ok) { setVerifyProgress('Verified!', 100); setTimeout(() => { document.getElementById('vVerifyProgress').style.display = 'none'; }, 1200); }
+      else document.getElementById('vVerifyProgress').style.display = 'none';
+    }
+
     async function runVerify(extraShots) {
       extraShots = extraShots || [];
       if (!currentlyOpenedVaultItem || isBusy) return;
@@ -1165,6 +1398,7 @@
       btn.textContent = '\u23f3 Re-checking carefully...';
       btn.classList.add('disabled');
       triggerAlert('Running a careful second-opinion check on this item...', false, false);
+      startVerifyProgress(extraShots.length);
 
       const item = currentlyOpenedVaultItem;
       const promptText = "You are double-checking a secondhand item that was already given a first guess. " +
@@ -1205,12 +1439,17 @@
 
           currentlyOpenedVaultItem = { ...item, brand: newBrand, item: newItem, resale: finalResale, profit: finalProfit, intel: parsed.intel || item.intel, query: parsed.query || item.query, verified: true };
           openVaultDetail(currentlyOpenedVaultItem);
-          playAudioFeedback(finalProfit >= 50 ? 'BUY' : 'MONITOR', finalProfit >= 50, true);
+          stopVerifyProgress(true);
+          playResultSound(finalProfit, finalProfit >= 5 ? 'BUY' : 'PASS', finalProfit >= 50);
+          if (!item.verified) awardXp(15);
+          renderVault();
           triggerAlert(`Verified in ${res.secs}s (${res.model}). Updated with the closer look.`, false, true);
         } catch (e) {
+          stopVerifyProgress(false);
           triggerAlert('Could not read the verification answer: ' + e.message, true, true);
         }
       } else {
+        stopVerifyProgress(false);
         triggerAlert('\u26a0\ufe0f Verification failed: ' + res.error, true, true);
       }
 
@@ -1581,9 +1820,8 @@
         if (estResale <= 0 || estProfit < 5.00) { dispText = "PASS (INSUFFICIENT MARGIN)"; verdictType = 'PASS'; isJackpot = false; }
         else if (estProfit < 15.00) { dispText = "MONITOR (SLIM MARGIN)"; verdictType = 'MONITOR'; isJackpot = false; }
 
-        playAudioFeedback(verdictType, isJackpot, true);
-        STATE.xp += 10;
-        updatePills();
+        playResultSound(estProfit, verdictType, isJackpot);
+        awardXp(10);
 
         const uniqueId = 'item_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
         currentAppraisal = {
@@ -1686,12 +1924,13 @@
         const strat = item.status === 'sold' ? '✅ Sold' : (item.strategy === 'keeping' ? '🔒 Keeping' : (item.strategy === 'quick_flip' ? '⚡ Quick Flip' : '🛒 Selling'));
 
         const wrapper = document.createElement('div');
-        wrapper.className = 'vault-item-container';
+        wrapper.className = 'vault-item-container' + (item.verified ? ' verified-wrap' : '');
         wrapper.innerHTML = `
-          <div class="vault-item" onclick="openVaultDetailById('${esc(item.id)}')">
+          ${item.verified ? '<div class="verified-check" title="Evaluated & verified">✓</div>' : ''}
+          <div class="vault-item${item.verified ? ' verified' : ''}" onclick="openVaultDetailById('${esc(item.id)}')">
             <img class="item-thumb" src="${esc(item.imageThumb || '')}" alt="Asset">
             <div class="item-content">
-              <div class="item-title">${esc(item.brand)} - ${esc(item.item)}</div>
+              <div class="item-title">${esc(item.brand)} - ${esc(item.item)}${item.verified ? '<span class="verified-pill">VERIFIED</span>' : ''}</div>
               <div class="item-meta">Buy: $${cost.toFixed(2)} • Target: $${resale.toFixed(2)} • ${strat}</div>
               <div class="item-actions" onclick="event.stopPropagation();">
                 <button class="btn btn-accent" style="padding:4px 8px; font-size:.75rem; width:auto;" onclick="quickSellItem('${esc(item.id)}')">SELL</button>
@@ -1719,7 +1958,7 @@
     function openVaultDetail(item) {
       playAudioFeedback('MONITOR', false, false);
       currentlyOpenedVaultItem = item;
-      document.getElementById('vDetailTitle').textContent = `${item.brand} - ${item.item}`;
+      document.getElementById('vDetailTitle').textContent = `${item.verified ? '✅ ' : ''}${item.brand} - ${item.item}`;
       document.getElementById('vDetailThumb').src = item.imageThumb || '';
       document.getElementById('vDetailCost').textContent = `$${(item.cost || 0).toFixed(2)} ✏️`;
       document.getElementById('vDetailResale').textContent = `$${(item.resale || 0).toFixed(2)}`;
