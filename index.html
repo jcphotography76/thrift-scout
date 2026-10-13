@@ -482,6 +482,7 @@
       </div>
       <div style="font-size:.82rem; color:var(--text-muted); line-height:1.4;" id="vDetailIntel"></div>
       <button class="btn btn-amber" id="vDetailVerifyBtn" style="font-size:.85rem; padding:12px;">🔎 VERIFY THIS ITEM (Careful Re-check)</button>
+      <button class="btn btn-outline" id="vDetailVerifyRetakeBtn" style="display:none; font-size:.8rem; padding:8px;">📷 Retake close-up photos instead</button>
       <div id="vVerifyProgress" style="display:none; flex-direction:column; gap:6px; margin-top:2px;">
         <div style="display:flex; justify-content:space-between; font-size:.75rem; color:var(--accent); font-weight:700;">
           <span id="vVerifyProgressText">Verifying...</span>
@@ -587,6 +588,7 @@
     const SCAN_MAX_TOKENS = 1024;    // thinking tokens count toward this cap, so keep headroom
     const VERIFY_MAX_TOKENS = 1536;
     const REQUEST_TIMEOUT_MS = 25000;
+    const VERIFY_TIMEOUT_MS = 60000; // careful re-check sends more photos, so it gets more time
     const SCAN_IMAGE_MAX = 768;   // size sent to the AI (readable hallmarks)
     const SCAN_IMAGE_QUALITY = 0.6;
     const THUMB_MAX = 360;        // tiny copy saved in the vault
@@ -1088,6 +1090,7 @@
 
     async function callGemini(parts, opts) {
       const maxTokens = (opts && opts.maxTokens) || SCAN_MAX_TOKENS;
+      const timeoutMs = (opts && opts.timeoutMs) || REQUEST_TIMEOUT_MS;
       if (!STATE.geminiKey) return { ok: false, error: 'No API key saved. Open your profile and tap Config API Key.' };
       if (STATE.dailyScans <= 0) return { ok: false, error: 'Your on-screen scan counter is at 0. Reset it in Config if Google still allows calls.' };
 
@@ -1108,7 +1111,7 @@
       for (let mi = 0; mi < MODELS.length; mi++) {
         const model = MODELS[mi];
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
         STATE.dailyScans = Math.max(0, STATE.dailyScans - 1); // count every real call
         updatePills();
         setProgress(`Asking ${model}...`, 55);
@@ -1152,7 +1155,7 @@
           return { ok: false, error: lastError };
         } catch (err) {
           clearTimeout(timeoutId);
-          if (err.name === 'AbortError') return { ok: false, error: `Timed out after ${REQUEST_TIMEOUT_MS / 1000}s. Check your signal and tap Retry.` };
+          if (err.name === 'AbortError') return { ok: false, error: `Timed out after ${timeoutMs / 1000}s. Check your signal and tap Retry.` };
           return { ok: false, error: `Network problem: ${err.message}` };
         }
       }
@@ -1392,11 +1395,33 @@
     };
 
     // ================= VAULT: CAREFUL SECOND-OPINION VERIFY =================
+    // Close-up photos are kept until a verify actually succeeds, so a timeout never forces a re-shoot.
+    let pendingVerifyShots = [], pendingVerifyItemId = null;
+    function hasPendingVerify() {
+      return !!(currentlyOpenedVaultItem && pendingVerifyItemId === currentlyOpenedVaultItem.id && pendingVerifyShots.length);
+    }
+    function refreshVerifyBtn() {
+      const btn = document.getElementById('vDetailVerifyBtn'), retake = document.getElementById('vDetailVerifyRetakeBtn');
+      if (!btn) return;
+      if (hasPendingVerify()) {
+        btn.textContent = `🔁 RETRY VERIFY (${pendingVerifyShots.length} photo${pendingVerifyShots.length > 1 ? 's' : ''} saved)`;
+        if (retake) retake.style.display = 'block';
+      } else {
+        btn.textContent = '🔎 VERIFY THIS ITEM (Careful Re-check)';
+        if (retake) retake.style.display = 'none';
+      }
+    }
     document.getElementById('vDetailVerifyBtn').onclick = () => {
       if (!currentlyOpenedVaultItem || isBusy) return;
       if (!STATE.geminiKey) { alert('Set your Gemini API key in Config first.'); return; }
       playAudioFeedback('BUY', false, false);
+      if (hasPendingVerify()) { runVerify(pendingVerifyShots.slice()); return; } // reuse saved photos
       openCamera('verify'); // snap up to 3 close-ups, then RUN VERIFY calls runVerify()
+    };
+    document.getElementById('vDetailVerifyRetakeBtn').onclick = () => {
+      if (!currentlyOpenedVaultItem || isBusy) return;
+      pendingVerifyShots = []; pendingVerifyItemId = null; refreshVerifyBtn();
+      openCamera('verify');
     };
 
     let verifyTimer = null;
@@ -1453,7 +1478,7 @@
       }
       extraShots.forEach(sh => parts.push({ inlineData: { mimeType: 'image/jpeg', data: sh.scan.split(',')[1] } }));
 
-      const res = await callGemini(parts, { maxTokens: VERIFY_MAX_TOKENS });
+      const res = await callGemini(parts, { maxTokens: VERIFY_MAX_TOKENS, timeoutMs: VERIFY_TIMEOUT_MS });
 
       if (res.ok) {
         try {
@@ -1472,6 +1497,7 @@
           currentlyOpenedVaultItem = { ...item, brand: newBrand, item: newItem, resale: finalResale, profit: finalProfit, intel: parsed.intel || item.intel, query: parsed.query || item.query, verified: true };
           openVaultDetail(currentlyOpenedVaultItem);
           stopVerifyProgress(true);
+          pendingVerifyShots = []; pendingVerifyItemId = null;
           playResultSound(finalProfit, finalProfit >= 5 ? 'BUY' : 'PASS', finalProfit >= 50);
           if (!item.verified) awardXp(15);
           renderVault();
@@ -1485,9 +1511,9 @@
         triggerAlert('\u26a0\ufe0f Verification failed: ' + res.error, true, true);
       }
 
-      btn.textContent = originalLabel;
       btn.classList.remove('disabled');
       isBusy = false;
+      refreshVerifyBtn();
     }
 
     document.getElementById('resetQuotaBtn').onclick = () => {
@@ -1752,6 +1778,7 @@
       playAudioFeedback('BUY', false, false);
       if (cameraMode === 'verify') {
         const shots = stagedShots.slice();
+        if (currentlyOpenedVaultItem) { pendingVerifyShots = shots; pendingVerifyItemId = currentlyOpenedVaultItem.id; }
         closeCamera();
         runVerify(shots);
         return;
@@ -2009,6 +2036,7 @@
         compBtn.textContent = 'NO COMPS AVAILABLE';
         compBtn.onclick = null;
       }
+      refreshVerifyBtn();
       document.getElementById('vaultDetailModal').classList.add('active');
     }
 
