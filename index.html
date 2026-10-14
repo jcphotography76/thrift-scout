@@ -24,6 +24,8 @@
     [data-theme="custom"] .bottom-dock { background:color-mix(in srgb, var(--bg) 94%, transparent); }
     [data-theme="custom"] .brand-accent, [data-theme="custom"] .btn-accent { text-shadow:none; }
 
+    header::after { content:''; position:absolute; left:0; right:0; bottom:-4px; height:4px; background-image:var(--rank-strip, none); background-size:auto 100%; background-repeat:repeat-x; pointer-events:none; }
+
     /* ===== VERIFIED ITEMS ===== */
     .vault-item.verified { background:linear-gradient(90deg, rgba(34,197,94,.20), rgba(34,197,94,.07)); box-shadow:inset 4px 0 0 #22c55e; border-color:rgba(34,197,94,.55); }
     .vault-item-container.verified-wrap { border-color:rgba(34,197,94,.65); }
@@ -139,7 +141,7 @@
 
   <header>
     <div class="brand">
-      <span style="font-size:1.2rem;" title="Koda the Scout • Veteran Owned">🐕‍🦺</span>
+      <span title="Coda the Scout • Veteran Owned" style="display:inline-flex; width:22px; height:22px; color:var(--accent);"><svg viewBox="0 0 64 64" width="22" height="22" fill="currentColor"><ellipse cx="32" cy="42" rx="14" ry="11"/><ellipse cx="14" cy="28" rx="6" ry="8"/><ellipse cx="26" cy="17" rx="6" ry="8"/><ellipse cx="38" cy="17" rx="6" ry="8"/><ellipse cx="50" cy="28" rx="6" ry="8"/></svg></span>
       <span>THRIFT</span><span class="brand-accent">SCOUT</span>
     </div>
     <div class="header-pills">
@@ -244,53 +246,49 @@
         </div>
         <button class="btn btn-outline" id="clearEvalBtn" style="font-size:.75rem; color:var(--text-muted); border-style:dashed; margin-top:4px;">🗑️ CLEAR EVALUATION & SCAN NEXT</button>
       </div>
+
+      <div class="card" id="scoutMissionCard">
+        <div class="card-title">
+          <span>🎯 TODAY'S MISSION</span>
+          <span class="badge-accent">Daily Target</span>
+        </div>
+        <div style="font-weight:800; font-size:1.05rem; color:var(--text);" id="scoutMissionName"></div>
+        <p style="font-size:.82rem; color:var(--text-muted); line-height:1.4;" id="scoutMissionDesc"></p>
+        <div style="display:flex; gap:8px; margin-top:2px;">
+          <button id="scoutMissionCompsBtn" class="btn btn-outline" style="font-size:.78rem; padding:10px 12px; flex:1;">📊 View Target Comps</button>
+          <button id="scoutMissionScanBtn" class="btn btn-accent" style="font-size:.78rem; padding:10px 12px; flex:1;">📸 Scan It</button>
+        </div>
+      </div>
     </section>
 
-    <!-- TAB 2: INTEL -->
+    <!-- TAB 2: RANKS (was Intel) -->
     <section id="tab-intel" class="tab-view">
-      <div style="background:linear-gradient(135deg,#111827 0%,#1f2937 100%); border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between;">
-        <div style="display:flex; align-items:center; gap:12px;">
-          <div style="font-size:2rem; background:var(--surface); width:48px; height:48px; display:flex; align-items:center; justify-content:center; border-radius:50%; border:1px solid var(--border);">🐕‍🦺</div>
-          <div>
-            <div style="font-weight:800; font-size:.95rem; color:var(--text);">KODA THE SCOUT</div>
-            <div style="font-size:.75rem; color:var(--text-muted);">Tactical Recon • Sniff Out the Profit</div>
+      <div style="background:linear-gradient(135deg,var(--card-bg) 0%,var(--surface) 100%); border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+        <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+          <div id="intelCodaWrap" style="width:48px; height:48px; border-radius:50%; overflow:hidden; border:1px solid var(--border); background:var(--surface); display:flex; align-items:center; justify-content:center; flex:0 0 auto;"></div>
+          <div style="min-width:0;">
+            <div style="font-weight:800; font-size:.95rem; color:var(--text);">CODA THE SCOUT</div>
+            <div style="font-size:.75rem; color:var(--text-muted);">Tactical Recon. Sniff Out the Profit.</div>
           </div>
         </div>
-        <div style="background:var(--amber-glow); border:1px solid var(--amber); color:var(--amber); font-size:.72rem; font-weight:800; padding:5px 10px; border-radius:6px; text-transform:uppercase; letter-spacing:.05em;">
+        <div style="background:var(--accent-glow); border:1px solid var(--accent); color:var(--accent); font-size:.68rem; font-weight:800; padding:5px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:.05em; white-space:nowrap;">
           🇺🇸 Veteran Owned
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">
-          <span>🎯 CHALLENGE OF THE DAY</span>
-          <span class="badge-accent">Daily Mission</span>
-        </div>
-        <div class="challenge-banner">
-          <div class="challenge-inner">
-            <div style="flex:1; display:flex; flex-direction:column; gap:4px; min-width:0;">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-weight:800; font-size:.95rem; color:#fff;" id="dailyTargetName">Cast Iron Skillet (Griswold / Wagner)</span>
-                <span class="challenge-reward" id="dailyRewardBadge">+150 XP BONUS</span>
-              </div>
-              <p style="font-size:.78rem; color:#cbd5e1; line-height:1.3;" id="dailyTargetDesc">
-                Check housewares for smooth-bottom vintage cast iron skillets with heat rings or marked Wagner Ware / Griswold.
-              </p>
-            </div>
-          </div>
-          <div style="display:flex; gap:8px; margin-top:2px;">
-            <button id="dailyCompsActionBtn" class="btn btn-outline" style="font-size:.75rem; padding:8px 12px; width:auto;">View Target Comps</button>
-            <button class="btn btn-accent" id="claimChallengeBtn" style="font-size:.75rem; padding:8px 12px; width:auto;">Apply Target to Scan</button>
-          </div>
-        </div>
+      <div class="card" id="rankSummaryCard">
+        <div class="card-title"><span>🎖️ YOUR RANK</span><span class="badge-accent" id="rankSummaryXp">0 XP</span></div>
+        <div style="display:flex; align-items:center; gap:12px;" id="rankSummaryRow"></div>
+        <div style="background:var(--border); height:6px; border-radius:3px; margin-top:8px; overflow:hidden;"><div id="rankSummaryFill" style="background:var(--accent); width:0%; height:100%;"></div></div>
+        <div style="font-size:.75rem; color:var(--accent); font-weight:700; margin-top:4px;" id="rankSummaryNext"></div>
       </div>
 
       <div class="card" style="cursor:pointer;" id="openHandbookBtn">
         <div class="card-title">
-          <span>📖 SCOUT HANDBOOK & BADGES</span>
+          <span>📖 SCOUT HANDBOOK & RANKS</span>
           <span class="badge-accent">Level Perks</span>
         </div>
-        <p style="font-size:.82rem; color:var(--text-muted);">Tap to view your level progression, badge rewards, and XP scoring rules.</p>
+        <p style="font-size:.82rem; color:var(--text-muted);">Tap to view every rank, the theme unlock schedule, and how XP works.</p>
       </div>
     </section>
 
@@ -336,21 +334,35 @@
 
   <nav class="bottom-dock">
     <button class="dock-btn active" data-target="tab-scout">SCOUT</button>
-    <button class="dock-btn" data-target="tab-intel">INTEL</button>
+    <button class="dock-btn" data-target="tab-intel">RANKS</button>
     <button class="dock-btn" data-target="tab-vault">VAULT</button>
     <button class="dock-btn" data-target="tab-stores">RADAR</button>
   </nav>
 
-  <!-- WELCOME MODAL -->
+  <!-- WELCOME / MISSION BRIEFING -->
   <div class="modal-overlay active" id="welcomeModal">
-    <div class="modal-content" style="text-align:center; border:2px solid var(--amber); background:linear-gradient(135deg,#1e1b4b 0%,#090d16 100%);">
-      <div style="font-size:3rem;">🐕‍🦺</div>
-      <div style="font-size:1.25rem; font-weight:900; color:#fff;" id="welcomeUserTitle">SPECIALIST CLAYPOOL • FIELD HQ</div>
-      <div style="font-size:.75rem; color:var(--amber); font-weight:800; text-transform:uppercase; letter-spacing:.06em;">Thrift Scout • AI Vision Engine</div>
-      <p style="font-size:.84rem; color:#cbd5e1; line-height:1.4; margin-top:4px;">
-        Welcome back, Specialist. Vision engine is ready. Prices are AI estimates, so always confirm with the sold comps button before you buy big.
-      </p>
-      <button class="btn btn-amber" id="enterHQBtn" style="margin-top:6px; cursor:pointer;">REPORT FOR DUTY</button>
+    <div class="modal-content" style="text-align:center; border:2px solid var(--accent); background:linear-gradient(160deg,var(--card-bg) 0%,var(--bg) 100%); gap:10px;">
+      <div id="welcomeCodaWrap" style="width:96px; height:96px; margin:0 auto; border-radius:50%; overflow:hidden; border:3px solid var(--accent); background:var(--surface); display:flex; align-items:center; justify-content:center;"></div>
+      <div style="font-size:1.35rem; font-weight:900; color:var(--text); letter-spacing:.02em;">THRIFT SCOUT</div>
+      <div style="display:flex; justify-content:center; gap:6px; flex-wrap:wrap;">
+        <span style="background:var(--accent-glow); border:1px solid var(--accent); color:var(--accent); font-size:.68rem; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase; letter-spacing:.05em;">🇺🇸 Veteran Owned</span>
+        <span style="background:var(--surface); border:1px solid var(--border); color:var(--text-muted); font-size:.68rem; font-weight:800; padding:4px 10px; border-radius:6px; text-transform:uppercase; letter-spacing:.05em;">Coda the Scout</span>
+      </div>
+      <div style="font-size:.75rem; color:var(--text-muted);">Tactical Recon. Sniff Out the Profit.</div>
+      <div id="welcomeGreeting" style="font-size:1rem; font-weight:800; color:var(--text); margin-top:2px;">Welcome back</div>
+      <div id="welcomeRankLine" style="font-size:.74rem; color:var(--text-muted);"></div>
+
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; text-align:left; margin-top:4px;">
+        <div style="font-size:.66rem; font-weight:800; color:var(--accent); letter-spacing:.08em;">🎯 TODAY'S MISSION</div>
+        <div style="font-weight:800; font-size:.95rem; color:var(--text); margin-top:4px;" id="welcomeMissionName"></div>
+        <div style="font-size:.78rem; color:var(--text-muted); line-height:1.35; margin-top:2px;" id="welcomeMissionDesc"></div>
+      </div>
+
+      <p style="font-size:.7rem; color:var(--text-muted); line-height:1.35;">Prices are AI estimates. Always confirm with the sold comps button before you buy big.</p>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline" id="welcomeMissionScanBtn" style="flex:1; font-size:.8rem;">🎯 Scan the Mission</button>
+        <button class="btn btn-accent" id="enterHQBtn" style="flex:1; cursor:pointer; font-size:.8rem;">LET'S GO SCOUTING</button>
+      </div>
     </div>
   </div>
 
@@ -435,12 +447,24 @@
         <input type="text" id="profileNameInput" class="input-field" value="Claypool" style="margin-top:4px;">
       </div>
       <div>
+        <label class="metric-label">Your Rank or Title (optional, e.g. SPC, Sgt, Petty Officer)</label>
+        <input type="text" id="profileRankInput" class="input-field" value="" placeholder="Leave blank to skip" style="margin-top:4px;">
+      </div>
+      <div>
+        <label class="metric-label">Coda's Photo (shows on the welcome screen)</label>
+        <input type="file" id="codaPhotoInput" accept="image/*" class="input-field" style="margin-top:4px;">
+        <button class="btn btn-outline" id="codaPhotoClearBtn" style="font-size:.7rem; padding:6px; margin-top:4px; display:none;">Remove photo</button>
+      </div>
+      <div>
         <label class="metric-label">Profile Avatar URL or Emoji</label>
         <input type="text" id="profileAvatarInput" class="input-field" value="👤" style="margin-top:4px;">
       </div>
       <div>
         <label class="metric-label">Interface Theme</label>
         <select id="themeSelect" class="input-field" style="margin-top:4px;"></select>
+      </div>
+      <div>
+        <button class="btn btn-outline" id="resetXpBtn" style="font-size:.78rem; color:var(--coral); border-color:var(--coral);">Reset XP and rank to zero</button>
       </div>
       <div>
         <label class="metric-label">Text Scale / Font Size</label>
@@ -795,18 +819,27 @@
       setTimeout(() => { if (performance.now() - lastSoundAt > 200) playTap(); }, 0);
     }, true);
 
+    // Rank ribbons: original patterns (not copies of any real uniform pattern), one camo-inspired era per rank
+    const RANK_RIBBONS = ["data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAA4CAYAAADQHGKWAAAA9ElEQVR42u3WIQ6AMBBE0S3pMTkRly6KBERx0BHv2XUrfqYdx14vRgHwpTY7dGEGWGrMQt2FGSAz1Js4A0SG+hFoAIJs1jNA5oq2oAGCF7T1DBC4oi1ogOAFDYBAAyDQAAINgEADCDQAAg2AQAMINAACDSDQAAg0AAININAACDSAQAMg0AACDYBAAyDQAAINgEADCDQAAg2AQAMINAACDSDQAAg0gEADINAACDSAQAMg0AACDYBAAyDQAAINgEADCDQA/wW6eQNAnGZBAwQv6LKiAbLW8z3QAIQuaCsaIGg9V1X1yWH4EcCaMM8CLdQAi8N8OQHDow7ondhHqAAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAA4CAYAAADQHGKWAAABEklEQVR42u3WIQ7CUBBF0fnNrApVVdsl4NldbVV3VhQJJP0EAemEnGPHjbh57Xq7xBt7APBLrXdIYQY41d4LdQozQM1QD+IMUDLUL4EGoJDBegaouaItaIDCC9p6Bii4oi1ogMILGgCBBuBTOU+jLwBY0AAINIBAAyDQAAINgEADcCiXdfMFAAsaAIEGEGgABBpAoAEQaAAEGkCgARBoAIEGQKABEGgAgQZAoAEEGgCBBhBoAAQaAIEGEGgAviTnafQFAAsaAIEGEGgABBpAoAEQaAAO5bJuvgBgQQMg0AB/EOjmDQDlNAsaoPCCDisaoNZ6fg40AEUXtBUNUGg9R0Rk57D7EcA5Ye4FWqgBTg7zwx2lIxSDy4/B3gAAAABJRU5ErkJggg==", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAA4CAYAAADQHGKWAAABKUlEQVR42u3XOwrCQBiF0TuSfdgJLsT12LtRwc6VxCogyPiCmJ94Tmm6MfNx046nQ54YQ5Jkv9s+/Ha+XB0MzHC3PrGCe9i6DzqBFuY3XyaRhuXCvbL7114FWpi/eIFEGty7OUI9iPNff1qBu1fPOEV6468GxLmmjfUMUHJFW9AAlRe09QxQcEVb0ACFFzQAAg2AQAMINAACDSDQAAg0AAININAACDSAQAMg0AAINIBAAyDQAAINgEADCDQAAg2AQAMINAACDSDQAAg0AAININAACDSAQAMg0AACDYBAAyDQAAINgEADCDQAAg2AQAMINAACDSDQAPwu0M0xAJTTLGiAwgs6VjRArfV8H2gAii5oKxqg0HpOkqHzYHRGAMuEuRdooQZYOMyTG3t+KLewt9XFAAAAAElFTkSuQmCC", "data:image/png;base64,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", "data:image/png;base64,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", "data:image/png;base64,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", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAA4CAYAAADQHGKWAAAEkUlEQVR42u3dQUsbQRjG8YnssVixgiAIoRS8iHoQvJZe+4V66xfo1+m19Cp4UPFSKCUgCIUkqPSeniypzfNO+s7O7Gzy/x2zjZvszL673Ty8M/j46UNQDobDWXD6/OWr3Pb+3Vu57dtotPD1+4dHc39bLzfVdzDfp/YXe5/yczoObdvd3nEd55g3rxd/x63NF+b77h9/ucbo7Pio9bmknJ4chpqoY1aT2LiPbu8Wvj7c33PtT/29GO/+YvtUf/fi8sb8m1Y9W3JOD9S/a8TrswAAKGGmCnVDYQaAOgv1BsUZAKos1H8VaABARTa4ewaAOu+iuYMGgEo19w+PRe+eT08OzSiaivrEIkBWFE2x4lvff4yyfX9FRYBiMZ/SvGN0fnUtt1kRvJ1X23LbeDLtxYkWiyB6eGOLlrZjoilz1xr3HPuz5pI6b0e3d+a8tr7bEuM3a7wnlDVBzq+uXQcX5SZybTyTPHaiqpx3jmIZOx8ADx5xAAAFGgBAgQYACjQAgAINAGumWZUvkqOLXGmqm5Y3SuaNYdV0LGOdyzydzXKlOFRaIyUKaCV0VEy0tk5+q8Ab30tNWDUpWUrVqrMvYhPZak2ojltK+0/UUfS9c6LkZ+0iG69a+lqtVK1WnLH4oTVOfWjf2sbNE484AKBSFGgAoEADACjQAECBBgDkktQsyWN0e5f0K3pJffmcwLyLy5uiUTuri6EV2Rzu75mpGKtDpdqWqwulV2raq6kpKudpGRqbBLmoi5eVe/QW/NjJpiJH1gXW01oxtWh4jCdT2ZXOWzRivKuW5+CN9anjXVtGuu2WqbEVtlWtsGpPl9FZHnEAQKUo0ABAgQYAUKABgAINAMilSYmlqMRCHxazjMnRjCZXbK+LdEFJnjmaklZQCZAujnPbHQ5T5jVd8joo0ClvVt2toE+OWAxI6cvCo6W7vZUUK4resVVR15SoIP5vfloxO++4xuaKGvf5GwEecQBApSjQAECBBgBQoAGAAg0AyCUtxcGvzHhGxcJyRC9DKNvIJhYz80RBu1hbsA9yxWrV/IztT6U8Uj7nwXC48PX5xFbDVOgHT6TRyu1aXfe8Ubma2rNeXN7ILnjcWPioLn+q0CwqOMvOtXVu9Xt2fPQngscjDgCoFAUaACjQAAAKNABQoAEAuSSlOLxrCHqiUaU7aVkpB0vs12fPmmghxH8p92i7AZN3AdBcrC54anxZKFjzpl88Ecsu1hn1nCu550tjFb6Uk0p1avK2N03pBGcNtsqhegu0l/UZuyhupS8Gqasf91WOGw/rQtmXC9Du9o7rBmLVLrA84gAACjQAgAINABRoAAAFGgDWTBNCGIQQZos2xn5Bt1IVtTSk8aYAxpNpliRHHxIZsV/CVUogtmZfyWSMd1+51lT0pgu83e7WdYHXXMero3TIoFEdqmpU08KpqhiNJ1M52KsQl8tRpHIs2NmXRXZTikoO3jlqHW/VidG6iSu9+HBsDHJc8JbJej894hjwnwkAqMZgvkADACqz8bxiAwC6v3sO4d9eHE8bZhwjAOimMKsCTaEGgI4L85PfVICrT78KU20AAAAASUVORK5CYII=", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAA4CAYAAADQHGKWAAAEzklEQVR42u3doW7bUBTG8ZvIqqahwKoaCIqmaqCoYGio2hPsOQaG9jTDRcNFQwNFAdNUBQVMVaHRNAUsQ5kqree72bHP9XXy/8FYTuzr6xMr+XTu5POn90nYWhtuv92lCJevXj75+vX1F9f7vXv3xtyWe0+1rzr/2ezZk6+37S9zn/ZkKo9l/vzkydfXPzfusbbeM4I6znZ5r4/z/NT1mdZ1KH2c6+8P9jFenLnO7WqxkNut+WndX11E1QLFul9y49K3XA25eD3f520m1obmfwszAKBXW6tQNxRmAKizUE8pzgBQZaFOU8YCAOo05ekZAOp8iuYJGgAq1dx+uxvF07OKI802v81t3gjQ/PxU7qtica0V1TqZmsfqjQctnfHDlFJaim1WPKhLDK00FWs051ISUc/M+ak4HY6TmoNWDHT5df33Kbrp8uGeTGWuYN6sVsUGz5uvRVmeHLH60h6ClamPmu8ReeearrvlenlvPlwsXszddWmo8eQnDgCoFAUaACjQAAAKNABQoAEAUZraDsiKm5VMd6Bbl7xS5uenKVWW1rCUnr/q81TCpab0h5WyynV+tObuerUq3u1O2ScGOvn44a07B9137lO194y6AayWm54M7T48rUhzPDdVVMFQWWgr/vQo99nLDbzvjdznuWWvu7OtaMgcFAW671a5EXHHvq9rjXVih584AKBSFGgAoEADACjQAECBBgBECYvZ9f2vdW0xO+8/yVanu5nzOFSCIzdmEZEj1fHNm9awrL8/yCSHN0FgjelN7tqKc7eOZYhEgtL3NUoBi+JG1ILcvbD6sR7kejQ1TRC1Qm6u4Pe9QrVaEXoMGeGh9B2lO3TqS0S2tM1E/mqK9ZUupiULraoTfUTw+IkDACpFgQYACjQAgAINABRoAECUqrrZqchUG/B5XZIFqrFTyUigWkttNsA1tNZ9W6Z1yOdZDbvGst5kl5hkqbE8JGpdwlrG8/HcbcYysNlM6/NxnIcVB1ynTcy4BFBxyC4dCUsVPq9svEts96wuf7VYmPvlHlisGJ66PhEFul3eh8wJKy7XpQAPlXVW+IkDACpFgQYACjQAgAINABRoAECU4imOXOrA07xptvltNiZR/+ZHRb8sKgXgbf/iSQfgeKn5Mj8/lUkOTwOmqEVaPQvDdrlXVB2xUk19RD0bNYAqTnUIaomEHYOoXLJVUHJz1+q6Jx8eghcI/d/CEPIAdcBd8MaInzgAgAINAKBAAwAFGgBAgQaAIzOaZklqDbZW7Ff6X3ClSyomInFSsulRVNc2bzpEJTKsY71tY2JaHn10Sjs2XZpBefbN7bPPtWiiOjhdOTt7masfdyhCnknpHdzaVmlWhcE7YYkn9kveD2JR0jG4EbnkLg8shxAHVLVi1/WSnzgAoFIUaACgQAMAKNAAQIEGAERpUkqTlNL2kE/SSiuof4JnF2eudd0OvcHU2K95132t9E7u87yL21pxwFznuZqUvies2GaX5EfE2p+X+aTbROagjz1OVVNm1MwKZ2J9KmOsOrp54pdqlXQ1l3ItKWmpWu6Ly5oT6tpG3WNWxFAtDFt6JfRou7t7wtQFgGpMHhdoAEClT9A8RQNARU/PKf3bi2O3YcsYAcAwhdkq0BRqABi4MO/8Aa1A0grT9OwBAAAAAElFTkSuQmCC", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAWgAAAA4CAYAAADQHGKWAAAFP0lEQVR42u3dsWobWRTG8SMzqDDLIIxJMYSgSsUiTNgiZVC9pPAj+NHyCFvsA6jeIizGpEglglGxCCEG40IEvJVCNqtzrnXuvTNX8v9XWlix7sx8GqQv5w7e/z4Vw5P2wHRcW78n49FIfWyx2YjH4p/H/T//vBav8a8X+3/+6lxysNbF69NfX12/dzGpi3lt8y/Lg4/tVeP/+9tRJV2pN9+yPK91/LRrxSt0jcUciy7OzVwZcnM9tf+952Xd4OcfrL+0IiJSHRrMAICknrSgrghmACgzqM8IZwAoMqj/E9AAgIKccfcMAGXeRXMHDQCFqnLdPVvVL2+F5uFxf13pMlD5Wy1a9TGtXpOrZpd6Lb2WQ5GlsS6WUMWyK7+9e5PlebXKn3b+Bc/bof14s03/GmaTJunzfXTW0HLV5dRjN7/P8ryhOl2uu+jqw9s3nQeH1kX0XgClHejZ7PX+0M/QgS5rbfxrpvXRtbU8JV2H2CnY9YT75v0/Hc/FRxwAUCgCGgAIaAAAAQ0ABDQAIBf3SK+Pf9ypj3krKdZzxrhMXAtbLVrOnD2sxkXwW3dl4tt608rtslXOsxGLnlDM9WdVHrWmw13MdTQ8nrXxXC/fA1rrfMIOfKu7qtUIQyGljcAMvb24RmcalcZQ9fLT9isnQUKpR4Om7kDvqFXITP/eqbOqvLubSj7iAIBCEdAAQEADAAhoACCgAQC5VNY3sFa1xKqu/fn38X/LHzNEyqINmLpdtiLOQs3lcP+xsJomDxE1Jc9wn4tJnXzATWhQjXc4lTbJ0FsLC9UyV8Zjns1YQ0PMvFMA1Y1VaXH4rlsjQ3fXbnUsf3Auv5x3uwTLISfmwYGp1LtCvDcK2jhV71jQ1Qs/ft43Ns+1ueohX7S/M8V0Tj7iAIBCEdAAQEADAAhoACCgAQC5VFZVyZq2ZH0zm2MTTJH0DYhmKyLbMvZBjPmG2bOJq9WLWGw2ZkVNq8uF6nfeehcDvdKtZR88eeDdp3H86jzbxrGanHupVjGhcHfCYzdDXVJtglxJG9/G0EKx3pTz+qwpcDmOw8Wk9k2eO5L3l5vrqdott96wc+w6H0PrjvdxGLQOfGjU6O5Nho84AKBQBDQAENAAAAIaAAhoAEAu7hbHeDSS8dtR8j/IGnAzdVbRcrRNtDZDLacxEEmb6Db/rFeYZpO607+l62Mu0n1Lp+s6nbZud9Jmm/Co5YvFqgdrFb3biPpdH4PcREQq74aV3lGOJVkO7bGi2rjV0AhIzxSuU6jnhUJxvrh3XQDTDBeHNQI09f7NoYtbe32lXWNaKLrrhy/YfH7/rFGyfMQBAIUioAGAgAYAENAAQEADAHKpWILD3S4DFS5jKot3fz2L1Z7wNiC0iXVXTR1+/R3JNbXMUyfzbrDcbPW1Xkvbec3Oe75Ym093OY0w9cbEz1kXb6VTu44ux/X3c8Yd0N5FD01DaxwXZKiiZS2uZ9xqjmDwjmgNda49J497c9SI7vG0p55pF6x1aZrTfd0xQju2H8vxjcVHHABQKAIaAAhoAAABDQAENAAgl+rh8dtARJ48v+z5tr+0SW+eWk5M1cyqI2li9nyz2hFaGyXULLhyNg+0NQvtz6au5ey1OVDIqr6ldtVxG8Oa+hjD26bxtC6sRtd6c7r7nR5gcFQ9aK1Ol2sXcYvWZ/YE8EuRowNuubmeFr8mpe3O7a2Qet9kc1B3BA/cVFlvsta65Kzj7j7iGBAfAFDO3fOPAQ0AKMzZz4kNAOj/7lnk///Ve/fAE2sEAP0EsxbQBDUA9BzMO/8CYZTBuhcBB9wAAAAASUVORK5CYII=", "data:image/png;base64,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"];
+    const RANK_PALETTES = [{"bg": "#14150d", "card": "#1c1d12", "surface": "#272818", "border": "#4a4b2c", "accent": "#b9ba7e", "text": "#f1f0dc", "muted": "#a6a678"}, {"bg": "#0f1409", "card": "#171e0e", "surface": "#212b14", "border": "#3c4a22", "accent": "#b7c27a", "text": "#eff2dc", "muted": "#9fae72"}, {"bg": "#10150b", "card": "#182010", "surface": "#222d17", "border": "#3d5022", "accent": "#9bbf5a", "text": "#f0f5e2", "muted": "#98b070"}, {"bg": "#0e0f08", "card": "#17180d", "surface": "#22241a", "border": "#4a3b2a", "accent": "#8fae3c", "text": "#f2f2e4", "muted": "#a39a78"}, {"bg": "#17120b", "card": "#221a10", "surface": "#302416", "border": "#6e4a30", "accent": "#d9a86a", "text": "#fbf1de", "muted": "#c0a27a"}, {"bg": "#14160e", "card": "#1e2115", "surface": "#2b2f1e", "border": "#7a5a3c", "accent": "#a9b783", "text": "#f6f2de", "muted": "#b2b58c"}, {"bg": "#0e1210", "card": "#161c19", "surface": "#202925", "border": "#4a5a52", "accent": "#a6c0b0", "text": "#eef3ef", "muted": "#8fa396"}, {"bg": "#12120a", "card": "#1b1c10", "surface": "#272916", "border": "#5a4a30", "accent": "#c2b070", "text": "#f6f0da", "muted": "#b0a470"}, {"bg": "#0b0e08", "card": "#131a0d", "surface": "#1c2614", "border": "#3e4a2c", "accent": "#7ea35a", "text": "#eef3e2", "muted": "#8fa675"}, {"bg": "#090b06", "card": "#10140a", "surface": "#1a2012", "border": "#54623a", "accent": "#c6b878", "text": "#f2f3e6", "muted": "#98a67a"}];
     const TIERS = [
-      { name: "Rookie", icon: "🥉", minXp: 0, desc: "Novice hunter learning hallmarks & basic comps." },
-      { name: "Picker", icon: "🥈", minXp: 750, desc: "Consistent eye for vintage tags, wool, and electronics." },
-      { name: "Pro Hunter", icon: "🥇", minXp: 2000, desc: "High-volume precision scout with solid margins." },
-      { name: "Master Scout", icon: "💎", minXp: 5000, desc: "Elite collector with deep manufacturing era knowledge." },
-      { name: "Elite Scout", icon: "🔷", minXp: 12000, desc: "Spots value in a single glance across every aisle." },
-      { name: "Veteran Dealer", icon: "🛡️", minXp: 25000, desc: "Seasoned seller with a vault that pays its own way." },
-      { name: "Market Maven", icon: "📈", minXp: 45000, desc: "Reads the market before the market reads you." },
-      { name: "Grand Curator", icon: "🏛️", minXp: 75000, desc: "A collection and a reputation built over hundreds of trips." },
-      { name: "Legend", icon: "🌟", minXp: 120000, desc: "Whispered about at every thrift counter in the county." },
-      { name: "Apex Reseller", icon: "👑", minXp: 200000, desc: "Top tier authority commanding a high-performance vault." }
+      { name: "Private", grade: "E-1", minXp: 0, bg: "#2f3a4f", fg: "#b9b49a", desc: "Fresh off the bus. Learning hallmarks, tags and basic comps." },
+      { name: "Private", grade: "E-2", minXp: 750, bg: "#34435c", fg: "#c2b98f", desc: "Finding your footing. Starting to trust your eye." },
+      { name: "Private First Class", grade: "E-3", minXp: 2000, bg: "#3d4a5a", fg: "#c8b878", desc: "Reliable in the aisles with a growing list of sure bets." },
+      { name: "Specialist / Corporal", grade: "E-4", minXp: 5000, bg: "#4a4f3a", fg: "#c9b458", desc: "The backbone. Solid skills across most categories." },
+      { name: "Sergeant", grade: "E-5", minXp: 12000, bg: "#4a5230", fg: "#b8a84a", desc: "A non-commissioned officer. Leads from the front with real margins." },
+      { name: "Staff Sergeant", grade: "E-6", minXp: 25000, bg: "#44502c", fg: "#a9a24a", desc: "Seasoned seller whose vault pays its own way." },
+      { name: "Sergeant First Class", grade: "E-7", minXp: 45000, bg: "#3f4a2a", fg: "#b4a970", desc: "Reads the market before the market reads you." },
+      { name: "Master Sergeant / First Sergeant", grade: "E-8", minXp: 75000, bg: "#38422a", fg: "#bdb182", desc: "Deep knowledge and a reputation built over hundreds of trips." },
+      { name: "Sergeant Major", grade: "E-9", minXp: 120000, bg: "#2e3822", fg: "#c8bb90", desc: "Peak of the NCO corps. Whispered about at every thrift counter." },
+      { name: "Sergeant Major of the Army", grade: "SMA", minXp: 200000, bg: "#474f2b", fg: "#14160f", desc: "The top enlisted rank. Top tier authority commanding a high-performance vault." }
     ];
+    // Rank ribbon: a wide patterned strip. The pattern is the rank, no text or insignia shapes.
+    function rankBadgeHTML(t, size) {
+      size = size || 44;
+      const idx = Math.max(0, TIERS.indexOf(t)), w = Math.round(size * 2.1), h = Math.round(size * 0.62);
+      return `<img src="${RANK_RIBBONS[idx]}" alt="${t.name} ribbon" title="${t.name} (${t.grade})" style="width:${w}px; height:${h}px; border-radius:${Math.max(4, Math.round(h * 0.16))}px; flex:0 0 auto; image-rendering:auto; box-shadow:0 1px 4px rgba(0,0,0,.5);">`;
+    }
 
     // ===== Unlockable themes: free base themes + a military tree (branch -> job -> specialty) =====
     // Colors only (no emblems or seals). Job order is roughly biggest to smallest, and bigger jobs unlock first.
@@ -838,6 +871,8 @@
     function buildThemes() {
       const out = BASE_THEMES.map(t => ({ ...t, group: "Base Themes", unlockXp: 0, base: true }));
       const roundTo = (n, step) => Math.round(n / step) * step;
+      // rank themes (auto-applied when you are promoted): one per Army enlisted rank
+      TIERS.forEach((t, i) => out.push({ id: `rank${i}`, label: `${t.name} (${t.grade})`, group: 'Rank Themes (auto on promotion)', unlockXp: t.minXp, rank: i, pal: RANK_PALETTES[i] }));
       // branch themes: first few thousand XP
       MIL_TREE.forEach((br, i) => out.push({ id: br.key, label: br.name, group: br.name, unlockXp: roundTo(1000 + i * 600, 100), pal: { ...br.pal, accent: br.pal.accent } }));
       // job themes: interleave branches by job rank so bigger jobs come first, spread 4k -> 150k
@@ -859,15 +894,17 @@
     const THEMES = buildThemes();
     const themeUnlocked = (id) => { const t = THEMES.find(x => x.id === id); return !!t && STATE.xp >= t.unlockXp; };
 
-    const THEME_VARS = ['--bg','--card-bg','--surface','--border','--border-focus','--text','--text-muted','--accent','--accent-glow','--on-accent'];
+    const THEME_VARS = ['--rank-strip','--bg','--card-bg','--surface','--border','--border-focus','--text','--text-muted','--accent','--accent-glow','--on-accent'];
     function hexToRgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
     function applyTheme(id) {
       const root = document.documentElement, t = THEMES.find(x => x.id === id);
       THEME_VARS.forEach(v => root.style.removeProperty(v));
+      root.style.removeProperty('--rank-strip');
       if (!t || t.base) { root.setAttribute('data-theme', t ? t.id : 'cyberpunk'); return; }
       const p = t.pal, [r, g, b] = hexToRgb(p.accent);
       const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
       root.setAttribute('data-theme', 'custom');
+      if (t.rank !== undefined) root.style.setProperty('--rank-strip', `url(${RANK_RIBBONS[t.rank]})`);
       root.style.setProperty('--bg', p.bg); root.style.setProperty('--card-bg', p.card); root.style.setProperty('--surface', p.surface);
       root.style.setProperty('--border', p.border); root.style.setProperty('--border-focus', p.accent);
       root.style.setProperty('--text', p.text); root.style.setProperty('--text-muted', p.muted);
@@ -888,16 +925,25 @@
       STATE.xp += gained;
       localStorage.setItem('ts_xp_today', String(earned + full));
       updatePills();
+      renderRankSummary();
       announceUnlocks(prevXp, STATE.xp);
       return gained;
     }
     function announceUnlocks(prevXp, newXp) {
       const prevTier = getCurrentTier(prevXp).tier, newTier = getCurrentTier(newXp).tier;
       const newThemes = THEMES.filter(t => t.unlockXp > prevXp && t.unlockXp <= newXp);
-      if (newTier.name !== prevTier.name || newThemes.length) {
+      if (newTier !== prevTier) {
+        const ri = TIERS.indexOf(newTier);
+        STATE.currentTheme = `rank${ri}`;
+        try { localStorage.setItem('ts_theme', STATE.currentTheme); } catch (e) {}
+        applyTheme(STATE.currentTheme);
+      }
+      if (newTier !== prevTier || newThemes.length) {
         let msg = '';
-        if (newTier.name !== prevTier.name) msg += `${newTier.icon} RANK UP: ${newTier.name}! `;
-        if (newThemes.length) msg += `🎨 New theme unlocked: ${newThemes.map(t => t.label).join(', ')}`;
+        if (newTier !== prevTier) msg += `⬆️ PROMOTED to ${newTier.name} (${newTier.grade})! `;
+        if (newTier !== prevTier) msg += 'Theme switched to match your rank (change it anytime in Edit Profile). ';
+        const extra = newThemes.filter(t => t.rank === undefined);
+        if (extra.length) msg += `🎨 New theme unlocked: ${extra.map(t => t.label).join(', ')}`;
         setTimeout(() => { triggerAlert(msg.trim(), false, true); playUnlockFanfare(); }, 1400);
       }
     }
@@ -935,6 +981,8 @@
       vaultCategory: 'general',
       vaultItems: [],
       userLastName: localStorage.getItem('ts_last_name') || 'Claypool',
+      userRank: localStorage.getItem('ts_rank') || '',
+      codaPhoto: localStorage.getItem('ts_coda_photo') || '',
       userAvatar: localStorage.getItem('ts_avatar') || '👤',
       currentTheme: localStorage.getItem('ts_theme') || 'cyberpunk',
       fontScale: localStorage.getItem('ts_font_scale') || '1rem'
@@ -959,7 +1007,7 @@
     if (!themeUnlocked(STATE.currentTheme)) STATE.currentTheme = 'cyberpunk';
     applyTheme(STATE.currentTheme);
     document.body.style.fontSize = STATE.fontScale;
-    document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
+    // welcome + mission cards are rendered by renderWelcome() once the page is built
 
     function applyAvatar() {
       const el = document.getElementById('profileAvatarBtn');
@@ -1255,6 +1303,8 @@
     document.getElementById('openSettingsFromDrawerBtn').onclick = () => {
       levelModal.classList.remove('active');
       document.getElementById('profileNameInput').value = STATE.userLastName;
+      document.getElementById('profileRankInput').value = STATE.userRank;
+      document.getElementById('codaPhotoClearBtn').style.display = STATE.codaPhoto ? 'block' : 'none';
       document.getElementById('profileAvatarInput').value = STATE.userAvatar;
       buildThemeSelect();
       document.getElementById('fontScaleSelect').value = STATE.fontScale;
@@ -1277,9 +1327,22 @@
       triggerAlert('API key saved.', false, true);
     };
 
+    document.getElementById('resetXpBtn').onclick = () => {
+      if (!confirm('Reset your XP and rank back to zero? This cannot be undone.')) return;
+      STATE.xp = 0;
+      ['ts_xp_today', 'ts_xp_day'].forEach(k => { try { localStorage.removeItem(k); } catch (e) {} });
+      STATE.currentTheme = 'rank0';
+      try { localStorage.setItem('ts_theme', 'rank0'); } catch (e) {}
+      applyTheme('rank0'); updatePills(); renderWelcome(); buildThemeSelect();
+      profileModal.classList.remove('active');
+      triggerAlert('XP reset. Back to Private (E-1). Go earn it.', false, true);
+    };
+
     document.getElementById('saveProfileBtn').onclick = () => {
       playAudioFeedback('BUY', false, false);
       STATE.userLastName = document.getElementById('profileNameInput').value.trim() || 'Claypool';
+      STATE.userRank = document.getElementById('profileRankInput').value.trim();
+      localStorage.setItem('ts_rank', STATE.userRank);
       STATE.userAvatar = document.getElementById('profileAvatarInput').value.trim() || '👤';
       { const picked = document.getElementById('themeSelect').value; STATE.currentTheme = themeUnlocked(picked) ? picked : STATE.currentTheme; }
       STATE.fontScale = document.getElementById('fontScaleSelect').value;
@@ -1289,7 +1352,7 @@
       localStorage.setItem('ts_font_scale', STATE.fontScale);
       applyTheme(STATE.currentTheme);
       document.body.style.fontSize = STATE.fontScale;
-      document.getElementById('welcomeUserTitle').textContent = `SPECIALIST ${STATE.userLastName.toUpperCase()} • FIELD HQ`;
+      renderWelcome();
       applyAvatar();
       profileModal.classList.remove('active');
       triggerAlert('Specialist profile updated successfully.', false, true);
@@ -1303,16 +1366,82 @@
       resetScanInputs();
     };
 
-    document.getElementById('dailyTargetName').textContent = currentMission.name;
-    document.getElementById('dailyTargetDesc').textContent = currentMission.desc;
-    document.getElementById('dailyCompsActionBtn').onclick = () => {
-      openExternalUrl(`https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(currentMission.query)}&LH_Sold=1&LH_Complete=1`);
-    };
-    document.getElementById('claimChallengeBtn').onclick = () => {
+    // ===== WELCOME SCREEN, MISSION CARDS, CODA PHOTO, RANK SUMMARY =====
+    const PAW_SVG = '<svg viewBox="0 0 64 64" width="60%" height="60%" fill="currentColor" style="color:var(--accent);"><ellipse cx="32" cy="42" rx="14" ry="11"/><ellipse cx="14" cy="28" rx="6" ry="8"/><ellipse cx="26" cy="17" rx="6" ry="8"/><ellipse cx="38" cy="17" rx="6" ry="8"/><ellipse cx="50" cy="28" rx="6" ry="8"/></svg>';
+    function renderCoda(wrapId) {
+      const el = document.getElementById(wrapId);
+      if (!el) return;
+      el.innerHTML = '';
+      if (STATE.codaPhoto) {
+        const img = document.createElement('img');
+        img.src = STATE.codaPhoto; img.alt = 'Coda';
+        img.style.cssText = 'width:100%; height:100%; object-fit:cover;';
+        el.appendChild(img);
+      } else el.innerHTML = PAW_SVG;
+    }
+    function missionCompsUrl() { return `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(currentMission.query)}&LH_Sold=1&LH_Complete=1`; }
+    function renderWelcome() {
+      const name = (STATE.userLastName || '').trim();
+      const who = [STATE.userRank, name].filter(Boolean).join(' ');
+      const hour = new Date().getHours();
+      const greet = hour < 12 ? 'Good morning' : (hour < 18 ? 'Good afternoon' : 'Good evening');
+      document.getElementById('welcomeGreeting').textContent = who ? `${greet}, ${who}` : greet;
+      const { tier } = getCurrentTier(STATE.xp);
+      document.getElementById('welcomeRankLine').textContent = `${tier.name} (${tier.grade}) • ${STATE.xp.toLocaleString()} XP`;
+      document.getElementById('welcomeMissionName').textContent = currentMission.name;
+      document.getElementById('welcomeMissionDesc').textContent = currentMission.desc;
+      document.getElementById('scoutMissionName').textContent = currentMission.name;
+      document.getElementById('scoutMissionDesc').textContent = currentMission.desc;
+      renderCoda('welcomeCodaWrap'); renderCoda('intelCodaWrap');
+      renderRankSummary();
+    }
+    function renderRankSummary() {
+      const { tier, index } = getCurrentTier(STATE.xp), next = TIERS[index + 1];
+      document.getElementById('rankSummaryRow').innerHTML = rankBadgeHTML(tier, 52) + `<div><div style="font-weight:800; font-size:1rem; color:var(--text);">${tier.name}</div><div style="font-size:.74rem; color:var(--text-muted);">Pay grade ${tier.grade}</div></div>`;
+      document.getElementById('rankSummaryXp').textContent = STATE.xp.toLocaleString() + ' XP';
+      const fill = document.getElementById('rankSummaryFill'), nx = document.getElementById('rankSummaryNext');
+      if (next) {
+        fill.style.width = Math.min(100, Math.max(0, Math.round(((STATE.xp - tier.minXp) / (next.minXp - tier.minXp)) * 100))) + '%';
+        nx.textContent = (next.minXp - STATE.xp).toLocaleString() + ' XP to ' + next.name + ' (' + next.grade + ')';
+      } else { fill.style.width = '100%'; nx.textContent = 'Top enlisted rank achieved.'; }
+    }
+    function primeMissionScan() {
       playAudioFeedback('BUY', false, false);
       triggerAlert('Target mission primed for scan!', false, true);
       document.querySelectorAll('.dock-btn')[0].click();
+      closeWelcomeModal();
       document.getElementById('openWebcamBtn').scrollIntoView({ behavior: 'smooth' });
+    }
+    document.getElementById('scoutMissionCompsBtn').onclick = () => openExternalUrl(missionCompsUrl());
+    document.getElementById('scoutMissionScanBtn').onclick = primeMissionScan;
+    document.getElementById('welcomeMissionScanBtn').onclick = primeMissionScan;
+    renderWelcome();
+
+    // Coda photo: shrink it and keep it on this device only
+    document.getElementById('codaPhotoInput').onchange = (e) => {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const side = 320, c = document.createElement('canvas'); c.width = side; c.height = side;
+          const m = Math.min(img.width, img.height), sx = (img.width - m) / 2, sy = (img.height - m) / 2;
+          c.getContext('2d').drawImage(img, sx, sy, m, m, 0, 0, side, side);
+          STATE.codaPhoto = c.toDataURL('image/jpeg', 0.82);
+          try { localStorage.setItem('ts_coda_photo', STATE.codaPhoto); } catch (err) {}
+          document.getElementById('codaPhotoClearBtn').style.display = 'block';
+          renderWelcome();
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(f);
+    };
+    document.getElementById('codaPhotoClearBtn').onclick = () => {
+      STATE.codaPhoto = ''; try { localStorage.removeItem('ts_coda_photo'); } catch (err) {}
+      document.getElementById('codaPhotoClearBtn').style.display = 'none';
+      document.getElementById('codaPhotoInput').value = '';
+      renderWelcome();
     };
 
     function getCurrentTier(xp) {
@@ -1323,7 +1452,7 @@
     function openLevelModal() {
       const { tier, index } = getCurrentTier(STATE.xp);
       const nextTier = TIERS[index + 1];
-      document.getElementById('modalBadgeIcon').textContent = tier.icon;
+      document.getElementById('modalBadgeIcon').innerHTML = rankBadgeHTML(tier, 64);
       document.getElementById('modalRankName').textContent = tier.name;
       document.getElementById('modalXpSubtitle').textContent = STATE.xp.toLocaleString() + ' Total XP Earned';
       const fill = document.getElementById('modalProgressFill');
@@ -1343,7 +1472,7 @@
         const unlocked = STATE.xp >= t.minXp;
         const card = document.createElement('div');
         card.className = 'badge-card' + (unlocked ? ' unlocked' : '');
-        card.innerHTML = `<div style="font-size:1.5rem;">${t.icon}</div><div><div style="font-weight:800; font-size:.88rem; color:${unlocked ? 'var(--amber)' : 'var(--text)'};">${t.name}</div><div style="font-size:.72rem; color:var(--text-muted);">${t.desc}</div></div>`;
+        card.innerHTML = `${rankBadgeHTML(t, 40)}<div><div style="font-weight:800; font-size:.88rem; color:${unlocked ? 'var(--amber)' : 'var(--text)'};">${t.name}</div><div style="font-size:.72rem; color:var(--text-muted);">${t.desc}</div></div>`;
         list.appendChild(card);
       });
       const tl = document.getElementById('themeUnlockList');
@@ -2138,7 +2267,7 @@
       const key = 'ts_reviews_' + activeReviewStoreName;
       let existing;
       try { existing = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { existing = []; }
-      existing.unshift({ author: 'Specialist ' + STATE.userLastName, rating: parseInt(rating, 10), text });
+      existing.unshift({ author: (STATE.userRank ? STATE.userRank + ' ' : '') + STATE.userLastName, rating: parseInt(rating, 10), text });
       localStorage.setItem(key, JSON.stringify(existing));
       document.getElementById('newReviewText').value = '';
       openStoreReviews(activeReviewStoreName);
