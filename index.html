@@ -143,8 +143,8 @@
     }
     [data-theme="light"] .bottom-dock { background:rgba(255,255,255,.95); }
     .dock-btn { flex:1; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:.9rem; font-weight:700; pointer-events:auto; touch-action:manipulation; }
-    .dock-btn { font-size:calc(14.4px * min(var(--fs,1), 1.15)); font-weight:800; letter-spacing:.03em; padding:6px 2px; }
-    .dock-btn .dock-ico { font-size:1.35rem; line-height:1; }
+    .dock-btn { font-size:calc(11.5px * min(var(--fs,1), 1.2)); line-height:1.15; text-align:center; font-weight:800; letter-spacing:.03em; padding:6px 2px; }
+    .dock-btn .dock-ico { font-size:1.25rem; line-height:1; }
     .dock-btn.active { color:var(--accent); }
     .dock-btn.active .dock-ico { transform:scale(1.12); }
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; padding:16px; z-index:200; pointer-events:auto; touch-action:manipulation; }
@@ -248,9 +248,8 @@
         <div>
           <label class="metric-label" style="margin-bottom:4px; display:block;">Inventory Disposition Strategy</label>
           <select id="assetStrategySelect" class="input-field">
-            <option value="selling">🛒 Selling (Active Inventory)</option>
-            <option value="keeping">🔒 Keeping (Personal Collection)</option>
-            <option value="quick_flip">⚡ Quick Flip (Sell Immediately)</option>
+            <option value="selling">🛒 Sell Vault (Active Inventory)</option>
+            <option value="keeping">🔒 Collection (Keeping, Not Selling)</option>
           </select>
         </div>
 
@@ -319,12 +318,12 @@
         <button id="vTabCoins" style="display:none;"></button>
         <button id="vTabMtg" style="display:none;"></button>
         <div class="vault-toolbar">
-          <span id="vaultModeLabel">General Vault Inventory</span>
+          <span id="vaultModeLabel">Sell Vault: Items You Plan to Sell</span>
           <span>Tap item for full details & comps</span>
         </div>
         <div class="vault-summary">
           <div>
-            <div class="metric-label" id="vaultTotalLabel">Portfolio Value</div>
+            <div class="metric-label" id="vaultTotalLabel">Est. Profit (Sell Vault)</div>
             <div class="metric-val profit" id="vaultTotal">$0.00</div>
           </div>
           <div style="text-align:right;">
@@ -333,6 +332,27 @@
           </div>
         </div>
         <div class="vault-list" id="vaultItemList"></div>
+      </div>
+    </section>
+
+    <!-- TAB: COLLECTION -->
+    <section id="tab-collection" class="tab-view">
+      <div class="card">
+        <div class="vault-toolbar">
+          <span>Collection: Items You're Keeping</span>
+          <span>Tap an item for details</span>
+        </div>
+        <div class="vault-summary">
+          <div>
+            <div class="metric-label">Est. Collection Value</div>
+            <div class="metric-val profit" id="collTotal">$0.00</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="metric-label">Items Kept</div>
+            <div class="metric-val" id="collCount">0 items</div>
+          </div>
+        </div>
+        <div class="vault-list" id="collItemList"></div>
       </div>
     </section>
 
@@ -395,7 +415,8 @@
   <nav class="bottom-dock">
     <button class="dock-btn active" data-target="tab-scout"><span class="dock-ico">🎯</span>SCOUT</button>
     <button class="dock-btn" data-target="tab-intel"><span class="dock-ico">🎖️</span>RANKS</button>
-    <button class="dock-btn" data-target="tab-vault"><span class="dock-ico">📦</span>VAULT</button>
+    <button class="dock-btn" data-target="tab-vault"><span class="dock-ico">🛒</span>SELL VAULT</button>
+    <button class="dock-btn" data-target="tab-collection"><span class="dock-ico">🔒</span>COLLECTION</button>
     <button class="dock-btn" data-target="tab-me"><span class="dock-ico">⚙️</span>SETTINGS</button>
   </nav>
 
@@ -519,7 +540,7 @@
           <span class="metric-val profit" id="vDetailProfit">$0.00</span>
         </div>
         <div class="metric-box">
-          <span class="metric-label">Inventory Strategy</span>
+          <span class="metric-label">Lives In</span>
           <span class="metric-val" id="vDetailStrategy" style="font-size:.9rem; color:var(--accent);">Selling</span>
         </div>
       </div>
@@ -536,7 +557,7 @@
         </div>
       </div>
       <div style="display:flex; gap:8px; margin-top:4px;">
-        <button class="btn btn-accent" id="quickToggleSellBtn" style="flex:1; font-size:.8rem;">⚡ TOGGLE QUICK FLIP</button>
+        <button class="btn btn-accent" id="quickToggleSellBtn" style="flex:1; font-size:.8rem;">🔒 MOVE TO COLLECTION</button>
         <button id="vDetailCompsActionBtn" class="btn btn-outline" style="flex:1; font-size:.8rem;">VIEW COMPS</button>
       </div>
     </div>
@@ -1568,15 +1589,25 @@
       } catch (err) { alert('Failed to update cost: ' + err.message); }
     };
 
-    document.getElementById('quickToggleSellBtn').onclick = async () => {
-      if (!currentlyOpenedVaultItem) return;
-      const newStrategy = currentlyOpenedVaultItem.strategy === 'selling' ? 'quick_flip' : 'selling';
+    const isKeeping = (it) => it && it.strategy === 'keeping';
+    function syncStrategyUi(item) {
+      document.getElementById('vDetailStrategy').textContent = isKeeping(item) ? 'Collection (Keeping)' : 'Sell Vault';
+      document.getElementById('quickToggleSellBtn').textContent = isKeeping(item) ? '🛒 MOVE TO SELL VAULT' : '🔒 MOVE TO COLLECTION';
+    }
+    window.moveItem = async (id, strategy) => {
+      const it = STATE.vaultItems.find(i => i.id === id); if (!it) return;
       try {
-        await updateDoc(doc(db, 'vault_inventory', currentlyOpenedVaultItem.id), { strategy: newStrategy });
-        currentlyOpenedVaultItem.strategy = newStrategy;
-        document.getElementById('vDetailStrategy').textContent = newStrategy === 'selling' ? 'Selling' : 'Quick Flip';
-        triggerAlert('Inventory strategy updated.', false, false);
-      } catch (err) { alert('Strategy update failed: ' + err.message); }
+        await updateDoc(doc(db, 'vault_inventory', id), { strategy });
+        it.strategy = strategy;
+        if (currentlyOpenedVaultItem && currentlyOpenedVaultItem.id === id) { currentlyOpenedVaultItem.strategy = strategy; syncStrategyUi(it); }
+        renderVault();
+        playAudioFeedback('BUY', false, false);
+        triggerAlert(strategy === 'keeping' ? 'Moved to your Collection.' : 'Moved back to the Sell Vault.', false, false);
+      } catch (err) { alert('Move failed: ' + err.message); }
+    };
+    document.getElementById('quickToggleSellBtn').onclick = () => {
+      if (!currentlyOpenedVaultItem) return;
+      moveItem(currentlyOpenedVaultItem.id, isKeeping(currentlyOpenedVaultItem) ? 'selling' : 'keeping');
     };
 
     // ================= VAULT: CAREFUL SECOND-OPINION VERIFY =================
@@ -1734,8 +1765,6 @@
       document.getElementById('vTabGeneral').classList.toggle('active', cat === 'general');
       document.getElementById('vTabCoins').classList.toggle('active', cat === 'coins');
       document.getElementById('vTabMtg').classList.toggle('active', cat === 'mtg');
-      document.getElementById('vaultModeLabel').textContent = label;
-      document.getElementById('vaultTotalLabel').textContent = `${cat.toUpperCase()} Portfolio`;
       renderVault();
     };
     document.getElementById('vTabGeneral').onclick = () => setVaultSubTab('general', 'General Vault Inventory');
@@ -2153,45 +2182,56 @@
       renderVault();
     }, (err) => triggerAlert('Vault could not load: ' + err.message, true, false));
 
-    function renderVault() {
-      const scrollPos = window.scrollY;
-      const container = document.getElementById('vaultItemList');
-      container.innerHTML = '';
-      const filtered = STATE.vaultItems.filter(item => (item.category || 'general') === STATE.vaultCategory);
-      let totalValue = 0;
-
-      filtered.forEach(item => {
-        const resale = Number(item.resale || 0);
-        const cost = Number(item.cost || 0);
-        const profit = item.profit !== undefined ? Number(item.profit) : calcProfit(resale, cost);
-        totalValue += profit;
-        const strat = item.status === 'sold' ? '✅ Sold' : (item.strategy === 'keeping' ? '🔒 Keeping' : (item.strategy === 'quick_flip' ? '⚡ Quick Flip' : '🛒 Selling'));
-
-        const wrapper = document.createElement('div');
-        wrapper.className = 'vault-item-container' + (item.verified ? ' verified-wrap' : '');
-        wrapper.innerHTML = `
+    function vaultRowHTML(item, inCollection) {
+      const resale = Number(item.resale || 0), cost = Number(item.cost || 0);
+      const profit = item.profit !== undefined ? Number(item.profit) : calcProfit(resale, cost);
+      const id = esc(item.id);
+      const strat = item.status === 'sold' ? '✅ Sold' : (inCollection ? '🔒 Keeping' : '🛒 Selling');
+      const actions = inCollection
+        ? `<button class="btn btn-accent" style="padding:6px 10px; font-size:.78rem; width:auto;" onclick="moveItem('${id}','selling')">MOVE TO SELL VAULT</button>`
+        : `<button class="btn btn-accent" style="padding:6px 10px; font-size:.78rem; width:auto;" onclick="quickSellItem('${id}')">SOLD</button>
+           <button class="btn btn-outline" style="padding:6px 10px; font-size:.78rem; width:auto;" onclick="moveItem('${id}','keeping')">🔒 KEEP</button>`;
+      return `
           ${item.verified ? '<div class="verified-check" title="Evaluated & verified">✓</div>' : ''}
-          <div class="vault-item${item.verified ? ' verified' : ''}" onclick="openVaultDetailById('${esc(item.id)}')">
+          <div class="vault-item${item.verified ? ' verified' : ''}" onclick="openVaultDetailById('${id}')">
             <img class="item-thumb" src="${esc(item.imageThumb || '')}" alt="Asset">
             <div class="item-content">
               <div class="item-title">${esc(item.brand)} - ${esc(item.item)}${item.verified ? '<span class="verified-pill">VERIFIED</span>' : ''}</div>
-              <div class="item-meta">Buy: $${cost.toFixed(2)} • Target: $${resale.toFixed(2)} • ${strat}</div>
+              <div class="item-meta">Paid: $${cost.toFixed(2)} • Worth: $${resale.toFixed(2)} • ${strat}</div>
               <div class="item-actions" onclick="event.stopPropagation();">
-                <button class="btn btn-accent" style="padding:4px 8px; font-size:.75rem; width:auto;" onclick="quickSellItem('${esc(item.id)}')">SELL</button>
-                <button class="btn btn-outline" style="padding:4px 8px; font-size:.75rem; width:auto; color:var(--coral);" onclick="deleteVaultItem('${esc(item.id)}')">DELETE</button>
+                ${actions}
+                <button class="btn btn-outline" style="padding:6px 10px; font-size:.78rem; width:auto; color:var(--coral);" onclick="deleteVaultItem('${id}')">DELETE</button>
               </div>
             </div>
             <div style="text-align:right;">
-              <div style="color:var(--accent); font-weight:800; font-size:1rem;">+$${profit.toFixed(2)}</div>
-              <div style="font-size:.68rem; color:var(--text-muted); margin-top:2px;">${item.status === 'sold' ? 'REALIZED' : 'EST. PROFIT'}</div>
+              <div style="color:var(--accent); font-weight:800; font-size:1rem;">${inCollection ? '$' + resale.toFixed(2) : '+$' + profit.toFixed(2)}</div>
+              <div style="font-size:.68rem; color:var(--text-muted); margin-top:2px;">${inCollection ? 'EST. VALUE' : (item.status === 'sold' ? 'REALIZED' : 'EST. PROFIT')}</div>
             </div>
           </div>`;
-        container.appendChild(wrapper);
-      });
-
-      document.getElementById('vaultTotal').textContent = '$' + totalValue.toFixed(2);
-      document.getElementById('vaultCount').textContent = filtered.length + ' items';
-      if (STATE.activeTab === 'vault') window.scrollTo(0, scrollPos);
+    }
+    function renderVault() {
+      const scrollPos = window.scrollY;
+      const all = STATE.vaultItems.filter(item => (item.category || 'general') === STATE.vaultCategory);
+      const sellItems = all.filter(i => !isKeeping(i)), keepItems = all.filter(isKeeping);
+      const fill = (container, items, inColl) => {
+        container.innerHTML = '';
+        if (!items.length) { container.innerHTML = `<div style="text-align:center; color:var(--text-muted); padding:24px 8px; font-size:.9rem;">${inColl ? 'Nothing here yet. Open an item in the Sell Vault and tap KEEP to move it into your Collection.' : 'No items in the Sell Vault yet. Scan something to add it.'}</div>`; return; }
+        items.forEach(item => {
+          const w = document.createElement('div');
+          w.className = 'vault-item-container' + (item.verified ? ' verified-wrap' : '');
+          w.innerHTML = vaultRowHTML(item, inColl);
+          container.appendChild(w);
+        });
+      };
+      fill(document.getElementById('vaultItemList'), sellItems, false);
+      fill(document.getElementById('collItemList'), keepItems, true);
+      let totalProfit = 0;
+      sellItems.forEach(i => { const r = Number(i.resale || 0), c = Number(i.cost || 0); totalProfit += i.profit !== undefined ? Number(i.profit) : calcProfit(r, c); });
+      document.getElementById('vaultTotal').textContent = '$' + totalProfit.toFixed(2);
+      document.getElementById('vaultCount').textContent = sellItems.length + (sellItems.length === 1 ? ' item' : ' items');
+      document.getElementById('collTotal').textContent = '$' + keepItems.reduce((a, i) => a + Number(i.resale || 0), 0).toFixed(2);
+      document.getElementById('collCount').textContent = keepItems.length + (keepItems.length === 1 ? ' item' : ' items');
+      if (STATE.activeTab === 'vault' || STATE.activeTab === 'collection') window.scrollTo(0, scrollPos);
     }
 
     window.openVaultDetailById = (id) => {
@@ -2207,7 +2247,7 @@
       document.getElementById('vDetailCost').textContent = `$${(item.cost || 0).toFixed(2)} ✏️`;
       document.getElementById('vDetailResale').textContent = `$${(item.resale || 0).toFixed(2)}`;
       document.getElementById('vDetailProfit').textContent = `$${(item.profit || 0).toFixed(2)}`;
-      document.getElementById('vDetailStrategy').textContent = item.strategy === 'keeping' ? 'Keeping' : (item.strategy === 'quick_flip' ? 'Quick Flip' : 'Selling');
+      syncStrategyUi(item);
       document.getElementById('vDetailIntel').textContent = (item.verified ? '✅ Verified • ' : '') + (item.intel || 'No extra intelligence notes logged.');
 
       const compBtn = document.getElementById('vDetailCompsActionBtn');
