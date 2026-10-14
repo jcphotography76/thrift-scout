@@ -10,7 +10,7 @@
       --text:#f9fafb; --text-muted:#9ca3af; --primary:#6366f1; --primary-glow:rgba(99,102,241,.2);
       --accent:#14b8a6; --accent-glow:rgba(20,184,166,.2); --coral:#f43f5e; --coral-glow:rgba(244,63,94,.2);
       --amber:#f59e0b; --amber-glow:rgba(245,158,11,.2); --gold:#fbbf24; --gold-glow:rgba(251,191,36,.35);
-      --font-scale:1rem;
+      --fs:1;
       --font-stack:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     }
     [data-theme="light"] { --bg:#f3f4f6; --card-bg:#fff; --surface:#e5e7eb; --border:#cbd5e1; --border-focus:#4f46e5; --text:#0f172a; --text-muted:#475569; }
@@ -34,24 +34,39 @@
     .theme-chip { display:flex; justify-content:space-between; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-size:.8rem; opacity:.55; }
     .theme-chip.unlocked { opacity:1; border-color:var(--accent); }
 
+    html { font-size:calc(16px * var(--fs, 1)); }
     * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
     body {
-      background-color:var(--bg); color:var(--text); font-family:var(--font-stack); font-size:var(--font-scale);
-      min-height:100vh; display:flex; flex-direction:column; padding-bottom:calc(75px + env(safe-area-inset-bottom));
+      background-color:var(--bg); color:var(--text); font-family:var(--font-stack); font-size:1rem; position:relative;
+      min-height:100vh; display:flex; flex-direction:column; padding-bottom:calc(84px + env(safe-area-inset-bottom));
       overflow-x:hidden; overscroll-behavior-y:none; touch-action:pan-y; -webkit-overflow-scrolling:touch;
       -webkit-font-smoothing:antialiased; transition:background-color .3s,color .3s;
     }
+    /* ===== RANK CAMO WALLPAPER + CANVAS WEAVE ===== */
+    body::before { content:''; position:fixed; inset:0; z-index:-2; pointer-events:none;
+      background-image:linear-gradient(color-mix(in srgb, var(--bg) 40%, transparent), color-mix(in srgb, var(--bg) 40%, transparent)), var(--wall, none);
+      background-size:auto, 320px 320px; background-repeat:no-repeat, repeat; }
+    body::after { content:''; position:fixed; inset:0; z-index:-1; pointer-events:none; opacity:.9;
+      background-image:var(--weave, none); background-size:96px 96px; background-repeat:repeat; mix-blend-mode:overlay; }
+    .card, .modal-content { background:color-mix(in srgb, var(--card-bg) 80%, transparent); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); }
+    .modal-content { background:color-mix(in srgb, var(--card-bg) 96%, transparent); }
+    .settings-section-title { font-size:.8rem; font-weight:800; letter-spacing:.08em; color:var(--accent); text-transform:uppercase; }
+    .fs-row { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+    .fs-btn { background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:8px; padding:10px 0; font-weight:800; cursor:pointer; touch-action:manipulation; }
+    .fs-btn.active { background:var(--accent); color:var(--on-accent,#090d16); border-color:var(--accent); }
     @keyframes screenFlash { 0% { background-color:var(--accent); } 100% { background-color:var(--bg); } }
     body.flash-active { animation:screenFlash .35s ease-out; }
 
     header {
-      position:sticky; top:0; z-index:50; background:rgba(17,24,39,.88); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-      border-bottom:1px solid var(--border); padding:12px 16px; display:flex; justify-content:space-between; align-items:center;
+      position:sticky; top:0; z-index:50; background:rgba(17,24,39,.80); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--border); padding:12px 16px 14px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; text-align:center;
     }
     [data-theme="light"] header { background:rgba(255,255,255,.88); }
-    .brand { display:flex; align-items:center; gap:8px; font-weight:800; font-size:1.15rem; letter-spacing:-.02em; color:var(--text); }
+    .brand { display:flex; align-items:center; justify-content:center; gap:8px; font-weight:900; font-size:1.7rem; letter-spacing:-.02em; color:var(--text); line-height:1.1; }
+    .brand svg { width:1.5rem; height:1.5rem; }
     .brand-accent { color:var(--accent); }
-    .header-pills { display:flex; gap:8px; align-items:center; }
+    .header-pills { display:flex; gap:8px; align-items:center; justify-content:center; }
+    .header-pills .badge-accent { font-size:.8rem; padding:4px 12px; }
     .profile-avatar-btn {
       width:36px; height:36px; border-radius:50%; background:var(--surface); border:1px solid var(--border); overflow:hidden;
       cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.95rem; touch-action:manipulation;
@@ -122,13 +137,16 @@
     .badge-card { display:flex; gap:10px; align-items:center; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px; opacity:.55; }
     .badge-card.unlocked { opacity:1; border-color:var(--amber); }
     .bottom-dock {
-      position:fixed; bottom:0; left:0; right:0; height:calc(60px + env(safe-area-inset-bottom)); padding-bottom:env(safe-area-inset-bottom);
-      background:rgba(17,24,39,.95); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-top:1px solid var(--border);
+      position:fixed; bottom:0; left:0; right:0; min-height:calc(68px + env(safe-area-inset-bottom)); padding-bottom:env(safe-area-inset-bottom);
+      background:rgba(17,24,39,.92); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-top:1px solid var(--border);
       display:flex; justify-content:space-around; align-items:center; z-index:100;
     }
     [data-theme="light"] .bottom-dock { background:rgba(255,255,255,.95); }
-    .dock-btn { flex:1; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:.75rem; font-weight:700; pointer-events:auto; touch-action:manipulation; }
+    .dock-btn { flex:1; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:.9rem; font-weight:700; pointer-events:auto; touch-action:manipulation; }
+    .dock-btn { font-size:calc(14.4px * min(var(--fs,1), 1.15)); font-weight:800; letter-spacing:.03em; padding:6px 2px; }
+    .dock-btn .dock-ico { font-size:1.35rem; line-height:1; }
     .dock-btn.active { color:var(--accent); }
+    .dock-btn.active .dock-ico { transform:scale(1.12); }
     .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; padding:16px; z-index:200; pointer-events:auto; touch-action:manipulation; }
     .modal-overlay.active { display:flex; }
     .modal-content { background:var(--card-bg); border:1px solid var(--border); border-radius:14px; padding:18px; max-width:480px; width:100%; max-height:85vh; overflow-y:auto; display:flex; flex-direction:column; gap:12px; z-index:201; pointer-events:auto; cursor:default; }
@@ -146,7 +164,6 @@
     </div>
     <div class="header-pills">
       <span class="badge-accent" id="quotaPill" title="Scans left on this device's counter">100 left</span>
-      <div class="profile-avatar-btn" id="profileAvatarBtn" title="Profile Settings & Stats">👤</div>
     </div>
   </header>
 
@@ -319,24 +336,67 @@
       </div>
     </section>
 
-    <!-- TAB 4: STORES -->
-    <section id="tab-stores" class="tab-view">
+    <!-- TAB 4: SETTINGS -->
+    <section id="tab-me" class="tab-view">
+      <div class="card" id="meRankCard">
+        <div class="settings-section-title">Your Rank</div>
+        <div style="display:flex; align-items:center; gap:12px;" id="meRankRow"></div>
+        <div style="background:var(--border); height:6px; border-radius:3px; overflow:hidden;"><div id="meRankFill" style="background:var(--accent); width:0%; height:100%;"></div></div>
+        <div style="font-size:.8rem; color:var(--accent); font-weight:700;" id="meRankNext"></div>
+        <button class="btn btn-outline" id="meHandbookBtn">📖 Field Manual: Ranks, Themes &amp; How XP Works</button>
+      </div>
+
       <div class="card">
-        <div class="card-title">
-          <span>LOCAL THRIFT HUBS</span>
-          <span class="badge-accent" id="gpsPill">Proximity Active</span>
+        <div class="settings-section-title">Appearance</div>
+        <div>
+          <label class="metric-label">Interface Theme (your rank's theme or any you have unlocked)</label>
+          <select id="themeSelect" class="input-field" style="margin-top:4px;"></select>
+          <button class="btn btn-outline" id="matchRankThemeBtn" style="margin-top:8px; font-size:.85rem;">🎖️ Match my current rank</button>
         </div>
-        <p style="font-size:.82rem; color:var(--text-muted);">Direct routes to verified area hubs with distance sorted automatically from your current position.</p>
-        <div class="store-radar-grid" id="storeRadarGrid"></div>
+        <div>
+          <label class="metric-label">Text Size</label>
+          <div class="fs-row" id="fsRow" style="margin-top:4px;">
+            <button class="fs-btn" data-fs="0.9" style="font-size:.8rem;">A</button>
+            <button class="fs-btn" data-fs="1" style="font-size:1rem;">A</button>
+            <button class="fs-btn" data-fs="1.15" style="font-size:1.2rem;">A</button>
+            <button class="fs-btn" data-fs="1.3" style="font-size:1.4rem;">A</button>
+            <button class="fs-btn" data-fs="1.5" style="font-size:1.6rem;">A</button>
+          </div>
+          <div id="fsLabel" style="font-size:.78rem; color:var(--text-muted); margin-top:6px;"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="settings-section-title">Profile</div>
+        <div>
+          <label class="metric-label">Last Name</label>
+          <input type="text" id="profileNameInput" class="input-field" value="Claypool" style="margin-top:4px;">
+        </div>
+        <div>
+          <label class="metric-label">Your Rank or Title (optional, e.g. SPC, Sgt, Petty Officer)</label>
+          <input type="text" id="profileRankInput" class="input-field" value="" placeholder="Leave blank to skip" style="margin-top:4px;">
+        </div>
+        <div>
+          <label class="metric-label">Coda's Photo (shows on the welcome screen)</label>
+          <input type="file" id="codaPhotoInput" accept="image/*" class="input-field" style="margin-top:4px;">
+          <button class="btn btn-outline" id="codaPhotoClearBtn" style="font-size:.8rem; padding:8px; margin-top:6px; display:none;">Remove photo</button>
+        </div>
+        <button class="btn btn-accent" id="saveProfileBtn">Save Profile</button>
+      </div>
+
+      <div class="card">
+        <div class="settings-section-title">Tools &amp; Data</div>
+        <button class="btn btn-outline" id="meConfigBtn">⚙️ Gemini API Key</button>
+        <button class="btn btn-outline" id="resetXpBtn" style="font-size:.85rem; color:var(--coral); border-color:var(--coral);">Reset XP and rank to zero</button>
       </div>
     </section>
   </main>
 
   <nav class="bottom-dock">
-    <button class="dock-btn active" data-target="tab-scout">SCOUT</button>
-    <button class="dock-btn" data-target="tab-intel">RANKS</button>
-    <button class="dock-btn" data-target="tab-vault">VAULT</button>
-    <button class="dock-btn" data-target="tab-stores">RADAR</button>
+    <button class="dock-btn active" data-target="tab-scout"><span class="dock-ico">🎯</span>SCOUT</button>
+    <button class="dock-btn" data-target="tab-intel"><span class="dock-ico">🎖️</span>RANKS</button>
+    <button class="dock-btn" data-target="tab-vault"><span class="dock-ico">📦</span>VAULT</button>
+    <button class="dock-btn" data-target="tab-me"><span class="dock-ico">⚙️</span>SETTINGS</button>
   </nav>
 
   <!-- WELCOME / MISSION BRIEFING -->
@@ -425,7 +485,7 @@
       </div>
       <div style="display:flex; gap:8px; margin-top:4px;">
         <button class="btn btn-outline" id="openConfigFromDrawerBtn" style="flex:1; font-size:.8rem;">⚙️ Config API Key</button>
-        <button class="btn btn-outline" id="openSettingsFromDrawerBtn" style="flex:1; font-size:.8rem;">👤 Edit Profile</button>
+        <button class="btn btn-outline" id="openSettingsFromDrawerBtn" style="flex:1; font-size:.8rem;">⚙️ Settings</button>
       </div>
       <div class="card-title" style="margin-top:4px; font-size:.85rem;">BADGE TIERS</div>
       <div style="display:flex; flex-direction:column; gap:8px;" id="badgeTiersList"></div>
@@ -436,47 +496,6 @@
   </div>
 
   <!-- PROFILE SETTINGS MODAL -->
-  <div class="modal-overlay" id="profileModal">
-    <div class="modal-content">
-      <div class="card-title">
-        <span>Specialist Profile & Settings</span>
-        <button class="settings-btn" id="closeProfileBtn">X</button>
-      </div>
-      <div>
-        <label class="metric-label">Specialist Last Name</label>
-        <input type="text" id="profileNameInput" class="input-field" value="Claypool" style="margin-top:4px;">
-      </div>
-      <div>
-        <label class="metric-label">Your Rank or Title (optional, e.g. SPC, Sgt, Petty Officer)</label>
-        <input type="text" id="profileRankInput" class="input-field" value="" placeholder="Leave blank to skip" style="margin-top:4px;">
-      </div>
-      <div>
-        <label class="metric-label">Coda's Photo (shows on the welcome screen)</label>
-        <input type="file" id="codaPhotoInput" accept="image/*" class="input-field" style="margin-top:4px;">
-        <button class="btn btn-outline" id="codaPhotoClearBtn" style="font-size:.7rem; padding:6px; margin-top:4px; display:none;">Remove photo</button>
-      </div>
-      <div>
-        <label class="metric-label">Profile Avatar URL or Emoji</label>
-        <input type="text" id="profileAvatarInput" class="input-field" value="👤" style="margin-top:4px;">
-      </div>
-      <div>
-        <label class="metric-label">Interface Theme</label>
-        <select id="themeSelect" class="input-field" style="margin-top:4px;"></select>
-      </div>
-      <div>
-        <button class="btn btn-outline" id="resetXpBtn" style="font-size:.78rem; color:var(--coral); border-color:var(--coral);">Reset XP and rank to zero</button>
-      </div>
-      <div>
-        <label class="metric-label">Text Scale / Font Size</label>
-        <select id="fontScaleSelect" class="input-field" style="margin-top:4px;">
-          <option value="0.9rem">Compact</option>
-          <option value="1rem" selected>Standard</option>
-          <option value="1.1rem">Enlarged (Accessibility)</option>
-        </select>
-      </div>
-      <button class="btn btn-accent" id="saveProfileBtn">Save Preferences</button>
-    </div>
-  </div>
 
   <!-- VAULT DETAILS MODAL -->
   <div class="modal-overlay" id="vaultDetailModal">
@@ -524,29 +543,6 @@
   </div>
 
   <!-- STORE REVIEW MODAL -->
-  <div class="modal-overlay" id="storeReviewModal">
-    <div class="modal-content">
-      <div class="card-title">
-        <span id="reviewStoreTitle">Store Insider Reviews</span>
-        <button class="settings-btn" id="closeReviewModalBtn">X</button>
-      </div>
-      <div id="storeReviewsContainer" style="display:flex; flex-direction:column; gap:8px; max-height:220px; overflow-y:auto;"></div>
-      <div style="border-top:1px solid var(--border); padding-top:10px; display:flex; flex-direction:column; gap:8px;">
-        <div style="font-weight:700; font-size:.85rem;">Leave an Insider Review</div>
-        <div style="display:flex; gap:6px;">
-          <select id="newReviewRating" class="input-field" style="width:90px;">
-            <option value="5">⭐⭐⭐⭐⭐</option>
-            <option value="4">⭐⭐⭐⭐</option>
-            <option value="3">⭐⭐⭐</option>
-            <option value="2">⭐⭐</option>
-            <option value="1">⭐</option>
-          </select>
-          <input type="text" id="newReviewText" class="input-field" placeholder="Restocks on Tuesdays, great glassware section..." style="flex:1;">
-        </div>
-        <button class="btn btn-accent" id="submitReviewBtn">Submit Insider Review</button>
-      </div>
-    </div>
-  </div>
 
   <!-- CAMERA MODAL -->
   <div class="modal-overlay" id="webcamModal">
@@ -896,11 +892,78 @@
 
     const THEME_VARS = ['--rank-strip','--bg','--card-bg','--surface','--border','--border-focus','--text','--text-muted','--accent','--accent-glow','--on-accent'];
     function hexToRgb(h) { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+    // ===== RANK CAMO WALLPAPER (drawn in the browser, seamless tile) + CANVAS WEAVE =====
+    const WALL_SPECS = [
+      { m:'solid', base:'#8a8a5c', cols:['#7f7f52','#95956a'] },
+      { m:'stripe', base:'#5f6a3a', cols:['#aeb07a'] },
+      { m:'blob', base:'#98a064', cols:['#6f7a45','#a7ad74'], rs:[.10,.20], n:26 },
+      { m:'blob', base:'#7d8a48', cols:['#6b7a3c','#4a3b2a','#16150f','#a9a070'], rs:[.08,.17], n:70 },
+      { m:'blob', base:'#c8b080', cols:['#8a5a3a','#6e4a30','#b08060','#a89060'], rs:[.04,.09], n:120 },
+      { m:'blob', base:'#cdbb8c', cols:['#b9a77a','#8a9468','#7a5a3c'], rs:[.08,.17], n:50 },
+      { m:'pix', base:'#7f8c78', cols:['#8f9a84','#6f7d6a','#a6ac98','#5b6a58'] },
+      { m:'pix', base:'#8a8450', cols:['#7a7448','#b0a070','#5a4a30','#6a7a4a'] },
+      { m:'pix', base:'#4a5430', cols:['#3e4a2c','#6a6a3a','#2a2a1e','#8a7a4a','#58442c'] },
+      { m:'pix', base:'#3a4428', cols:['#2a301f','#54623a','#8a7a4a','#12140d','#6a5238'] }
+    ];
+    const _wallCache = {};
+    function wallTile(idx) {
+      if (_wallCache[idx]) return _wallCache[idx];
+      const sp = WALL_SPECS[Math.max(0, Math.min(WALL_SPECS.length - 1, idx))], S = 320;
+      const c = document.createElement('canvas'); c.width = c.height = S;
+      const g = c.getContext('2d'); g.fillStyle = sp.base; g.fillRect(0, 0, S, S);
+      let seed = 1000 + idx * 77; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+      const pick = () => sp.cols[Math.floor(rnd() * sp.cols.length)];
+      const wrap = (fn) => { for (const dx of [-S, 0, S]) for (const dy of [-S, 0, S]) fn(dx, dy); };
+      if (sp.m === 'blob') {
+        for (let i = 0; i < sp.n; i++) {
+          const col = pick(), x = rnd() * S, y = rnd() * S, rx = S * (sp.rs[0] + rnd() * (sp.rs[1] - sp.rs[0])), ry = rx * (0.4 + rnd() * 0.4);
+          const pts = []; for (let a = 0; a < 360; a += 25) { const k = 0.7 + rnd() * 0.55; pts.push([Math.cos(a * Math.PI / 180) * rx * k, Math.sin(a * Math.PI / 180) * ry * k]); }
+          wrap((dx, dy) => { g.fillStyle = col; g.beginPath(); pts.forEach((p, j) => j ? g.lineTo(x + dx + p[0], y + dy + p[1]) : g.moveTo(x + dx + p[0], y + dy + p[1])); g.closePath(); g.fill(); });
+        }
+      } else if (sp.m === 'pix') {
+        const cell = 16;
+        for (let i = 0; i < 520; i++) { g.fillStyle = pick(); const x = Math.floor(rnd() * S / cell) * cell, y = Math.floor(rnd() * S / cell) * cell, w = (1 + Math.floor(rnd() * 3)) * cell, h = (1 + Math.floor(rnd() * 2)) * cell; wrap((dx, dy) => g.fillRect(x + dx, y + dy, w, h)); }
+      } else if (sp.m === 'stripe') {
+        g.fillStyle = sp.cols[0]; g.fillRect(0, S * 0.2, S, 14); g.fillRect(0, S * 0.8 - 14, S, 14);
+      } else {
+        for (let i = 0; i < 40; i++) { g.fillStyle = pick(); g.globalAlpha = .35; g.fillRect(rnd() * S, rnd() * S, 60 + rnd() * 80, 60 + rnd() * 80); } g.globalAlpha = 1;
+      }
+      return (_wallCache[idx] = c.toDataURL('image/png'));
+    }
+    let _weaveUrl = '';
+    function weaveTile() {
+      if (_weaveUrl) return _weaveUrl;
+      const S = 48, c = document.createElement('canvas'); c.width = c.height = S; const g = c.getContext('2d');
+      g.fillStyle = 'rgb(128,128,128)'; g.fillRect(0, 0, S, S);
+      let seed = 4242; const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+      for (let y = 0; y < S; y += 2) for (let x = 0; x < S; x += 2) {
+        const over = ((x / 2 + y / 2) % 2 === 0), j = (rnd() - 0.5) * 26;
+        const v = Math.max(0, Math.min(255, (over ? 150 : 108) + j));
+        g.fillStyle = `rgb(${v},${v},${v})`; g.fillRect(x, y, 2, 2);
+      }
+      g.globalAlpha = .12; g.fillStyle = '#000'; for (let x = 0; x < S; x += 6) g.fillRect(x, 0, 1, S); for (let y = 0; y < S; y += 6) g.fillRect(0, y, S, 1);
+      return (_weaveUrl = c.toDataURL('image/png'));
+    }
+    function applyWallpaper() {
+      try {
+        const root = document.documentElement, idx = getCurrentTier(STATE.xp).index;
+        root.style.setProperty('--wall', `url(${wallTile(idx)})`);
+        root.style.setProperty('--weave', `url(${weaveTile()})`);
+      } catch (e) {}
+    }
+    function applyFontScale() {
+      const v = parseFloat(STATE.fontScale) || 1;
+      document.documentElement.style.setProperty('--fs', String(v));
+      document.querySelectorAll('.fs-btn').forEach(b => b.classList.toggle('active', Math.abs(parseFloat(b.dataset.fs) - v) < 0.01));
+      const lab = document.getElementById('fsLabel');
+      if (lab) lab.textContent = ({ '0.9': 'Compact', '1': 'Standard', '1.15': 'Large', '1.3': 'Extra large', '1.5': 'Maximum' })[String(v)] || 'Custom';
+    }
+
     function applyTheme(id) {
       const root = document.documentElement, t = THEMES.find(x => x.id === id);
       THEME_VARS.forEach(v => root.style.removeProperty(v));
       root.style.removeProperty('--rank-strip');
-      if (!t || t.base) { root.setAttribute('data-theme', t ? t.id : 'cyberpunk'); return; }
+      if (!t || t.base) { root.setAttribute('data-theme', t ? t.id : 'cyberpunk'); applyWallpaper(); return; }
       const p = t.pal, [r, g, b] = hexToRgb(p.accent);
       const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
       root.setAttribute('data-theme', 'custom');
@@ -910,6 +973,7 @@
       root.style.setProperty('--text', p.text); root.style.setProperty('--text-muted', p.muted);
       root.style.setProperty('--accent', p.accent); root.style.setProperty('--accent-glow', `rgba(${r},${g},${b},.22)`);
       root.style.setProperty('--on-accent', lum > 0.55 ? '#0b0f14' : '#ffffff');
+      applyWallpaper();
     }
 
     // XP pacing: first 500 XP each day is full value, anything past that earns only 10%.
@@ -984,8 +1048,8 @@
       userRank: localStorage.getItem('ts_rank') || '',
       codaPhoto: localStorage.getItem('ts_coda_photo') || '',
       userAvatar: localStorage.getItem('ts_avatar') || '👤',
-      currentTheme: localStorage.getItem('ts_theme') || 'cyberpunk',
-      fontScale: localStorage.getItem('ts_font_scale') || '1rem'
+      currentTheme: localStorage.getItem('ts_theme') || 'rank0',
+      fontScale: String(parseFloat(localStorage.getItem('ts_font_scale') || '1') || 1)
     };
 
     let currentAppraisal = null;
@@ -997,37 +1061,23 @@
     let isSavingToVault = false;
     let isBusy = false; // blocks double-taps and duplicate API calls
 
-    const STORES = [
-      { name: "Goodwill - Riverdale", address: "4123 Riverdale Rd, Riverdale, UT", lat: 41.1764, lon: -111.9961 },
-      { name: "Deseret Industries - Harrisville", address: "1111 N 2000 W, Harrisville, UT", lat: 41.2825, lon: -112.0125 },
-      { name: "Savers - Ogden", address: "150 36th St, Ogden, UT", lat: 41.2052, lon: -111.9723 },
-      { name: "Deseret Industries - Centerville", address: "351 N Marketplace Dr, Centerville, UT", lat: 40.9238, lon: -111.8872 }
-    ];
 
-    if (!themeUnlocked(STATE.currentTheme)) STATE.currentTheme = 'cyberpunk';
+    // one-time: bring everyone onto the theme that matches their current rank
+    try { if (!localStorage.getItem('ts_theme_v3')) { STATE.currentTheme = 'rank' + getCurrentTier(STATE.xp).index; localStorage.setItem('ts_theme', STATE.currentTheme); localStorage.setItem('ts_theme_v3', '1'); } } catch (e) {}
+    if (!themeUnlocked(STATE.currentTheme)) STATE.currentTheme = 'rank' + getCurrentTier(STATE.xp).index;
     applyTheme(STATE.currentTheme);
-    document.body.style.fontSize = STATE.fontScale;
+    applyFontScale();
     // welcome + mission cards are rendered by renderWelcome() once the page is built
 
-    function applyAvatar() {
-      const el = document.getElementById('profileAvatarBtn');
-      const v = STATE.userAvatar || '👤';
-      el.innerHTML = '';
-      if (/^https?:\/\//i.test(v)) {
-        const img = document.createElement('img');
-        img.src = v; img.alt = 'Avatar';
-        el.appendChild(img);
-      } else {
-        el.textContent = v;
-      }
-    }
-    applyAvatar();
+    function applyAvatar() {}
+
 
     function updatePills() {
       localStorage.setItem('ts_scans_left', STATE.dailyScans);
       localStorage.setItem('ts_xp', STATE.xp);
       const pill = document.getElementById('quotaPill');
       if (pill) pill.textContent = Math.max(0, STATE.dailyScans) + ' left';
+      applyWallpaper();
     }
     updatePills();
 
@@ -1296,21 +1346,37 @@
 
     // ================= PROFILE / CONFIG =================
     const levelModal = document.getElementById('levelModal');
-    document.getElementById('profileAvatarBtn').onclick = () => { playAudioFeedback('MONITOR', false, false); openLevelModal(); };
     document.getElementById('closeLevelBtn').onclick = () => levelModal.classList.remove('active');
-
-    const profileModal = document.getElementById('profileModal');
-    document.getElementById('openSettingsFromDrawerBtn').onclick = () => {
-      levelModal.classList.remove('active');
+    function goTab(id) { const b = document.querySelector(`.dock-btn[data-target="${id}"]`); if (b) b.click(); window.scrollTo(0, 0); }
+    document.getElementById('openSettingsFromDrawerBtn').onclick = () => { levelModal.classList.remove('active'); goTab('tab-me'); };
+    function fillSettings() {
       document.getElementById('profileNameInput').value = STATE.userLastName;
       document.getElementById('profileRankInput').value = STATE.userRank;
       document.getElementById('codaPhotoClearBtn').style.display = STATE.codaPhoto ? 'block' : 'none';
-      document.getElementById('profileAvatarInput').value = STATE.userAvatar;
-      buildThemeSelect();
-      document.getElementById('fontScaleSelect').value = STATE.fontScale;
-      profileModal.classList.add('active');
+      buildThemeSelect(); applyFontScale(); renderMeRank();
+    }
+    function renderMeRank() {
+      const { tier, index } = getCurrentTier(STATE.xp), next = TIERS[index + 1];
+      document.getElementById('meRankRow').innerHTML = rankBadgeHTML(tier, 56) + `<div><div style="font-weight:800; font-size:1.1rem; color:var(--text);">${tier.name}</div><div style="font-size:.8rem; color:var(--text-muted);">Pay grade ${tier.grade} • ${STATE.xp.toLocaleString()} XP</div></div>`;
+      const f = document.getElementById('meRankFill'), nx = document.getElementById('meRankNext');
+      if (next) { f.style.width = Math.min(100, Math.max(0, Math.round(((STATE.xp - tier.minXp) / (next.minXp - tier.minXp)) * 100))) + '%'; nx.textContent = (next.minXp - STATE.xp).toLocaleString() + ' XP to ' + next.name + ' (' + next.grade + ')'; }
+      else { f.style.width = '100%'; nx.textContent = 'Top enlisted rank achieved.'; }
+    }
+    document.getElementById('meHandbookBtn').onclick = () => { playAudioFeedback('MONITOR', false, false); openLevelModal(); };
+    document.getElementById('meConfigBtn').onclick = () => { document.getElementById('geminiApiKey').value = STATE.geminiKey; configModal.classList.add('active'); };
+    document.getElementById('themeSelect').onchange = (e) => {
+      const picked = e.target.value;
+      if (themeUnlocked(picked)) { STATE.currentTheme = picked; try { localStorage.setItem('ts_theme', picked); } catch (er) {} applyTheme(picked); playAudioFeedback('BUY', false, false); }
+      else buildThemeSelect();
     };
-    document.getElementById('closeProfileBtn').onclick = () => profileModal.classList.remove('active');
+    document.getElementById('matchRankThemeBtn').onclick = () => {
+      STATE.currentTheme = 'rank' + getCurrentTier(STATE.xp).index; try { localStorage.setItem('ts_theme', STATE.currentTheme); } catch (er) {}
+      applyTheme(STATE.currentTheme); buildThemeSelect(); playAudioFeedback('BUY', false, false);
+    };
+    document.querySelectorAll('.fs-btn').forEach(b => b.onclick = () => {
+      STATE.fontScale = b.dataset.fs; try { localStorage.setItem('ts_font_scale', STATE.fontScale); } catch (er) {}
+      applyFontScale(); playAudioFeedback('MONITOR', false, false);
+    });
 
     const configModal = document.getElementById('configModal');
     document.getElementById('openConfigFromDrawerBtn').onclick = () => {
@@ -1334,7 +1400,7 @@
       STATE.currentTheme = 'rank0';
       try { localStorage.setItem('ts_theme', 'rank0'); } catch (e) {}
       applyTheme('rank0'); updatePills(); renderWelcome(); buildThemeSelect();
-      profileModal.classList.remove('active');
+      fillSettings();
       triggerAlert('XP reset. Back to Private (E-1). Go earn it.', false, true);
     };
 
@@ -1343,19 +1409,9 @@
       STATE.userLastName = document.getElementById('profileNameInput').value.trim() || 'Claypool';
       STATE.userRank = document.getElementById('profileRankInput').value.trim();
       localStorage.setItem('ts_rank', STATE.userRank);
-      STATE.userAvatar = document.getElementById('profileAvatarInput').value.trim() || '👤';
-      { const picked = document.getElementById('themeSelect').value; STATE.currentTheme = themeUnlocked(picked) ? picked : STATE.currentTheme; }
-      STATE.fontScale = document.getElementById('fontScaleSelect').value;
       localStorage.setItem('ts_last_name', STATE.userLastName);
-      localStorage.setItem('ts_avatar', STATE.userAvatar);
-      localStorage.setItem('ts_theme', STATE.currentTheme);
-      localStorage.setItem('ts_font_scale', STATE.fontScale);
-      applyTheme(STATE.currentTheme);
-      document.body.style.fontSize = STATE.fontScale;
       renderWelcome();
-      applyAvatar();
-      profileModal.classList.remove('active');
-      triggerAlert('Specialist profile updated successfully.', false, true);
+      triggerAlert('Profile saved.', false, true);
     };
 
     document.getElementById('clearEvalBtn').onclick = () => {
@@ -1668,7 +1724,7 @@
         btn.classList.add('active');
         STATE.activeTab = btn.dataset.target.replace('tab-', '');
         document.getElementById(btn.dataset.target).classList.add('active');
-        if (STATE.activeTab === 'stores') initStoresList();
+        if (STATE.activeTab === 'me') fillSettings();
       });
     });
 
@@ -2192,86 +2248,6 @@
       } catch (err) { alert('Delete failed: ' + err.message); }
     };
 
-    // ================= STORES =================
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-      const R = 3958.8;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-      return (R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)))).toFixed(1);
-    }
-
-    function initStoresList() {
-      if (!navigator.geolocation) { renderStoreCards(STORES); return; }
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const enriched = STORES.map(s => ({ ...s, dist: parseFloat(calculateDistance(pos.coords.latitude, pos.coords.longitude, s.lat, s.lon)) })).sort((a, b) => a.dist - b.dist);
-          renderStoreCards(enriched);
-        },
-        () => renderStoreCards(STORES),
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
-      );
-    }
-
-    function renderStoreCards(storeList) {
-      const grid = document.getElementById('storeRadarGrid');
-      grid.innerHTML = '';
-      storeList.forEach(s => {
-        const card = document.createElement('div');
-        card.className = 'store-card-modern';
-        card.innerHTML = `
-          <div class="store-card-top">
-            <div>
-              <div class="store-name-title">${esc(s.name)}</div>
-              <div class="store-address-text">${esc(s.address)}</div>
-            </div>
-            <span class="store-dist-badge">${s.dist ?? '--'} mi</span>
-          </div>
-          <div class="nav-actions-grid">
-            <button class="nav-app-btn" onclick="openMapsRoute('${encodeURIComponent(s.address)}')">Google Maps</button>
-            <button class="nav-app-btn" onclick="openStoreReviews(decodeURIComponent('${encodeURIComponent(s.name)}'))">⭐ Reviews</button>
-          </div>`;
-        grid.appendChild(card);
-      });
-    }
-
-    window.openMapsRoute = (destAddress) => {
-      openExternalUrl(`https://www.google.com/maps/dir/?api=1&destination=${destAddress}`);
-    };
-
-    window.openStoreReviews = (storeName) => {
-      playAudioFeedback('MONITOR', false, false);
-      activeReviewStoreName = storeName;
-      document.getElementById('reviewStoreTitle').textContent = storeName + ' • Intel';
-      let saved;
-      try { saved = JSON.parse(localStorage.getItem('ts_reviews_' + storeName) || 'null'); } catch (e) { saved = null; }
-      if (!saved || !saved.length) saved = [{ author: 'Specialist Claypool', rating: 5, text: 'Great selection of vintage audio gear in the back.' }];
-
-      const container = document.getElementById('storeReviewsContainer');
-      container.innerHTML = '';
-      saved.forEach(r => {
-        const div = document.createElement('div');
-        div.style.cssText = 'background:var(--surface); padding:8px 10px; border-radius:8px; border:1px solid var(--border); font-size:.8rem;';
-        div.innerHTML = `<div style="font-weight:700; color:var(--accent);">⭐ ${esc(r.rating)}/5 • ${esc(r.author)}</div><div style="color:var(--text-muted); margin-top:2px;">${esc(r.text)}</div>`;
-        container.appendChild(div);
-      });
-      document.getElementById('storeReviewModal').classList.add('active');
-    };
-
-    document.getElementById('closeReviewModalBtn').onclick = () => document.getElementById('storeReviewModal').classList.remove('active');
-    document.getElementById('submitReviewBtn').onclick = () => {
-      if (!activeReviewStoreName) return;
-      const rating = document.getElementById('newReviewRating').value;
-      const text = document.getElementById('newReviewText').value.trim();
-      if (!text) return;
-      const key = 'ts_reviews_' + activeReviewStoreName;
-      let existing;
-      try { existing = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { existing = []; }
-      existing.unshift({ author: (STATE.userRank ? STATE.userRank + ' ' : '') + STATE.userLastName, rating: parseInt(rating, 10), text });
-      localStorage.setItem(key, JSON.stringify(existing));
-      document.getElementById('newReviewText').value = '';
-      openStoreReviews(activeReviewStoreName);
-    };
 
     // ================= SHARE =================
     document.getElementById('shareEvaluationBtn').onclick = async () => {
@@ -2300,7 +2276,6 @@
       }, 'image/jpeg', 0.90);
     };
 
-    initStoresList();
   </script>
 </body>
 </html>
