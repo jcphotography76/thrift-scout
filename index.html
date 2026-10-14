@@ -2189,8 +2189,7 @@
       const strat = item.status === 'sold' ? '✅ Sold' : (inCollection ? '🔒 Keeping' : '🛒 Selling');
       const actions = inCollection
         ? `<button class="btn btn-accent" style="padding:6px 10px; font-size:.78rem; width:auto;" onclick="moveItem('${id}','selling')">MOVE TO SELL VAULT</button>`
-        : `<button class="btn btn-accent" style="padding:6px 10px; font-size:.78rem; width:auto;" onclick="quickSellItem('${id}')">SOLD</button>
-           <button class="btn btn-outline" style="padding:6px 10px; font-size:.78rem; width:auto;" onclick="moveItem('${id}','keeping')">🔒 KEEP</button>`;
+        : `<button class="btn btn-outline" style="padding:6px 10px; font-size:.78rem; width:auto;" onclick="moveItem('${id}','keeping')">🔒 KEEP</button>`;
       return `
           ${item.verified ? '<div class="verified-check" title="Evaluated & verified">✓</div>' : ''}
           <div class="vault-item${item.verified ? ' verified' : ''}" onclick="openVaultDetailById('${id}')">
@@ -2200,12 +2199,13 @@
               <div class="item-meta">Paid: $${cost.toFixed(2)} • Worth: $${resale.toFixed(2)} • ${strat}</div>
               <div class="item-actions" onclick="event.stopPropagation();">
                 ${actions}
-                <button class="btn btn-outline" style="padding:6px 10px; font-size:.78rem; width:auto; color:var(--coral);" onclick="deleteVaultItem('${id}')">DELETE</button>
+                <button class="btn btn-outline" style="padding:6px 10px; font-size:.78rem; width:auto; color:var(--coral);" onclick="armBtn(this,'YES, DELETE',()=>deleteVaultItem('${id}'))">DELETE</button>
               </div>
             </div>
             <div style="text-align:right;">
               <div style="color:var(--accent); font-weight:800; font-size:1rem;">${inCollection ? '$' + resale.toFixed(2) : '+$' + profit.toFixed(2)}</div>
               <div style="font-size:.68rem; color:var(--text-muted); margin-top:2px;">${inCollection ? 'EST. VALUE' : (item.status === 'sold' ? 'REALIZED' : 'EST. PROFIT')}</div>
+              ${(!inCollection && item.status !== 'sold') ? `<div onclick="event.stopPropagation();" style="margin-top:8px;"><button class="btn btn-outline" style="padding:4px 10px; font-size:.7rem; width:auto; color:var(--text-muted); font-weight:600;" onclick="armBtn(this,'YES, SOLD',()=>quickSellItem('${id}'))">Mark sold</button></div>` : ''}
             </div>
           </div>`;
     }
@@ -2265,6 +2265,14 @@
       document.getElementById('vaultDetailModal').classList.add('active');
     }
 
+    // two-tap confirm: first tap arms the button, second tap within 4 seconds does it
+    window.armBtn = (btn, yesLabel, fn) => {
+      if (btn.dataset.armed === '1') { clearTimeout(btn._t); btn.dataset.armed = '0'; fn(); return; }
+      const orig = btn.textContent, origStyle = btn.getAttribute('style');
+      btn.dataset.armed = '1'; btn.textContent = yesLabel;
+      btn.style.background = 'var(--coral)'; btn.style.color = '#fff'; btn.style.borderColor = 'var(--coral)'; btn.style.fontWeight = '800';
+      btn._t = setTimeout(() => { btn.dataset.armed = '0'; btn.textContent = orig; btn.setAttribute('style', origStyle); }, 4000);
+    };
     window.quickSellItem = async (id) => {
       const target = STATE.vaultItems.find(i => i.id === id);
       if (!target) return;
@@ -2280,7 +2288,6 @@
     };
 
     window.deleteVaultItem = async (id) => {
-      if (!confirm('Delete this item from the vault?')) return;
       try {
         await deleteDoc(doc(db, 'vault_inventory', id));
         playAudioFeedback('PASS', false, false);
